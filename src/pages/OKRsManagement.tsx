@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { l1Objectives, l2Objectives, users, workItems } from '../data/mockData';
 import { Objective, KeyResult, WorkItem, WorkItemType, SubKeyResult } from '../types';
+import { motion, AnimatePresence } from 'motion/react';
 import { Target, Plus, ChevronDown, ChevronRight, Briefcase, Users, Zap, Edit2, X, Link as LinkIcon, Filter, TrendingUp, Trash2, AlertTriangle, Calendar } from 'lucide-react';
 
 export default function OKRsManagement() {
@@ -200,30 +201,34 @@ function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWor
     <div className="bg-white rounded-[40px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden group">
       <div className="p-10">
         <div className="flex items-start justify-between mb-10">
-          <div className="flex gap-6">
-            <div className="w-16 h-16 rounded-3xl bg-primary/5 flex items-center justify-center text-primary border border-primary/10 group-hover:rotate-6 transition-transform duration-500">
+          <div className="flex gap-6 flex-1">
+            <div className="w-16 h-16 rounded-3xl bg-primary/5 flex items-center justify-center text-primary border border-primary/10 group-hover:rotate-6 transition-transform duration-500 flex-shrink-0">
               <span className="material-symbols-outlined text-4xl">ads_click</span>
             </div>
-            <div>
+            <div className="flex-1">
               <div className="flex items-center gap-4 mb-2">
                 <span className="bg-primary-fixed text-on-primary-fixed text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest border border-primary/10">
                   {objective.level} {objective.department || 'Corporate'}
                 </span>
                 {isEditingTitle ? (
-                  <input
-                    type="text"
-                    className="text-2xl font-black text-on-surface bg-slate-50 border-none focus:ring-2 focus:ring-primary/20 rounded-xl px-4 py-1 outline-none font-headline"
-                    value={objective.title}
-                    onChange={(e) => setObjective({ ...objective, title: e.target.value })}
-                    onBlur={() => setIsEditingTitle(false)}
-                    onKeyDown={(e) => e.key === 'Enter' && setIsEditingTitle(false)}
-                    autoFocus
-                  />
+                  <div className="flex items-center gap-3">
+                    <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-xl bg-primary text-white text-sm font-black shadow-sm">O</span>
+                    <input
+                      type="text"
+                      className="text-2xl font-black text-on-surface bg-slate-50 border-none focus:ring-2 focus:ring-primary/20 rounded-xl px-4 py-1 outline-none font-headline w-full"
+                      value={objective.title}
+                      onChange={(e) => setObjective({ ...objective, title: e.target.value })}
+                      onBlur={() => setIsEditingTitle(false)}
+                      onKeyDown={(e) => e.key === 'Enter' && setIsEditingTitle(false)}
+                      autoFocus
+                    />
+                  </div>
                 ) : (
                   <h3 
-                    className="text-2xl font-black text-on-surface cursor-pointer hover:text-primary transition-colors font-headline"
+                    className="flex items-center gap-3 text-2xl font-black text-on-surface cursor-pointer hover:text-primary transition-colors font-headline"
                     onClick={() => setIsEditingTitle(true)}
                   >
+                    <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-xl bg-primary text-white text-sm font-black shadow-sm">O</span>
                     {objective.title}
                   </h3>
                 )}
@@ -242,10 +247,11 @@ function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWor
         {/* Key Results List */}
         <div className="space-y-6">
           {objective.keyResults.length > 0 ? (
-            objective.keyResults.map(kr => (
+            objective.keyResults.map((kr, index) => (
               <KeyResultRow 
                 key={kr.id} 
                 kr={kr} 
+                index={index}
                 isL2={isL2} 
                 department={objective.department} 
                 workItems={workItems}
@@ -280,7 +286,7 @@ function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWor
   );
 }
 
-function KeyResultRow({ kr, isL2, department, workItems, onLinkWorkItem, onDelete }: { kr: KeyResult; isL2: boolean; department?: string; workItems: WorkItem[]; onLinkWorkItem: (krId: string, item: WorkItem) => void; onDelete: () => void; key?: string | number }) {
+function KeyResultRow({ kr, index, isL2, department, workItems, onLinkWorkItem, onDelete }: { kr: KeyResult; index: number; isL2: boolean; department?: string; workItems: WorkItem[]; onLinkWorkItem: (krId: string, item: WorkItem) => void; onDelete: () => void; key?: string | number }) {
   const [krData, setKrData] = useState(kr);
   const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -294,8 +300,11 @@ function KeyResultRow({ kr, isL2, department, workItems, onLinkWorkItem, onDelet
     <div className="flex flex-col gap-4 p-6 rounded-[32px] hover:bg-slate-50/50 transition-all duration-500 group border border-transparent hover:border-outline-variant/10">
       <div className="grid grid-cols-12 items-center gap-6">
         <div className="col-span-6">
-          <p className="text-sm font-black text-on-surface group-hover:text-primary transition-colors">{krData.title}</p>
-          <div className="flex items-center gap-4 mt-2">
+          <div className="flex items-center gap-3">
+            <span className="flex-shrink-0 flex items-center justify-center px-2 py-1 min-w-[32px] h-8 rounded-xl bg-secondary/10 text-secondary text-xs font-black shadow-sm border border-secondary/20">KR{index + 1}</span>
+            <p className="text-sm font-black text-on-surface group-hover:text-primary transition-colors">{krData.title}</p>
+          </div>
+          <div className="flex items-center gap-4 mt-2 ml-11">
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[8px] font-black text-slate-500 border border-outline-variant/10">
                 NQ
@@ -866,23 +875,30 @@ function AddObjectiveModal({ isOpen, onClose, onAdd, level }: { isOpen: boolean;
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-lg p-8 relative border border-outline-variant/20">
-        <button 
-          onClick={onClose}
-          className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
-        >
-          <span className="material-symbols-outlined">close</span>
-        </button>
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-200"
+      >
+        <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <h2 className="text-2xl font-black font-headline text-slate-800">
+            Add New {level} Objective
+          </h2>
+          <button 
+            onClick={onClose}
+            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded-full transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
         
-        <h3 className="text-xl font-bold text-on-surface mb-6">Add New {level} Objective</h3>
-        
-        <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto p-8 space-y-6">
           <div>
-            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Objective Title</label>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Objective Title</label>
             <input 
               type="text" 
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" 
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" 
               value={formData.title} 
               onChange={e => setFormData({...formData, title: e.target.value})} 
               placeholder="e.g., Achieve record revenue growth in Q3"
@@ -890,9 +906,9 @@ function AddObjectiveModal({ isOpen, onClose, onAdd, level }: { isOpen: boolean;
           </div>
           
           <div>
-            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Department</label>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Department</label>
             <select 
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
               value={formData.department}
               onChange={e => setFormData({...formData, department: e.target.value})}
             >
@@ -906,9 +922,9 @@ function AddObjectiveModal({ isOpen, onClose, onAdd, level }: { isOpen: boolean;
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Description</label>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Description</label>
             <textarea 
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all h-24 resize-none" 
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all h-32 resize-none" 
               value={formData.description} 
               onChange={e => setFormData({...formData, description: e.target.value})} 
               placeholder="Describe the desired outcome and impact..."
@@ -916,15 +932,15 @@ function AddObjectiveModal({ isOpen, onClose, onAdd, level }: { isOpen: boolean;
           </div>
         </div>
         
-        <div className="flex justify-end gap-3 mt-10">
+        <div className="px-8 py-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50">
           <button 
-            className="px-6 py-3 text-sm font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest rounded-xl transition-all" 
+            className="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200/50 rounded-xl transition-all" 
             onClick={onClose}
           >
             Cancel
           </button>
           <button 
-            className="px-6 py-3 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-xl transition-all shadow-lg shadow-primary/20" 
+            className="px-8 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20 transition-all" 
             onClick={() => {
               onAdd(formData);
               onClose();
@@ -933,7 +949,7 @@ function AddObjectiveModal({ isOpen, onClose, onAdd, level }: { isOpen: boolean;
             Create Objective
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -7,10 +7,13 @@ import { WorkItem } from '../../types';
 interface DraggableTaskCardProps {
   item: WorkItem;
   onUpdate?: (updatedItem: WorkItem) => void;
+  onDelete?: (id: string) => void;
+  onEdit?: (item: WorkItem) => void;
+  onViewDetails?: (item: WorkItem) => void;
   key?: string | number;
 }
 
-export default function DraggableTaskCard({ item, onUpdate }: DraggableTaskCardProps) {
+export default function DraggableTaskCard({ item, onUpdate, onDelete, onEdit, onViewDetails }: DraggableTaskCardProps) {
   const {
     attributes,
     listeners,
@@ -29,7 +32,13 @@ export default function DraggableTaskCard({ item, onUpdate }: DraggableTaskCardP
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <TaskCard item={item} onUpdate={onUpdate} />
+      <TaskCard 
+        item={item} 
+        onUpdate={onUpdate} 
+        onDelete={onDelete}
+        onEdit={onEdit}
+        onViewDetails={onViewDetails}
+      />
     </div>
   );
 }

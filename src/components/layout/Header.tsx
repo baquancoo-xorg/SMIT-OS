@@ -1,19 +1,24 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, Search, ChevronRight, User as UserIcon, Calendar, Tag } from 'lucide-react';
+import { Bell, Search, ChevronRight, User as UserIcon, Calendar, Tag, Settings, LogOut } from 'lucide-react';
 import { workItems, users } from '../../data/mockData';
 import { WorkItem } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 
-export default function Header() {
+export default function Header({ onViewChange }: { onViewChange?: (view: string) => void }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchResults, setSearchResults] = useState<WorkItem[]>([]);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsSearchFocused(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -36,19 +41,20 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed top-0 right-0 left-72 h-20 flex items-center justify-between px-8 z-50 bg-transparent">
-      <div className="flex-1 max-w-xl relative" ref={searchRef}>
-        <div className="relative group">
-          <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
-          <input 
-            className="w-full bg-slate-50 border border-outline-variant/10 rounded-2xl py-3 pl-14 pr-6 text-sm focus:ring-4 focus:ring-primary/10 focus:bg-white focus:border-primary/30 transition-all placeholder:text-slate-400 font-medium" 
-            placeholder="Search tasks, descriptions, or team members..." 
-            type="text"
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-            onFocus={() => setIsSearchFocused(true)}
-          />
-        </div>
+    <header className="fixed top-0 right-0 left-72 h-20 z-50 bg-transparent">
+      <div className="max-w-[1600px] mx-auto w-full h-full px-10 flex items-center justify-between">
+        <div className="flex-1 max-w-xl relative" ref={searchRef}>
+          <div className="relative group">
+            <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+            <input 
+              className="w-full bg-slate-50 border border-outline-variant/10 rounded-2xl py-3 pl-14 pr-6 text-sm focus:ring-4 focus:ring-primary/10 focus:bg-white focus:border-primary/30 transition-all placeholder:text-slate-400 font-medium" 
+              placeholder="Search tasks, descriptions, or team members..." 
+              type="text"
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+            />
+          </div>
 
         {/* Search Results Dropdown */}
         <AnimatePresence>
@@ -110,30 +116,66 @@ export default function Header() {
         </AnimatePresence>
       </div>
       
-      <div className="flex items-center gap-6 ml-8">
-        <button className="relative w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-xl transition-all active:scale-95 border border-transparent hover:border-outline-variant/10">
-          <span className="material-symbols-outlined">notifications</span>
-          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-error rounded-full ring-2 ring-white"></span>
-        </button>
-        <button className="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-xl transition-all active:scale-95 border border-transparent hover:border-outline-variant/10">
-          <span className="material-symbols-outlined">chat_bubble</span>
-        </button>
-        
-        <div className="h-8 w-px bg-slate-100"></div>
-        
-        <div className="flex items-center gap-4 pl-2">
-          <div className="text-right hidden sm:block">
-            <p className="text-sm font-black text-on-surface leading-none">Hoàng Nguyễn</p>
-            <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">Agency PM</p>
-          </div>
-          <div className="relative">
-            <img 
-              src="https://picsum.photos/seed/pm/100/100" 
-              alt="User"
-              className="w-12 h-12 rounded-2xl object-cover ring-4 ring-white shadow-xl"
-              referrerPolicy="no-referrer"
-            />
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-lg"></div>
+        <div className="flex items-center gap-6 ml-8">
+          <button className="relative w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-xl transition-all active:scale-95 border border-transparent hover:border-outline-variant/10">
+            <span className="material-symbols-outlined">notifications</span>
+            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-error rounded-full ring-2 ring-white"></span>
+          </button>
+          <button className="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-xl transition-all active:scale-95 border border-transparent hover:border-outline-variant/10">
+            <span className="material-symbols-outlined">chat_bubble</span>
+          </button>
+          <button 
+            onClick={() => onViewChange?.('settings')}
+            className="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-xl transition-all active:scale-95 border border-transparent hover:border-outline-variant/10"
+          >
+            <Settings size={20} />
+          </button>
+          
+          <div className="h-8 w-px bg-slate-100"></div>
+          
+          <div className="flex items-center gap-4 pl-2 relative" ref={profileRef}>
+            <div className="text-right hidden sm:block">
+              <p className="text-sm font-black text-on-surface leading-none">Hoàng Nguyễn</p>
+              <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">Agency PM</p>
+            </div>
+            <div className="relative cursor-pointer" onClick={() => setIsProfileOpen(!isProfileOpen)}>
+              <img 
+                src="https://picsum.photos/seed/pm/100/100" 
+                alt="User"
+                className="w-12 h-12 rounded-2xl object-cover ring-4 ring-white shadow-xl hover:ring-primary/20 transition-all"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-lg"></div>
+            </div>
+
+            <AnimatePresence>
+              {isProfileOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute top-full right-0 mt-4 w-48 bg-white rounded-2xl border border-slate-100 shadow-2xl shadow-slate-200/40 overflow-hidden flex flex-col z-50"
+                >
+                  <button 
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      onViewChange?.('profile');
+                    }}
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors text-left"
+                  >
+                    <UserIcon size={16} />
+                    Edit Profile
+                  </button>
+                  <div className="h-px bg-slate-100"></div>
+                  <button 
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-error hover:bg-error/5 transition-colors text-left"
+                  >
+                    <LogOut size={16} />
+                    Logout
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>

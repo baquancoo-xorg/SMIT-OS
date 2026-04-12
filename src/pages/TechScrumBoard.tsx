@@ -20,6 +20,8 @@ import {
 } from '@dnd-kit/sortable';
 import TaskCard from '../components/board/TaskCard';
 import TaskTableView from '../components/board/TaskTableView';
+import TaskModal from '../components/board/TaskModal';
+import TaskDetailsModal from '../components/board/TaskDetailsModal';
 import { WorkItem } from '../types';
 import { LayoutGrid, List } from 'lucide-react';
 
@@ -27,6 +29,10 @@ const COLUMNS = ['To Do', 'In Progress', 'Code Review', 'Done'];
 
 export default function TechScrumBoard() {
   const [view, setView] = useState<'board' | 'table'>('board');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<WorkItem | null>(null);
+  const [viewingTask, setViewingTask] = useState<WorkItem | null>(null);
   const [items, setItems] = useState<WorkItem[]>(
     initialWorkItems.filter(item => ['Epic', 'UserStory', 'TechTask'].includes(item.type))
   );
@@ -107,6 +113,33 @@ export default function TechScrumBoard() {
     setItems(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
   };
 
+  const handleCreateTask = (newTask: WorkItem) => {
+    if (editingTask) {
+      handleUpdateTask(newTask);
+    } else {
+      setItems(prev => [newTask, ...prev]);
+    }
+    setEditingTask(null);
+  };
+
+  const handleDeleteTask = (id: string) => {
+    setItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  const handleBulkDelete = (ids: string[]) => {
+    setItems(prev => prev.filter(item => !ids.includes(item.id)));
+  };
+
+  const handleEditTask = (item: WorkItem) => {
+    setEditingTask(item);
+    setIsModalOpen(true);
+  };
+
+  const handleViewDetails = (item: WorkItem) => {
+    setViewingTask(item);
+    setIsDetailsModalOpen(true);
+  };
+
   return (
     <div className="h-full flex flex-col p-10 space-y-8 max-w-[1600px] mx-auto w-full">
       {/* Task Workspace Header */}
@@ -137,7 +170,10 @@ export default function TechScrumBoard() {
               Table
             </button>
           </div>
-          <button className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all"
+          >
             <span className="material-symbols-outlined text-[20px]">add</span>
             New Task
           </button>
@@ -177,7 +213,14 @@ export default function TechScrumBoard() {
 
       {view === 'table' ? (
         <div className="flex-1 overflow-y-auto pb-8">
-          <TaskTableView items={items} onUpdate={handleUpdateTask} />
+          <TaskTableView 
+            items={items} 
+            onUpdate={handleUpdateTask} 
+            onDelete={handleDeleteTask}
+            onBulkDelete={handleBulkDelete}
+            onEdit={handleEditTask}
+            onViewDetails={handleViewDetails}
+          />
         </div>
       ) : (
         <DndContext 
@@ -215,7 +258,14 @@ export default function TechScrumBoard() {
                 >
                   <div className="flex-1 p-3 space-y-4 min-h-[200px]">
                     {columnItems.map(item => (
-                      <DraggableTaskCard key={item.id} item={item} onUpdate={handleUpdateTask} />
+                      <DraggableTaskCard 
+                        key={item.id} 
+                        item={item} 
+                        onUpdate={handleUpdateTask} 
+                        onDelete={handleDeleteTask}
+                        onEdit={handleEditTask}
+                        onViewDetails={handleViewDetails}
+                      />
                     ))}
                     {columnItems.length === 0 && (
                       <div className="h-32 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-400 gap-2">
@@ -243,6 +293,21 @@ export default function TechScrumBoard() {
         </DragOverlay>
       </DndContext>
       )}
+
+      <TaskModal 
+        isOpen={isModalOpen}
+        onClose={() => { setIsModalOpen(false); setEditingTask(null); }}
+        onSave={handleCreateTask}
+        defaultType="TechTask"
+        defaultStatus="To Do"
+        initialData={editingTask}
+      />
+
+      <TaskDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => { setIsDetailsModalOpen(false); setViewingTask(null); }}
+        task={viewingTask}
+      />
     </div>
   );
 }

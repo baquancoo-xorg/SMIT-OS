@@ -14,7 +14,7 @@ export default function AppLayout({ children, currentView, onViewChange }: AppLa
     <div className="flex h-screen bg-surface overflow-hidden font-sans text-on-surface">
       <Sidebar currentView={currentView} onViewChange={onViewChange} />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+        <Header onViewChange={onViewChange} />
         <main className="ml-72 pt-16 flex-1 overflow-y-auto">
           <div className="p-8 min-h-full">
             {children}

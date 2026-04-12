@@ -20,6 +20,8 @@ import {
 } from '@dnd-kit/sortable';
 import TaskCard from '../components/board/TaskCard';
 import TaskTableView from '../components/board/TaskTableView';
+import TaskModal from '../components/board/TaskModal';
+import TaskDetailsModal from '../components/board/TaskDetailsModal';
 import { WorkItem } from '../types';
 import { LayoutGrid, List } from 'lucide-react';
 
@@ -27,6 +29,10 @@ const COLUMNS = ['Idea', 'Doing', 'Review', 'Done'];
 
 export default function MarketingKanban() {
   const [view, setView] = useState<'board' | 'table'>('board');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<WorkItem | null>(null);
+  const [viewingTask, setViewingTask] = useState<WorkItem | null>(null);
   const [items, setItems] = useState<WorkItem[]>(
     initialWorkItems.filter(item => ['Campaign', 'MktTask'].includes(item.type))
   );
@@ -107,6 +113,33 @@ export default function MarketingKanban() {
     setItems(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
   };
 
+  const handleCreateTask = (newTask: WorkItem) => {
+    if (editingTask) {
+      handleUpdateTask(newTask);
+    } else {
+      setItems(prev => [newTask, ...prev]);
+    }
+    setEditingTask(null);
+  };
+
+  const handleDeleteTask = (id: string) => {
+    setItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  const handleBulkDelete = (ids: string[]) => {
+    setItems(prev => prev.filter(item => !ids.includes(item.id)));
+  };
+
+  const handleEditTask = (item: WorkItem) => {
+    setEditingTask(item);
+    setIsModalOpen(true);
+  };
+
+  const handleViewDetails = (item: WorkItem) => {
+    setViewingTask(item);
+    setIsDetailsModalOpen(true);
+  };
+
   return (
     <div className="h-full flex flex-col p-10 space-y-8 max-w-[1600px] mx-auto w-full">
       {/* Marketing Workspace Header */}
@@ -137,16 +170,57 @@ export default function MarketingKanban() {
               Table
             </button>
           </div>
-          <button className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all"
+          >
             <span className="material-symbols-outlined text-[20px]">add</span>
-            New Campaign
+            New Task
           </button>
+        </div>
+      </div>
+
+      {/* Active Sprint Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-2xl border border-outline-variant/10 shadow-sm flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+            <span className="material-symbols-outlined">campaign</span>
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Campaigns</p>
+            <h4 className="text-xl font-black font-headline">12</h4>
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-2xl border border-outline-variant/10 shadow-sm flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-tertiary/10 flex items-center justify-center text-tertiary">
+            <span className="material-symbols-outlined">group_add</span>
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Leads</p>
+            <h4 className="text-xl font-black font-headline">2,450</h4>
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-2xl border border-outline-variant/10 shadow-sm flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+            <span className="material-symbols-outlined">trending_up</span>
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Conversion</p>
+            <h4 className="text-xl font-black font-headline">4.8%</h4>
+          </div>
         </div>
       </div>
 
       {view === 'table' ? (
         <div className="flex-1 overflow-y-auto pb-8">
-          <TaskTableView items={items} onUpdate={handleUpdateTask} />
+          <TaskTableView 
+            items={items} 
+            onUpdate={handleUpdateTask} 
+            onDelete={handleDeleteTask}
+            onBulkDelete={handleBulkDelete}
+            onEdit={handleEditTask}
+            onViewDetails={handleViewDetails}
+          />
         </div>
       ) : (
         <DndContext 
@@ -184,7 +258,14 @@ export default function MarketingKanban() {
                 >
                   <div className="flex-1 p-3 space-y-4 min-h-[200px]">
                     {columnItems.map(item => (
-                      <DraggableTaskCard key={item.id} item={item} onUpdate={handleUpdateTask} />
+                      <DraggableTaskCard 
+                        key={item.id} 
+                        item={item} 
+                        onUpdate={handleUpdateTask} 
+                        onDelete={handleDeleteTask}
+                        onEdit={handleEditTask}
+                        onViewDetails={handleViewDetails}
+                      />
                     ))}
                     {columnItems.length === 0 && (
                       <div className="h-32 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-400 gap-2">
@@ -212,6 +293,21 @@ export default function MarketingKanban() {
         </DragOverlay>
       </DndContext>
       )}
+
+      <TaskModal 
+        isOpen={isModalOpen}
+        onClose={() => { setIsModalOpen(false); setEditingTask(null); }}
+        onSave={handleCreateTask}
+        defaultType="MktTask"
+        defaultStatus="Idea"
+        initialData={editingTask}
+      />
+
+      <TaskDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => { setIsDetailsModalOpen(false); setViewingTask(null); }}
+        task={viewingTask}
+      />
     </div>
   );
 }

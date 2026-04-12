@@ -12,8 +12,11 @@ import MarketingKanban from './pages/MarketingKanban';
 import MediaKanban from './pages/MediaKanban';
 import SaleKanban from './pages/SaleKanban';
 import SaturdaySync from './pages/SaturdaySync';
+import Settings from './pages/Settings';
+import Profile from './pages/Profile';
+import SprintManagement from './pages/SprintManagement';
 
-export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'mkt' | 'media' | 'sale' | 'sync';
+export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'mkt' | 'media' | 'sale' | 'sync' | 'settings' | 'profile' | 'sprints';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -27,6 +30,9 @@ export default function App() {
       {currentView === 'media' && <MediaKanban />}
       {currentView === 'sale' && <SaleKanban />}
       {currentView === 'sync' && <SaturdaySync />}
+      {currentView === 'settings' && <Settings />}
+      {currentView === 'profile' && <Profile />}
+      {currentView === 'sprints' && <SprintManagement />}
     </AppLayout>
   );
 }

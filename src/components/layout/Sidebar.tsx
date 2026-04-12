@@ -45,6 +45,12 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
             onClick={() => onViewChange('tech')} 
           />
           <NavItem 
+            icon="view_timeline" 
+            label="Sprints" 
+            active={currentView === 'sprints'} 
+            onClick={() => onViewChange('sprints')} 
+          />
+          <NavItem 
             icon="layers" 
             label="Marketing" 
             active={currentView === 'mkt'} 
@@ -79,10 +85,6 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
         <div className="flex items-center gap-4 px-4 py-2 text-slate-500 hover:text-primary transition-transform duration-200 ease-in-out hover:scale-95 cursor-pointer">
           <span className="material-symbols-outlined">help</span>
           <span className="font-medium text-sm">Help</span>
-        </div>
-        <div className="flex items-center gap-4 px-4 py-2 text-slate-500 hover:text-error transition-transform duration-200 ease-in-out hover:scale-95 cursor-pointer">
-          <span className="material-symbols-outlined">logout</span>
-          <span className="font-medium text-sm">Logout</span>
         </div>
       </div>
     </aside>

@@ -104,13 +104,13 @@ export default function WeeklyCheckinModal({ isOpen, onClose, currentUser }: Wee
         className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-200"
       >
         {/* Header */}
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
               <Calendar size={24} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Weekly Check-in</h2>
+              <h2 className="text-2xl font-black font-headline text-slate-800">Weekly Check-in</h2>
               <p className="text-sm text-slate-500 font-medium">Tuần {weekNumber} - Tháng {month}/{year}</p>
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, currentUser }: Wee
                 ))}
               </div>
             )}
-            <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-400">
+            <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded-full transition-colors">
               <X size={20} />
             </button>
           </div>
@@ -137,20 +137,20 @@ export default function WeeklyCheckinModal({ isOpen, onClose, currentUser }: Wee
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-8 space-y-10">
           {/* Confidence Score */}
-          <section className="bg-primary/5 p-6 rounded-2xl border border-primary/10 flex items-center justify-between">
+          <section className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                 <TrendingUp size={20} />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900">Confidence Score</h3>
-                <p className="text-xs text-slate-500">Mức độ tự tin hoàn thành mục tiêu Quý</p>
+                <h3 className="font-bold text-slate-800">Confidence Score</h3>
+                <p className="text-xs text-slate-500 font-medium">Mức độ tự tin hoàn thành mục tiêu Quý</p>
               </div>
             </div>
             <select 
               value={confidenceScore}
               onChange={(e) => setConfidenceScore(Number(e.target.value))}
-              className="bg-white border border-slate-200 rounded-xl px-4 py-2 font-bold text-primary focus:ring-2 focus:ring-primary/20 outline-none"
+              className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
             >
               <option value="">Chọn mức độ (1-10)</option>
               {[1,2,3,4,5,6,7,8,9,10].map(n => (
@@ -163,14 +163,14 @@ export default function WeeklyCheckinModal({ isOpen, onClose, currentUser }: Wee
           <section className="space-y-6">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
               <Target className="text-primary" size={20} />
-              <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">Tiến độ Key Results</h3>
+              <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">Tiến độ Key Results</h3>
             </div>
             <div className="space-y-8">
               {krReviews.map((review, idx) => (
                 <div key={review.kr_id} className="bg-slate-50 rounded-2xl p-6 border border-slate-200 space-y-6">
                   <div className="flex items-start justify-between">
                     <div className="max-w-2xl">
-                      <h4 className="font-bold text-slate-900 leading-tight mb-2">{review.title}</h4>
+                      <h4 className="font-bold text-slate-800 leading-tight mb-2">{review.title}</h4>
                       <div className="flex items-center gap-4">
                         <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden w-64">
                           <div 
@@ -199,14 +199,14 @@ export default function WeeklyCheckinModal({ isOpen, onClose, currentUser }: Wee
                           newReviews[idx].progress_added = val;
                           setKrReviews(newReviews);
                         }}
-                        className="w-20 bg-white border border-slate-200 rounded-lg px-2 py-1 text-center font-bold text-primary"
+                        className="w-20 bg-white border border-slate-200 rounded-xl px-3 py-2 text-center text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase">Đã làm gì tuần qua?</label>
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Đã làm gì tuần qua?</label>
                       <textarea 
                         value={review.what_we_did}
                         onChange={(e) => {
@@ -215,11 +215,11 @@ export default function WeeklyCheckinModal({ isOpen, onClose, currentUser }: Wee
                           setKrReviews(newReviews);
                         }}
                         placeholder="Liệt kê các task/epic đã hoàn thành..."
-                        className="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm min-h-[100px] focus:ring-2 focus:ring-primary/20 outline-none"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase">Đánh giá mức độ ảnh hưởng</label>
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Đánh giá mức độ ảnh hưởng</label>
                       <textarea 
                         value={review.impact_assessment}
                         onChange={(e) => {
@@ -228,7 +228,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, currentUser }: Wee
                           setKrReviews(newReviews);
                         }}
                         placeholder="Phân tích xem việc đã làm giúp ích gì cho KR..."
-                        className="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm min-h-[100px] focus:ring-2 focus:ring-primary/20 outline-none"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
                       />
                     </div>
                   </div>
@@ -242,7 +242,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, currentUser }: Wee
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="text-primary" size={20} />
-                <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">Cam kết tuần tới</h3>
+                <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">Cam kết tuần tới</h3>
               </div>
               <button 
                 onClick={addPlanRow}
@@ -257,13 +257,13 @@ export default function WeeklyCheckinModal({ isOpen, onClose, currentUser }: Wee
               <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
-                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase">Hạng mục (Item)</th>
-                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase">Cam kết đầu ra (Output)</th>
-                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase w-48">Deadline</th>
-                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase w-16"></th>
+                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hạng mục (Item)</th>
+                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cam kết đầu ra (Output)</th>
+                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-48">Deadline</th>
+                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-16"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 bg-white">
                   {nextWeekPlans.map((plan, idx) => (
                     <tr key={plan.id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-4 py-3">
@@ -308,7 +308,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, currentUser }: Wee
                         {nextWeekPlans.length > 1 && (
                           <button 
                             onClick={() => removePlanRow(plan.id)}
-                            className="text-slate-300 hover:text-rose-500 transition-colors"
+                            className="text-slate-400 hover:text-rose-500 hover:bg-rose-50 p-1.5 rounded-lg transition-colors"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -325,30 +325,30 @@ export default function WeeklyCheckinModal({ isOpen, onClose, currentUser }: Wee
           <section className="space-y-4">
             <div className="flex items-center gap-2">
               <AlertCircle className="text-rose-500" size={20} />
-              <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">Rào cản & Yêu cầu hỗ trợ</h3>
+              <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">Rào cản & Yêu cầu hỗ trợ</h3>
             </div>
             <div className="bg-rose-50 border border-rose-100 rounded-2xl p-6">
               <textarea 
                 value={blockers}
                 onChange={(e) => setBlockers(e.target.value)}
                 placeholder="Nêu rõ các khó khăn đang gặp phải (nếu có)..."
-                className="w-full bg-white border border-rose-200 rounded-xl p-4 text-sm min-h-[120px] focus:ring-2 focus:ring-rose-200 outline-none text-rose-900 placeholder:text-rose-300"
+                className="w-full px-4 py-3 bg-white border border-rose-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-300 transition-all min-h-[120px] resize-none text-rose-900 placeholder:text-rose-300"
               />
             </div>
           </section>
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50">
+        <div className="px-8 py-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50">
           <button 
             onClick={() => handleSubmit('DRAFT')}
-            className="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200 transition-all"
+            className="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200/50 rounded-xl transition-all"
           >
             Lưu nháp
           </button>
           <button 
             onClick={() => handleSubmit('SUBMITTED')}
-            className="px-8 py-2.5 rounded-xl text-sm font-bold text-white bg-primary shadow-lg shadow-primary/20 hover:opacity-90 transition-all"
+            className="px-8 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20 transition-all"
           >
             Gửi báo cáo
           </button>

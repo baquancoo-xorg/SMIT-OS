@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { WorkItem, Priority } from '../../types';
 import { users } from '../../data/mockData';
 import { 
@@ -7,15 +7,25 @@ import {
   CheckCircle2, 
   MoreHorizontal,
   User as UserIcon,
-  Calendar
+  Calendar,
+  Trash2,
+  Edit2,
+  Eye
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface TaskTableViewProps {
   items: WorkItem[];
   onUpdate?: (updatedItem: WorkItem) => void;
+  onDelete?: (id: string) => void;
+  onBulkDelete?: (ids: string[]) => void;
+  onEdit?: (item: WorkItem) => void;
+  onViewDetails?: (item: WorkItem) => void;
 }
 
-export default function TaskTableView({ items, onUpdate }: TaskTableViewProps) {
+export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete, onEdit, onViewDetails }: TaskTableViewProps) {
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const priorityColors: Record<Priority, string> = {
     Low: 'bg-blue-50 text-blue-600',
     Medium: 'bg-amber-50 text-amber-600',
@@ -39,13 +49,74 @@ export default function TaskTableView({ items, onUpdate }: TaskTableViewProps) {
     'Negotiation': 'bg-amber-50 text-amber-600',
   };
 
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedIds(new Set(items.map(i => i.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  const handleSelectOne = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const handleBulkDelete = () => {
+    if (onBulkDelete) {
+      onBulkDelete(Array.from(selectedIds));
+      setSelectedIds(new Set());
+    }
+  };
+
   return (
-    <div className="bg-white rounded-[32px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden">
+    <div className="bg-white rounded-[32px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden relative">
+      <AnimatePresence>
+        {selectedIds.size > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-0 left-0 right-0 bg-primary/5 border-b border-primary/10 px-8 py-4 flex items-center justify-between z-10"
+          >
+            <span className="text-sm font-bold text-primary">{selectedIds.size} tasks selected</span>
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => setSelectedIds(new Set())}
+                className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleBulkDelete}
+                className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-error hover:bg-error/90 rounded-xl transition-colors shadow-lg shadow-error/20"
+              >
+                <Trash2 size={14} />
+                Delete Selected
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50/50 border-b border-outline-variant/10">
-              <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Task Details</th>
+              <th className="px-8 py-6 w-12">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20"
+                  checked={selectedIds.size === items.length && items.length > 0}
+                  onChange={handleSelectAll}
+                />
+              </th>
+              <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Task Details</th>
               <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Assignee</th>
               <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Status</th>
               <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Priority</th>
@@ -60,12 +131,26 @@ export default function TaskTableView({ items, onUpdate }: TaskTableViewProps) {
               const totalSubtasks = item.subtasks?.length || 0;
               const completedSubtasks = item.subtasks?.filter(st => st.completed).length || 0;
               const progress = totalSubtasks > 0 ? Math.round((completedSubtasks / totalSubtasks) * 100) : 0;
+              const isSelected = selectedIds.has(item.id);
 
               return (
-                <tr key={item.id} className="hover:bg-primary/[0.02] transition-colors group">
+                <tr key={item.id} className={`hover:bg-primary/[0.02] transition-colors group ${isSelected ? 'bg-primary/[0.02]' : ''}`}>
                   <td className="px-8 py-5">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20"
+                      checked={isSelected}
+                      onChange={() => handleSelectOne(item.id)}
+                    />
+                  </td>
+                  <td className="px-4 py-5">
                     <div className="flex flex-col">
-                      <span className="text-sm font-black text-on-surface group-hover:text-primary transition-colors">{item.title}</span>
+                      <span 
+                        className="text-sm font-black text-on-surface group-hover:text-primary transition-colors cursor-pointer"
+                        onClick={() => onViewDetails?.(item)}
+                      >
+                        {item.title}
+                      </span>
                       <span className="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-widest">{item.type}</span>
                     </div>
                   </td>
@@ -127,10 +212,43 @@ export default function TaskTableView({ items, onUpdate }: TaskTableViewProps) {
                       <span className="text-[10px] font-black text-on-surface-variant w-8">{progress}%</span>
                     </div>
                   </td>
-                  <td className="px-8 py-5 text-right">
-                    <button className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all">
+                  <td className="px-8 py-5 text-right relative">
+                    <button 
+                      onClick={() => setOpenMenuId(openMenuId === item.id ? null : item.id)}
+                      className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+                    >
                       <span className="material-symbols-outlined text-[20px]">more_horiz</span>
                     </button>
+                    <AnimatePresence>
+                      {openMenuId === item.id && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          className="absolute right-8 top-12 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 z-20 overflow-hidden"
+                        >
+                          <button 
+                            onClick={() => { onViewDetails?.(item); setOpenMenuId(null); }}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors text-left"
+                          >
+                            <Eye size={16} /> View Details
+                          </button>
+                          <button 
+                            onClick={() => { onEdit?.(item); setOpenMenuId(null); }}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors text-left"
+                          >
+                            <Edit2 size={16} /> Edit Task
+                          </button>
+                          <div className="h-px bg-slate-100"></div>
+                          <button 
+                            onClick={() => { onDelete?.(item.id); setOpenMenuId(null); }}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-error hover:bg-error/5 transition-colors text-left"
+                          >
+                            <Trash2 size={16} /> Delete Task
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </td>
                 </tr>
               );

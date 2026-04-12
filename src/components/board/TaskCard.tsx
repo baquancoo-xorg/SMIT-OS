@@ -1,11 +1,21 @@
 import { useState, ChangeEvent, MouseEvent } from 'react';
 import { WorkItem, Priority, KeyResult } from '../../types';
 import { users, l1Objectives, l2Objectives } from '../../data/mockData';
-import { Clock, CheckCircle2, ChevronDown, ChevronUp, AlignLeft, ListTodo, CheckSquare, Square, Timer, AlertCircle, Link2, Target } from 'lucide-react';
+import { Clock, CheckCircle2, ChevronDown, ChevronUp, AlignLeft, ListTodo, CheckSquare, Square, Timer, AlertCircle, Link2, Target, MoreHorizontal, Edit2, Trash2, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-export default function TaskCard({ item, onUpdate }: { item: WorkItem; onUpdate?: (updatedItem: WorkItem) => void; key?: string | number }) {
+interface TaskCardProps {
+  item: WorkItem;
+  onUpdate?: (updatedItem: WorkItem) => void;
+  onDelete?: (id: string) => void;
+  onEdit?: (item: WorkItem) => void;
+  onViewDetails?: (item: WorkItem) => void;
+  key?: string | number;
+}
+
+export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetails }: TaskCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const assignee = users.find(u => u.id === item.assigneeId);
   
   // Find linked Key Result
@@ -87,23 +97,63 @@ export default function TaskCard({ item, onUpdate }: { item: WorkItem; onUpdate?
             </span>
           )}
         </div>
-        <motion.button 
-          onClick={handleMarkAsDone}
-          whileHover={{ scale: 1.1, backgroundColor: '#f0fdf4' }}
-          whileTap={{ scale: 0.9 }}
-          className="w-10 h-10 flex items-center justify-center bg-slate-50 hover:bg-emerald-50 text-slate-300 hover:text-emerald-500 rounded-xl transition-all border border-outline-variant/10 shadow-sm"
-        >
-          <motion.span 
-            initial={false}
-            animate={{ 
-              scale: item.status === 'Done' || item.status === 'Won' ? [1, 1.2, 1] : 1,
-              color: item.status === 'Done' || item.status === 'Won' ? '#10b981' : '#cbd5e1'
-            }}
-            className="material-symbols-outlined text-[24px]"
+        <div className="flex items-center gap-2 relative">
+          <motion.button 
+            onClick={handleMarkAsDone}
+            whileHover={{ scale: 1.1, backgroundColor: '#f0fdf4' }}
+            whileTap={{ scale: 0.9 }}
+            className="w-10 h-10 flex items-center justify-center bg-slate-50 hover:bg-emerald-50 text-slate-300 hover:text-emerald-500 rounded-xl transition-all border border-outline-variant/10 shadow-sm"
           >
-            check_circle
-          </motion.span>
-        </motion.button>
+            <motion.span 
+              initial={false}
+              animate={{ 
+                scale: item.status === 'Done' || item.status === 'Won' ? [1, 1.2, 1] : 1,
+                color: item.status === 'Done' || item.status === 'Won' ? '#10b981' : '#cbd5e1'
+              }}
+              className="material-symbols-outlined text-[24px]"
+            >
+              check_circle
+            </motion.span>
+          </motion.button>
+          
+          <button 
+            onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }}
+            className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+          >
+            <MoreHorizontal size={20} />
+          </button>
+
+          <AnimatePresence>
+            {isMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="absolute right-0 top-12 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 z-20 overflow-hidden"
+              >
+                <button 
+                  onClick={(e) => { e.stopPropagation(); onViewDetails?.(item); setIsMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors text-left"
+                >
+                  <Eye size={16} /> View Details
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); onEdit?.(item); setIsMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors text-left"
+                >
+                  <Edit2 size={16} /> Edit Task
+                </button>
+                <div className="h-px bg-slate-100"></div>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); onDelete?.(item.id); setIsMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-error hover:bg-error/5 transition-colors text-left"
+                >
+                  <Trash2 size={16} /> Delete Task
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
       
       <div className="space-y-5">
