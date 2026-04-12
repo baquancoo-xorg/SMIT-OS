@@ -3,68 +3,76 @@ export type Department = 'BOD' | 'Tech' | 'Marketing' | 'Media' | 'Sale';
 export interface User {
   id: string;
   fullName: string;
-  department: Department;
+  department: string;
   role: string;
-  avatar?: string;
+  avatar: string;
 }
 
-export interface SubKeyResult {
+export interface Sprint {
   id: string;
-  title: string;
-  targetValue: number;
-  currentValue: number;
-  unit: string;
-  dueDate?: string;
-  lastNote?: string;
+  name: string;
+  startDate: string;
+  endDate: string;
 }
 
 export interface KeyResult {
   id: string;
   title: string;
-  targetValue: number;
-  currentValue: number;
-  unit: string;
-  dueDate?: string;
-  subKeyResults?: SubKeyResult[];
-  lastNote?: string;
+  progressPercentage: number;
+  objectiveId: string;
+  currentValue?: number;
+  targetValue?: number;
+  unit?: string;
 }
 
 export interface Objective {
   id: string;
-  level: 'L1' | 'L2';
   title: string;
-  ownerId: string;
-  department?: Department;
-  parentObjectiveId?: string;
-  quarter: string;
+  department: string;
   progressPercentage: number;
   keyResults: KeyResult[];
 }
 
-export type WorkItemType = 'Epic' | 'UserStory' | 'TechTask' | 'Campaign' | 'MediaTask' | 'MktTask' | 'Deal' | 'SaleTask';
-
-export interface SubTask {
-  id: string;
-  title: string;
-  completed: boolean;
-}
+export type WorkItemType = 'Epic' | 'UserStory' | 'TechTask' | 'Campaign' | 'MediaTask' | 'MktTask' | 'Deal' | 'SaleTask' | 'Task';
 
 export type Priority = 'Low' | 'Medium' | 'High' | 'Urgent';
 
 export interface WorkItem {
   id: string;
-  type: WorkItemType;
+  type: string;
   title: string;
   description?: string;
-  priority?: Priority;
-  estimatedTime?: string;
-  subtasks?: SubTask[];
-  linkedKrId?: string;
-  assigneeId: string;
+  priority: string;
   status: string;
+  assigneeId?: string;
   sprintId?: string;
-  storyPoint?: number;
-  customerName?: string;
-  dealValue?: number;
+  linkedKrId?: string;
   dueDate?: string;
+  estimatedTime?: string;
+  storyPoints?: number;
+  storyPoint?: number; // Added for compatibility with some components
+  subtasks?: any[];
+  createdAt: string;
+  updatedAt: string;
+  
+  // Specific fields
+  dealValue?: number;
+  leadsCount?: number;
+  
+  // Relations (optional for frontend display)
+  assignee?: User;
+  sprint?: Sprint;
+}
+
+export interface WeeklyReport {
+  id: string;
+  userId: string;
+  user?: User;
+  weekEnding: string;
+  progress: string; // JSON string
+  plans: string;    // JSON string
+  blockers: string; // JSON string
+  score: number;
+  confidenceScore?: number;
+  createdAt: string;
 }

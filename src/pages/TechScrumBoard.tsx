@@ -21,44 +21,62 @@ import TaskCard from '../components/board/TaskCard';
 import TaskTableView from '../components/board/TaskTableView';
 import TaskModal from '../components/board/TaskModal';
 import TaskDetailsModal from '../components/board/TaskDetailsModal';
-import { WorkItem } from '../types';
+import { WorkItem, Sprint } from '../types';
 import { LayoutGrid, List, ChevronDown, Filter, Search, Database } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const COLUMNS = ['To Do', 'In Progress', 'Code Review', 'Done'];
-const SPRINTS = [
-  { id: 'backlog', name: 'Product Backlog' },
-  { id: 's1', name: 'Sprint 1: Kinetic Echo' },
-  { id: 's2', name: 'Sprint 2: Solar Flare' },
-  { id: 's3', name: 'Sprint 3: Deep Blue' },
-];
 
 export default function TechScrumBoard() {
   const [view, setView] = useState<'board' | 'table'>('board');
-  const [selectedSprintId, setSelectedSprintId] = useState('s1');
+  const [selectedSprintId, setSelectedSprintId] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<WorkItem | null>(null);
   const [viewingTask, setViewingTask] = useState<WorkItem | null>(null);
   const [items, setItems] = useState<WorkItem[]>([]);
+  const [sprints, setSprints] = useState<Sprint[]>([]);
   const [activeItem, setActiveItem] = useState<WorkItem | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
+
+  const fetchData = async () => {
+    try {
+      const [itemRes, sprintRes] = await Promise.all([
+        fetch('/api/work-items'),
+        fetch('/api/sprints')
+      ]);
+      const itemData = await itemRes.json();
+      const sprintData = await sprintRes.json();
+      
+      const techItems = itemData.filter((item: WorkItem) => 
+        ['Epic', 'UserStory', 'TechTask', 'Task'].includes(item.type)
+      );
+      
+      setItems(techItems);
+      setSprints(sprintData);
+      
+      if (sprintData.length > 0 && !selectedSprintId) {
+        setSelectedSprintId(sprintData[0].id);
+      }
+    } catch (error) {
+      console.error('Failed to fetch Tech board data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch('/api/work-items');
-        if (res.ok) {
-          const data = await res.json();
-          setItems(data.filter((item: WorkItem) => ['Epic', 'UserStory', 'TechTask'].includes(item.type)));
-        }
-      } catch (error) {
-        console.error('Failed to fetch data', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchData();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -121,7 +139,7 @@ export default function TechScrumBoard() {
     });
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveItem(null);
 
@@ -129,6 +147,34 @@ export default function TechScrumBoard() {
 
     const activeId = active.id;
     const overId = over.id;
+
+    const activeItem = items.find(i => i.id === activeId);
+    if (!activeItem) return;
+
+    // Determine new status and sprint
+    let newStatus = activeItem.status;
+    let newSprintId = activeItem.sprintId;
+
+    if (overId === 'backlog') {
+      newSprintId = null;
+    } else if (COLUMNS.includes(overId as string)) {
+      newStatus = overId as string;
+      newSprintId = selectedSprintId;
+    }
+
+    if (activeItem.status !== newStatus || activeItem.sprintId !== newSprintId) {
+      try {
+        const res = await fetch(`/api/work-items/${activeId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus, sprintId: newSprintId })
+        });
+        const updated = await res.json();
+        setItems(prev => prev.map(i => i.id === updated.id ? updated : i));
+      } catch (error) {
+        console.error('Failed to update task status/sprint:', error);
+      }
+    }
 
     if (activeId !== overId) {
       setItems(prev => {
@@ -143,21 +189,52 @@ export default function TechScrumBoard() {
     }
   };
 
-  const handleUpdateTask = (updatedItem: WorkItem) => {
-    setItems(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
-  };
-
-  const handleCreateTask = (newTask: WorkItem) => {
-    if (editingTask) {
-      handleUpdateTask(newTask);
-    } else {
-      setItems(prev => [newTask, ...prev]);
+  const handleUpdateTask = async (updatedItem: WorkItem) => {
+    try {
+      const res = await fetch(`/api/work-items/${updatedItem.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedItem)
+      });
+      const data = await res.json();
+      setItems(prev => prev.map(item => item.id === data.id ? data : item));
+    } catch (error) {
+      console.error('Failed to update task:', error);
     }
-    setEditingTask(null);
   };
 
-  const handleDeleteTask = (id: string) => {
-    setItems(prev => prev.filter(item => item.id !== id));
+  const handleCreateTask = async (newTask: WorkItem) => {
+    try {
+      if (editingTask) {
+        await handleUpdateTask(newTask);
+      } else {
+        const res = await fetch('/api/work-items', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...newTask,
+            id: undefined,
+            assigneeId: currentUser?.id,
+            sprintId: selectedSprintId || null
+          })
+        });
+        const data = await res.json();
+        setItems(prev => [data, ...prev]);
+      }
+      setEditingTask(null);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Failed to create task:', error);
+    }
+  };
+
+  const handleDeleteTask = async (id: string) => {
+    try {
+      await fetch(`/api/work-items/${id}`, { method: 'DELETE' });
+      setItems(prev => prev.filter(item => item.id !== id));
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+    }
   };
 
   const handleBulkDelete = (ids: string[]) => {
@@ -235,7 +312,8 @@ export default function TechScrumBoard() {
               onChange={(e) => setSelectedSprintId(e.target.value)}
               className="appearance-none bg-surface-container-low border border-outline-variant/20 rounded-xl px-4 py-2 pr-10 text-sm font-bold text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer hover:bg-surface-container"
             >
-              {SPRINTS.map(s => (
+              <option value="">No Sprint (Backlog)</option>
+              {sprints.map(s => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
@@ -246,11 +324,15 @@ export default function TechScrumBoard() {
         <div className="hidden lg:flex items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-primary"></div>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Velocity: 42 Pts</span>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              Velocity: {items.reduce((sum, i) => sum + (i.storyPoints || 0), 0)} Pts
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-tertiary"></div>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Done: 68%</span>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              Done: {items.length > 0 ? Math.round((items.filter(i => i.status === 'Done').length / items.length) * 100) : 0}%
+            </span>
           </div>
         </div>
       </div>

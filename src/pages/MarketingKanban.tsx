@@ -23,6 +23,7 @@ import TaskModal from '../components/board/TaskModal';
 import TaskDetailsModal from '../components/board/TaskDetailsModal';
 import { WorkItem } from '../types';
 import { LayoutGrid, List } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const COLUMNS = ['Idea', 'Doing', 'Review', 'Done'];
 
@@ -34,24 +35,35 @@ export default function MarketingKanban() {
   const [viewingTask, setViewingTask] = useState<WorkItem | null>(null);
   const [items, setItems] = useState<WorkItem[]>([]);
   const [activeItem, setActiveItem] = useState<WorkItem | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
+
+  const fetchData = async () => {
+    try {
+      const res = await fetch('/api/work-items');
+      const data = await res.json();
+      const mktItems = data.filter((item: WorkItem) => 
+        ['Campaign', 'MktTask', 'Task'].includes(item.type)
+      );
+      setItems(mktItems);
+    } catch (error) {
+      console.error('Failed to fetch Marketing board data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch('/api/work-items');
-        if (res.ok) {
-          const data = await res.json();
-          setItems(data.filter((item: WorkItem) => ['Campaign', 'MktTask'].includes(item.type)));
-        }
-      } catch (error) {
-        console.error('Failed to fetch data', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchData();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -102,7 +114,7 @@ export default function MarketingKanban() {
     }
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveItem(null);
 
@@ -110,6 +122,28 @@ export default function MarketingKanban() {
 
     const activeId = active.id;
     const overId = over.id;
+
+    const activeItem = items.find(i => i.id === activeId);
+    if (!activeItem) return;
+
+    let newStatus = activeItem.status;
+    if (COLUMNS.includes(overId as string)) {
+      newStatus = overId as string;
+    }
+
+    if (activeItem.status !== newStatus) {
+      try {
+        const res = await fetch(`/api/work-items/${activeId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        const updated = await res.json();
+        setItems(prev => prev.map(i => i.id === updated.id ? updated : i));
+      } catch (error) {
+        console.error('Failed to update task status:', error);
+      }
+    }
 
     if (activeId !== overId) {
       setItems(prev => {
@@ -124,21 +158,51 @@ export default function MarketingKanban() {
     }
   };
 
-  const handleUpdateTask = (updatedItem: WorkItem) => {
-    setItems(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
-  };
-
-  const handleCreateTask = (newTask: WorkItem) => {
-    if (editingTask) {
-      handleUpdateTask(newTask);
-    } else {
-      setItems(prev => [newTask, ...prev]);
+  const handleUpdateTask = async (updatedItem: WorkItem) => {
+    try {
+      const res = await fetch(`/api/work-items/${updatedItem.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedItem)
+      });
+      const data = await res.json();
+      setItems(prev => prev.map(item => item.id === data.id ? data : item));
+    } catch (error) {
+      console.error('Failed to update task:', error);
     }
-    setEditingTask(null);
   };
 
-  const handleDeleteTask = (id: string) => {
-    setItems(prev => prev.filter(item => item.id !== id));
+  const handleCreateTask = async (newTask: WorkItem) => {
+    try {
+      if (editingTask) {
+        await handleUpdateTask(newTask);
+      } else {
+        const res = await fetch('/api/work-items', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...newTask,
+            id: undefined,
+            assigneeId: currentUser?.id
+          })
+        });
+        const data = await res.json();
+        setItems(prev => [data, ...prev]);
+      }
+      setEditingTask(null);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Failed to create task:', error);
+    }
+  };
+
+  const handleDeleteTask = async (id: string) => {
+    try {
+      await fetch(`/api/work-items/${id}`, { method: 'DELETE' });
+      setItems(prev => prev.filter(item => item.id !== id));
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+    }
   };
 
   const handleBulkDelete = (ids: string[]) => {
@@ -203,7 +267,7 @@ export default function MarketingKanban() {
           </div>
           <div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Campaigns</p>
-            <h4 className="text-xl font-black font-headline">12</h4>
+            <h4 className="text-xl font-black font-headline">{items.filter(i => i.type === 'Campaign').length}</h4>
           </div>
         </div>
         <div className="bg-white p-6 rounded-2xl border border-outline-variant/10 shadow-sm flex items-center gap-4">
@@ -212,7 +276,7 @@ export default function MarketingKanban() {
           </div>
           <div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Leads</p>
-            <h4 className="text-xl font-black font-headline">2,450</h4>
+            <h4 className="text-xl font-black font-headline">{items.reduce((sum, i) => sum + (i.leadsCount || 0), 0).toLocaleString()}</h4>
           </div>
         </div>
         <div className="bg-white p-6 rounded-2xl border border-outline-variant/10 shadow-sm flex items-center gap-4">
@@ -221,7 +285,7 @@ export default function MarketingKanban() {
           </div>
           <div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Conversion</p>
-            <h4 className="text-xl font-black font-headline">4.8%</h4>
+            <h4 className="text-xl font-black font-headline">{items.length > 0 ? '4.8%' : '0%'}</h4>
           </div>
         </div>
       </div>

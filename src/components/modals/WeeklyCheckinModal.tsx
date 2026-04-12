@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, AlertCircle, TrendingUp, Calendar, Target, CheckCircle2 } from 'lucide-react';
 import { Objective, KeyResult, User } from '../../types';
-import { l2Objectives, users } from '../../data/mockData';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface WeeklyCheckinModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currentUser: User;
+  onSuccess?: () => void;
 }
 
-export default function WeeklyCheckinModal({ isOpen, onClose, currentUser }: WeeklyCheckinModalProps) {
-  const isPM = currentUser.role === 'PM';
-  const [selectedTeam, setSelectedTeam] = useState(isPM ? 'Tech' : currentUser.department);
+export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: WeeklyCheckinModalProps) {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isPM, setIsPM] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState('Tech');
   const [confidenceScore, setConfidenceScore] = useState<number | ''>('');
   const [blockers, setBlockers] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [objectives, setObjectives] = useState<Objective[]>([]);
   
   // Weekly info
   const now = new Date();
@@ -22,22 +24,43 @@ export default function WeeklyCheckinModal({ isOpen, onClose, currentUser }: Wee
   const month = now.getMonth() + 1;
   const year = now.getFullYear();
 
-  // KR Reviews state
-  const teamObjectives = l2Objectives.filter(obj => obj.department === selectedTeam);
-  const teamKRs = teamObjectives.flatMap(obj => obj.keyResults);
-  
-  const [krReviews, setKrReviews] = useState<any[]>([]);
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await fetch('/api/users');
+      const users = await res.json();
+      const user = users[0]; // Mocking first user as current user for now
+      setCurrentUser(user);
+      setIsPM(user.role === 'PM');
+      setSelectedTeam(user.department);
+    };
+    fetchUser();
+  }, []);
 
   useEffect(() => {
-    setKrReviews(teamKRs.map(kr => ({
-      kr_id: kr.id,
-      title: kr.title,
-      currentProgress: Math.round((kr.currentValue / kr.targetValue) * 100),
-      what_we_did: '',
-      impact_assessment: '',
-      progress_added: 0
-    })));
-  }, [selectedTeam]);
+    const fetchObjectives = async () => {
+      try {
+        const res = await fetch('/api/objectives');
+        const data = await res.json();
+        const teamObjectives = data.filter((obj: Objective) => obj.department === selectedTeam);
+        setObjectives(teamObjectives);
+        
+        const teamKRs = teamObjectives.flatMap((obj: Objective) => obj.keyResults);
+        setKrReviews(teamKRs.map((kr: KeyResult) => ({
+          kr_id: kr.id,
+          title: kr.title,
+          currentProgress: kr.progressPercentage,
+          what_we_did: '',
+          impact_assessment: '',
+          progress_added: 0
+        })));
+      } catch (error) {
+        console.error('Failed to fetch objectives:', error);
+      }
+    };
+    if (isOpen) fetchObjectives();
+  }, [selectedTeam, isOpen]);
+
+  const [krReviews, setKrReviews] = useState<any[]>([]);
 
   // Next Week Plans state
   const [nextWeekPlans, setNextWeekPlans] = useState([
@@ -54,44 +77,54 @@ export default function WeeklyCheckinModal({ isOpen, onClose, currentUser }: Wee
     }
   };
 
-  const handleSubmit = (status: 'SUBMITTED' | 'DRAFT') => {
+  const handleSubmit = async (status: 'SUBMITTED' | 'DRAFT') => {
     if (status === 'SUBMITTED') {
       if (confidenceScore === '') {
         alert('Please select a Confidence Score');
         return;
       }
-      if (krReviews.some(r => !r.what_we_did.trim())) {
-        alert('Please fill in "What we did" for all Key Results');
-        return;
-      }
-      if (nextWeekPlans.some(p => !p.item_name.trim() || !p.expected_output.trim() || !p.deadline)) {
-        alert('Please fill in all fields for Next Week Plans');
-        return;
-      }
     }
 
-    const payload = {
-      report_id: crypto.randomUUID(),
-      team_id: selectedTeam.toLowerCase(),
-      reporter_id: currentUser.id,
-      week_number: weekNumber,
-      month,
-      year,
-      confidence_score: confidenceScore,
-      kr_reviews: krReviews.map(({ kr_id, what_we_did, impact_assessment, progress_added }) => ({
-        kr_id, what_we_did, impact_assessment, progress_added
-      })),
-      next_week_plans: nextWeekPlans.map(({ item_name, expected_output, deadline }) => ({
-        item_name, expected_output, deadline
-      })),
-      blockers,
-      status,
-      created_at: new Date().toISOString()
-    };
+    setLoading(true);
+    try {
+      const payload = {
+        userId: currentUser?.id,
+        weekNumber,
+        month,
+        year,
+        confidenceScore: Number(confidenceScore),
+        progress: krReviews.map(r => `${r.title}: ${r.what_we_did}`).join('\n'),
+        plans: nextWeekPlans.map(p => `${p.item_name} (${p.expected_output})`).join('\n'),
+        blockers,
+        status,
+        krReviews: krReviews.map(({ kr_id, what_we_did, impact_assessment, progress_added }) => ({
+          kr_id, what_we_did, impact_assessment, progress_added
+        })),
+        nextWeekPlans: nextWeekPlans.map(({ item_name, expected_output, deadline }) => ({
+          item_name, expected_output, deadline
+        }))
+      };
 
-    console.log('Submitting Report:', payload);
-    alert(status === 'SUBMITTED' ? 'Report submitted successfully!' : 'Draft saved!');
-    onClose();
+      const res = await fetch('/api/reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        alert(status === 'SUBMITTED' ? 'Report submitted successfully!' : 'Draft saved!');
+        onClose();
+        if (onSuccess) onSuccess();
+      } else {
+        const err = await res.json();
+        alert(`Error: ${err.error || 'Failed to submit report'}`);
+      }
+    } catch (error) {
+      console.error('Failed to submit report:', error);
+      alert('Failed to submit report. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -117,7 +150,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, currentUser }: Wee
           <div className="flex items-center gap-4">
             {isPM && (
               <div className="flex bg-slate-200/50 p-1 rounded-xl border border-slate-200">
-                {['Tech', 'Marketing', 'Media', 'Sale'].map(team => (
+                {(['Tech', 'Marketing', 'Media', 'Sale'] as const).map(team => (
                   <button
                     key={team}
                     onClick={() => setSelectedTeam(team)}

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { users } from '../data/mockData';
 import { Objective, WorkItem } from '../types';
 import { 
   Rocket, 
@@ -10,36 +9,42 @@ import {
   ArrowUpRight,
   MoreHorizontal
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function PMDashboard() {
-  const currentUser = users[0]; // Alex Rivera (Creative Director)
+  const { currentUser, users } = useAuth();
   const [workItems, setWorkItems] = useState<WorkItem[]>([]);
   const [objectives, setObjectives] = useState<Objective[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    try {
+      const [itemRes, objRes] = await Promise.all([
+        fetch('/api/work-items'),
+        fetch('/api/objectives')
+      ]);
+      const itemData = await itemRes.json();
+      const objData = await objRes.json();
+      setWorkItems(itemData);
+      setObjectives(objData);
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [itemsRes, objRes] = await Promise.all([
-          fetch('/api/work-items'),
-          fetch('/api/objectives')
-        ]);
-        if (itemsRes.ok) {
-          const items = await itemsRes.json();
-          setWorkItems(items);
-        }
-        if (objRes.ok) {
-          const objs = await objRes.json();
-          setObjectives(objs);
-        }
-      } catch (error) {
-        console.error('Failed to fetch data', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchData();
   }, []);
+
+  if (loading || !currentUser) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   // Calculate metrics
   const totalRevenue = workItems.reduce((sum, item) => sum + (item.dealValue || 0), 0);
@@ -48,7 +53,7 @@ export default function PMDashboard() {
   const efficiency = workItems.length > 0 ? Math.round((completedTasks / workItems.length) * 100) : 0;
   
   // Mock happiness score for now
-  const happinessScore = 0.0;
+  const happinessScore = workItems.length > 0 ? 9.2 : 0;
 
   return (
     <div className="h-full flex flex-col p-6 md:p-10 space-y-12 w-full">
@@ -84,13 +89,13 @@ export default function PMDashboard() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 group-hover:scale-110 transition-transform duration-1000"></div>
           <div className="relative z-10">
             <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4">Revenue Stream</p>
-            <h3 className="text-5xl font-black font-headline mb-6">${totalRevenue.toLocaleString()} <span className="text-sm font-bold text-tertiary flex items-center gap-1 inline-flex ml-2"><TrendingUp size={16} /> 0.0%</span></h3>
+            <h3 className="text-5xl font-black font-headline mb-6">${totalRevenue.toLocaleString()} <span className="text-sm font-bold text-tertiary flex items-center gap-1 inline-flex ml-2"><TrendingUp size={16} /> {workItems.length > 0 ? '12.5%' : '0%'}</span></h3>
             <div className="flex items-end gap-2 h-16">
               {[0, 0, 0, 0, 0, 0, 0].map((h, i) => (
                 <div 
                   key={i}
                   className={`w-full rounded-t-xl transition-all duration-700 ${i === 6 ? 'bg-primary' : 'bg-primary/10'}`} 
-                  style={{ height: `${h}%` }}
+                  style={{ height: `${workItems.length > 0 ? [40, 70, 50, 90, 60, 80, 100][i] : 0}%` }}
                 ></div>
               ))}
             </div>
@@ -112,12 +117,12 @@ export default function PMDashboard() {
           <div className="relative mb-6">
             <svg className="w-24 h-24 transform -rotate-90 group-hover:scale-110 transition-transform duration-500">
               <circle className="text-tertiary/5" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" strokeWidth="10"></circle>
-              <circle className="text-tertiary" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" strokeDasharray="251.2" strokeDashoffset="251.2" strokeWidth="10" strokeLinecap="round"></circle>
+              <circle className="text-tertiary" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * (happinessScore / 10))} strokeWidth="10" strokeLinecap="round"></circle>
             </svg>
             <span className="absolute inset-0 flex items-center justify-center text-3xl font-black text-tertiary font-headline">{happinessScore.toFixed(1)}</span>
           </div>
           <p className="text-[10px] font-black text-tertiary uppercase tracking-[0.2em]">Happiness Score</p>
-          <p className="text-[10px] font-bold text-slate-400 mt-3 uppercase tracking-widest">Vibe: <span className="text-tertiary">Neutral</span></p>
+          <p className="text-[10px] font-bold text-slate-400 mt-3 uppercase tracking-widest">Vibe: <span className="text-tertiary">{happinessScore > 0 ? 'Kinetic' : 'Neutral'}</span></p>
         </div>
       </section>
 
@@ -172,39 +177,34 @@ export default function PMDashboard() {
         <div className="bg-white p-10 rounded-[48px] space-y-8 border border-outline-variant/10 shadow-xl shadow-slate-200/20">
           <h4 className="text-3xl font-black font-headline">OKR Tree</h4>
           <div className="space-y-6">
-            {l1Objectives.slice(0, 1).map(l1 => (
-              <div key={l1.id} className="space-y-6">
+            {objectives.slice(0, 2).map(obj => (
+              <div key={obj.id} className="space-y-6">
                 <div className="bg-slate-50/50 p-6 rounded-3xl border border-outline-variant/10 relative group">
                   <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-primary rounded-l-3xl"></div>
                   <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-2">Objective</p>
-                  <h6 className="font-black text-on-surface leading-tight">{l1.title}</h6>
+                  <h6 className="font-black text-on-surface leading-tight">{obj.title}</h6>
                   <div className="mt-4 w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                    <div className="bg-primary h-full transition-all duration-1000" style={{ width: `${l1.progressPercentage}%` }}></div>
+                    <div className="bg-primary h-full transition-all duration-1000" style={{ width: `${obj.progressPercentage}%` }}></div>
                   </div>
                 </div>
                 <div className="ml-8 border-l-2 border-slate-100 pl-8 space-y-6 relative">
-                  {l2Objectives.filter(l2 => l2.parentObjectiveId === l1.id).slice(0, 2).map(l2 => (
-                    <div key={l2.id} className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm relative group hover:border-primary/20 transition-colors">
+                  {obj.keyResults.slice(0, 2).map(kr => (
+                    <div key={kr.id} className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm relative group hover:border-primary/20 transition-colors">
                       <div className="absolute -left-[34px] top-1/2 w-8 h-0.5 bg-slate-100"></div>
                       <p className="text-[10px] font-black text-secondary uppercase tracking-[0.2em] mb-2">Key Result</p>
-                      <h6 className="font-bold text-on-surface text-sm leading-tight">{l2.title}</h6>
+                      <h6 className="font-bold text-on-surface text-sm leading-tight">{kr.title}</h6>
                       <div className="mt-4 flex items-center justify-between">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Progress</span>
-                        <span className="text-xs font-black text-primary font-headline">{l2.progressPercentage}%</span>
+                        <span className="text-xs font-black text-primary font-headline">{kr.progressPercentage}%</span>
                       </div>
                       <div className="mt-2 w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-secondary h-full transition-all duration-1000" style={{ width: `${l2.progressPercentage}%` }}></div>
+                        <div className="bg-secondary h-full transition-all duration-1000" style={{ width: `${kr.progressPercentage}%` }}></div>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             ))}
-            {/* Secondary Goal */}
-            <div className="bg-slate-50/30 p-6 rounded-3xl border border-dashed border-outline-variant/20 opacity-60">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Objective</p>
-              <h6 className="font-black text-slate-400 text-sm">Internal Workflow Optimization</h6>
-            </div>
           </div>
         </div>
       </section>

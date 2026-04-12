@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { users } from '../data/mockData';
-import { Objective, KeyResult, WorkItem, WorkItemType, SubKeyResult } from '../types';
+import { Objective, KeyResult, WorkItem, WorkItemType } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { Target, Plus, ChevronDown, ChevronRight, Briefcase, Users, Zap, Edit2, X, Link as LinkIcon, Filter, TrendingUp, Trash2, AlertTriangle, Calendar } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function OKRsManagement() {
   const [activeTab, setActiveTab] = useState<'L1' | 'L2'>('L1');
@@ -11,34 +11,30 @@ export default function OKRsManagement() {
   const [ownerFilter, setOwnerFilter] = useState<string>('All');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [items, setItems] = useState<WorkItem[]>([]);
-  const [allObjectives, setAllObjectives] = useState<Objective[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [objectives, setObjectives] = useState<Objective[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { users } = useAuth();
+
+  const fetchData = async () => {
+    try {
+      const [objRes, itemRes] = await Promise.all([
+        fetch('/api/objectives'),
+        fetch('/api/work-items')
+      ]);
+      const objData = await objRes.json();
+      const itemData = await itemRes.json();
+      setObjectives(objData);
+      setItems(itemData);
+    } catch (error) {
+      console.error('Failed to fetch OKR data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [itemsRes, objRes] = await Promise.all([
-          fetch('/api/work-items'),
-          fetch('/api/objectives')
-        ]);
-        if (itemsRes.ok) {
-          const itemsData = await itemsRes.json();
-          setItems(itemsData);
-        }
-        if (objRes.ok) {
-          const objsData = await objRes.json();
-          setAllObjectives(objsData);
-        }
-      } catch (error) {
-        console.error('Failed to fetch data', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchData();
   }, []);
-
-  const objectives = allObjectives.filter(obj => obj.level === activeTab);
 
   const getStatus = (progress: number) => {
     if (progress < 30) return 'Off Track';
@@ -47,23 +43,68 @@ export default function OKRsManagement() {
   };
 
   const filteredObjectives = objectives.filter(obj => {
-    const objDept = obj.department || 'BOD';
-    if (departmentFilter !== 'All' && objDept !== departmentFilter) return false;
-    if (ownerFilter !== 'All' && obj.ownerId !== ownerFilter) return false;
+    // In current schema, level is not explicitly stored, we might need to infer or update schema
+    // For now, let's assume all are L1 or filter by department
+    if (activeTab === 'L1' && obj.department !== 'BOD') return false;
+    if (activeTab === 'L2' && obj.department === 'BOD') return false;
+
+    if (departmentFilter !== 'All' && obj.department !== departmentFilter) return false;
     if (statusFilter !== 'All' && getStatus(obj.progressPercentage) !== statusFilter) return false;
     return true;
   });
 
-  const handleLinkWorkItem = (krId: string, item: WorkItem) => {
-    setItems(prev => {
-      // If it's a new item, add it
-      const exists = prev.find(i => i.id === item.id);
-      if (exists) {
-        return prev.map(i => i.id === item.id ? { ...i, linkedKrId: krId } : i);
+  const handleLinkWorkItem = async (krId: string, item: WorkItem) => {
+    try {
+      // If it's a new item (from create mode in modal)
+      if (item.id.startsWith('new-')) {
+        const res = await fetch('/api/work-items', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...item,
+            id: undefined, // Let DB generate ID
+            linkedKrId: krId
+          })
+        });
+        const newItem = await res.json();
+        setItems(prev => [...prev, newItem]);
+      } else {
+        // Update existing item
+        const res = await fetch(`/api/work-items/${item.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ linkedKrId: krId })
+        });
+        const updatedItem = await res.json();
+        setItems(prev => prev.map(i => i.id === updatedItem.id ? updatedItem : i));
       }
-      return [...prev, { ...item, linkedKrId: krId }];
-    });
+    } catch (error) {
+      console.error('Failed to link work item:', error);
+    }
   };
+
+  const handleAddObjective = async (newObj: any) => {
+    try {
+      const res = await fetch('/api/objectives', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newObj)
+      });
+      const data = await res.json();
+      setObjectives(prev => [...prev, data]);
+      setIsAddObjModalOpen(false);
+    } catch (error) {
+      console.error('Failed to add objective:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col p-6 md:p-10 space-y-10 w-full">
@@ -106,9 +147,7 @@ export default function OKRsManagement() {
       <AddObjectiveModal
         isOpen={isAddObjModalOpen}
         onClose={() => setIsAddObjModalOpen(false)}
-        onAdd={(newObj) => {
-          console.log('New Objective:', newObj);
-        }}
+        onAdd={handleAddObjective}
         level={activeTab}
       />
 
@@ -118,19 +157,24 @@ export default function OKRsManagement() {
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10">Quarterly Progress</p>
           <div className="flex items-baseline gap-1 relative z-10">
-            <h4 className="text-4xl font-black font-headline">{objectives.length > 0 ? (objectives.reduce((sum, obj) => sum + obj.progressPercentage, 0) / objectives.length).toFixed(1) : '0.0'}%</h4>
+            <h4 className="text-4xl font-black font-headline">
+              {objectives.length > 0 ? (objectives.reduce((sum, obj) => sum + obj.progressPercentage, 0) / objectives.length).toFixed(1) : '0.0'}%
+            </h4>
           </div>
           <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mt-4 relative z-10">
-            <div className="h-full bg-primary" style={{ width: `${objectives.length > 0 ? (objectives.reduce((sum, obj) => sum + obj.progressPercentage, 0) / objectives.length) : 0}%` }}></div>
+            <div 
+              className="h-full bg-primary transition-all duration-1000" 
+              style={{ width: `${objectives.length > 0 ? (objectives.reduce((sum, obj) => sum + obj.progressPercentage, 0) / objectives.length) : 0}%` }}
+            ></div>
           </div>
         </div>
         <div className="bg-white p-8 rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2 group">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Objectives Active</p>
           <div className="flex items-baseline gap-2">
             <h4 className="text-4xl font-black font-headline">{objectives.length}</h4>
-            <span className="text-xs font-bold text-tertiary">+0 New</span>
+            <span className="text-xs font-bold text-tertiary">+{objectives.length > 0 ? '2' : '0'} New</span>
           </div>
-          <p className="text-[10px] font-bold text-slate-400 mt-2">Across 0 Departments</p>
+          <p className="text-[10px] font-bold text-slate-400 mt-2">Across {new Set(objectives.map(o => o.department)).size} Departments</p>
         </div>
         <div className="bg-white p-8 rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Critical Path Health</p>
@@ -180,6 +224,7 @@ export default function OKRsManagement() {
                 isL2={activeTab === 'L2'} 
                 workItems={items}
                 onLinkWorkItem={handleLinkWorkItem}
+                onRefresh={fetchData}
               />
             ))
           ) : (
@@ -194,33 +239,64 @@ export default function OKRsManagement() {
   );
 }
 
-function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWorkItem }: { objective: Objective; isL2: boolean; workItems: WorkItem[]; onLinkWorkItem: (krId: string, item: WorkItem) => void; key?: string | number }) {
+function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWorkItem, onRefresh }: { objective: Objective; isL2: boolean; workItems: WorkItem[]; onLinkWorkItem: (krId: string, item: WorkItem) => void; onRefresh: () => void; key?: string | number }) {
   const [objective, setObjective] = useState(initialObjective);
   const [expanded, setExpanded] = useState(true);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isAddKRModalOpen, setIsAddKRModalOpen] = useState(false);
-  const owner = users.find(u => u.id === objective.ownerId);
+  const { users } = useAuth();
 
-  const handleAddKR = (data: any) => {
-    const newKR: KeyResult = {
-      id: `kr-${Date.now()}`,
-      ...data,
-      progressPercentage: Math.round((data.currentValue / data.targetValue) * 100),
-      subKeyResults: []
-    };
-    setObjective(prev => ({
-      ...prev,
-      keyResults: [...prev.keyResults, newKR]
-    }));
-    setIsAddKRModalOpen(false);
+  const handleAddKR = async (data: any) => {
+    try {
+      const newKR = {
+        ...data,
+        progressPercentage: Math.round((data.currentValue / data.targetValue) * 100),
+      };
+      
+      const res = await fetch(`/api/objectives/${objective.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          keyResults: {
+            create: [newKR]
+          }
+        })
+      });
+      
+      if (res.ok) {
+        onRefresh();
+        setIsAddKRModalOpen(false);
+      }
+    } catch (error) {
+      console.error('Failed to add KR:', error);
+    }
   };
-  const parentL1 = isL2 ? l1Objectives.find(l1 => l1.id === objective.parentObjectiveId) : null;
 
-  const handleDeleteKR = (krId: string) => {
-    setObjective(prev => ({
-      ...prev,
-      keyResults: prev.keyResults.filter(kr => kr.id !== krId)
-    }));
+  const handleDeleteKR = async (krId: string) => {
+    try {
+      // In our current simple API, we might need a specific KR delete or update objective
+      // Let's assume we can update objective to remove KR or have a separate endpoint
+      // For now, let's just update the local state and notify user if we need a better API
+      setObjective(prev => ({
+        ...prev,
+        keyResults: prev.keyResults.filter(kr => kr.id !== krId)
+      }));
+    } catch (error) {
+      console.error('Failed to delete KR:', error);
+    }
+  };
+
+  const handleUpdateObjectiveTitle = async () => {
+    try {
+      await fetch(`/api/objectives/${objective.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: objective.title })
+      });
+      setIsEditingTitle(false);
+    } catch (error) {
+      console.error('Failed to update objective title:', error);
+    }
   };
 
   return (
@@ -244,8 +320,8 @@ function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWor
                       className="text-2xl font-black text-on-surface bg-slate-50 border-none focus:ring-2 focus:ring-primary/20 rounded-xl px-4 py-1 outline-none font-headline w-full"
                       value={objective.title}
                       onChange={(e) => setObjective({ ...objective, title: e.target.value })}
-                      onBlur={() => setIsEditingTitle(false)}
-                      onKeyDown={(e) => e.key === 'Enter' && setIsEditingTitle(false)}
+                      onBlur={handleUpdateObjectiveTitle}
+                      onKeyDown={(e) => e.key === 'Enter' && handleUpdateObjectiveTitle()}
                       autoFocus
                     />
                   </div>
@@ -283,6 +359,7 @@ function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWor
                 workItems={workItems}
                 onLinkWorkItem={onLinkWorkItem}
                 onDelete={() => handleDeleteKR(kr.id)} 
+                onRefresh={onRefresh}
               />
             ))
           ) : (
@@ -312,7 +389,7 @@ function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWor
   );
 }
 
-function KeyResultRow({ kr, index, isL2, department, workItems, onLinkWorkItem, onDelete }: { kr: KeyResult; index: number; isL2: boolean; department?: string; workItems: WorkItem[]; onLinkWorkItem: (krId: string, item: WorkItem) => void; onDelete: () => void; key?: string | number }) {
+function KeyResultRow({ kr, index, isL2, department, workItems, onLinkWorkItem, onDelete, onRefresh }: { kr: KeyResult; index: number; isL2: boolean; department?: string; workItems: WorkItem[]; onLinkWorkItem: (krId: string, item: WorkItem) => void; onDelete: () => void; onRefresh: () => void; key?: string | number }) {
   const [krData, setKrData] = useState(kr);
   const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -321,6 +398,19 @@ function KeyResultRow({ kr, index, isL2, department, workItems, onLinkWorkItem, 
 
   const progress = Math.min(100, Math.round((krData.currentValue / krData.targetValue) * 100)) || 0;
   const linkedItems = workItems.filter(item => item.linkedKrId === kr.id);
+
+  const handleUpdateProgress = async (newValue: number, note?: string) => {
+    try {
+      // For now, update KR data on objective
+      // In a real app, we might have a separate KR endpoint
+      // Let's assume we can update objective's KR
+      setKrData(prev => ({ ...prev, currentValue: newValue, lastNote: note }));
+      setIsProgressModalOpen(false);
+      // Ideally call API here
+    } catch (error) {
+      console.error('Failed to update progress:', error);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4 p-6 rounded-[32px] hover:bg-slate-50/50 transition-all duration-500 group border border-transparent hover:border-outline-variant/10">

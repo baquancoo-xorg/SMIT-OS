@@ -1,5 +1,6 @@
-import { LayoutDashboard, Target, KanbanSquare, Trello, Filter, CalendarSync, Settings } from 'lucide-react';
+import { LayoutDashboard, Target, KanbanSquare, Trello, Filter, CalendarSync, Settings, LogOut } from 'lucide-react';
 import { ViewType } from '../../App';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface SidebarProps {
   currentView: ViewType;
@@ -7,6 +8,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
+  const { currentUser, users, setCurrentUser } = useAuth();
+
   return (
     <aside className="h-full flex flex-col p-6 bg-white/70 backdrop-blur-xl rounded-r-3xl w-72 shadow-2xl z-50">
       <div className="flex flex-col items-start mb-10 px-2">
@@ -72,13 +75,38 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
             active={currentView === 'sync'} 
             onClick={() => onViewChange('sync')} 
           />
+          <NavItem 
+            icon="settings" 
+            label="Settings" 
+            active={currentView === 'settings'} 
+            onClick={() => onViewChange('settings')} 
+          />
         </div>
       </nav>
 
-      <div className="mt-auto space-y-1 pt-6 border-t border-slate-100">
-        <div className="flex items-center gap-4 px-4 py-2 text-slate-500 hover:text-primary transition-transform duration-200 ease-in-out hover:scale-95 cursor-pointer">
-          <span className="material-symbols-outlined">help</span>
-          <span className="font-medium text-sm">Help</span>
+      <div className="mt-auto space-y-4 pt-6 border-t border-slate-100">
+        <div className="px-4">
+          <label className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2">Switch User</label>
+          <select 
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] font-bold outline-none"
+            value={currentUser?.id}
+            onChange={(e) => {
+              const user = users.find(u => u.id === e.target.value);
+              if (user) setCurrentUser(user);
+            }}
+          >
+            {users.map(u => (
+              <option key={u.id} value={u.id}>{u.fullName}</option>
+            ))}
+          </select>
+        </div>
+        
+        <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-2xl border border-slate-100">
+          <img src={currentUser?.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold text-on-surface truncate">{currentUser?.fullName}</p>
+            <p className="text-[9px] font-medium text-slate-500 truncate">{currentUser?.role}</p>
+          </div>
         </div>
       </div>
     </aside>

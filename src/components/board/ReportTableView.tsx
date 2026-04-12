@@ -1,52 +1,11 @@
 import React from 'react';
-import { User } from '../../types';
-import { 
-  TrendingUp, 
-  Target, 
-  AlertTriangle, 
-  Star,
-  User as UserIcon,
-  ChevronRight
-} from 'lucide-react';
+import { WeeklyReport } from '../../types';
 
 interface ReportTableViewProps {
-  leaders: User[];
+  reports: WeeklyReport[];
 }
 
-export default function ReportTableView({ leaders }: ReportTableViewProps) {
-  const mockData: Record<string, any> = {
-    'Tech': {
-      progress: 'Hoàn thành 80% Sprint 1. Đã fix xong lỗi Proxy. Deploy thành công Aha Block lên staging.',
-      plans: 'Release Aha Block lên Production. Setup tracking event cho In-app.',
-      blockers: 'Thiếu API key từ đối tác thứ 3 để test luồng thanh toán.',
-      score: 8
-    },
-    'Marketing': {
-      progress: 'Chạy xong Webinar thu về 300 MQLs. Đã lên kịch bản seeding cho tuần sau.',
-      plans: 'A/B Test Landing Page mới. Tối ưu lại tệp đối tượng chạy Ads.',
-      blockers: 'Ngân sách Ads đang bị limit do tài khoản mới.',
-      score: 7
-    },
-    'Media': {
-      progress: 'Edit xong Video Onboarding. Bàn giao Layout PDF Sale cho đội Sale.',
-      plans: 'Quay video phỏng vấn khách hàng. Lên concept cho chiến dịch tháng 5.',
-      blockers: 'Chưa chốt được lịch quay với khách hàng.',
-      score: 9
-    },
-    'Sale': {
-      progress: 'Chốt thành công hợp đồng Agency A. Đang deal với Tập đoàn XYZ.',
-      plans: 'Đẩy mạnh chốt sale các deal đang ở bước Demo. Review lại Sale Playbook.',
-      blockers: 'Tỷ lệ rớt deal ở bước Demo còn cao do thiếu tính năng X.',
-      score: 8
-    },
-    'BOD': {
-      progress: 'Chốt thành công hợp đồng Agency A. Đang deal với Tập đoàn XYZ.',
-      plans: 'Đẩy mạnh chốt sale các deal đang ở bước Demo. Review lại Sale Playbook.',
-      blockers: 'Tỷ lệ rớt deal ở bước Demo còn cao do thiếu tính năng X.',
-      score: 8
-    }
-  };
-
+export default function ReportTableView({ reports }: ReportTableViewProps) {
   return (
     <div className="bg-white rounded-[32px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden">
       <div className="overflow-x-auto">
@@ -63,41 +22,41 @@ export default function ReportTableView({ leaders }: ReportTableViewProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100/50">
-            {leaders.map(leader => {
-              const data = mockData[leader.department] || mockData['Tech'];
+            {reports.map(report => {
+              const user = report.user;
               
               return (
-                <tr key={leader.id} className="hover:bg-primary/[0.02] transition-colors group">
+                <tr key={report.id} className="hover:bg-primary/[0.02] transition-colors group">
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center font-black text-on-surface text-xs border border-outline-variant/10 shadow-sm group-hover:scale-110 transition-transform">
-                        {leader.fullName.split(' ').map(n => n[0]).join('')}
+                        {user?.fullName.split(' ').map(n => n[0]).join('') || '?'}
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-sm font-black text-on-surface group-hover:text-primary transition-colors">{leader.fullName}</span>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{leader.role}</span>
+                        <span className="text-sm font-black text-on-surface group-hover:text-primary transition-colors">{user?.fullName || 'Unknown'}</span>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{user?.role}</span>
                       </div>
                     </div>
                   </td>
                   <td className="px-8 py-5">
                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
-                      leader.department === 'Tech' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                      leader.department === 'Marketing' ? 'bg-orange-50 text-orange-600 border-orange-100' :
-                      leader.department === 'Media' ? 'bg-pink-50 text-pink-600 border-pink-100' :
-                      leader.department === 'Sale' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                      user?.department === 'Tech' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                      user?.department === 'Marketing' ? 'bg-orange-50 text-orange-600 border-orange-100' :
+                      user?.department === 'Media' ? 'bg-pink-50 text-pink-600 border-pink-100' :
+                      user?.department === 'Sale' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                       'bg-indigo-50 text-indigo-600 border-indigo-100'
                     }`}>
-                      {leader.department}
+                      {user?.department}
                     </span>
                   </td>
                   <td className="px-8 py-5 max-w-xs">
-                    <p className="text-xs text-on-surface-variant line-clamp-2 leading-relaxed font-medium">{data.progress}</p>
+                    <p className="text-xs text-on-surface-variant line-clamp-2 leading-relaxed font-medium">{report.progress}</p>
                   </td>
                   <td className="px-8 py-5 max-w-xs">
-                    <p className="text-xs text-on-surface-variant line-clamp-2 leading-relaxed font-medium">{data.plans}</p>
+                    <p className="text-xs text-on-surface-variant line-clamp-2 leading-relaxed font-medium">{report.plans}</p>
                   </td>
                   <td className="px-8 py-5 max-w-xs">
-                    <p className="text-xs text-error/80 line-clamp-2 leading-relaxed font-bold">{data.blockers}</p>
+                    <p className="text-xs text-error/80 line-clamp-2 leading-relaxed font-bold">{report.blockers || 'None'}</p>
                   </td>
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-3">
@@ -105,11 +64,11 @@ export default function ReportTableView({ leaders }: ReportTableViewProps) {
                         {[...Array(5)].map((_, i) => (
                           <div 
                             key={i} 
-                            className={`w-2 h-4 rounded-sm ${i < Math.floor(data.score / 2) ? 'bg-tertiary' : 'bg-slate-100'}`}
+                            className={`w-2 h-4 rounded-sm ${i < Math.floor(report.confidenceScore / 2) ? 'bg-tertiary' : 'bg-slate-100'}`}
                           />
                         ))}
                       </div>
-                      <span className="text-xs font-black text-on-surface font-headline">{data.score}/10</span>
+                      <span className="text-xs font-black text-on-surface font-headline">{report.confidenceScore}/10</span>
                     </div>
                   </td>
                   <td className="px-8 py-5 text-right">
