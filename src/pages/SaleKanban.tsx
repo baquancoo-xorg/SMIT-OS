@@ -42,10 +42,12 @@ export default function SaleKanban() {
     try {
       const res = await fetch('/api/work-items');
       const data = await res.json();
-      const saleItems = data.filter((item: WorkItem) => 
-        ['Deal', 'SaleTask', 'Task'].includes(item.type)
-      );
-      setItems(saleItems);
+      if (Array.isArray(data)) {
+        const saleItems = data.filter((item: WorkItem) => 
+          ['Deal', 'SaleTask', 'Task'].includes(item.type)
+        );
+        setItems(saleItems);
+      }
     } catch (error) {
       console.error('Failed to fetch Sale board data:', error);
     } finally {

@@ -64,11 +64,11 @@ export default function ReportTableView({ reports }: ReportTableViewProps) {
                         {[...Array(5)].map((_, i) => (
                           <div 
                             key={i} 
-                            className={`w-2 h-4 rounded-sm ${i < Math.floor(report.confidenceScore / 2) ? 'bg-tertiary' : 'bg-slate-100'}`}
+                            className={`w-2 h-4 rounded-sm ${i < Math.floor((report.confidenceScore || 0) / 2) ? 'bg-tertiary' : 'bg-slate-100'}`}
                           />
                         ))}
                       </div>
-                      <span className="text-xs font-black text-on-surface font-headline">{report.confidenceScore}/10</span>
+                      <span className="text-xs font-black text-on-surface font-headline">{(report.confidenceScore || 0)}/10</span>
                     </div>
                   </td>
                   <td className="px-8 py-5 text-right">

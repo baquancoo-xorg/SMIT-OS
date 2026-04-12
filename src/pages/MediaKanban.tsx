@@ -42,10 +42,12 @@ export default function MediaKanban() {
     try {
       const res = await fetch('/api/work-items');
       const data = await res.json();
-      const mediaItems = data.filter((item: WorkItem) => 
-        ['MediaTask', 'Task'].includes(item.type)
-      );
-      setItems(mediaItems);
+      if (Array.isArray(data)) {
+        const mediaItems = data.filter((item: WorkItem) => 
+          ['MediaTask', 'Task'].includes(item.type)
+        );
+        setItems(mediaItems);
+      }
     } catch (error) {
       console.error('Failed to fetch Media board data:', error);
     } finally {

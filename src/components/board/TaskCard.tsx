@@ -1,8 +1,9 @@
 import { useState, ChangeEvent, MouseEvent } from 'react';
 import { WorkItem, Priority, KeyResult } from '../../types';
-import { users, l1Objectives, l2Objectives } from '../../data/mockData';
+import { l1Objectives, l2Objectives } from '../../data/mockData';
 import { Clock, CheckCircle2, ChevronDown, ChevronUp, AlignLeft, ListTodo, CheckSquare, Square, Timer, AlertCircle, Link2, Target, MoreHorizontal, Edit2, Trash2, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface TaskCardProps {
   item: WorkItem;
@@ -16,6 +17,7 @@ interface TaskCardProps {
 export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetails }: TaskCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { users } = useAuth();
   const assignee = users.find(u => u.id === item.assigneeId);
   
   // Find linked Key Result
@@ -23,8 +25,10 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
   let linkedKr: KeyResult | undefined;
   if (item.linkedKrId) {
     for (const obj of allObjectives) {
-      linkedKr = obj.keyResults.find(kr => kr.id === item.linkedKrId);
-      if (linkedKr) break;
+      if (obj.keyResults) {
+        linkedKr = obj.keyResults.find(kr => kr.id === item.linkedKrId);
+        if (linkedKr) break;
+      }
     }
   }
   
@@ -185,12 +189,12 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
             <p className="text-xs font-bold text-on-surface line-clamp-1">{linkedKr.title}</p>
             <div className="flex items-center justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest">
               <span>Progress</span>
-              <span className="text-primary">{linkedKr.currentValue}/{linkedKr.targetValue} {linkedKr.unit}</span>
+              <span className="text-primary">{(linkedKr.currentValue || 0)}/{(linkedKr.targetValue || 100)} {linkedKr.unit || '%'}</span>
             </div>
             <div className="h-1.5 w-full bg-primary/10 rounded-full overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
-                animate={{ width: `${(linkedKr.currentValue / linkedKr.targetValue) * 100}%` }}
+                animate={{ width: `${((linkedKr.currentValue || 0) / (linkedKr.targetValue || 100)) * 100}%` }}
                 className="h-full bg-primary"
               />
             </div>

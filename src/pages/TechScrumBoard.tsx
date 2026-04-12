@@ -49,15 +49,18 @@ export default function TechScrumBoard() {
       const itemData = await itemRes.json();
       const sprintData = await sprintRes.json();
       
-      const techItems = itemData.filter((item: WorkItem) => 
-        ['Epic', 'UserStory', 'TechTask', 'Task'].includes(item.type)
-      );
+      if (Array.isArray(itemData)) {
+        const techItems = itemData.filter((item: WorkItem) => 
+          ['Epic', 'UserStory', 'TechTask', 'Task'].includes(item.type)
+        );
+        setItems(techItems);
+      }
       
-      setItems(techItems);
-      setSprints(sprintData);
-      
-      if (sprintData.length > 0 && !selectedSprintId) {
-        setSelectedSprintId(sprintData[0].id);
+      if (Array.isArray(sprintData)) {
+        setSprints(sprintData);
+        if (sprintData.length > 0 && !selectedSprintId) {
+          setSelectedSprintId(sprintData[0].id);
+        }
       }
     } catch (error) {
       console.error('Failed to fetch Tech board data:', error);

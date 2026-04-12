@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { WorkItem, WorkItemType, Priority } from '../../types';
-import { users } from '../../data/mockData';
 import { X } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -13,11 +13,12 @@ interface TaskModalProps {
 }
 
 export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'TechTask', defaultStatus = 'To Do', initialData }: TaskModalProps) {
+  const { users } = useAuth();
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
   const [type, setType] = useState<WorkItemType>(initialData?.type || defaultType);
   const [priority, setPriority] = useState<Priority>(initialData?.priority || 'Medium');
-  const [assigneeId, setAssigneeId] = useState(initialData?.assigneeId || users[0].id);
+  const [assigneeId, setAssigneeId] = useState(initialData?.assigneeId || (users.length > 0 ? users[0].id : ''));
   const [status, setStatus] = useState(initialData?.status || defaultStatus);
   const [dueDate, setDueDate] = useState(initialData?.dueDate || '');
 
@@ -26,9 +27,9 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
     if (initialData) {
       setTitle(initialData.title);
       setDescription(initialData.description || '');
-      setType(initialData.type);
-      setPriority(initialData.priority || 'Medium');
-      setAssigneeId(initialData.assigneeId);
+      setType(initialData.type as WorkItemType);
+      setPriority(initialData.priority as Priority || 'Medium');
+      setAssigneeId(initialData.assigneeId || (users.length > 0 ? users[0].id : ''));
       setStatus(initialData.status);
       setDueDate(initialData.dueDate || '');
     } else {
@@ -36,11 +37,11 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
       setDescription('');
       setType(defaultType);
       setPriority('Medium');
-      setAssigneeId(users[0].id);
+      setAssigneeId(users.length > 0 ? users[0].id : '');
       setStatus(defaultStatus);
       setDueDate('');
     }
-  }, [initialData, defaultType, defaultStatus, isOpen]);
+  }, [initialData, defaultType, defaultStatus, isOpen, users]);
 
   if (!isOpen) return null;
 

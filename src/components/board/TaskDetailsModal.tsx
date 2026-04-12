@@ -1,8 +1,9 @@
 import React from 'react';
 import { WorkItem } from '../../types';
-import { users, l1Objectives, l2Objectives } from '../../data/mockData';
+import { l1Objectives, l2Objectives } from '../../data/mockData';
 import { X, Calendar, Clock, Target, User as UserIcon, AlignLeft, CheckSquare, Link2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface TaskDetailsModalProps {
   isOpen: boolean;
@@ -11,17 +12,20 @@ interface TaskDetailsModalProps {
 }
 
 export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsModalProps) {
+  const { users } = useAuth();
   if (!isOpen || !task) return null;
 
   const assignee = users.find(u => u.id === task.assigneeId);
   
   // Find linked Key Result
   const allObjectives = [...l1Objectives, ...l2Objectives];
-  let linkedKr;
+  let linkedKr: any;
   if (task.linkedKrId) {
     for (const obj of allObjectives) {
-      linkedKr = obj.keyResults.find(kr => kr.id === task.linkedKrId);
-      if (linkedKr) break;
+      if (obj.keyResults) {
+        linkedKr = obj.keyResults.find((kr: any) => kr.id === task.linkedKrId);
+        if (linkedKr) break;
+      }
     }
   }
 
@@ -119,12 +123,12 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
                 <p className="text-sm font-bold text-slate-800">{linkedKr.title}</p>
                 <div className="flex items-center justify-between text-xs font-bold text-slate-500">
                   <span>Progress</span>
-                  <span className="text-primary">{linkedKr.currentValue} / {linkedKr.targetValue} {linkedKr.unit}</span>
+                  <span className="text-primary">{(linkedKr.currentValue || 0)} / {(linkedKr.targetValue || 100)} {linkedKr.unit || '%'}</span>
                 </div>
                 <div className="h-2 w-full bg-primary/10 rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-primary"
-                    style={{ width: `${(linkedKr.currentValue / linkedKr.targetValue) * 100}%` }}
+                    style={{ width: `${((linkedKr.currentValue || 0) / (linkedKr.targetValue || 100)) * 100}%` }}
                   />
                 </div>
               </div>

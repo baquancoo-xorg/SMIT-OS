@@ -1,24 +1,36 @@
 import { useState, useRef, useEffect } from 'react';
 import { Bell, Search, ChevronRight, User as UserIcon, Calendar, Tag, Settings, LogOut, Menu } from 'lucide-react';
-import { workItems, users } from '../../data/mockData';
 import { WorkItem } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function Header({ onViewChange, onMenuClick }: { onViewChange?: (view: string) => void; onMenuClick?: () => void }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchResults, setSearchResults] = useState<WorkItem[]>([]);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
-  const profileRef = useRef<HTMLDivElement>(null);
+  const { users } = useAuth();
+  const [allWorkItems, setAllWorkItems] = useState<WorkItem[]>([]);
+
+  useEffect(() => {
+    const fetchAllWorkItems = async () => {
+      try {
+        const res = await fetch('/api/work-items');
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setAllWorkItems(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch work items for search:', error);
+      }
+    };
+    fetchAllWorkItems();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsSearchFocused(false);
-      }
-      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
-        setIsProfileOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -32,7 +44,7 @@ export default function Header({ onViewChange, onMenuClick }: { onViewChange?: (
       return;
     }
 
-    const filtered = workItems.filter(item => {
+    const filtered = allWorkItems.filter(item => {
       const assignee = users.find(u => u.id === item.assigneeId);
       const searchStr = `${item.title} ${item.description || ''} ${assignee?.fullName || ''}`.toLowerCase();
       return searchStr.includes(query.toLowerCase());
@@ -139,53 +151,6 @@ export default function Header({ onViewChange, onMenuClick }: { onViewChange?: (
           >
             <Settings size={20} />
           </button>
-          
-          <div className="h-8 w-px bg-slate-100"></div>
-          
-          <div className="flex items-center gap-4 pl-2 relative" ref={profileRef}>
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-black text-on-surface leading-none">Hoàng Nguyễn</p>
-              <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">Agency PM</p>
-            </div>
-            <div className="relative cursor-pointer" onClick={() => setIsProfileOpen(!isProfileOpen)}>
-              <img 
-                src="https://picsum.photos/seed/pm/100/100" 
-                alt="User"
-                className="w-12 h-12 rounded-2xl object-cover ring-4 ring-white shadow-xl hover:ring-primary/20 transition-all"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-lg"></div>
-            </div>
-
-            <AnimatePresence>
-              {isProfileOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute top-full right-0 mt-4 w-48 bg-white rounded-2xl border border-slate-100 shadow-2xl shadow-slate-200/40 overflow-hidden flex flex-col z-50"
-                >
-                  <button 
-                    onClick={() => {
-                      setIsProfileOpen(false);
-                      onViewChange?.('profile');
-                    }}
-                    className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors text-left"
-                  >
-                    <UserIcon size={16} />
-                    Edit Profile
-                  </button>
-                  <div className="h-px bg-slate-100"></div>
-                  <button 
-                    className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-error hover:bg-error/5 transition-colors text-left"
-                  >
-                    <LogOut size={16} />
-                    Logout
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
         </div>
       </div>
     </header>

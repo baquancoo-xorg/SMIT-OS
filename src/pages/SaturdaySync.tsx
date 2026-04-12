@@ -39,7 +39,7 @@ export default function SaturdaySync() {
   }
 
   const averageConfidence = reports.length > 0 
-    ? (reports.reduce((sum, r) => sum + r.confidenceScore, 0) / reports.length).toFixed(1)
+    ? (reports.reduce((sum, r) => sum + (r.confidenceScore || 0), 0) / reports.length).toFixed(1)
     : '0.0';
 
   const activeBlockers = reports.filter(r => r.blockers && r.blockers.length > 10).length;
@@ -144,7 +144,7 @@ export default function SaturdaySync() {
   );
 }
 
-function ReportCard({ report }: { report: WeeklyReport }) {
+function ReportCard({ report }: { report: WeeklyReport; key?: string | number }) {
   const deptColors: Record<string, string> = {
     'Tech': 'text-blue-500 bg-blue-50',
     'Marketing': 'text-orange-500 bg-orange-50',
@@ -183,7 +183,7 @@ function ReportCard({ report }: { report: WeeklyReport }) {
           </div>
         </div>
         <div className="text-right">
-          <div className="text-3xl font-black text-on-surface font-headline">{report.confidenceScore}</div>
+          <div className="text-3xl font-black text-on-surface font-headline">{report.confidenceScore || 0}</div>
           <div className="text-[8px] font-black uppercase text-slate-400 tracking-[0.2em]">Confidence</div>
         </div>
       </div>

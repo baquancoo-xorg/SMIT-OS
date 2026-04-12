@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { WorkItem, Priority } from '../../types';
-import { users } from '../../data/mockData';
 import { 
   AlertCircle, 
   Clock, 
@@ -13,6 +12,7 @@ import {
   Eye
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface TaskTableViewProps {
   items: WorkItem[];
@@ -26,6 +26,7 @@ interface TaskTableViewProps {
 export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete, onEdit, onViewDetails }: TaskTableViewProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const { users } = useAuth();
   const priorityColors: Record<Priority, string> = {
     Low: 'bg-blue-50 text-blue-600',
     Medium: 'bg-amber-50 text-amber-600',
@@ -166,7 +167,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
                           />
                         ) : (
                           <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-[10px] font-black text-primary border border-primary/20">
-                            {assignee?.fullName.split(' ').map(n => n[0]).join('')}
+                            {assignee?.fullName ? assignee.fullName.split(' ').map(n => n[0]).join('') : '?'}
                           </div>
                         )}
                         <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></div>

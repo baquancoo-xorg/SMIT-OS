@@ -246,6 +246,9 @@ function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWor
   const [isAddKRModalOpen, setIsAddKRModalOpen] = useState(false);
   const { users } = useAuth();
 
+  // For now, we don't have parentL1 in the schema easily accessible here
+  const parentL1 = null;
+
   const handleAddKR = async (data: any) => {
     try {
       const newKR = {
@@ -540,6 +543,7 @@ function KeyResultRow({ kr, index, isL2, department, workItems, onLinkWorkItem, 
         onClose={() => setIsLinkModalOpen(false)}
         krId={kr.id}
         onLink={(item) => onLinkWorkItem(kr.id, item)}
+        workItems={workItems}
       />
 
       <DeleteConfirmModal
@@ -554,6 +558,15 @@ function KeyResultRow({ kr, index, isL2, department, workItems, onLinkWorkItem, 
       />
     </div>
   );
+}
+
+interface SubKeyResult {
+  id: string;
+  title: string;
+  currentValue: number;
+  targetValue: number;
+  unit?: string;
+  lastNote?: string;
 }
 
 function SubKeyResultRow({ skr, onUpdate, onDelete }: { skr: SubKeyResult, onUpdate: (updatedSkr: SubKeyResult) => void, onDelete: () => void }) {
@@ -860,7 +873,7 @@ function UpdateProgressModal({ isOpen, onClose, onSave, currentValue, targetValu
   );
 }
 
-function LinkWorkItemModal({ isOpen, onClose, krId, onLink }: { isOpen: boolean; onClose: () => void; krId: string; onLink: (item: WorkItem) => void }) {
+function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpen: boolean; onClose: () => void; krId: string; onLink: (item: WorkItem) => void; workItems: WorkItem[] }) {
   const [mode, setMode] = useState<'select' | 'create'>('select');
   const [selectedItemId, setSelectedItemId] = useState('');
   const [newItemTitle, setNewItemTitle] = useState('');
@@ -880,7 +893,10 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink }: { isOpen: boolean;
         title: newItemTitle,
         linkedKrId: krId,
         assigneeId: 'u1',
-        status: 'To Do'
+        status: 'To Do',
+        priority: 'Medium',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
       onLink(newItem);
     }

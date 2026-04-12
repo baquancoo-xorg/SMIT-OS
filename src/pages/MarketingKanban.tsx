@@ -42,10 +42,12 @@ export default function MarketingKanban() {
     try {
       const res = await fetch('/api/work-items');
       const data = await res.json();
-      const mktItems = data.filter((item: WorkItem) => 
-        ['Campaign', 'MktTask', 'Task'].includes(item.type)
-      );
-      setItems(mktItems);
+      if (Array.isArray(data)) {
+        const mktItems = data.filter((item: WorkItem) => 
+          ['Campaign', 'MktTask', 'Task'].includes(item.type)
+        );
+        setItems(mktItems);
+      }
     } catch (error) {
       console.error('Failed to fetch Marketing board data:', error);
     } finally {

@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "tsc --noEmit",
+    "start": "tsx server.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
