@@ -1,0 +1,217 @@
+import { useState } from 'react';
+import { workItems as initialWorkItems } from '../data/mockData';
+import DraggableTaskCard from '../components/board/DraggableTaskCard';
+import { 
+  DndContext, 
+  DragEndEvent, 
+  PointerSensor, 
+  useSensor, 
+  useSensors,
+  rectIntersection,
+  DragOverEvent,
+  DragStartEvent,
+  DragOverlay,
+  defaultDropAnimationSideEffects
+} from '@dnd-kit/core';
+import { 
+  SortableContext, 
+  verticalListSortingStrategy,
+  arrayMove 
+} from '@dnd-kit/sortable';
+import TaskCard from '../components/board/TaskCard';
+import TaskTableView from '../components/board/TaskTableView';
+import { WorkItem } from '../types';
+import { LayoutGrid, List } from 'lucide-react';
+
+const COLUMNS = ['Idea', 'Doing', 'Review', 'Done'];
+
+export default function MediaKanban() {
+  const [view, setView] = useState<'board' | 'table'>('board');
+  const [items, setItems] = useState<WorkItem[]>(
+    initialWorkItems.filter(item => item.type === 'MediaTask')
+  );
+  const [activeItem, setActiveItem] = useState<WorkItem | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    })
+  );
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const item = items.find(i => i.id === active.id);
+    if (item) setActiveItem(item);
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    if (activeId === overId) return;
+
+    const activeItem = items.find(i => i.id === activeId);
+    const overItem = items.find(i => i.id === overId);
+
+    const isOverAColumn = COLUMNS.includes(overId as string);
+
+    if (activeItem) {
+      if (overItem && activeItem.status !== overItem.status) {
+        setItems(prev => {
+          const activeIndex = prev.findIndex(i => i.id === activeId);
+          const overIndex = prev.findIndex(i => i.id === overId);
+          
+          const updatedItems = [...prev];
+          updatedItems[activeIndex] = { ...activeItem, status: overItem.status };
+          return arrayMove(updatedItems, activeIndex, overIndex);
+        });
+      } else if (isOverAColumn && activeItem.status !== overId) {
+        setItems(prev => {
+          const activeIndex = prev.findIndex(i => i.id === activeId);
+          const updatedItems = [...prev];
+          updatedItems[activeIndex] = { ...activeItem, status: overId as string };
+          return updatedItems;
+        });
+      }
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveItem(null);
+
+    if (!over) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    if (activeId !== overId) {
+      setItems(prev => {
+        const activeIndex = prev.findIndex(i => i.id === activeId);
+        const overIndex = prev.findIndex(i => i.id === overId);
+        
+        if (overIndex !== -1) {
+          return arrayMove(prev, activeIndex, overIndex);
+        }
+        return prev;
+      });
+    }
+  };
+
+  const handleUpdateTask = (updatedItem: WorkItem) => {
+    setItems(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
+  };
+
+  return (
+    <div className="h-full flex flex-col p-10 space-y-8 max-w-[1600px] mx-auto w-full">
+      {/* Media Workspace Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
+            <span className="hover:text-primary cursor-pointer">Media</span>
+            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+            <span className="text-on-surface">Production</span>
+          </nav>
+          <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Media <span className="text-tertiary">Kanban</span></h2>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="flex p-1 bg-surface-container-high rounded-full border border-outline-variant/10">
+            <button 
+              onClick={() => setView('board')}
+              className={`flex items-center gap-2 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${view === 'board' ? 'bg-white text-primary shadow-md' : 'text-slate-500 hover:text-primary'}`}
+            >
+              <LayoutGrid size={14} />
+              Board
+            </button>
+            <button 
+              onClick={() => setView('table')}
+              className={`flex items-center gap-2 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${view === 'table' ? 'bg-white text-primary shadow-md' : 'text-slate-500 hover:text-primary'}`}
+            >
+              <List size={14} />
+              Table
+            </button>
+          </div>
+          <button className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all">
+            <span className="material-symbols-outlined text-[20px]">add</span>
+            New Content
+          </button>
+        </div>
+      </div>
+
+      {view === 'table' ? (
+        <div className="flex-1 overflow-y-auto pb-8">
+          <TaskTableView items={items} onUpdate={handleUpdateTask} />
+        </div>
+      ) : (
+        <DndContext 
+          sensors={sensors}
+          collisionDetection={rectIntersection}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+        >
+        <div className="flex-1 flex gap-6 overflow-x-auto pb-4 items-start">
+          {COLUMNS.map(col => {
+            const columnItems = items.filter(i => i.status === col);
+            
+            return (
+              <div key={col} className="min-w-[320px] w-[320px] flex flex-col bg-slate-50/50 rounded-3xl border border-slate-200/50">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${
+                      col === 'Idea' ? 'bg-slate-400' :
+                      col === 'Doing' ? 'bg-primary' :
+                      col === 'Review' ? 'bg-secondary' :
+                      'bg-tertiary'
+                    }`}></div>
+                    <h3 className="font-black text-on-surface text-xs uppercase tracking-widest">{col}</h3>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-white text-slate-500 text-[10px] font-black border border-slate-200 shadow-sm">
+                    {columnItems.length}
+                  </span>
+                </div>
+                
+                <SortableContext 
+                  id={col}
+                  items={columnItems.map(i => i.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="flex-1 p-3 space-y-4 min-h-[200px]">
+                    {columnItems.map(item => (
+                      <DraggableTaskCard key={item.id} item={item} onUpdate={handleUpdateTask} />
+                    ))}
+                    {columnItems.length === 0 && (
+                      <div className="h-32 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-400 gap-2">
+                        <span className="material-symbols-outlined text-3xl opacity-20">inventory_2</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Empty Column</span>
+                      </div>
+                    )}
+                  </div>
+                </SortableContext>
+              </div>
+            );
+          })}
+        </div>
+
+          <DragOverlay dropAnimation={{
+            sideEffects: defaultDropAnimationSideEffects({
+              styles: {
+                active: {
+                  opacity: '0.5',
+                },
+              },
+            }),
+          }}>
+            {activeItem ? <TaskCard item={activeItem} /> : null}
+          </DragOverlay>
+        </DndContext>
+      )}
+    </div>
+  );
+}
