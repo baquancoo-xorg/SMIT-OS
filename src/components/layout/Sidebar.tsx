@@ -8,7 +8,7 @@ interface SidebarProps {
 
 export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
   return (
-    <aside className="fixed left-0 top-0 h-screen flex flex-col p-6 bg-white/70 backdrop-blur-xl rounded-r-3xl w-72 shadow-2xl z-50">
+    <aside className="h-full flex flex-col p-6 bg-white/70 backdrop-blur-xl rounded-r-3xl w-72 shadow-2xl z-50">
       <div className="flex flex-col items-start mb-10 px-2">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl soft-gradient flex items-center justify-center text-white font-black text-xl">S</div>
@@ -40,15 +40,9 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
           <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Operations</p>
           <NavItem 
             icon="terminal" 
-            label="Tech Scrum" 
+            label="Tech&Product" 
             active={currentView === 'tech'} 
             onClick={() => onViewChange('tech')} 
-          />
-          <NavItem 
-            icon="view_timeline" 
-            label="Sprints" 
-            active={currentView === 'sprints'} 
-            onClick={() => onViewChange('sprints')} 
           />
           <NavItem 
             icon="layers" 

@@ -59,15 +59,15 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
   };
 
   const typeColors: Record<string, string> = {
-    Epic: 'bg-primary/10 text-primary',
-    UserStory: 'bg-secondary/10 text-secondary',
-    TechTask: 'bg-tertiary/10 text-tertiary',
-    Campaign: 'bg-orange-100 text-orange-700',
-    MktTask: 'bg-amber-100 text-amber-700',
-    MediaTask: 'bg-pink-100 text-pink-700',
-    SaleTask: 'bg-emerald-100 text-emerald-700',
-    Deal: 'bg-emerald-100 text-emerald-700',
-    DealLost: 'bg-rose-100 text-rose-700',
+    Epic: 'bg-purple-100 text-purple-700 border-purple-200',
+    UserStory: 'bg-blue-100 text-blue-700 border-blue-200',
+    TechTask: 'bg-slate-100 text-slate-700 border-slate-200',
+    Campaign: 'bg-orange-100 text-orange-700 border-orange-200',
+    MktTask: 'bg-amber-100 text-amber-700 border-amber-200',
+    MediaTask: 'bg-pink-100 text-pink-700 border-pink-200',
+    SaleTask: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    Deal: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    DealLost: 'bg-rose-100 text-rose-700 border-rose-200',
   };
 
   const priorityColors: Record<Priority, string> = {

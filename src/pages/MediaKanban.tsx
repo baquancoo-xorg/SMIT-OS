@@ -141,7 +141,7 @@ export default function MediaKanban() {
   };
 
   return (
-    <div className="h-full flex flex-col p-10 space-y-8 max-w-[1600px] mx-auto w-full">
+    <div className="h-full flex flex-col p-6 md:p-10 space-y-8 w-full">
       {/* Media Workspace Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>

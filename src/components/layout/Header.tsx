@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, Search, ChevronRight, User as UserIcon, Calendar, Tag, Settings, LogOut } from 'lucide-react';
+import { Bell, Search, ChevronRight, User as UserIcon, Calendar, Tag, Settings, LogOut, Menu } from 'lucide-react';
 import { workItems, users } from '../../data/mockData';
 import { WorkItem } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 
-export default function Header({ onViewChange }: { onViewChange?: (view: string) => void }) {
+export default function Header({ onViewChange, onMenuClick }: { onViewChange?: (view: string) => void; onMenuClick?: () => void }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchResults, setSearchResults] = useState<WorkItem[]>([]);
@@ -41,20 +41,28 @@ export default function Header({ onViewChange }: { onViewChange?: (view: string)
   };
 
   return (
-    <header className="fixed top-0 right-0 left-72 h-20 z-50 bg-transparent">
-      <div className="max-w-[1600px] mx-auto w-full h-full px-10 flex items-center justify-between">
-        <div className="flex-1 max-w-xl relative" ref={searchRef}>
-          <div className="relative group">
-            <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
-            <input 
-              className="w-full bg-slate-50 border border-outline-variant/10 rounded-2xl py-3 pl-14 pr-6 text-sm focus:ring-4 focus:ring-primary/10 focus:bg-white focus:border-primary/30 transition-all placeholder:text-slate-400 font-medium" 
-              placeholder="Search tasks, descriptions, or team members..." 
-              type="text"
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              onFocus={() => setIsSearchFocused(true)}
-            />
-          </div>
+    <header className="fixed top-0 right-0 left-0 lg:left-72 h-20 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant/5">
+      <div className="w-full h-full px-4 md:px-10 flex items-center justify-between">
+        <div className="flex items-center gap-4 flex-1">
+          <button 
+            onClick={onMenuClick}
+            className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-xl transition-all active:scale-95"
+          >
+            <Menu size={24} />
+          </button>
+          
+          <div className="flex-1 max-w-xl relative" ref={searchRef}>
+            <div className="relative group">
+              <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+              <input 
+                className="w-full bg-slate-50/50 border border-outline-variant/10 rounded-2xl py-2.5 pl-14 pr-6 text-sm focus:ring-4 focus:ring-primary/10 focus:bg-white focus:border-primary/30 transition-all placeholder:text-slate-400 font-medium" 
+                placeholder="Search..." 
+                type="text"
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+              />
+            </div>
 
         {/* Search Results Dropdown */}
         <AnimatePresence>
@@ -114,7 +122,8 @@ export default function Header({ onViewChange }: { onViewChange?: (view: string)
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+          </div>
+        </div>
       
         <div className="flex items-center gap-6 ml-8">
           <button className="relative w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-xl transition-all active:scale-95 border border-transparent hover:border-outline-variant/10">

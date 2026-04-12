@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function Settings() {
   return (
-    <div className="h-full flex flex-col p-10 space-y-8 max-w-[1600px] mx-auto w-full">
+    <div className="h-full flex flex-col p-6 md:p-10 space-y-8 w-full">
       <div>
         <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Settings</h2>
         <p className="text-slate-500 mt-2">Manage your workspace preferences.</p>

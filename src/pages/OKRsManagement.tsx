@@ -40,7 +40,7 @@ export default function OKRsManagement() {
   };
 
   return (
-    <div className="h-full flex flex-col p-10 space-y-10 max-w-[1600px] mx-auto w-full">
+    <div className="h-full flex flex-col p-6 md:p-10 space-y-10 w-full">
       {/* Dashboard Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
