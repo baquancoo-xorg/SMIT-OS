@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { workItems as initialWorkItems } from '../data/mockData';
+import { useState, useEffect } from 'react';
 import DraggableTaskCard from '../components/board/DraggableTaskCard';
 import { 
   DndContext, 
@@ -33,10 +32,26 @@ export default function MediaKanban() {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<WorkItem | null>(null);
   const [viewingTask, setViewingTask] = useState<WorkItem | null>(null);
-  const [items, setItems] = useState<WorkItem[]>(
-    initialWorkItems.filter(item => item.type === 'MediaTask')
-  );
+  const [items, setItems] = useState<WorkItem[]>([]);
   const [activeItem, setActiveItem] = useState<WorkItem | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch('/api/work-items');
+        if (res.ok) {
+          const data = await res.json();
+          setItems(data.filter((item: WorkItem) => item.type === 'MediaTask'));
+        }
+      } catch (error) {
+        console.error('Failed to fetch data', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

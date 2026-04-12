@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { l1Objectives, l2Objectives, users, workItems } from '../data/mockData';
+import { useState, useEffect } from 'react';
+import { users } from '../data/mockData';
 import { Objective, KeyResult, WorkItem, WorkItemType, SubKeyResult } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { Target, Plus, ChevronDown, ChevronRight, Briefcase, Users, Zap, Edit2, X, Link as LinkIcon, Filter, TrendingUp, Trash2, AlertTriangle, Calendar } from 'lucide-react';
@@ -10,9 +10,35 @@ export default function OKRsManagement() {
   const [departmentFilter, setDepartmentFilter] = useState<string>('All');
   const [ownerFilter, setOwnerFilter] = useState<string>('All');
   const [statusFilter, setStatusFilter] = useState<string>('All');
-  const [items, setItems] = useState<WorkItem[]>(workItems);
+  const [items, setItems] = useState<WorkItem[]>([]);
+  const [allObjectives, setAllObjectives] = useState<Objective[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const objectives = activeTab === 'L1' ? l1Objectives : l2Objectives;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [itemsRes, objRes] = await Promise.all([
+          fetch('/api/work-items'),
+          fetch('/api/objectives')
+        ]);
+        if (itemsRes.ok) {
+          const itemsData = await itemsRes.json();
+          setItems(itemsData);
+        }
+        if (objRes.ok) {
+          const objsData = await objRes.json();
+          setAllObjectives(objsData);
+        }
+      } catch (error) {
+        console.error('Failed to fetch data', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const objectives = allObjectives.filter(obj => obj.level === activeTab);
 
   const getStatus = (progress: number) => {
     if (progress < 30) return 'Off Track';
@@ -92,19 +118,19 @@ export default function OKRsManagement() {
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10">Quarterly Progress</p>
           <div className="flex items-baseline gap-1 relative z-10">
-            <h4 className="text-4xl font-black font-headline">74.2%</h4>
+            <h4 className="text-4xl font-black font-headline">{objectives.length > 0 ? (objectives.reduce((sum, obj) => sum + obj.progressPercentage, 0) / objectives.length).toFixed(1) : '0.0'}%</h4>
           </div>
           <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mt-4 relative z-10">
-            <div className="h-full bg-primary w-[74%]"></div>
+            <div className="h-full bg-primary" style={{ width: `${objectives.length > 0 ? (objectives.reduce((sum, obj) => sum + obj.progressPercentage, 0) / objectives.length) : 0}%` }}></div>
           </div>
         </div>
         <div className="bg-white p-8 rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2 group">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Objectives Active</p>
           <div className="flex items-baseline gap-2">
-            <h4 className="text-4xl font-black font-headline">12</h4>
-            <span className="text-xs font-bold text-tertiary">+2 New</span>
+            <h4 className="text-4xl font-black font-headline">{objectives.length}</h4>
+            <span className="text-xs font-bold text-tertiary">+0 New</span>
           </div>
-          <p className="text-[10px] font-bold text-slate-400 mt-2">Across 5 Departments</p>
+          <p className="text-[10px] font-bold text-slate-400 mt-2">Across 0 Departments</p>
         </div>
         <div className="bg-white p-8 rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Critical Path Health</p>

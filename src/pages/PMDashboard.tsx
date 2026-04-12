@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { l1Objectives, l2Objectives, users } from '../data/mockData';
-import { Objective } from '../types';
+import { useState, useEffect } from 'react';
+import { users } from '../data/mockData';
+import { Objective, WorkItem } from '../types';
 import { 
   Rocket, 
   TrendingUp, 
@@ -13,6 +13,42 @@ import {
 
 export default function PMDashboard() {
   const currentUser = users[0]; // Alex Rivera (Creative Director)
+  const [workItems, setWorkItems] = useState<WorkItem[]>([]);
+  const [objectives, setObjectives] = useState<Objective[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [itemsRes, objRes] = await Promise.all([
+          fetch('/api/work-items'),
+          fetch('/api/objectives')
+        ]);
+        if (itemsRes.ok) {
+          const items = await itemsRes.json();
+          setWorkItems(items);
+        }
+        if (objRes.ok) {
+          const objs = await objRes.json();
+          setObjectives(objs);
+        }
+      } catch (error) {
+        console.error('Failed to fetch data', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Calculate metrics
+  const totalRevenue = workItems.reduce((sum, item) => sum + (item.dealValue || 0), 0);
+  const activeTasks = workItems.filter(item => item.status !== 'Done' && item.status !== 'Completed').length;
+  const completedTasks = workItems.filter(item => item.status === 'Done' || item.status === 'Completed').length;
+  const efficiency = workItems.length > 0 ? Math.round((completedTasks / workItems.length) * 100) : 0;
+  
+  // Mock happiness score for now
+  const happinessScore = 0.0;
 
   return (
     <div className="h-full flex flex-col p-6 md:p-10 space-y-12 w-full">
@@ -37,7 +73,7 @@ export default function PMDashboard() {
               referrerPolicy="no-referrer"
             />
           ))}
-          <div className="w-14 h-14 rounded-2xl border-4 border-white bg-slate-50 flex items-center justify-center text-xs font-black text-slate-400 shadow-xl">+{users.length - 4}</div>
+          <div className="w-14 h-14 rounded-2xl border-4 border-white bg-slate-50 flex items-center justify-center text-xs font-black text-slate-400 shadow-xl">+{Math.max(0, users.length - 4)}</div>
         </div>
       </section>
 
@@ -48,9 +84,9 @@ export default function PMDashboard() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 group-hover:scale-110 transition-transform duration-1000"></div>
           <div className="relative z-10">
             <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4">Revenue Stream</p>
-            <h3 className="text-5xl font-black font-headline mb-6">$428,500 <span className="text-sm font-bold text-tertiary flex items-center gap-1 inline-flex ml-2"><TrendingUp size={16} /> 12.5%</span></h3>
+            <h3 className="text-5xl font-black font-headline mb-6">${totalRevenue.toLocaleString()} <span className="text-sm font-bold text-tertiary flex items-center gap-1 inline-flex ml-2"><TrendingUp size={16} /> 0.0%</span></h3>
             <div className="flex items-end gap-2 h-16">
-              {[40, 70, 50, 90, 60, 80, 100].map((h, i) => (
+              {[0, 0, 0, 0, 0, 0, 0].map((h, i) => (
                 <div 
                   key={i}
                   className={`w-full rounded-t-xl transition-all duration-700 ${i === 6 ? 'bg-primary' : 'bg-primary/10'}`} 
@@ -67,8 +103,8 @@ export default function PMDashboard() {
             <CheckCircle2 size={40} />
           </div>
           <p className="text-[10px] font-black text-secondary uppercase tracking-[0.2em]">Active Tasks</p>
-          <h3 className="text-5xl font-black font-headline mt-2">142</h3>
-          <p className="text-[10px] font-bold text-slate-400 mt-3 uppercase tracking-widest">86% Efficiency</p>
+          <h3 className="text-5xl font-black font-headline mt-2">{activeTasks}</h3>
+          <p className="text-[10px] font-bold text-slate-400 mt-3 uppercase tracking-widest">{efficiency}% Efficiency</p>
         </div>
 
         {/* Team Happiness Score */}
@@ -76,12 +112,12 @@ export default function PMDashboard() {
           <div className="relative mb-6">
             <svg className="w-24 h-24 transform -rotate-90 group-hover:scale-110 transition-transform duration-500">
               <circle className="text-tertiary/5" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" strokeWidth="10"></circle>
-              <circle className="text-tertiary" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" strokeDasharray="251.2" strokeDashoffset="25.1" strokeWidth="10" strokeLinecap="round"></circle>
+              <circle className="text-tertiary" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" strokeDasharray="251.2" strokeDashoffset="251.2" strokeWidth="10" strokeLinecap="round"></circle>
             </svg>
-            <span className="absolute inset-0 flex items-center justify-center text-3xl font-black text-tertiary font-headline">9.2</span>
+            <span className="absolute inset-0 flex items-center justify-center text-3xl font-black text-tertiary font-headline">{happinessScore.toFixed(1)}</span>
           </div>
           <p className="text-[10px] font-black text-tertiary uppercase tracking-[0.2em]">Happiness Score</p>
-          <p className="text-[10px] font-bold text-slate-400 mt-3 uppercase tracking-widest">Vibe: <span className="text-tertiary">Kinetic</span></p>
+          <p className="text-[10px] font-bold text-slate-400 mt-3 uppercase tracking-widest">Vibe: <span className="text-tertiary">Neutral</span></p>
         </div>
       </section>
 
