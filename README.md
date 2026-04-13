@@ -66,15 +66,16 @@ npx prisma db push --force-reset
 
 ## Features
 
-- 🔐 Authentication with password hashing
-- 👥 User management (Admin only)
-- 📊 OKRs tracking
--  Tech & Product Kanban board
-- 📈 Marketing Kanban board
-- 🎬 Media Kanban board
-- 💰 Sales Kanban board
-- 📅 Weekly reports
-- ⚙️ Settings management
+- Authentication with password hashing
+- User management (Admin only)
+- OKRs tracking with auto-recalculation
+- Tech & Product Kanban board
+- Marketing Kanban board
+- Media Kanban board
+- Sales Kanban board
+- Weekly reports with approval workflow
+- Daily Sync reports
+- Settings management
 
 ## Database
 

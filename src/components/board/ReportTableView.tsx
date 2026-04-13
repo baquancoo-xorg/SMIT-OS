@@ -54,6 +54,7 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
             <tr className="bg-slate-50/50 border-b border-outline-variant/10">
               <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Department</th>
               <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Người báo cáo</th>
+              <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Status</th>
               <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Created at</th>
               <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Sprint</th>
               <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Week</th>
@@ -101,6 +102,17 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
                         </span>
                       </div>
                     </div>
+                  </td>
+
+                  {/* Status */}
+                  <td className="px-8 py-5">
+                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                      report.status === 'Approved'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-amber-100 text-amber-700'
+                    }`}>
+                      {report.status || 'Review'}
+                    </span>
                   </td>
 
                   {/* Created at */}

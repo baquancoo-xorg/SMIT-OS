@@ -13,12 +13,13 @@ import MarketingKanban from './pages/MarketingKanban';
 import MediaKanban from './pages/MediaKanban';
 import SaleKanban from './pages/SaleKanban';
 import SaturdaySync from './pages/SaturdaySync';
+import DailySync from './pages/DailySync';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'backlog' | 'mkt' | 'media' | 'sale' | 'sync' | 'settings' | 'profile';
+export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'backlog' | 'mkt' | 'media' | 'sale' | 'sync' | 'daily-sync' | 'settings' | 'profile';
 
 function AppContent() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -46,6 +47,7 @@ function AppContent() {
       {currentView === 'media' && <MediaKanban key="media" />}
       {currentView === 'sale' && <SaleKanban key="sale" />}
       {currentView === 'sync' && <SaturdaySync key="sync" />}
+      {currentView === 'daily-sync' && <DailySync key="daily-sync" />}
       {currentView === 'settings' && <Settings key="settings" />}
       {currentView === 'profile' && <Profile key="profile" />}
     </AppLayout>

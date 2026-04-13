@@ -49,6 +49,22 @@ export default function SaturdaySync() {
     setIsDetailOpen(true);
   };
 
+  const handleApprove = async (reportId: string) => {
+    try {
+      const res = await fetch(`/api/reports/${reportId}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ approverId: currentUser?.id })
+      });
+      if (res.ok) {
+        await fetchReports();
+        setIsDetailOpen(false);
+      }
+    } catch (error) {
+      console.error('Failed to approve report:', error);
+    }
+  };
+
   if (loading || !currentUser) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -132,6 +148,7 @@ export default function SaturdaySync() {
         report={selectedReport}
         isOpen={isDetailOpen}
         onClose={() => setIsDetailOpen(false)}
+        onApprove={handleApprove}
       />
     </div>
   );

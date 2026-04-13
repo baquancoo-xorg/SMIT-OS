@@ -82,5 +82,32 @@ export interface WeeklyReport {
   blockers: string; // JSON string
   score: number;
   confidenceScore?: number;
+  status: 'Review' | 'Approved';
+  approvedBy?: string;
+  approver?: { id: string; fullName: string };
+  approvedAt?: string;
+  krProgress?: string; // JSON: [{krId, currentValue, progressPct}]
   createdAt: string;
+}
+
+export interface DailyReport {
+  id: string;
+  userId: string;
+  user?: User;
+  reportDate: string;
+  status: 'Review' | 'Approved';
+  tasksData: string; // JSON: {completedYesterday: string[], doingYesterday: string[], doingToday: string[]}
+  blockers?: string;
+  impactLevel?: 'none' | 'low' | 'high';
+  approvedBy?: string;
+  approver?: { id: string; fullName: string };
+  approvedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DailyReportTasksData {
+  completedYesterday: string[];
+  doingYesterday: string[];
+  doingToday: string[];
 }

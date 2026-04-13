@@ -385,12 +385,12 @@ export default function TechScrumBoard() {
           onDragEnd={handleDragEnd}
         >
           <div className="flex-1 flex flex-col lg:flex-row gap-6 overflow-hidden min-h-0">
-            {/* Product Backlog (25%) */}
+            {/* Backlog (25%) */}
             <div className="w-full lg:w-1/4 h-[400px] lg:h-auto flex flex-col bg-surface-container-low/30 rounded-[32px] border border-outline-variant/10 overflow-hidden shrink-0 lg:shrink">
               <div className="p-5 flex items-center justify-between border-b border-outline-variant/5 bg-white/40">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">inventory_2</span>
-                  <h3 className="font-black text-on-surface text-xs uppercase tracking-widest">Product Backlog</h3>
+                  <h3 className="font-black text-on-surface text-xs uppercase tracking-widest">Backlog</h3>
                 </div>
                 <span className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black">
                   {backlogItems.length}

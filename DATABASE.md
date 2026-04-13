@@ -43,4 +43,5 @@ Located in `prisma/schema.prisma`:
 - **Objective**: Strategic objectives with key results
 - **KeyResult**: Measurable results for objectives
 - **WorkItem**: Tasks, campaigns, deals, etc.
-- **WeeklyReport**: Weekly progress reports
+- **WeeklyReport**: Weekly progress reports with approval workflow
+- **DailyReport**: Daily sync reports for task tracking

@@ -1,11 +1,13 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, CheckCircle } from 'lucide-react';
 import { WeeklyReport } from '../../types';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface ReportDetailDialogProps {
   report: WeeklyReport | null;
   isOpen: boolean;
   onClose: () => void;
+  onApprove?: (reportId: string) => Promise<void>;
 }
 
 // Helper to parse JSON safely
@@ -17,10 +19,24 @@ function parseJSON<T>(str: string): T | null {
   }
 }
 
-export default function ReportDetailDialog({ report, isOpen, onClose }: ReportDetailDialogProps) {
+export default function ReportDetailDialog({ report, isOpen, onClose, onApprove }: ReportDetailDialogProps) {
+  const { currentUser } = useAuth();
+  const [approving, setApproving] = React.useState(false);
+
   if (!isOpen || !report) return null;
 
   const user = report.user;
+  const canApprove = currentUser?.isAdmin && report.status !== 'Approved';
+
+  const handleApprove = async () => {
+    if (!onApprove || approving) return;
+    setApproving(true);
+    try {
+      await onApprove(report.id);
+    } finally {
+      setApproving(false);
+    }
+  };
   const weekEnding = new Date(report.weekEnding);
   const weekStart = new Date(weekEnding);
   weekStart.setDate(weekStart.getDate() - 6);
@@ -73,6 +89,16 @@ export default function ReportDetailDialog({ report, isOpen, onClose }: ReportDe
               </p>
             </div>
             <div className="text-right">
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">STATUS</p>
+              <span className={`px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest ${
+                report.status === 'Approved'
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-amber-100 text-amber-700'
+              }`}>
+                {report.status || 'Review'}
+              </span>
+            </div>
+            <div className="text-right">
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">SCORE</p>
               <p className="text-3xl font-black text-gray-900 font-headline">{report.score || 0}<span className="text-base text-gray-400">/10</span></p>
             </div>
@@ -91,6 +117,16 @@ export default function ReportDetailDialog({ report, isOpen, onClose }: ReportDe
                 <span className="text-xl font-black text-gray-900 font-headline">{(report.confidenceScore || 0)}<span className="text-sm text-gray-400">/10</span></span>
               </div>
             </div>
+            {canApprove && (
+              <button
+                onClick={handleApprove}
+                disabled={approving}
+                className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-2xl font-bold text-sm hover:bg-emerald-600 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/20"
+              >
+                <CheckCircle size={18} />
+                {approving ? 'Approving...' : 'Approve'}
+              </button>
+            )}
             <button
               onClick={onClose}
               className="w-11 h-11 flex items-center justify-center rounded-2xl bg-gray-50 hover:bg-red-50 hover:text-red-500 text-gray-400 transition-all border border-gray-200 hover:border-red-200"

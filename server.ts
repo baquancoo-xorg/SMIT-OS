@@ -335,7 +335,11 @@ app.delete("/api/work-items/:id", handleAsync(async (req: any, res: any) => {
 // Reports
 app.get("/api/reports", handleAsync(async (req: any, res: any) => {
   const reports = await prisma.weeklyReport.findMany({
-    include: { user: true },
+    include: {
+      user: true,
+      approver: { select: { id: true, fullName: true } }
+    },
+    orderBy: { createdAt: 'desc' }
   });
   res.json(reports);
 }));
@@ -343,7 +347,10 @@ app.get("/api/reports", handleAsync(async (req: any, res: any) => {
 app.get("/api/reports/:id", handleAsync(async (req: any, res: any) => {
   const report = await prisma.weeklyReport.findUnique({
     where: { id: req.params.id },
-    include: { user: true },
+    include: {
+      user: true,
+      approver: { select: { id: true, fullName: true } }
+    },
   });
   if (!report) return res.status(404).json({ error: "Not found" });
   res.json(report);
@@ -354,6 +361,7 @@ app.post("/api/reports", handleAsync(async (req: any, res: any) => {
     data: {
       ...req.body,
       weekEnding: new Date(req.body.weekEnding),
+      status: 'Review'
     },
     include: { user: true },
   });
@@ -361,18 +369,271 @@ app.post("/api/reports", handleAsync(async (req: any, res: any) => {
 }));
 
 app.put("/api/reports/:id", handleAsync(async (req: any, res: any) => {
-  const data: any = { ...req.body };
+  const { id } = req.params;
+  const { currentUserId, currentUserRole, ...updateData } = req.body;
+
+  const report = await prisma.weeklyReport.findUnique({ where: { id } });
+  if (!report) return res.status(404).json({ error: "Not found" });
+
+  // Only allow edit when status = Review
+  if (report.status === 'Approved') {
+    return res.status(400).json({ error: "Cannot edit approved report" });
+  }
+
+  const data: any = { ...updateData };
   if (data.weekEnding) data.weekEnding = new Date(data.weekEnding);
-  const report = await prisma.weeklyReport.update({
-    where: { id: req.params.id },
+
+  const updated = await prisma.weeklyReport.update({
+    where: { id },
     data,
     include: { user: true },
   });
+  res.json(updated);
+}));
+
+app.post("/api/reports/:id/approve", handleAsync(async (req: any, res: any) => {
+  const { id } = req.params;
+  const { approverId } = req.body;
+
+  const approver = await prisma.user.findUnique({ where: { id: approverId } });
+  if (!approver?.isAdmin) {
+    return res.status(403).json({ error: "Only Admin can approve" });
+  }
+
+  const report = await prisma.weeklyReport.update({
+    where: { id },
+    data: {
+      status: 'Approved',
+      approvedBy: approverId,
+      approvedAt: new Date()
+    },
+    include: { user: true }
+  });
+
+  // Sync OKR progress if krProgress data exists
+  if (report.krProgress) {
+    await syncOKRProgress(report);
+  }
+
   res.json(report);
 }));
 
 app.delete("/api/reports/:id", handleAsync(async (req: any, res: any) => {
   await prisma.weeklyReport.delete({ where: { id: req.params.id } });
+  res.status(204).send();
+}));
+
+// OKR Sync helper functions
+async function syncOKRProgress(report: any) {
+  if (!report.krProgress) return;
+
+  const krProgressData = JSON.parse(report.krProgress);
+
+  for (const kr of krProgressData) {
+    const keyResult = await prisma.keyResult.findUnique({
+      where: { id: kr.krId },
+      include: { objective: true }
+    });
+
+    if (!keyResult) continue;
+
+    let progressPct = kr.progressPct;
+    if (kr.currentValue !== undefined && keyResult.targetValue > 0) {
+      progressPct = (kr.currentValue / keyResult.targetValue) * 100;
+    }
+
+    await prisma.keyResult.update({
+      where: { id: kr.krId },
+      data: {
+        currentValue: kr.currentValue ?? keyResult.currentValue,
+        progressPercentage: Math.min(progressPct, 100)
+      }
+    });
+  }
+
+  await recalculateObjectiveProgress();
+}
+
+async function recalculateObjectiveProgress() {
+  const objectives = await prisma.objective.findMany({
+    include: {
+      keyResults: true,
+      children: { include: { keyResults: true } }
+    }
+  });
+
+  for (const obj of objectives) {
+    let progress = 0;
+
+    if (obj.parentId) {
+      // L2 Objective: average of KRs
+      if (obj.keyResults.length > 0) {
+        progress = obj.keyResults.reduce((sum, kr) => sum + kr.progressPercentage, 0) / obj.keyResults.length;
+      }
+    } else {
+      // L1 Objective: average of L2 children
+      if (obj.children.length > 0) {
+        const childProgress = obj.children.map(child => {
+          if (child.keyResults.length === 0) return 0;
+          return child.keyResults.reduce((sum, kr) => sum + kr.progressPercentage, 0) / child.keyResults.length;
+        });
+        progress = childProgress.reduce((a, b) => a + b, 0) / obj.children.length;
+      }
+    }
+
+    await prisma.objective.update({
+      where: { id: obj.id },
+      data: { progressPercentage: Math.round(progress * 100) / 100 }
+    });
+  }
+}
+
+app.post("/api/okrs/recalculate", handleAsync(async (req: any, res: any) => {
+  await recalculateObjectiveProgress();
+  res.json({ success: true });
+}));
+
+// Daily Reports
+app.get("/api/daily-reports", handleAsync(async (req: any, res: any) => {
+  const { userId, userRole, userDepartment } = req.query;
+
+  let where: any = {};
+
+  if (userRole === 'Member') {
+    where.userId = userId;
+  } else if (userRole?.includes('Leader')) {
+    where.OR = [
+      { userId },
+      { user: { department: userDepartment } }
+    ];
+  }
+
+  const reports = await prisma.dailyReport.findMany({
+    where,
+    include: {
+      user: { select: { id: true, fullName: true, department: true, role: true, avatar: true } },
+      approver: { select: { id: true, fullName: true } }
+    },
+    orderBy: { reportDate: 'desc' }
+  });
+  res.json(reports);
+}));
+
+app.get("/api/daily-reports/:id", handleAsync(async (req: any, res: any) => {
+  const report = await prisma.dailyReport.findUnique({
+    where: { id: req.params.id },
+    include: {
+      user: { select: { id: true, fullName: true, department: true, role: true, avatar: true } },
+      approver: { select: { id: true, fullName: true } }
+    }
+  });
+  if (!report) return res.status(404).json({ error: "Not found" });
+  res.json(report);
+}));
+
+app.post("/api/daily-reports", handleAsync(async (req: any, res: any) => {
+  const { userId, reportDate, tasksData, blockers, impactLevel } = req.body;
+
+  const existing = await prisma.dailyReport.findFirst({
+    where: {
+      userId,
+      reportDate: new Date(reportDate)
+    }
+  });
+
+  if (existing) {
+    return res.status(400).json({ error: "Report for this date already exists" });
+  }
+
+  const report = await prisma.dailyReport.create({
+    data: {
+      userId,
+      reportDate: new Date(reportDate),
+      tasksData: typeof tasksData === 'string' ? tasksData : JSON.stringify(tasksData),
+      blockers,
+      impactLevel,
+      status: 'Review'
+    },
+    include: { user: true }
+  });
+  res.json(report);
+}));
+
+app.put("/api/daily-reports/:id", handleAsync(async (req: any, res: any) => {
+  const { id } = req.params;
+  const { currentUserId, tasksData, ...updateData } = req.body;
+
+  // Verify user from database (security fix)
+  const currentUser = await prisma.user.findUnique({ where: { id: currentUserId } });
+  if (!currentUser) return res.status(401).json({ error: "Unauthorized" });
+
+  const report = await prisma.dailyReport.findUnique({
+    where: { id },
+    include: { user: true }
+  });
+
+  if (!report) return res.status(404).json({ error: "Not found" });
+
+  if (report.status === 'Approved') {
+    return res.status(400).json({ error: "Cannot edit approved report" });
+  }
+
+  const isOwner = report.userId === currentUserId;
+  const isLeaderOfUser = currentUser.role?.includes('Leader') && report.user.role === 'Member';
+  const isAdmin = currentUser.isAdmin;
+
+  if (!isOwner && !isLeaderOfUser && !isAdmin) {
+    return res.status(403).json({ error: "Not authorized" });
+  }
+
+  const updated = await prisma.dailyReport.update({
+    where: { id },
+    data: {
+      ...updateData,
+      tasksData: tasksData ? (typeof tasksData === 'string' ? tasksData : JSON.stringify(tasksData)) : undefined,
+      updatedAt: new Date()
+    },
+    include: { user: true }
+  });
+  res.json(updated);
+}));
+
+app.post("/api/daily-reports/:id/approve", handleAsync(async (req: any, res: any) => {
+  const { id } = req.params;
+  const { approverId } = req.body;
+
+  // Verify approver from database (security fix)
+  const approver = await prisma.user.findUnique({ where: { id: approverId } });
+  if (!approver) return res.status(401).json({ error: "Unauthorized" });
+
+  const report = await prisma.dailyReport.findUnique({
+    where: { id },
+    include: { user: true }
+  });
+
+  if (!report) return res.status(404).json({ error: "Not found" });
+
+  const isLeaderApprovesMember = approver.role?.includes('Leader') && report.user.role === 'Member';
+  const isAdmin = approver.isAdmin;
+
+  if (!isLeaderApprovesMember && !isAdmin) {
+    return res.status(403).json({ error: "Not authorized to approve" });
+  }
+
+  const updated = await prisma.dailyReport.update({
+    where: { id },
+    data: {
+      status: 'Approved',
+      approvedBy: approverId,
+      approvedAt: new Date()
+    },
+    include: { user: true }
+  });
+  res.json(updated);
+}));
+
+app.delete("/api/daily-reports/:id", handleAsync(async (req: any, res: any) => {
+  await prisma.dailyReport.delete({ where: { id: req.params.id } });
   res.status(204).send();
 }));
 

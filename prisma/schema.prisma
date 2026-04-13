@@ -11,18 +11,21 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  fullName   String
-  username   String   @unique
-  password   String
-  department String
-  role       String   // Admin, Leader, Member
-  scope      String?  // Vị trí công việc (e.g., "Backend Developer")
-  avatar     String
-  isAdmin    Boolean  @default(false)
-  objectives Objective[]
-  workItems  WorkItem[]
-  reports    WeeklyReport[]
+  id                   String         @id @default(uuid())
+  fullName             String
+  username             String         @unique
+  password             String
+  department           String
+  role                 String         // Admin, Leader, Member
+  scope                String?        // Vị trí công việc (e.g., "Backend Developer")
+  avatar               String
+  isAdmin              Boolean        @default(false)
+  objectives           Objective[]
+  workItems            WorkItem[]
+  reports              WeeklyReport[]
+  approvedReports      WeeklyReport[] @relation("ApprovedReports")
+  dailyReports         DailyReport[]
+  approvedDailyReports DailyReport[]  @relation("ApprovedDailyReports")
 }
 
 model Sprint {
@@ -79,13 +82,34 @@ model WorkItem {
 }
 
 model WeeklyReport {
-  id         String   @id @default(uuid())
+  id         String    @id @default(uuid())
   userId     String
-  user       User     @relation(fields: [userId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
   weekEnding DateTime
-  progress   String   // JSON string
-  plans      String   // JSON string
-  blockers   String   // JSON string
-  score      Int      @default(0)
-  createdAt  DateTime @default(now())
+  progress   String    // JSON string
+  plans      String    // JSON string
+  blockers   String    // JSON string
+  score      Int       @default(0)
+  status     String    @default("Review") // Review, Approved
+  approvedBy String?
+  approver   User?     @relation("ApprovedReports", fields: [approvedBy], references: [id])
+  approvedAt DateTime?
+  krProgress String?   // JSON: [{krId, currentValue, progressPct}]
+  createdAt  DateTime  @default(now())
+}
+
+model DailyReport {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  reportDate  DateTime
+  status      String    @default("Review") // Review, Approved
+  tasksData   String    // JSON: {completedYesterday: string[], doingYesterday: string[], doingToday: string[]}
+  blockers    String?
+  impactLevel String?   // none, low, high
+  approvedBy  String?
+  approver    User?     @relation("ApprovedDailyReports", fields: [approvedBy], references: [id])
+  approvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }

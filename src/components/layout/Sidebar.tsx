@@ -73,15 +73,21 @@ export default function Sidebar({ currentView, onViewChange, onLogout }: Sidebar
           <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">System</p>
           <NavItem
             icon={<Inbox size={18} />}
-            label="Product Backlog"
+            label="Backlog"
             active={currentView === 'backlog'}
             onClick={() => onViewChange('backlog')}
           />
           <NavItem
             icon="event_repeat"
-            label="Reports"
+            label="Weekly Report"
             active={currentView === 'sync'}
             onClick={() => onViewChange('sync')}
+          />
+          <NavItem
+            icon="event_note"
+            label="Daily Sync"
+            active={currentView === 'daily-sync'}
+            onClick={() => onViewChange('daily-sync')}
           />
         </div>
       </nav>

@@ -178,13 +178,13 @@ export default function ProductBacklog() {
           <nav className="flex items-center gap-2 mb-1 text-on-surface-variant font-medium text-xs">
             <span className="hover:text-primary cursor-pointer">Tech&Product</span>
             <span className="material-symbols-outlined text-[12px]">chevron_right</span>
-            <span className="text-on-surface">Product Backlog</span>
+            <span className="text-on-surface">Backlog</span>
           </nav>
           <h2 className="text-3xl font-black font-headline tracking-tight text-on-surface flex items-center gap-3">
             <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
               <Inbox size={20} />
             </span>
-            Product Backlog
+            Backlog
           </h2>
         </div>
 
@@ -493,6 +493,9 @@ function BacklogItemRow({
           )}
           <h4 className="text-sm font-bold text-on-surface truncate">{item.title}</h4>
         </div>
+        {item.description && (
+          <p className="text-xs text-slate-400 truncate max-w-[300px] mb-1">{item.description}</p>
+        )}
         <div className="flex items-center gap-4 text-[10px] text-slate-400 font-medium">
           {assignee && (
             <span className="flex items-center gap-1">
@@ -511,7 +514,7 @@ function BacklogItemRow({
       <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${priorityColors[item.priority] || priorityColors['Medium']}`}>
         {item.priority}
       </span>
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+      <div className="flex items-center gap-1">
         <button
           onClick={onViewDetails}
           className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
