@@ -7,11 +7,11 @@ import { useState } from 'react';
 import AppLayout from './components/layout/AppLayout';
 import PMDashboard from './pages/PMDashboard';
 import OKRsManagement from './pages/OKRsManagement';
-import TechScrumBoard from './pages/TechScrumBoard';
+import TechBoard from './pages/TechBoard';
 import ProductBacklog from './pages/ProductBacklog';
-import MarketingKanban from './pages/MarketingKanban';
-import MediaKanban from './pages/MediaKanban';
-import SaleKanban from './pages/SaleKanban';
+import MarketingBoard from './pages/MarketingBoard';
+import MediaBoard from './pages/MediaBoard';
+import SaleBoard from './pages/SaleBoard';
 import SaturdaySync from './pages/SaturdaySync';
 import DailySync from './pages/DailySync';
 import Settings from './pages/Settings';
@@ -41,11 +41,11 @@ function AppContent() {
     <AppLayout currentView={currentView} onViewChange={setCurrentView} onLogout={logout} isAdmin={isAdmin}>
       {currentView === 'dashboard' && <PMDashboard key="dashboard" />}
       {currentView === 'okrs' && <OKRsManagement key="okrs" />}
-      {currentView === 'tech' && <TechScrumBoard key="tech" />}
+      {currentView === 'tech' && <TechBoard key="tech" />}
       {currentView === 'backlog' && <ProductBacklog key="backlog" />}
-      {currentView === 'mkt' && <MarketingKanban key="mkt" />}
-      {currentView === 'media' && <MediaKanban key="media" />}
-      {currentView === 'sale' && <SaleKanban key="sale" />}
+      {currentView === 'mkt' && <MarketingBoard key="mkt" />}
+      {currentView === 'media' && <MediaBoard key="media" />}
+      {currentView === 'sale' && <SaleBoard key="sale" />}
       {currentView === 'sync' && <SaturdaySync key="sync" />}
       {currentView === 'daily-sync' && <DailySync key="daily-sync" />}
       {currentView === 'settings' && <Settings key="settings" />}

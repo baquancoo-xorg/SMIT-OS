@@ -30,7 +30,7 @@
   --color-surface-container-high: #dce1ff;
   --color-surface-container-highest: #d4dbff;
   
-  --color-outline: #6b759e;
+  --color-outline: #4a5580;
   --color-outline-variant: #a1abd7;
   
   --color-error: #b31b25;
@@ -57,7 +57,7 @@
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     @apply inline-block align-middle;
   }
-  
+
   .glass-panel {
     @apply bg-white/70 backdrop-blur-xl;
   }
@@ -70,3 +70,4 @@
     background: linear-gradient(135deg, #a03a0f 0%, #ffc4b1 100%);
   }
 }
+

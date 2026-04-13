@@ -116,27 +116,11 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
           )}
         </div>
         <div className="flex items-center gap-2 relative">
-          <motion.button
-            onClick={handleMarkAsDone}
-            whileHover={{ scale: 1.1, backgroundColor: '#f0fdf4' }}
-            whileTap={{ scale: 0.9 }}
-            className="w-10 h-10 flex items-center justify-center bg-slate-50 hover:bg-emerald-50 text-slate-300 hover:text-emerald-500 rounded-xl transition-all border border-outline-variant/10 shadow-sm"
-          >
-            <motion.span
-              initial={false}
-              animate={{
-                scale: item.status === 'Done' || item.status === 'Won' ? [1, 1.2, 1] : 1,
-                color: item.status === 'Done' || item.status === 'Won' ? '#10b981' : '#cbd5e1'
-              }}
-              className="material-symbols-outlined text-[24px]"
-            >
-              check_circle
-            </motion.span>
-          </motion.button>
-
           <button
             onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }}
-            className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+            className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-primary/50"
+            aria-label="Task actions menu"
+            aria-expanded={isMenuOpen}
           >
             <MoreHorizontal size={20} />
           </button>
@@ -151,20 +135,20 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
               >
                 <button
                   onClick={(e) => { e.stopPropagation(); onViewDetails?.(item); setIsMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors text-left"
+                  className="w-full flex items-center gap-3 px-4 py-3 min-h-[48px] text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors text-left"
                 >
                   <Eye size={16} /> View Details
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); onEdit?.(item); setIsMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors text-left"
+                  className="w-full flex items-center gap-3 px-4 py-3 min-h-[48px] text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors text-left"
                 >
                   <Edit2 size={16} /> Edit Task
                 </button>
                 <div className="h-px bg-slate-100"></div>
                 <button
                   onClick={(e) => { e.stopPropagation(); onDelete?.(item.id); setIsMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-error hover:bg-error/5 transition-colors text-left"
+                  className="w-full flex items-center gap-3 px-4 py-3 min-h-[48px] text-sm font-bold text-error hover:bg-error/5 transition-colors text-left"
                 >
                   <Trash2 size={16} /> Delete Task
                 </button>
@@ -177,8 +161,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
       <div className="space-y-5">
         <motion.h4
           layout
-          className={`text-base font-black leading-tight font-headline transition-colors duration-300 flex items-start gap-2 ${item.status === 'Done' || item.status === 'Won' ? 'text-slate-400 line-through' : 'text-on-surface'
-            }`}
+          className={`text-base font-black leading-tight font-headline transition-colors duration-300 flex items-start gap-2 ${item.status === 'Done' || item.status === 'Won' ? 'text-slate-400 line-through' : 'text-on-surface'}`}
         >
           {item.title}
           {linkedKr && (
@@ -235,18 +218,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
 
         <div className="flex items-center justify-between pt-6 border-t border-outline-variant/5">
           <div className="flex items-center gap-5">
-            <div className="flex items-center gap-2.5">
-              <div className="relative">
-                <img
-                  src={assignee?.avatar}
-                  alt={assignee?.fullName}
-                  className="w-8 h-8 rounded-xl object-cover border border-outline-variant/10 shadow-sm"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></div>
-              </div>
-              <span className="text-[10px] font-black text-on-surface uppercase tracking-widest">{assignee?.fullName}</span>
-            </div>
+            <span className="text-[10px] font-black text-on-surface uppercase tracking-widest">{assignee?.fullName}</span>
 
             <div className="h-4 w-px bg-slate-100"></div>
 
@@ -258,7 +230,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
               <div className="flex items-center gap-2 text-slate-400">
                 <span className="material-symbols-outlined text-[16px]">calendar_today</span>
                 <span className="text-[10px] font-black uppercase tracking-widest">
-                  {item.dueDate ? new Date(item.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'No Date'}
+                  {item.dueDate ? new Date(item.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '---'}
                 </span>
               </div>
             </div>

@@ -33,8 +33,7 @@ export default function DailySync() {
     try {
       const res = await fetch('/api/work-items');
       const data = await res.json();
-      const userTasks = data.filter((t: WorkItem) => t.assigneeId === currentUser?.id);
-      setTasks(userTasks);
+      setTasks(data);
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
     }
@@ -83,9 +82,9 @@ export default function DailySync() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
-            <span className="hover:text-primary cursor-pointer">Sync</span>
+            <span className="hover:text-primary cursor-pointer">Rituals</span>
             <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-            <span className="text-on-surface">Daily Report</span>
+            <span className="text-on-surface">Daily Sync</span>
           </nav>
           <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">
             Daily <span className="text-primary italic">Sync</span>
@@ -101,8 +100,8 @@ export default function DailySync() {
         </button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* Stats - 2x2 grid on mobile */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
         <div className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Today's Reports</p>
           <h4 className="text-3xl font-black font-headline mt-2">{todayReports.length}</h4>
@@ -121,30 +120,32 @@ export default function DailySync() {
         </div>
       </div>
 
-      {/* Reports Table */}
+      {/* Reports Table - C4: Scroll wrapper for mobile */}
       <div className="flex-1 overflow-y-auto">
         <div className="bg-white rounded-[32px] border border-outline-variant/10 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+            <div className="min-w-[700px]">
           <table className="w-full">
             <thead>
               <tr className="bg-slate-50/50 border-b border-outline-variant/10">
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left">Date</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left">Reporter</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left">Status</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left">Impact</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left">Blockers</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
+                <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[100px]">Date</th>
+                <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[150px]">Reporter</th>
+                <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[100px]">Status</th>
+                <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[80px]">Impact</th>
+                <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[120px]">Blockers</th>
+                <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right min-w-[80px]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100/50">
               {reports.map(report => (
                 <tr key={report.id} className="hover:bg-primary/[0.02] transition-colors">
-                  <td className="px-8 py-5">
+                  <td className="px-4 md:px-8 py-5">
                     <div className="flex items-center gap-2 text-sm font-bold text-on-surface">
                       <Calendar size={14} className="text-slate-400" />
                       {new Date(report.reportDate).toLocaleDateString('vi-VN')}
                     </div>
                   </td>
-                  <td className="px-8 py-5">
+                  <td className="px-4 md:px-8 py-5">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-black">
                         {report.user?.fullName?.split(' ').map(n => n[0]).join('') || '?'}
@@ -155,8 +156,8 @@ export default function DailySync() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-8 py-5">
-                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                  <td className="px-4 md:px-8 py-5">
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
                       report.status === 'Approved'
                         ? 'bg-emerald-100 text-emerald-700'
                         : 'bg-amber-100 text-amber-700'
@@ -164,8 +165,8 @@ export default function DailySync() {
                       {report.status}
                     </span>
                   </td>
-                  <td className="px-8 py-5">
-                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                  <td className="px-4 md:px-8 py-5">
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
                       report.impactLevel === 'high' ? 'bg-red-100 text-red-700' :
                       report.impactLevel === 'low' ? 'bg-yellow-100 text-yellow-700' :
                       'bg-slate-100 text-slate-500'
@@ -173,15 +174,15 @@ export default function DailySync() {
                       {report.impactLevel || 'none'}
                     </span>
                   </td>
-                  <td className="px-8 py-5">
+                  <td className="px-4 md:px-8 py-5">
                     <p className="text-sm text-slate-500 truncate max-w-[200px]">
                       {report.blockers || '-'}
                     </p>
                   </td>
-                  <td className="px-8 py-5 text-right">
+                  <td className="px-4 md:px-8 py-5 text-right">
                     <button
                       onClick={() => { setSelectedReport(report); setIsDetailOpen(true); }}
-                      className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+                      className="p-2 min-h-[44px] min-w-[44px] text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
                     >
                       <Eye size={16} />
                     </button>
@@ -197,6 +198,9 @@ export default function DailySync() {
               )}
             </tbody>
           </table>
+            </div>
+          </div>
+          <p className="text-[10px] text-slate-400 text-center py-2 md:hidden">← Scroll horizontally →</p>
         </div>
       </div>
 
@@ -216,6 +220,7 @@ export default function DailySync() {
           onClose={() => setIsDetailOpen(false)}
           onApprove={handleApprove}
           canApprove={(currentUser?.isAdmin || currentUser?.role?.includes('Leader')) && selectedReport.status !== 'Approved'}
+          tasks={tasks}
         />
       )}
     </div>
@@ -240,8 +245,9 @@ function DailyReportModal({
   const [impactLevel, setImpactLevel] = useState<'none' | 'low' | 'high'>('none');
   const [submitting, setSubmitting] = useState(false);
 
-  const inProgressTasks = tasks.filter(t => t.status === 'In Progress' || t.status === 'Doing');
-  const allTasks = tasks;
+  const userTasks = tasks.filter(t => t.assigneeId === currentUser?.id);
+  const inProgressTasks = userTasks.filter(t => t.status === 'In Progress' || t.status === 'Doing');
+  const allTasks = userTasks;
 
   const handleSubmit = async () => {
     if (submitting) return;
@@ -277,17 +283,18 @@ function DailyReportModal({
         className="relative bg-white rounded-[32px] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
-        <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="text-xl font-black font-headline">New Daily Report</h3>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
+        <div className="px-4 md:px-8 py-4 md:py-6 border-b border-slate-100 flex items-center justify-between">
+          <h3 className="text-lg md:text-xl font-black font-headline">New Daily Report</h3>
+          <button onClick={onClose} className="p-2 min-h-[44px] min-w-[44px] hover:bg-slate-100 rounded-xl transition-colors">
             <X size={20} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8 space-y-8">
+        {/* M8: Responsive padding */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
           {/* Yesterday's Tasks */}
           <div>
-            <h4 className="text-[11px] font-black uppercase text-emerald-500 tracking-widest mb-4 flex items-center gap-2">
+            <h4 className="text-xs font-black uppercase text-emerald-500 tracking-widest mb-4 flex items-center gap-2">
               <CheckCircle size={14} /> Tasks completed yesterday
             </h4>
             <div className="space-y-2">
@@ -314,7 +321,7 @@ function DailyReportModal({
 
           {/* Still working on */}
           <div>
-            <h4 className="text-[11px] font-black uppercase text-amber-500 tracking-widest mb-4 flex items-center gap-2">
+            <h4 className="text-xs font-black uppercase text-amber-500 tracking-widest mb-4 flex items-center gap-2">
               <AlertTriangle size={14} /> Still working on (from yesterday)
             </h4>
             <div className="space-y-2">
@@ -340,7 +347,7 @@ function DailyReportModal({
 
           {/* Today's Plan */}
           <div>
-            <h4 className="text-[11px] font-black uppercase text-primary tracking-widest mb-4 flex items-center gap-2">
+            <h4 className="text-xs font-black uppercase text-primary tracking-widest mb-4 flex items-center gap-2">
               <Calendar size={14} /> Plan for today
             </h4>
             <div className="space-y-2">
@@ -366,7 +373,7 @@ function DailyReportModal({
 
           {/* Blockers */}
           <div>
-            <h4 className="text-[11px] font-black uppercase text-red-500 tracking-widest mb-4">Blockers & Difficulties</h4>
+            <h4 className="text-xs font-black uppercase text-red-500 tracking-widest mb-4">Blockers & Difficulties</h4>
             <textarea
               value={blockers}
               onChange={e => setBlockers(e.target.value)}
@@ -377,7 +384,7 @@ function DailyReportModal({
 
           {/* Impact Level */}
           <div>
-            <h4 className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-4">Impact Level</h4>
+            <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-4">Impact Level</h4>
             <div className="flex gap-3">
               {['none', 'low', 'high'].map(level => (
                 <button
@@ -423,12 +430,14 @@ function DailyReportDetailModal({
   report,
   onClose,
   onApprove,
-  canApprove
+  canApprove,
+  tasks
 }: {
   report: DailyReport;
   onClose: () => void;
   onApprove: (id: string) => Promise<void>;
   canApprove: boolean;
+  tasks: WorkItem[];
 }) {
   const [approving, setApproving] = useState(false);
 
@@ -470,14 +479,17 @@ function DailyReportDetailModal({
 
         <div className="flex-1 overflow-y-auto p-8 space-y-6">
           <div>
-            <h4 className="text-[11px] font-black uppercase text-emerald-500 tracking-widest mb-3">Completed Yesterday</h4>
+            <h4 className="text-xs font-black uppercase text-emerald-500 tracking-widest mb-3">Completed Yesterday</h4>
             <div className="space-y-2">
               {tasksData.completedYesterday.length > 0 ? (
-                tasksData.completedYesterday.map((id, i) => (
-                  <div key={i} className="p-3 bg-emerald-50 rounded-xl text-sm font-medium text-emerald-700">
-                    Task ID: {id}
-                  </div>
-                ))
+                tasksData.completedYesterday.map((id, i) => {
+                  const task = tasks.find(t => t.id === id);
+                  return (
+                    <div key={i} className="p-3 bg-emerald-50 rounded-xl text-sm font-medium text-emerald-700">
+                      {task?.title || `Task: ${id.slice(0, 8)}...`}
+                    </div>
+                  );
+                })
               ) : (
                 <p className="text-slate-400 text-sm">No tasks completed</p>
               )}
@@ -485,14 +497,17 @@ function DailyReportDetailModal({
           </div>
 
           <div>
-            <h4 className="text-[11px] font-black uppercase text-amber-500 tracking-widest mb-3">Still Working On</h4>
+            <h4 className="text-xs font-black uppercase text-amber-500 tracking-widest mb-3">Still Working On</h4>
             <div className="space-y-2">
               {tasksData.doingYesterday.length > 0 ? (
-                tasksData.doingYesterday.map((id, i) => (
-                  <div key={i} className="p-3 bg-amber-50 rounded-xl text-sm font-medium text-amber-700">
-                    Task ID: {id}
-                  </div>
-                ))
+                tasksData.doingYesterday.map((id, i) => {
+                  const task = tasks.find(t => t.id === id);
+                  return (
+                    <div key={i} className="p-3 bg-amber-50 rounded-xl text-sm font-medium text-amber-700">
+                      {task?.title || `Task: ${id.slice(0, 8)}...`}
+                    </div>
+                  );
+                })
               ) : (
                 <p className="text-slate-400 text-sm">No ongoing tasks</p>
               )}
@@ -500,14 +515,17 @@ function DailyReportDetailModal({
           </div>
 
           <div>
-            <h4 className="text-[11px] font-black uppercase text-primary tracking-widest mb-3">Plan for Today</h4>
+            <h4 className="text-xs font-black uppercase text-primary tracking-widest mb-3">Plan for Today</h4>
             <div className="space-y-2">
               {tasksData.doingToday.length > 0 ? (
-                tasksData.doingToday.map((id, i) => (
-                  <div key={i} className="p-3 bg-primary/5 rounded-xl text-sm font-medium text-primary">
-                    Task ID: {id}
-                  </div>
-                ))
+                tasksData.doingToday.map((id, i) => {
+                  const task = tasks.find(t => t.id === id);
+                  return (
+                    <div key={i} className="p-3 bg-primary/5 rounded-xl text-sm font-medium text-primary">
+                      {task?.title || `Task: ${id.slice(0, 8)}...`}
+                    </div>
+                  );
+                })
               ) : (
                 <p className="text-slate-400 text-sm">No planned tasks</p>
               )}
@@ -516,7 +534,7 @@ function DailyReportDetailModal({
 
           {report.blockers && (
             <div>
-              <h4 className="text-[11px] font-black uppercase text-red-500 tracking-widest mb-3">Blockers</h4>
+              <h4 className="text-xs font-black uppercase text-red-500 tracking-widest mb-3">Blockers</h4>
               <div className="p-4 bg-red-50 rounded-xl">
                 <p className="text-sm text-red-700">{report.blockers}</p>
               </div>
@@ -525,7 +543,7 @@ function DailyReportDetailModal({
 
           {report.impactLevel && report.impactLevel !== 'none' && (
             <div>
-              <h4 className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-3">Impact Level</h4>
+              <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3">Impact Level</h4>
               <span className={`px-4 py-2 rounded-xl font-bold text-sm ${
                 report.impactLevel === 'high' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
               }`}>

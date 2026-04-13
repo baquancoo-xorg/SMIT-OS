@@ -280,11 +280,15 @@ app.put("/api/key-results/:id", handleAsync(async (req: any, res: any) => {
     data: req.body,
     include: { objective: true },
   });
+  // Recalculate objective progress after KR metadata changes
+  await recalculateObjectiveProgress();
   res.json(keyResult);
 }));
 
 app.delete("/api/key-results/:id", handleAsync(async (req: any, res: any) => {
   await prisma.keyResult.delete({ where: { id: req.params.id } });
+  // Recalculate objective progress after KR deleted
+  await recalculateObjectiveProgress();
   res.status(204).send();
 }));
 

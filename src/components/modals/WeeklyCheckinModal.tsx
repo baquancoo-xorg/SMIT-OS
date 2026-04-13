@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, AlertCircle, TrendingUp, Calendar, Target, CheckCircle2 } from 'lucide-react';
-import { Objective, KeyResult, User } from '../../types';
-import { motion, AnimatePresence } from 'motion/react';
+import { Objective, KeyResult } from '../../types';
+import { motion } from 'motion/react';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface WeeklyCheckinModalProps {
   isOpen: boolean;
@@ -10,31 +11,35 @@ interface WeeklyCheckinModalProps {
 }
 
 export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: WeeklyCheckinModalProps) {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [isPM, setIsPM] = useState(false);
-  const [selectedTeam, setSelectedTeam] = useState('Tech');
+  const { currentUser } = useAuth();
+  const [selectedTeam, setSelectedTeam] = useState(currentUser?.department || 'Tech');
   const [confidenceScore, setConfidenceScore] = useState<number | ''>('');
   const [blockers, setBlockers] = useState('');
   const [loading, setLoading] = useState(false);
   const [objectives, setObjectives] = useState<Objective[]>([]);
-  
-  // Weekly info
+
+  // Computed: can switch teams if admin or leader
+  const canSwitchTeam = currentUser?.isAdmin || currentUser?.role?.includes('Leader');
+
+  // Weekly info - computed from current date
   const now = new Date();
-  const weekNumber = 2; // Mocked for now
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const weekNumber = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
   const month = now.getMonth() + 1;
   const year = now.getFullYear();
 
+  // Calculate Friday of current week for weekEnding
+  const weekEnding = new Date(now);
+  const dayOfWeek = now.getDay();
+  const daysToFriday = dayOfWeek <= 5 ? 5 - dayOfWeek : 6;
+  weekEnding.setDate(now.getDate() + daysToFriday);
+
+  // Update selectedTeam when currentUser changes
   useEffect(() => {
-    const fetchUser = async () => {
-      const res = await fetch('/api/users');
-      const users = await res.json();
-      const user = users[0]; // Mocking first user as current user for now
-      setCurrentUser(user);
-      setIsPM(user.role === 'PM');
-      setSelectedTeam(user.department);
-    };
-    fetchUser();
-  }, []);
+    if (currentUser?.department) {
+      setSelectedTeam(currentUser.department);
+    }
+  }, [currentUser?.department]);
 
   useEffect(() => {
     const fetchObjectives = async () => {
@@ -43,12 +48,14 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
         const data = await res.json();
         const teamObjectives = data.filter((obj: Objective) => obj.department === selectedTeam);
         setObjectives(teamObjectives);
-        
+
         const teamKRs = teamObjectives.flatMap((obj: Objective) => obj.keyResults);
         setKrReviews(teamKRs.map((kr: KeyResult) => ({
           kr_id: kr.id,
           title: kr.title,
           currentProgress: kr.progressPercentage,
+          targetValue: kr.targetValue || 100,
+          currentValue: kr.currentValue || 0,
           what_we_did: '',
           impact_assessment: '',
           progress_added: 0
@@ -77,32 +84,41 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
     }
   };
 
-  const handleSubmit = async (status: 'SUBMITTED' | 'DRAFT') => {
-    if (status === 'SUBMITTED') {
-      if (confidenceScore === '') {
-        alert('Please select a Confidence Score');
-        return;
-      }
+  const handleSubmit = async () => {
+    if (confidenceScore === '') {
+      alert('Please select a Confidence Score');
+      return;
     }
 
     setLoading(true);
     try {
+      // Build krProgress in format expected by server syncOKRProgress
+      const krProgressData = krReviews.map(r => {
+        const newProgressPct = Math.min(100, r.currentProgress + r.progress_added);
+        const newCurrentValue = r.targetValue * newProgressPct / 100;
+        return {
+          krId: r.kr_id,
+          progressPct: newProgressPct,
+          currentValue: newCurrentValue
+        };
+      });
+
       const payload = {
         userId: currentUser?.id,
-        weekNumber,
-        month,
-        year,
+        weekEnding: weekEnding.toISOString(),
         confidenceScore: Number(confidenceScore),
-        progress: krReviews.map(r => `${r.title}: ${r.what_we_did}`).join('\n'),
-        plans: nextWeekPlans.map(p => `${p.item_name} (${p.expected_output})`).join('\n'),
-        blockers,
-        status,
-        krReviews: krReviews.map(({ kr_id, what_we_did, impact_assessment, progress_added }) => ({
-          kr_id, what_we_did, impact_assessment, progress_added
-        })),
-        nextWeekPlans: nextWeekPlans.map(({ item_name, expected_output, deadline }) => ({
+        progress: JSON.stringify(krReviews.map(r => ({
+          krId: r.kr_id,
+          title: r.title,
+          what_we_did: r.what_we_did,
+          progress_added: r.progress_added
+        }))),
+        plans: JSON.stringify(nextWeekPlans.map(({ item_name, expected_output, deadline }) => ({
           item_name, expected_output, deadline
-        }))
+        }))),
+        blockers: blockers || '',
+        score: Number(confidenceScore),
+        krProgress: JSON.stringify(krProgressData)
       };
 
       const res = await fetch('/api/reports', {
@@ -112,7 +128,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
       });
 
       if (res.ok) {
-        alert(status === 'SUBMITTED' ? 'Report submitted successfully!' : 'Draft saved!');
+        alert('Report submitted successfully!');
         onClose();
         if (onSuccess) onSuccess();
       } else {
@@ -147,28 +163,41 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
               <p className="text-sm text-slate-500 font-medium">Tuần {weekNumber} - Tháng {month}/{year}</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            {isPM && (
-              <div className="flex bg-slate-200/50 p-1 rounded-xl border border-slate-200">
-                {(['Tech', 'Marketing', 'Media', 'Sale'] as const).map(team => (
-                  <button
-                    key={team}
-                    onClick={() => setSelectedTeam(team)}
-                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${selectedTeam === team ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                  >
-                    {team}
-                  </button>
-                ))}
-              </div>
+          <div className="flex items-center gap-2 md:gap-4">
+            {canSwitchTeam && (
+              <>
+                {/* C6: Mobile dropdown */}
+                <select
+                  value={selectedTeam}
+                  onChange={(e) => setSelectedTeam(e.target.value)}
+                  className="md:hidden bg-surface-container-low border border-outline-variant/30 rounded-xl px-3 py-2 text-sm font-bold min-h-[44px]"
+                >
+                  {(['Tech', 'Marketing', 'Media', 'Sale'] as const).map(team => (
+                    <option key={team} value={team}>{team}</option>
+                  ))}
+                </select>
+                {/* Desktop buttons */}
+                <div className="hidden md:flex bg-slate-200/50 p-1 rounded-xl border border-slate-200">
+                  {(['Tech', 'Marketing', 'Media', 'Sale'] as const).map(team => (
+                    <button
+                      key={team}
+                      onClick={() => setSelectedTeam(team)}
+                      className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${selectedTeam === team ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                      {team}
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
-            <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded-full transition-colors">
+            <button onClick={onClose} className="p-2 min-h-[44px] min-w-[44px] text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded-full transition-colors">
               <X size={20} />
             </button>
           </div>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-8 space-y-10">
+        {/* Body - C6: Responsive padding */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-10">
           {/* Confidence Score */}
           <section className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -183,7 +212,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
             <select 
               value={confidenceScore}
               onChange={(e) => setConfidenceScore(Number(e.target.value))}
-              className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+              className="bg-white border border-slate-200 rounded-2xl px-4 py-2.5 text-sm font-bold text-primary focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
             >
               <option value="">Chọn mức độ (1-10)</option>
               {[1,2,3,4,5,6,7,8,9,10].map(n => (
@@ -232,7 +261,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                           newReviews[idx].progress_added = val;
                           setKrReviews(newReviews);
                         }}
-                        className="w-20 bg-white border border-slate-200 rounded-xl px-3 py-2 text-center text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                        className="w-20 bg-white border border-slate-200 rounded-2xl px-3 py-2 text-center text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                       />
                     </div>
                   </div>
@@ -248,7 +277,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                           setKrReviews(newReviews);
                         }}
                         placeholder="Liệt kê các task/epic đã hoàn thành..."
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
                       />
                     </div>
                     <div className="space-y-2">
@@ -261,7 +290,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                           setKrReviews(newReviews);
                         }}
                         placeholder="Phân tích xem việc đã làm giúp ích gì cho KR..."
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
                       />
                     </div>
                   </div>
@@ -286,14 +315,17 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
               </button>
             </div>
             
+            {/* M17: Scroll wrapper for mobile */}
             <div className="overflow-hidden border border-slate-200 rounded-2xl">
+              <div className="overflow-x-auto">
+                <div className="min-w-[500px]">
               <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
-                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hạng mục (Item)</th>
-                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cam kết đầu ra (Output)</th>
-                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-48">Deadline</th>
-                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-16"></th>
+                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest min-w-[150px]">Hạng mục (Item)</th>
+                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest min-w-[150px]">Cam kết đầu ra (Output)</th>
+                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-36 md:w-48">Deadline</th>
+                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-12 md:w-16"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 bg-white">
@@ -351,6 +383,8 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                   ))}
                 </tbody>
               </table>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -365,7 +399,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                 value={blockers}
                 onChange={(e) => setBlockers(e.target.value)}
                 placeholder="Nêu rõ các khó khăn đang gặp phải (nếu có)..."
-                className="w-full px-4 py-3 bg-white border border-rose-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-300 transition-all min-h-[120px] resize-none text-rose-900 placeholder:text-rose-300"
+                className="w-full px-4 py-3 bg-white border border-rose-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-300 transition-all min-h-[120px] resize-none text-rose-900 placeholder:text-rose-300"
               />
             </div>
           </section>
@@ -373,17 +407,18 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
 
         {/* Footer */}
         <div className="px-8 py-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50">
-          <button 
-            onClick={() => handleSubmit('DRAFT')}
+          <button
+            onClick={onClose}
             className="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200/50 rounded-xl transition-all"
           >
-            Lưu nháp
+            Hủy
           </button>
-          <button 
-            onClick={() => handleSubmit('SUBMITTED')}
-            className="px-8 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20 transition-all"
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="px-8 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
           >
-            Gửi báo cáo
+            {loading ? 'Đang gửi...' : 'Gửi báo cáo'}
           </button>
         </div>
       </motion.div>

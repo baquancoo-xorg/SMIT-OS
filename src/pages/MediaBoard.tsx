@@ -17,17 +17,18 @@ import {
   verticalListSortingStrategy,
   arrayMove
 } from '@dnd-kit/sortable';
+import { DroppableColumn } from '../components/board/droppable-column';
 import TaskCard from '../components/board/TaskCard';
 import TaskTableView from '../components/board/TaskTableView';
 import TaskModal from '../components/board/TaskModal';
 import TaskDetailsModal from '../components/board/TaskDetailsModal';
 import { WorkItem, Sprint } from '../types';
-import { LayoutGrid, List, ChevronDown, Filter, Search, Database } from 'lucide-react';
+import { LayoutGrid, List, ChevronDown, Filter, Database } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
-const COLUMNS = ['To Do', 'In Progress', 'Code Review', 'Done'];
+const COLUMNS = ['To Do', 'In Progress', 'Review', 'Done'];
 
-export default function TechScrumBoard() {
+export default function MediaBoard() {
   const [view, setView] = useState<'board' | 'table'>('board');
   const [selectedSprintId, setSelectedSprintId] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -53,25 +54,32 @@ export default function TechScrumBoard() {
         throw new Error('Failed to fetch data');
       }
 
-      const itemData = await itemRes.json();
+      const data = await itemRes.json();
       const sprintData = await sprintRes.json();
 
-      if (Array.isArray(itemData)) {
-        const techItems = itemData.filter((item: WorkItem) =>
-          item.assignee?.department === 'Tech' ||
-          ['Epic', 'UserStory', 'TechTask'].includes(item.type)
+      if (Array.isArray(data)) {
+        const mediaItems = data.filter((item: WorkItem) =>
+          item.assignee?.department === 'Media' ||
+          ['MediaTask'].includes(item.type)
         );
-        setItems(techItems);
+        setItems(mediaItems);
       }
 
       if (Array.isArray(sprintData)) {
         setSprints(sprintData);
         if (sprintData.length > 0 && !selectedSprintId) {
-          setSelectedSprintId(sprintData[0].id);
+          // Auto-select current sprint based on today's date
+          const today = new Date();
+          const currentSprint = sprintData.find((s: Sprint) => {
+            const start = new Date(s.startDate);
+            const end = new Date(s.endDate);
+            return today >= start && today <= end;
+          });
+          setSelectedSprintId(currentSprint?.id || sprintData[0].id);
         }
       }
     } catch (error) {
-      console.error('Failed to fetch Tech board data:', error);
+      console.error('Failed to fetch Media board data:', error);
       setError('Failed to load data. Please refresh the page.');
     } finally {
       setLoading(false);
@@ -121,7 +129,6 @@ export default function TechScrumBoard() {
 
       if (isOverBacklog) {
         newSprintId = undefined;
-        // Keep status or reset to To Do? Let's keep it but it's in backlog now
       } else if (isOverAColumn) {
         newStatus = overId as string;
         newSprintId = selectedSprintId;
@@ -155,7 +162,6 @@ export default function TechScrumBoard() {
     const activeItem = items.find(i => i.id === activeId);
     if (!activeItem) return;
 
-    // Determine new status and sprint
     let newStatus = activeItem.status;
     let newSprintId = activeItem.sprintId;
 
@@ -281,22 +287,23 @@ export default function TechScrumBoard() {
 
   const backlogItems = items.filter(i => !i.sprintId);
   const sprintItems = items.filter(i => i.sprintId === selectedSprintId);
+  // Stats items: All sprints = all items with sprintId, specific sprint = items in that sprint
+  const statsItems = selectedSprintId
+    ? items.filter(i => i.sprintId === selectedSprintId)
+    : items.filter(i => i.sprintId);
 
   return (
     <div className="h-full flex flex-col p-6 lg:p-10 space-y-6 w-full">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <nav className="flex items-center gap-2 mb-1 text-on-surface-variant font-medium text-xs">
-            <span className="hover:text-primary cursor-pointer">Tech&Product</span>
-            <span className="material-symbols-outlined text-[12px]">chevron_right</span>
-            <span className="text-on-surface">Agile Board</span>
+          <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
+            <span className="hover:text-primary cursor-pointer">Workspaces</span>
+            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+            <span className="text-on-surface">Media</span>
           </nav>
-          <h2 className="text-3xl font-black font-headline tracking-tight text-on-surface flex items-center gap-3">
-            <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-              <Database size={20} />
-            </span>
-            Tech&Product Workspace
+          <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">
+            <span className="text-pink-600 italic">Media</span> Workspace
           </h2>
         </div>
 
@@ -340,7 +347,7 @@ export default function TechScrumBoard() {
               onChange={(e) => setSelectedSprintId(e.target.value)}
               className="appearance-none bg-surface-container-low border border-outline-variant/20 rounded-xl px-4 py-2 pr-10 text-sm font-bold text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer hover:bg-surface-container"
             >
-              <option value="">No Sprint (Backlog)</option>
+              <option value="">All Sprints</option>
               {sprints.map(s => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
@@ -349,17 +356,34 @@ export default function TechScrumBoard() {
           </div>
         </div>
 
-        <div className="hidden lg:flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-primary"></div>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-              Velocity: {items.reduce((sum, i) => sum + (i.storyPoints || 0), 0)} Pts
+        <div className="hidden lg:flex items-center gap-4">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100">
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
+              Total: {statsItems.length}
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50">
+            <div className="w-2 h-2 rounded-full bg-slate-400"></div>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              To Do: {statsItems.filter(i => i.status === 'To Do').length}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/5">
+            <div className="w-2 h-2 rounded-full bg-primary"></div>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              In Progress: {statsItems.filter(i => i.status === 'In Progress').length}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/5">
+            <div className="w-2 h-2 rounded-full bg-secondary"></div>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              Review: {statsItems.filter(i => i.status === 'Review').length}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-tertiary/5">
             <div className="w-2 h-2 rounded-full bg-tertiary"></div>
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-              Done: {items.length > 0 ? Math.round((items.filter(i => i.status === 'Done').length / items.length) * 100) : 0}%
+              Done: {statsItems.filter(i => i.status === 'Done').length}
             </span>
           </div>
         </div>
@@ -434,7 +458,7 @@ export default function TechScrumBoard() {
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${col === 'To Do' ? 'bg-slate-400' :
                           col === 'In Progress' ? 'bg-primary' :
-                            col === 'Code Review' ? 'bg-secondary' :
+                            col === 'Review' ? 'bg-secondary' :
                               'bg-tertiary'
                           }`}></div>
                         <h3 className="font-black text-on-surface text-[10px] uppercase tracking-widest">{col}</h3>
@@ -444,24 +468,28 @@ export default function TechScrumBoard() {
                       </span>
                     </div>
 
-                    <SortableContext
+                    <DroppableColumn
                       id={col}
                       items={columnItems.map(i => i.id)}
-                      strategy={verticalListSortingStrategy}
+                      className="flex-1 p-3 space-y-4 overflow-y-auto custom-scrollbar"
                     >
-                      <div className="flex-1 p-3 space-y-4 overflow-y-auto custom-scrollbar min-h-[200px]">
-                        {columnItems.map(item => (
-                          <DraggableTaskCard
-                            key={item.id}
-                            item={item}
-                            onUpdate={handleUpdateTask}
-                            onDelete={handleDeleteTask}
-                            onEdit={handleEditTask}
-                            onViewDetails={handleViewDetails}
-                          />
-                        ))}
-                      </div>
-                    </SortableContext>
+                      {columnItems.map(item => (
+                        <DraggableTaskCard
+                          key={item.id}
+                          item={item}
+                          onUpdate={handleUpdateTask}
+                          onDelete={handleDeleteTask}
+                          onEdit={handleEditTask}
+                          onViewDetails={handleViewDetails}
+                        />
+                      ))}
+                      {columnItems.length === 0 && (
+                        <div className="h-32 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-400 gap-2">
+                          <span className="material-symbols-outlined text-3xl opacity-20">inventory_2</span>
+                          <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Empty Column</span>
+                        </div>
+                      )}
+                    </DroppableColumn>
                   </div>
                 );
               })}
@@ -486,7 +514,7 @@ export default function TechScrumBoard() {
         isOpen={isModalOpen}
         onClose={() => { setIsModalOpen(false); setEditingTask(null); }}
         onSave={handleCreateTask}
-        defaultType="TechTask"
+        defaultType="MediaTask"
         defaultStatus="To Do"
         initialData={editingTask}
       />
@@ -499,5 +527,3 @@ export default function TechScrumBoard() {
     </div>
   );
 }
-
-

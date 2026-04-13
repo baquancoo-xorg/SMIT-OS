@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { WorkItem, Priority } from '../../types';
-import { 
-  AlertCircle, 
-  Clock, 
-  CheckCircle2, 
+import {
+  AlertCircle,
+  Clock,
+  CheckCircle2,
   MoreHorizontal,
   User as UserIcon,
   Calendar,
   Trash2,
   Edit2,
-  Eye
+  Eye,
+  LayoutGrid,
+  List
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -26,7 +28,19 @@ interface TaskTableViewProps {
 export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete, onEdit, onViewDetails }: TaskTableViewProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'auto' | 'table' | 'card'>('auto');
+  const [isMobile, setIsMobile] = useState(false);
   const { users } = useAuth();
+
+  // C10: Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const effectiveView = viewMode === 'auto' ? (isMobile ? 'card' : 'table') : viewMode;
   const priorityColors: Record<Priority, string> = {
     Low: 'bg-blue-50 text-blue-600',
     Medium: 'bg-amber-50 text-amber-600',
@@ -75,27 +89,119 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
     }
   };
 
+  // C10: Mobile Card View Component
+  const MobileCardView = () => (
+    <div className="space-y-3">
+      {items.map(item => {
+        const assignee = users.find(u => u.id === item.assigneeId);
+        const totalSubtasks = item.subtasks?.length || 0;
+        const completedSubtasks = item.subtasks?.filter(st => st.completed).length || 0;
+        const progress = totalSubtasks > 0 ? Math.round((completedSubtasks / totalSubtasks) * 100) : 0;
+
+        return (
+          <div
+            key={item.id}
+            onClick={() => onViewDetails?.(item)}
+            className="bg-white p-4 rounded-2xl border border-outline-variant/10 shadow-sm active:scale-[0.98] transition-transform"
+          >
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <h4 className="text-sm font-bold text-on-surface line-clamp-2">{item.title}</h4>
+              <span className={`text-[10px] font-black px-2 py-1 rounded-full flex-shrink-0 ${
+                item.priority === 'Urgent' ? 'bg-error/10 text-error' :
+                item.priority === 'High' ? 'bg-orange-50 text-orange-600' :
+                item.priority === 'Medium' ? 'bg-amber-50 text-amber-600' :
+                'bg-slate-100 text-slate-500'
+              }`}>
+                {item.priority}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-4 text-[10px] text-slate-500 mb-3">
+              <span className="flex items-center gap-1">
+                <span className="material-symbols-outlined text-[14px]">person</span>
+                {assignee?.fullName || 'Unassigned'}
+              </span>
+              <span className={`font-bold ${
+                item.status === 'Done' || item.status === 'Won' ? 'text-emerald-600' :
+                item.status === 'In Progress' || item.status === 'Doing' ? 'text-primary' :
+                'text-slate-400'
+              }`}>
+                {item.status}
+              </span>
+            </div>
+
+            {/* Progress bar */}
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full transition-all ${progress === 100 ? 'bg-emerald-500' : 'bg-primary'}`}
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+              <span className="text-[10px] font-bold text-slate-400">{progress}%</span>
+            </div>
+
+            {item.dueDate && (
+              <div className="mt-2 text-[10px] text-error flex items-center gap-1">
+                <span className="material-symbols-outlined text-[12px]">calendar_today</span>
+                {new Date(item.dueDate).toLocaleDateString('vi-VN')}
+              </div>
+            )}
+          </div>
+        );
+      })}
+      {items.length === 0 && (
+        <div className="p-12 text-center bg-white rounded-2xl border border-outline-variant/10">
+          <CheckCircle2 size={32} className="text-slate-300 mx-auto mb-4" />
+          <p className="text-sm font-bold text-slate-900">No tasks found</p>
+        </div>
+      )}
+    </div>
+  );
+
   return (
-    <div className="bg-white rounded-[32px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden relative">
+    <div className="space-y-4">
+      {/* C10: View toggle for mobile */}
+      <div className="flex items-center gap-2 md:hidden">
+        <button
+          onClick={() => setViewMode('card')}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold min-h-[44px] transition-all ${
+            effectiveView === 'card' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600'
+          }`}
+        >
+          <LayoutGrid size={14} />
+          Cards
+        </button>
+        <button
+          onClick={() => setViewMode('table')}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold min-h-[44px] transition-all ${
+            effectiveView === 'table' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600'
+          }`}
+        >
+          <List size={14} />
+          Table
+        </button>
+      </div>
+
       <AnimatePresence>
         {selectedIds.size > 0 && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-0 left-0 right-0 bg-primary/5 border-b border-primary/10 px-8 py-4 flex items-center justify-between z-10"
+            exit={{ opacity: 0, y: -10 }}
+            className="flex items-center justify-between bg-error/5 p-4 rounded-3xl border border-error/20"
           >
-            <span className="text-sm font-bold text-primary">{selectedIds.size} tasks selected</span>
+            <p className="text-sm font-bold text-error">{selectedIds.size} task{selectedIds.size > 1 ? 's' : ''} selected</p>
             <div className="flex items-center gap-3">
-              <button 
+              <button
                 onClick={() => setSelectedIds(new Set())}
-                className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-colors"
+                className="px-4 py-2 rounded-full font-bold text-xs text-slate-500 hover:bg-slate-100 transition-all"
               >
-                Cancel
+                Clear
               </button>
-              <button 
+              <button
                 onClick={handleBulkDelete}
-                className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-error hover:bg-error/90 rounded-xl transition-colors shadow-lg shadow-error/20"
+                className="flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs bg-error text-white hover:scale-95 transition-all"
               >
                 <Trash2 size={14} />
                 Delete Selected
@@ -105,17 +211,28 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
         )}
       </AnimatePresence>
 
+      {/* C10: Conditional rendering - Card or Table view */}
+      {effectiveView === 'card' ? (
+        <MobileCardView />
+      ) : (
+      <div className="bg-white rounded-[32px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50/50 border-b border-outline-variant/10">
               <th className="px-8 py-6 w-12">
-                <input 
-                  type="checkbox" 
-                  className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20"
-                  checked={selectedIds.size === items.length && items.length > 0}
-                  onChange={handleSelectAll}
-                />
+                <button
+                  onClick={() => handleSelectAll({ target: { checked: !(selectedIds.size === items.length && items.length > 0) } } as any)}
+                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    selectedIds.size === items.length && items.length > 0
+                      ? 'bg-primary border-primary'
+                      : 'border-slate-300 hover:border-primary/50'
+                  }`}
+                >
+                  {selectedIds.size === items.length && items.length > 0 && (
+                    <span className="material-symbols-outlined text-white text-[14px]">check</span>
+                  )}
+                </button>
               </th>
               <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Task Details</th>
               <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Assignee</th>
@@ -137,12 +254,18 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
               return (
                 <tr key={item.id} className={`hover:bg-primary/[0.02] transition-colors group ${isSelected ? 'bg-primary/[0.02]' : ''}`}>
                   <td className="px-8 py-5">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20"
-                      checked={isSelected}
-                      onChange={() => handleSelectOne(item.id)}
-                    />
+                    <button
+                      onClick={() => handleSelectOne(item.id)}
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                        isSelected
+                          ? 'bg-primary border-primary'
+                          : 'border-slate-300 hover:border-primary/50'
+                      }`}
+                    >
+                      {isSelected && (
+                        <span className="material-symbols-outlined text-white text-[14px]">check</span>
+                      )}
+                    </button>
                   </td>
                   <td className="px-4 py-5">
                     <div className="flex flex-col">
@@ -156,24 +279,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
                     </div>
                   </td>
                   <td className="px-8 py-5">
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        {assignee?.avatar ? (
-                          <img 
-                            src={assignee.avatar} 
-                            alt={assignee.fullName} 
-                            className="w-8 h-8 rounded-xl object-cover border border-outline-variant/20 shadow-sm"
-                            referrerPolicy="no-referrer"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-[10px] font-black text-primary border border-primary/20">
-                            {assignee?.fullName ? assignee.fullName.split(' ').map(n => n[0]).join('') : '?'}
-                          </div>
-                        )}
-                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></div>
-                      </div>
-                      <span className="text-xs font-bold text-on-surface-variant">{assignee?.fullName}</span>
-                    </div>
+                    <span className="text-xs font-bold text-on-surface-variant">{assignee?.fullName || 'Unassigned'}</span>
                   </td>
                   <td className="px-8 py-5">
                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
@@ -265,6 +371,8 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
           <h3 className="text-sm font-bold text-slate-900">No tasks found</h3>
           <p className="text-xs text-slate-500 mt-1">Try adjusting your filters or add a new task.</p>
         </div>
+      )}
+      </div>
       )}
     </div>
   );

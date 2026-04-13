@@ -85,7 +85,7 @@ export default function SaturdaySync() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
-            <span className="hover:text-primary cursor-pointer">Sync</span>
+            <span className="hover:text-primary cursor-pointer">Rituals</span>
             <span className="material-symbols-outlined text-[14px]">chevron_right</span>
             <span className="text-on-surface">Weekly Report</span>
           </nav>
@@ -103,8 +103,8 @@ export default function SaturdaySync() {
         </div>
       </div>
 
-      {/* Team Confidence Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* Team Confidence Metrics - M9: 2x2 grid on small screens */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         <div className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Average Confidence</p>
           <div className="flex items-baseline gap-1">

@@ -121,7 +121,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+              className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 bg-white text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
               placeholder="Enter task title..."
             />
           </div>
@@ -131,18 +131,19 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[100px]"
+              className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[100px]"
               placeholder="Enter task description..."
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          {/* M6: Responsive grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Type</label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value as WorkItemType)}
-                className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
               >
                 <option value="Epic">Epic</option>
                 <option value="UserStory">User Story</option>
@@ -160,7 +161,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as Priority)}
-                className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
               >
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
@@ -174,7 +175,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
               <select
                 value={assigneeId}
                 onChange={(e) => setAssigneeId(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
               >
                 {users.map(user => (
                   <option key={user.id} value={user.id}>{user.fullName}</option>
@@ -187,7 +188,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
               >
                 <option value="To Do">To Do</option>
                 <option value="In Progress">In Progress</option>
@@ -202,7 +203,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
               />
             </div>
 
@@ -212,7 +213,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
               />
             </div>
 
@@ -223,7 +224,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
                   type="number"
                   value={storyPoints || ''}
                   onChange={(e) => setStoryPoints(e.target.value ? parseInt(e.target.value) : undefined)}
-                  className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                  className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
                   placeholder="e.g., 5"
                 />
               </div>
@@ -234,14 +235,14 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
                 Link to Key Result <span className="text-slate-300 normal-case tracking-normal">(Optional)</span>
               </label>
               {loadingKR ? (
-                <div className="px-4 py-3 rounded-xl border border-outline-variant/20 bg-slate-50 text-slate-400 text-sm">
+                <div className="px-4 py-3 rounded-2xl border border-outline-variant/20 bg-slate-50 text-slate-400 text-sm">
                   Loading key results...
                 </div>
               ) : (
                 <select
                   value={linkedKrId || ''}
                   onChange={(e) => setLinkedKrId(e.target.value || undefined)}
-                  className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                  className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
                 >
                   <option value="">No Key Result</option>
                   {keyResults.map(({ kr, objective }) => (

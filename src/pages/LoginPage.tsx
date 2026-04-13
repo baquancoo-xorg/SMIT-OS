@@ -26,7 +26,7 @@ export default function LoginPage() {
 
   return (
     <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-sm sm:max-w-md px-4 sm:px-0">
         {/* Logo Section */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
@@ -59,7 +59,7 @@ export default function LoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your username"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm text-on-surface placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
                 required
                 autoComplete="username"
               />
@@ -75,7 +75,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 pr-12 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 pr-12 text-sm text-on-surface placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
                   required
                   autoComplete="current-password"
                 />

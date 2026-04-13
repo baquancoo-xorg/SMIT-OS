@@ -14,12 +14,10 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
   const { users } = useAuth();
   const [allObjectives, setAllObjectives] = useState<Objective[]>([]);
 
-  if (!isOpen || !task) return null;
-
-  const assignee = users.find(u => u.id === task.assigneeId);
-
-  // Fetch objectives from API
+  // Fetch objectives from API - MUST be before early return (React Hooks Rules)
   useEffect(() => {
+    if (!isOpen) return;
+
     const fetchObjectives = async () => {
       try {
         const res = await fetch('/api/objectives');
@@ -32,7 +30,11 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
       }
     };
     fetchObjectives();
-  }, []);
+  }, [isOpen]);
+
+  if (!isOpen || !task) return null;
+
+  const assignee = users.find(u => u.id === task.assigneeId);
 
   // Find linked Key Result
   let linkedKr: any;
@@ -69,15 +71,16 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      {/* M7: Mobile optimized modal */}
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="bg-white rounded-3xl w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+          className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-2xl lg:max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh]"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-slate-100">
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100">
             <div className="flex items-center gap-3">
               <span className={`px-4 py-1.5 text-[10px] font-black rounded-full uppercase tracking-[0.15em] border ${typeColors[task.type] || 'bg-slate-50 text-slate-500 border-slate-100'}`}>
                 {task.type}
@@ -99,13 +102,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
               <h2 className="text-3xl font-black font-headline text-slate-800 mb-4">{task.title}</h2>
               <div className="flex flex-wrap items-center gap-6 text-sm font-bold text-slate-500">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden">
-                    {assignee?.avatar ? (
-                      <img src={assignee.avatar} alt={assignee.fullName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                    ) : (
-                      <UserIcon size={14} />
-                    )}
-                  </div>
+                  <UserIcon size={16} />
                   <span>{assignee?.fullName || 'Unassigned'}</span>
                 </div>
                 <div className="flex items-center gap-2">

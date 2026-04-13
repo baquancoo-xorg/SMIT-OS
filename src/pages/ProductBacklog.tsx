@@ -175,16 +175,13 @@ export default function ProductBacklog() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <nav className="flex items-center gap-2 mb-1 text-on-surface-variant font-medium text-xs">
-            <span className="hover:text-primary cursor-pointer">Tech&Product</span>
-            <span className="material-symbols-outlined text-[12px]">chevron_right</span>
-            <span className="text-on-surface">Backlog</span>
+          <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
+            <span className="hover:text-primary cursor-pointer">Planning</span>
+            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+            <span className="text-on-surface">Team Backlog</span>
           </nav>
-          <h2 className="text-3xl font-black font-headline tracking-tight text-on-surface flex items-center gap-3">
-            <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-              <Inbox size={20} />
-            </span>
-            Backlog
+          <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">
+            Team <span className="text-primary italic">Backlog</span>
           </h2>
         </div>
 
@@ -217,23 +214,20 @@ export default function ProductBacklog() {
 
       {/* Stats & Filters */}
       <div className="flex flex-col lg:flex-row gap-4">
-        {/* Stats */}
-        <div className="flex items-center gap-4 bg-white/50 backdrop-blur-md p-4 rounded-3xl border border-outline-variant/10 shadow-sm">
+        {/* Stats - C8: 2x2 grid on mobile */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white/50 backdrop-blur-md p-4 rounded-3xl border border-outline-variant/10 shadow-sm">
           <div className="text-center">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total</p>
             <p className="text-2xl font-black font-headline text-on-surface">{filteredItems.length}</p>
           </div>
-          <div className="w-px h-10 bg-outline-variant/10"></div>
           <div className="text-center">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Epics</p>
             <p className="text-2xl font-black font-headline text-purple-600">{items.filter(i => i.type === 'Epic').length}</p>
           </div>
-          <div className="w-px h-10 bg-outline-variant/10"></div>
           <div className="text-center">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stories</p>
             <p className="text-2xl font-black font-headline text-primary">{items.filter(i => i.type === 'UserStory').length}</p>
           </div>
-          <div className="w-px h-10 bg-outline-variant/10"></div>
           <div className="text-center">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tasks</p>
             <p className="text-2xl font-black font-headline text-tertiary">{items.filter(i => i.type === 'TechTask' || i.type === 'Task').length}</p>
@@ -473,69 +467,78 @@ function BacklogItemRow({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className={`p-4 flex items-center gap-4 hover:bg-surface-container-low/30 transition-all group ${isSelected ? 'bg-primary/5' : ''}`}
+      className={`p-4 hover:bg-surface-container-low/30 transition-all group ${isSelected ? 'bg-primary/5' : ''}`}
     >
-      <input
-        type="checkbox"
-        checked={isSelected}
-        onChange={onToggleSelect}
-        className="w-4 h-4 rounded border-outline-variant/30 text-primary focus:ring-primary/20 cursor-pointer"
-      />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${typeColors[item.type] || 'bg-slate-100 text-slate-600'}`}>
-            {item.type}
+      {/* Row 1: Primary info - Title, Type, Priority, Actions */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onToggleSelect}
+          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
+            isSelected
+              ? 'bg-primary border-primary'
+              : 'border-slate-300 hover:border-primary/50'
+          }`}
+        >
+          {isSelected && (
+            <span className="material-symbols-outlined text-white text-[14px]">check</span>
+          )}
+        </button>
+        <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full shrink-0 ${typeColors[item.type] || 'bg-slate-100 text-slate-600'}`}>
+          {item.type}
+        </span>
+        {item.storyPoints && (
+          <span className="text-[10px] font-bold bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded shrink-0">
+            {item.storyPoints} SP
           </span>
-          {item.storyPoints && (
-            <span className="text-[9px] font-bold bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded">
-              {item.storyPoints} SP
-            </span>
-          )}
-          <h4 className="text-sm font-bold text-on-surface truncate">{item.title}</h4>
-        </div>
-        {item.description && (
-          <p className="text-xs text-slate-400 truncate max-w-[300px] mb-1">{item.description}</p>
         )}
-        <div className="flex items-center gap-4 text-[10px] text-slate-400 font-medium">
-          {assignee && (
-            <span className="flex items-center gap-1">
-              <User size={10} />
-              {assignee.fullName}
-            </span>
-          )}
-          {item.dueDate && (
-            <span className="flex items-center gap-1">
-              <Calendar size={10} />
-              {new Date(item.dueDate).toLocaleDateString()}
-            </span>
-          )}
+        <h4 className="flex-1 text-sm font-bold text-on-surface truncate">{item.title}</h4>
+        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shrink-0 ${priorityColors[item.priority] || priorityColors['Medium']}`}>
+          {item.priority}
+        </span>
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            onClick={onViewDetails}
+            className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+            title="View Details"
+          >
+            <Eye size={14} />
+          </button>
+          <button
+            onClick={onEdit}
+            className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+            title="Edit"
+          >
+            <Edit2 size={14} />
+          </button>
+          <button
+            onClick={onDelete}
+            className="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-lg transition-all"
+            title="Delete"
+          >
+            <Trash2 size={14} />
+          </button>
         </div>
       </div>
-      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${priorityColors[item.priority] || priorityColors['Medium']}`}>
-        {item.priority}
-      </span>
-      <div className="flex items-center gap-1">
-        <button
-          onClick={onViewDetails}
-          className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
-          title="View Details"
-        >
-          <Eye size={14} />
-        </button>
-        <button
-          onClick={onEdit}
-          className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
-          title="Edit"
-        >
-          <Edit2 size={14} />
-        </button>
-        <button
-          onClick={onDelete}
-          className="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-lg transition-all"
-          title="Delete"
-        >
-          <Trash2 size={14} />
-        </button>
+
+      {/* Row 2: Description - Full width */}
+      {item.description && (
+        <p className="mt-2 ml-7 text-xs text-slate-500 line-clamp-2">{item.description}</p>
+      )}
+
+      {/* Row 3: Meta info - Assignee, Due Date */}
+      <div className="mt-2 ml-7 flex items-center gap-4 text-[10px] text-slate-400 font-medium">
+        {assignee && (
+          <span className="flex items-center gap-1">
+            <User size={10} />
+            {assignee.fullName}
+          </span>
+        )}
+        {item.dueDate && (
+          <span className="flex items-center gap-1">
+            <Calendar size={10} />
+            {new Date(item.dueDate).toLocaleDateString()}
+          </span>
+        )}
       </div>
     </motion.div>
   );
@@ -582,12 +585,18 @@ function BacklogTableView({
         <thead>
           <tr className="border-b border-outline-variant/10 bg-surface-container-low/30">
             <th className="p-4 w-12">
-              <input
-                type="checkbox"
-                checked={selectedIds.size === items.length && items.length > 0}
-                onChange={onSelectAll}
-                className="w-4 h-4 rounded border-outline-variant/30 text-primary focus:ring-primary/20 cursor-pointer"
-              />
+              <button
+                onClick={onSelectAll}
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                  selectedIds.size === items.length && items.length > 0
+                    ? 'bg-primary border-primary'
+                    : 'border-slate-300 hover:border-primary/50'
+                }`}
+              >
+                {selectedIds.size === items.length && items.length > 0 && (
+                  <span className="material-symbols-outlined text-white text-[14px]">check</span>
+                )}
+              </button>
             </th>
             <th className="p-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Type</th>
             <th className="p-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Title</th>
@@ -607,15 +616,21 @@ function BacklogTableView({
                 className={`hover:bg-surface-container-low/30 transition-all ${selectedIds.has(item.id) ? 'bg-primary/5' : ''}`}
               >
                 <td className="p-4">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.has(item.id)}
-                    onChange={() => onToggleSelect(item.id)}
-                    className="w-4 h-4 rounded border-outline-variant/30 text-primary focus:ring-primary/20 cursor-pointer"
-                  />
+                  <button
+                    onClick={() => onToggleSelect(item.id)}
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                      selectedIds.has(item.id)
+                        ? 'bg-primary border-primary'
+                        : 'border-slate-300 hover:border-primary/50'
+                    }`}
+                  >
+                    {selectedIds.has(item.id) && (
+                      <span className="material-symbols-outlined text-white text-[14px]">check</span>
+                    )}
+                  </button>
                 </td>
                 <td className="p-4">
-                  <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-full ${typeColors[item.type] || 'bg-slate-100 text-slate-600'}`}>
+                  <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-full ${typeColors[item.type] || 'bg-slate-100 text-slate-600'}`}>
                     {item.type}
                   </span>
                 </td>
@@ -626,7 +641,7 @@ function BacklogTableView({
                   <p className="text-xs text-on-surface-variant font-medium">{assignee?.fullName || '—'}</p>
                 </td>
                 <td className="p-4">
-                  <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${priorityColors[item.priority] || priorityColors['Medium']}`}>
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${priorityColors[item.priority] || priorityColors['Medium']}`}>
                     {item.priority}
                   </span>
                 </td>

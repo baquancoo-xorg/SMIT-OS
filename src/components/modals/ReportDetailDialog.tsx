@@ -65,74 +65,79 @@ export default function ReportDetailDialog({ report, isOpen, onClose, onApprove 
         className="relative bg-white rounded-[40px] shadow-2xl w-full max-w-6xl max-h-[92vh] overflow-hidden flex flex-col border border-gray-100"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex-shrink-0 px-10 py-7 border-b border-gray-100 flex items-center justify-between bg-white">
-          <div className="flex items-center gap-6">
-            <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center font-black text-gray-700 text-lg border border-gray-200 shadow-sm">
-              {user?.fullName.split(' ').map(n => n[0]).join('') || '?'}
-            </div>
-            <div>
-              <h3 className="text-2xl font-black text-gray-900 font-headline">{user?.fullName || 'Unknown User'}</h3>
-              <div className="flex items-center gap-3 mt-1.5">
-                <span className={`px-4 py-1 rounded-full text-[11px] font-black uppercase tracking-widest border ${deptColor}`}>
-                  {user?.department}
-                </span>
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{user?.role}</span>
+        {/* Header - C7: Stack on mobile */}
+        <div className="flex-shrink-0 px-4 md:px-10 py-4 md:py-7 border-b border-gray-100 bg-white">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            {/* User Info */}
+            <div className="flex items-center gap-4 md:gap-6">
+              <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center font-black text-gray-700 text-sm md:text-lg border border-gray-200 shadow-sm flex-shrink-0">
+                {user?.fullName.split(' ').map(n => n[0]).join('') || '?'}
               </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-8">
-            <div className="text-right">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">WEEK</p>
-              <p className="text-sm font-bold text-gray-900 mt-0.5">
-                {weekStart.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })} - {weekEnding.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">STATUS</p>
-              <span className={`px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest ${
-                report.status === 'Approved'
-                  ? 'bg-emerald-100 text-emerald-700'
-                  : 'bg-amber-100 text-amber-700'
-              }`}>
-                {report.status || 'Review'}
-              </span>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">SCORE</p>
-              <p className="text-3xl font-black text-gray-900 font-headline">{report.score || 0}<span className="text-base text-gray-400">/10</span></p>
-            </div>
-            {/* Confidence Score */}
-            <div className="text-right bg-gradient-to-br from-gray-50 to-slate-50 rounded-3xl px-6 py-4 border border-gray-200">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">CONFIDENCE</p>
-              <div className="flex items-center gap-3 mt-1.5">
-                <div className="flex items-center gap-1.5">
-                  {[...Array(5)].map((_, i) => (
-                    <div
-                      key={i}
-                      className={`w-2.5 h-6 rounded-md ${i < Math.floor((report.confidenceScore || 0) / 2) ? 'bg-gradient-to-b from-emerald-400 to-emerald-500' : 'bg-gray-200'}`}
-                    />
-                  ))}
+              <div>
+                <h3 className="text-lg md:text-2xl font-black text-gray-900 font-headline">{user?.fullName || 'Unknown User'}</h3>
+                <div className="flex items-center gap-2 md:gap-3 mt-1 flex-wrap">
+                  <span className={`px-2 md:px-4 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest border ${deptColor}`}>
+                    {user?.department}
+                  </span>
+                  <span className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">{user?.role}</span>
                 </div>
-                <span className="text-xl font-black text-gray-900 font-headline">{(report.confidenceScore || 0)}<span className="text-sm text-gray-400">/10</span></span>
               </div>
             </div>
-            {canApprove && (
+
+            {/* Metrics & Actions - wrap on mobile */}
+            <div className="flex flex-wrap items-center gap-2 md:gap-4 lg:gap-8">
+              <div className="text-left md:text-right">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">WEEK</p>
+                <p className="text-xs md:text-sm font-bold text-gray-900 mt-0.5">
+                  {weekStart.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })} - {weekEnding.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                </p>
+              </div>
+              <div className="text-left md:text-right">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">STATUS</p>
+                <span className={`inline-block px-2 md:px-4 py-1 md:py-1.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest ${
+                  report.status === 'Approved'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : 'bg-amber-100 text-amber-700'
+                }`}>
+                  {report.status || 'Review'}
+                </span>
+              </div>
+              <div className="text-left md:text-right">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">SCORE</p>
+                <p className="text-xl md:text-3xl font-black text-gray-900 font-headline">{report.score || 0}<span className="text-sm md:text-base text-gray-400">/10</span></p>
+              </div>
+              {/* Confidence Score - hidden on very small screens */}
+              <div className="hidden sm:block text-right bg-gradient-to-br from-gray-50 to-slate-50 rounded-2xl md:rounded-3xl px-4 md:px-6 py-3 md:py-4 border border-gray-200">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">CONFIDENCE</p>
+                <div className="flex items-center gap-2 md:gap-3 mt-1 md:mt-1.5">
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <div
+                        key={i}
+                        className={`w-2 h-4 md:w-2.5 md:h-6 rounded-md ${i < Math.floor((report.confidenceScore || 0) / 2) ? 'bg-gradient-to-b from-emerald-400 to-emerald-500' : 'bg-gray-200'}`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-lg md:text-xl font-black text-gray-900 font-headline">{(report.confidenceScore || 0)}<span className="text-xs md:text-sm text-gray-400">/10</span></span>
+                </div>
+              </div>
+              {canApprove && (
+                <button
+                  onClick={handleApprove}
+                  disabled={approving}
+                  className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-emerald-500 text-white rounded-xl md:rounded-2xl font-bold text-sm hover:bg-emerald-600 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/20 min-h-[44px]"
+                >
+                  <CheckCircle size={18} />
+                  <span className="hidden sm:inline">{approving ? 'Approving...' : 'Approve'}</span>
+                </button>
+              )}
               <button
-                onClick={handleApprove}
-                disabled={approving}
-                className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-2xl font-bold text-sm hover:bg-emerald-600 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/20"
+                onClick={onClose}
+                className="w-10 h-10 md:w-11 md:h-11 flex items-center justify-center rounded-xl md:rounded-2xl bg-gray-50 hover:bg-red-50 hover:text-red-500 text-gray-400 transition-all border border-gray-200 hover:border-red-200 min-h-[44px] min-w-[44px]"
               >
-                <CheckCircle size={18} />
-                {approving ? 'Approving...' : 'Approve'}
+                <X size={20} />
               </button>
-            )}
-            <button
-              onClick={onClose}
-              className="w-11 h-11 flex items-center justify-center rounded-2xl bg-gray-50 hover:bg-red-50 hover:text-red-500 text-gray-400 transition-all border border-gray-200 hover:border-red-200"
-            >
-              <X size={20} />
-            </button>
+            </div>
           </div>
         </div>
 
@@ -140,7 +145,7 @@ export default function ReportDetailDialog({ report, isOpen, onClose, onApprove 
         <div className="flex-1 overflow-y-auto px-10 py-8 space-y-10 bg-gradient-to-b from-gray-50/30 to-white">
           {/* Progress Section */}
           <div>
-            <h4 className="text-[11px] font-black uppercase text-emerald-500 tracking-[0.25em] flex items-center gap-3 mb-6">
+            <h4 className="text-xs font-black uppercase text-emerald-500 tracking-[0.25em] flex items-center gap-3 mb-6">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/30"></span> Progress - Báo cáo tiến độ
             </h4>
             <div className="space-y-6">
@@ -148,7 +153,7 @@ export default function ReportDetailDialog({ report, isOpen, onClose, onApprove 
                 <div key={idx} className="bg-white rounded-3xl p-7 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between gap-6 mb-4">
                     <div className="flex-1">
-                      <span className="text-[11px] font-black text-emerald-500 uppercase tracking-widest">{kr.krId}</span>
+                      <span className="text-xs font-black text-emerald-500 uppercase tracking-widest">{kr.krId}</span>
                       <h5 className="text-base font-bold text-gray-900 mt-2 leading-snug">{kr.title}</h5>
                     </div>
                     <div className="flex items-center gap-4 flex-shrink-0">
@@ -201,7 +206,7 @@ export default function ReportDetailDialog({ report, isOpen, onClose, onApprove 
 
           {/* Plans Section */}
           <div>
-            <h4 className="text-[11px] font-black uppercase text-blue-500 tracking-[0.25em] flex items-center gap-3 mb-6">
+            <h4 className="text-xs font-black uppercase text-blue-500 tracking-[0.25em] flex items-center gap-3 mb-6">
               <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-lg shadow-blue-500/30"></span> Plans - Kế hoạch tuần tới
             </h4>
             <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
@@ -243,7 +248,7 @@ export default function ReportDetailDialog({ report, isOpen, onClose, onApprove 
 
           {/* Blockers Section */}
           <div>
-            <h4 className="text-[11px] font-black uppercase text-red-500 tracking-[0.25em] flex items-center gap-3 mb-6">
+            <h4 className="text-xs font-black uppercase text-red-500 tracking-[0.25em] flex items-center gap-3 mb-6">
               <span className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-lg shadow-red-500/30"></span> Blockers - Rào cản & Yêu cầu hỗ trợ
             </h4>
             {!blockersData?.items || blockersData.items.length === 0 ? (

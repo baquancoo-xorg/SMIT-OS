@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, Search, ChevronRight, User as UserIcon, Calendar, Tag, Settings, Menu, Moon, Sun } from 'lucide-react';
+import { Bell, Search, ChevronRight, User as UserIcon, Calendar, Tag, Settings, Menu } from 'lucide-react';
 import { WorkItem } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -15,7 +15,7 @@ export default function Header({ onViewChange, onMenuClick, isAdmin }: {
   const searchRef = useRef<HTMLDivElement>(null);
   const { users } = useAuth();
   const [allWorkItems, setAllWorkItems] = useState<WorkItem[]>([]);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+
 
   useEffect(() => {
     const fetchAllWorkItems = async () => {
@@ -63,7 +63,8 @@ export default function Header({ onViewChange, onMenuClick, isAdmin }: {
         <div className="flex items-center gap-4 flex-1">
           <button
             onClick={onMenuClick}
-            className="xl:hidden w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-xl transition-all active:scale-95"
+            className="xl:hidden w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-xl transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/50"
+            aria-label="Open navigation menu"
           >
             <Menu size={24} />
           </button>
@@ -72,7 +73,7 @@ export default function Header({ onViewChange, onMenuClick, isAdmin }: {
             <div className="relative group">
               <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
               <input
-                className="w-full bg-slate-50/50 border border-outline-variant/10 rounded-2xl py-2.5 pl-14 pr-6 text-sm focus:ring-4 focus:ring-primary/10 focus:bg-white focus:border-primary/30 transition-all placeholder:text-slate-400 font-medium"
+                className="w-full bg-slate-50/50 border border-outline-variant/10 rounded-2xl py-2.5 pl-14 pr-6 text-sm text-on-surface focus:ring-4 focus:ring-primary/10 focus:bg-white focus:border-primary/30 transition-all placeholder:text-slate-400 font-medium"
                 placeholder="Search..."
                 type="text"
                 value={searchQuery}
@@ -88,9 +89,9 @@ export default function Header({ onViewChange, onMenuClick, isAdmin }: {
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute top-full left-0 right-0 mt-4 bg-white rounded-[32px] border border-outline-variant/10 shadow-2xl shadow-slate-200/40 overflow-hidden max-h-[500px] flex flex-col"
+                  className="absolute top-full left-0 right-0 mt-2 sm:mt-4 bg-white rounded-2xl sm:rounded-[32px] border border-outline-variant/10 shadow-2xl shadow-slate-200/40 overflow-hidden max-h-[70vh] sm:max-h-[500px] flex flex-col"
                 >
-                  <div className="p-6 border-b border-outline-variant/5 bg-slate-50/50">
+                  <div className="p-4 sm:p-6 border-b border-outline-variant/5 bg-slate-50/50">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Search Results ({searchResults.length})</p>
                   </div>
                   <div className="overflow-y-auto p-2">
@@ -100,7 +101,7 @@ export default function Header({ onViewChange, onMenuClick, isAdmin }: {
                         return (
                           <div
                             key={item.id}
-                            className="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-2xl transition-all cursor-pointer group"
+                            className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-slate-50 rounded-xl sm:rounded-2xl transition-all cursor-pointer group min-h-[56px]"
                           >
                             <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                               <span className="material-symbols-outlined text-[20px]">
@@ -143,13 +144,6 @@ export default function Header({ onViewChange, onMenuClick, isAdmin }: {
         </div>
 
         <div className="flex items-center gap-3 md:gap-4 ml-8">
-          <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-xl transition-all active:scale-95 border border-transparent hover:border-outline-variant/10"
-            title="Toggle Dark Mode"
-          >
-            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
           {isAdmin && (
             <button
               onClick={() => onViewChange?.('settings')}

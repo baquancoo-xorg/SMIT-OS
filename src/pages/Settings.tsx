@@ -191,7 +191,8 @@ export default function Settings() {
         <p className="text-slate-500 mt-2">Manage users, sprints, and system configurations.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      {/* C5: Earlier breakpoint for tablet */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
         {/* ===== USER MANAGEMENT ===== */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
@@ -214,21 +215,21 @@ export default function Settings() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Full Name</label>
-                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" value={newUser.fullName} onChange={e => setNewUser({ ...newUser, fullName: e.target.value })} />
+                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newUser.fullName} onChange={e => setNewUser({ ...newUser, fullName: e.target.value })} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Username</label>
-                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} />
+                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Password</label>
-                  <input type="password" className="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
+                  <input type="password" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Department</label>
-                  <select className="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" value={newUser.department} onChange={e => setNewUser({ ...newUser, department: e.target.value })}>
+                  <select className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newUser.department} onChange={e => setNewUser({ ...newUser, department: e.target.value })}>
                     <option value="BOD">BOD</option>
                     <option value="Tech">Tech</option>
                     <option value="Marketing">Marketing</option>
@@ -240,7 +241,7 @@ export default function Settings() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Role</label>
-                  <select className="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })}>
+                  <select className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })}>
                     <option value="Admin">Admin</option>
                     <option value="Leader">Leader</option>
                     <option value="Member">Member</option>
@@ -248,7 +249,7 @@ export default function Settings() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Scope (Position)</label>
-                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g., Backend Developer" value={newUser.scope} onChange={e => setNewUser({ ...newUser, scope: e.target.value })} />
+                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g., Backend Developer" value={newUser.scope} onChange={e => setNewUser({ ...newUser, scope: e.target.value })} />
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -277,21 +278,21 @@ export default function Settings() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Full Name</label>
-                      <input type="text" className="w-full bg-slate-50 border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" value={editFormData.fullName} onChange={e => setEditFormData({ ...editFormData, fullName: e.target.value })} />
+                      <input type="text" className="w-full bg-slate-50 border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editFormData.fullName} onChange={e => setEditFormData({ ...editFormData, fullName: e.target.value })} />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Username</label>
-                      <input type="text" className="w-full bg-slate-50 border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" value={editFormData.username} onChange={e => setEditFormData({ ...editFormData, username: e.target.value })} />
+                      <input type="text" className="w-full bg-slate-50 border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editFormData.username} onChange={e => setEditFormData({ ...editFormData, username: e.target.value })} />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-1">New Password <span className="text-slate-400 font-normal">(leave blank to keep)</span></label>
-                      <input type="password" className="w-full bg-slate-50 border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" placeholder="••••••••" value={editFormData.password} onChange={e => setEditFormData({ ...editFormData, password: e.target.value })} />
+                      <input type="password" className="w-full bg-slate-50 border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="••••••••" value={editFormData.password} onChange={e => setEditFormData({ ...editFormData, password: e.target.value })} />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Department</label>
-                      <select className="w-full bg-slate-50 border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" value={editFormData.department} onChange={e => setEditFormData({ ...editFormData, department: e.target.value })}>
+                      <select className="w-full bg-slate-50 border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editFormData.department} onChange={e => setEditFormData({ ...editFormData, department: e.target.value })}>
                         <option value="BOD">BOD</option>
                         <option value="Tech">Tech</option>
                         <option value="Marketing">Marketing</option>
@@ -303,7 +304,7 @@ export default function Settings() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Role</label>
-                      <select className="w-full bg-slate-50 border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" value={editFormData.role} onChange={e => setEditFormData({ ...editFormData, role: e.target.value })}>
+                      <select className="w-full bg-slate-50 border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editFormData.role} onChange={e => setEditFormData({ ...editFormData, role: e.target.value })}>
                         <option value="Admin">Admin</option>
                         <option value="Leader">Leader</option>
                         <option value="Member">Member</option>
@@ -311,7 +312,7 @@ export default function Settings() {
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Scope (Position)</label>
-                      <input type="text" className="w-full bg-slate-50 border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g., Backend Developer" value={editFormData.scope} onChange={e => setEditFormData({ ...editFormData, scope: e.target.value })} />
+                      <input type="text" className="w-full bg-slate-50 border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g., Backend Developer" value={editFormData.scope} onChange={e => setEditFormData({ ...editFormData, scope: e.target.value })} />
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -343,12 +344,9 @@ export default function Settings() {
                 {users.map(user => (
                   <tr key={user.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <img src={user.avatar} alt="" className="w-8 h-8 rounded-full" />
-                        <div>
-                          <span className="text-sm font-bold text-on-surface block">{user.fullName}</span>
-                          <span className="text-[10px] text-slate-400 font-medium">{user.username}</span>
-                        </div>
+                      <div>
+                        <span className="text-sm font-bold text-on-surface block">{user.fullName}</span>
+                        <span className="text-[10px] text-slate-400 font-medium">{user.username}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -409,16 +407,16 @@ export default function Settings() {
             <div className="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/20 space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Sprint Name</label>
-                <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-secondary/20" placeholder="e.g., Sprint 4: Deep Space" value={newSprint.name} onChange={e => setNewSprint({ ...newSprint, name: e.target.value })} />
+                <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" placeholder="e.g., Sprint 4: Deep Space" value={newSprint.name} onChange={e => setNewSprint({ ...newSprint, name: e.target.value })} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Start Date</label>
-                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-secondary/20" value={newSprint.startDate} onChange={e => setNewSprint({ ...newSprint, startDate: e.target.value })} />
+                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={newSprint.startDate} onChange={e => setNewSprint({ ...newSprint, startDate: e.target.value })} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">End Date</label>
-                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-secondary/20" value={newSprint.endDate} onChange={e => setNewSprint({ ...newSprint, endDate: e.target.value })} />
+                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={newSprint.endDate} onChange={e => setNewSprint({ ...newSprint, endDate: e.target.value })} />
                 </div>
               </div>
               <div className="flex gap-2">
@@ -437,16 +435,16 @@ export default function Settings() {
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Sprint Name</label>
-                <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-secondary/20" value={editingSprint.name} onChange={e => setEditingSprint({ ...editingSprint, name: e.target.value })} />
+                <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={editingSprint.name} onChange={e => setEditingSprint({ ...editingSprint, name: e.target.value })} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Start Date</label>
-                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-secondary/20" value={editingSprint.startDate.split('T')[0]} onChange={e => setEditingSprint({ ...editingSprint, startDate: e.target.value })} />
+                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={editingSprint.startDate.split('T')[0]} onChange={e => setEditingSprint({ ...editingSprint, startDate: e.target.value })} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">End Date</label>
-                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-secondary/20" value={editingSprint.endDate.split('T')[0]} onChange={e => setEditingSprint({ ...editingSprint, endDate: e.target.value })} />
+                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={editingSprint.endDate.split('T')[0]} onChange={e => setEditingSprint({ ...editingSprint, endDate: e.target.value })} />
                 </div>
               </div>
               <div className="flex gap-2">

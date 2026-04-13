@@ -51,13 +51,14 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
+            {/* M11: Min column widths for predictable layout */}
             <tr className="bg-slate-50/50 border-b border-outline-variant/10">
-              <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Department</th>
-              <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Người báo cáo</th>
-              <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Status</th>
-              <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Created at</th>
-              <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Sprint</th>
-              <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Week</th>
+              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Department</th>
+              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[150px]">Người báo cáo</th>
+              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[90px]">Status</th>
+              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Created at</th>
+              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Sprint</th>
+              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[140px]">Week</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100/50">
@@ -106,7 +107,7 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
 
                   {/* Status */}
                   <td className="px-8 py-5">
-                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
                       report.status === 'Approved'
                         ? 'bg-emerald-100 text-emerald-700'
                         : 'bg-amber-100 text-amber-700'

@@ -148,38 +148,42 @@ export default function OKRsManagement() {
 
   return (
     <div className="h-full flex flex-col p-6 md:p-10 space-y-10 w-full">
-      {/* Dashboard Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
+      {/* Dashboard Header - C1: Responsive layout */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-end justify-between">
+        <div className="min-w-0">
           <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
-            <span className="hover:text-primary cursor-pointer">Strategy</span>
+            <span className="hover:text-primary cursor-pointer">Planning</span>
             <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-            <span className="text-on-surface">OKRs Management</span>
+            <span className="text-on-surface">OKRs</span>
           </nav>
-          <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Kinetic <span className="text-tertiary italic">Workshop</span> OKRs</h2>
+          <h2 className="text-2xl md:text-4xl font-extrabold font-headline tracking-tight text-on-surface">
+            <span className="hidden sm:inline">Kinetic</span>
+            <span className="sm:hidden">KW</span> <span className="text-tertiary italic hidden sm:inline">Workshop</span> OKRs
+          </h2>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex p-1 bg-surface-container-high rounded-full border border-outline-variant/10">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+          <div className="flex p-1 bg-surface-container-high rounded-full border border-outline-variant/10 self-start">
             <button
-              className={`px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'L1' ? 'text-primary bg-white shadow-md' : 'text-slate-500 hover:text-primary'}`}
+              className={`px-3 sm:px-6 py-2 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all min-h-[44px] ${activeTab === 'L1' ? 'text-primary bg-white shadow-md' : 'text-slate-500 hover:text-primary'}`}
               onClick={() => setActiveTab('L1')}
             >
-              Company (L1)
+              <span className="hidden sm:inline">Company (</span>L1<span className="hidden sm:inline">)</span>
             </button>
             <button
-              className={`px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'L2' ? 'text-primary bg-white shadow-md' : 'text-slate-500 hover:text-primary'}`}
+              className={`px-3 sm:px-6 py-2 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all min-h-[44px] ${activeTab === 'L2' ? 'text-primary bg-white shadow-md' : 'text-slate-500 hover:text-primary'}`}
               onClick={() => setActiveTab('L2')}
             >
-              Team (L2)
+              <span className="hidden sm:inline">Team (</span>L2<span className="hidden sm:inline">)</span>
             </button>
           </div>
           <button
             onClick={() => setIsAddObjModalOpen(true)}
-            className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all"
+            className="flex items-center justify-center gap-2 bg-primary text-white px-4 sm:px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all min-h-[44px]"
           >
             <span className="material-symbols-outlined text-[20px]">add</span>
-            New Objective
+            <span className="hidden sm:inline">New Objective</span>
+            <span className="sm:hidden">New</span>
           </button>
         </div>
       </div>
@@ -196,7 +200,7 @@ export default function OKRsManagement() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
         <div className="bg-white p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl lg:rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-primary/5 rounded-full -mr-12 -mt-12 md:-mr-16 md:-mt-16 group-hover:scale-150 transition-transform duration-700"></div>
-          <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10">Quarterly Progress</p>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10">Quarterly Progress</p>
           <div className="flex items-baseline gap-1 relative z-10">
             <h4 className="text-2xl md:text-3xl lg:text-4xl font-black font-headline">
               {objectives.length > 0 ? (objectives.reduce((sum, obj) => sum + obj.progressPercentage, 0) / objectives.length).toFixed(1) : '0.0'}%
@@ -210,26 +214,26 @@ export default function OKRsManagement() {
           </div>
         </div>
         <div className="bg-white p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl lg:rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2 group">
-          <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Objectives Active</p>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Objectives Active</p>
           <div className="flex items-baseline gap-2">
             <h4 className="text-2xl md:text-3xl lg:text-4xl font-black font-headline">{objectives.length}</h4>
             <span className="text-xs font-bold text-tertiary">+{objectives.length > 0 ? '2' : '0'} New</span>
           </div>
-          <p className="text-[9px] md:text-[10px] font-bold text-slate-400 mt-2">Across {new Set(objectives.map(o => o.department)).size} Departments</p>
+          <p className="text-[10px] font-bold text-slate-400 mt-2">Across {new Set(objectives.map(o => o.department)).size} Departments</p>
         </div>
         <div className="bg-white p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl lg:rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2">
-          <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Critical Path Health</p>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Critical Path Health</p>
           <h4 className="text-2xl md:text-3xl lg:text-4xl font-black font-headline text-tertiary">Stable</h4>
           <div className="flex items-center gap-1 mt-2">
             <div className="w-2 h-2 rounded-full bg-tertiary animate-pulse"></div>
-            <span className="text-[9px] md:text-[10px] font-bold text-tertiary">System Normal</span>
+            <span className="text-[10px] font-bold text-tertiary">System Normal</span>
           </div>
         </div>
         <div className="bg-primary p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl lg:rounded-[40px] shadow-xl shadow-primary/20 flex flex-col gap-2 relative overflow-hidden group">
           <div className="absolute bottom-0 left-0 w-24 h-24 md:w-32 md:h-32 bg-white/10 rounded-full -ml-12 -mb-12 md:-ml-16 md:-mb-16 group-hover:scale-150 transition-transform duration-700"></div>
-          <p className="text-[9px] md:text-[10px] font-black text-white/60 uppercase tracking-widest relative z-10">Days Remaining</p>
+          <p className="text-[10px] font-black text-white/60 uppercase tracking-widest relative z-10">Days Remaining</p>
           <h4 className="text-2xl md:text-3xl lg:text-4xl font-black font-headline text-white relative z-10">42 Days</h4>
-          <p className="text-[9px] md:text-[10px] font-bold text-white/80 mt-2 relative z-10">Q2 Deadline: June 30</p>
+          <p className="text-[10px] font-bold text-white/80 mt-2 relative z-10">Q2 Deadline: June 30</p>
         </div>
       </div>
 
@@ -238,10 +242,10 @@ export default function OKRsManagement() {
         <div className="flex items-center justify-between">
           <h3 className="text-2xl font-black text-on-surface font-headline">OKR Tree List</h3>
           <div className="flex gap-3">
-            <div className="flex items-center gap-3 bg-surface-container-high px-6 py-2 rounded-full border border-outline-variant/10">
+            <div className="flex items-center gap-3 bg-surface-container-high px-4 md:px-6 py-2 rounded-full border border-outline-variant/10 min-h-[44px]">
               <span className="material-symbols-outlined text-[18px] text-slate-400">filter_list</span>
               <select
-                className="text-[10px] font-black bg-transparent border-none focus:ring-0 text-on-surface-variant uppercase tracking-widest outline-none cursor-pointer"
+                className="text-[10px] font-black bg-transparent border-none focus:ring-0 text-on-surface-variant uppercase tracking-widest outline-none cursor-pointer min-h-[36px]"
                 value={departmentFilter}
                 onChange={(e) => setDepartmentFilter(e.target.value)}
               >
@@ -347,8 +351,8 @@ function ObjectiveAccordionCard({
                 L1 - {objective.department}
               </span>
               <span className={`flex-shrink-0 flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-xl ${colors.icon} text-white text-xs font-black shadow-sm`}>O</span>
-              <h3 className={`text-base md:text-lg lg:text-xl font-black text-on-surface font-headline hover:${colors.text} transition-colors truncate`}>{objective.title}</h3>
             </div>
+            <h3 className={`text-base md:text-lg lg:text-xl font-black text-on-surface font-headline hover:${colors.text} transition-colors line-clamp-2 md:line-clamp-1`}>{objective.title}</h3>
             <p className="text-xs md:text-sm text-on-surface-variant font-medium">
               {children.length} child objective{children.length !== 1 ? 's' : ''} · {objective.keyResults.length} key result{objective.keyResults.length !== 1 ? 's' : ''}
             </p>
@@ -380,7 +384,7 @@ function ObjectiveAccordionCard({
             <div className="px-5 md:px-8 lg:px-10 pb-6 md:pb-8 lg:pb-10 space-y-6 md:space-y-8 border-t border-outline-variant/10">
               {/* L1 Key Results */}
               <div className="pt-4 md:pt-6">
-                <h4 className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 md:mb-4">Key Results</h4>
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 md:mb-4">Key Results</h4>
                 <div className="space-y-3 md:space-y-4">
                   {objective.keyResults.length > 0 ? (
                     objective.keyResults.map((kr, index) => (
@@ -393,7 +397,10 @@ function ObjectiveAccordionCard({
                         owner={objective.owner}
                         workItems={workItems}
                         onLinkWorkItem={onLinkWorkItem}
-                        onDelete={() => { }}
+                        onDelete={async () => {
+                          await fetch(`/api/key-results/${kr.id}`, { method: 'DELETE' });
+                          onRefresh();
+                        }}
                         onRefresh={onRefresh}
                       />
                     ))
@@ -406,7 +413,7 @@ function ObjectiveAccordionCard({
               {/* Child L2 Objectives */}
               {children.length > 0 && (
                 <div className="pt-4 md:pt-6 border-t border-outline-variant/10">
-                  <h4 className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 md:mb-4">
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 md:mb-4">
                     Child Objectives (L2)
                   </h4>
                   <div className="space-y-3 md:space-y-4">
@@ -467,11 +474,11 @@ function ChildObjectiveCard({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className={`${colors.badge} text-[8px] md:text-[9px] px-1.5 md:px-2 py-0.5 rounded-full font-black uppercase tracking-widest border`}>L2</span>
+              <span className={`${colors.badge} text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-black uppercase tracking-widest border`}>L2</span>
               <span className={`flex-shrink-0 flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-lg ${colors.icon} text-white text-[10px] font-black shadow-sm`}>O</span>
-              <h4 className="text-sm md:text-base font-bold text-on-surface font-headline truncate">{objective.title}</h4>
             </div>
-            <p className="text-[9px] md:text-[10px] text-on-surface-variant font-medium mt-0.5">
+            <h4 className="text-sm md:text-base font-bold text-on-surface font-headline line-clamp-2 md:line-clamp-1">{objective.title}</h4>
+            <p className="text-[10px] text-on-surface-variant font-medium mt-0.5">
               {objective.keyResults.length} KR{objective.keyResults.length !== 1 ? 's' : ''} · {objective.department}
             </p>
           </div>
@@ -505,12 +512,15 @@ function ChildObjectiveCard({
                     owner={objective.owner}
                     workItems={workItems}
                     onLinkWorkItem={onLinkWorkItem}
-                    onDelete={() => { }}
+                    onDelete={async () => {
+                      await fetch(`/api/key-results/${kr.id}`, { method: 'DELETE' });
+                      onRefresh();
+                    }}
                     onRefresh={onRefresh}
                   />
                 ))
               ) : (
-                <div className="text-center py-3 md:py-4 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-300 italic">No key results.</div>
+                <div className="text-center py-3 md:py-4 text-[10px] font-black uppercase tracking-widest text-slate-300 italic">No key results.</div>
               )}
               <AddKRButton objectiveId={objective.id} onRefresh={onRefresh} />
             </div>
@@ -526,16 +536,16 @@ function AddKRButton({ objectiveId, onRefresh }: { objectiveId: string; onRefres
 
   const handleAdd = async (data: any) => {
     try {
-      const res = await fetch(`/api/objectives/${objectiveId}`, {
-        method: 'PUT',
+      const res = await fetch('/api/key-results', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          keyResults: {
-            create: [{
-              ...data,
-              progressPercentage: Math.round((data.currentValue / data.targetValue) * 100),
-            }]
-          }
+          title: data.title,
+          targetValue: data.targetValue,
+          currentValue: 0, // Always start at 0, only update via Weekly Report
+          unit: data.unit,
+          progressPercentage: 0,
+          objectiveId
         })
       });
 
@@ -633,7 +643,7 @@ function ObjectiveAccordionCardL2({
                 />
               ) : (
                 <h3
-                  className={`text-base md:text-lg font-black text-on-surface font-headline cursor-pointer hover:${colors.text} transition-colors truncate`}
+                  className={`text-base md:text-lg font-black text-on-surface font-headline cursor-pointer hover:${colors.text} transition-colors line-clamp-2 md:line-clamp-1`}
                   onClick={(e) => { e.stopPropagation(); setIsEditingTitle(true); }}
                 >
                   {objective.title}
@@ -686,7 +696,10 @@ function ObjectiveAccordionCardL2({
                     owner={objective.owner}
                     workItems={workItems}
                     onLinkWorkItem={onLinkWorkItem}
-                    onDelete={() => { }}
+                    onDelete={async () => {
+                      await fetch(`/api/key-results/${kr.id}`, { method: 'DELETE' });
+                      onRefresh();
+                    }}
                     onRefresh={onRefresh}
                   />
                 ))
@@ -705,7 +718,6 @@ function ObjectiveAccordionCardL2({
 
 function KeyResultRow({ kr, index, isL2, department, owner, workItems, onLinkWorkItem, onDelete, onRefresh }: { kr: KeyResult; index: number; isL2: boolean; department?: string; owner?: User; workItems: WorkItem[]; onLinkWorkItem: (krId: string, item: WorkItem) => void; onDelete: () => void; onRefresh: () => void; key?: string | number }) {
   const [krData, setKrData] = useState(kr);
-  const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
@@ -715,29 +727,32 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, onLinkWor
 
   return (
     <div className="flex flex-col gap-3 md:gap-4 p-4 md:p-6 rounded-2xl md:rounded-[32px] hover:bg-slate-50/50 transition-all duration-500 group border border-transparent hover:border-outline-variant/10">
-      <div className="grid grid-cols-12 items-center gap-3 md:gap-6">
-        <div className="col-span-12 md:col-span-6">
-          <div className="flex items-center gap-2 md:gap-3">
+      {/* C3: Mobile-first stack, grid on md+ */}
+      <div className="flex flex-col gap-4 md:grid md:grid-cols-12 md:items-center md:gap-6">
+        {/* Title section - full width on mobile */}
+        <div className="md:col-span-6">
+          <div className="flex items-start gap-2 md:gap-3">
             <span className="flex-shrink-0 flex items-center justify-center px-2 py-1 min-w-[28px] md:min-w-[32px] h-7 md:h-8 rounded-lg md:rounded-xl bg-secondary/10 text-secondary text-[10px] md:text-xs font-black shadow-sm border border-secondary/20">KR{index + 1}</span>
-            <p className="text-xs md:text-sm font-black text-on-surface group-hover:text-primary transition-colors">{krData.title}</p>
+            <p className="text-xs md:text-sm font-black text-on-surface group-hover:text-primary transition-colors line-clamp-2 md:line-clamp-1">{krData.title}</p>
           </div>
           <div className="flex items-center gap-3 md:gap-4 mt-2 ml-0 md:ml-11 flex-wrap">
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[8px] font-black text-slate-500 border border-outline-variant/10">
                 {owner ? owner.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'N/A'}
               </div>
-              <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">{owner?.fullName || 'Unassigned'}</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{owner?.fullName || 'Unassigned'}</p>
             </div>
             {krData.dueDate && (
-              <span className="text-[9px] md:text-[10px] font-black text-error bg-error/5 px-2 py-0.5 rounded-full flex items-center gap-1 border border-error/10">
+              <span className="text-[10px] font-black text-error bg-error/5 px-2 py-0.5 rounded-full flex items-center gap-1 border border-error/10">
                 <span className="material-symbols-outlined text-[12px]">calendar_today</span>
                 {krData.dueDate}
               </span>
             )}
           </div>
         </div>
-        <div className="col-span-12 md:col-span-3">
-          <div className="flex justify-between items-end mb-2 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+        {/* Progress section */}
+        <div className="md:col-span-3">
+          <div className="flex justify-between items-end mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
             <span>Progress</span>
             <span className="text-on-surface">{krData.currentValue} / {krData.targetValue} {krData.unit}</span>
           </div>
@@ -748,31 +763,26 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, onLinkWor
             ></div>
           </div>
         </div>
-        <div className="col-span-12 md:col-span-3 flex justify-end gap-1 md:gap-2 flex-wrap">
+        {/* Actions - horizontal on mobile, end-aligned on desktop */}
+        <div className="flex items-center gap-2 md:col-span-3 md:justify-end">
           <button
             onClick={() => setIsLinkModalOpen(true)}
-            className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg md:rounded-xl transition-all opacity-0 group-hover:opacity-100"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
             title="Link Work Item"
           >
-            <LinkIcon size={14} className="md:size-4" />
-          </button>
-          <button
-            onClick={() => setIsProgressModalOpen(true)}
-            className="px-3 md:px-4 py-1.5 md:py-2 bg-slate-100 hover:bg-primary/5 hover:text-primary rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all opacity-0 group-hover:opacity-100"
-          >
-            Check-in
+            <LinkIcon size={18} />
           </button>
           <button
             onClick={() => setIsEditModalOpen(true)}
-            className="px-3 md:px-4 py-1.5 md:py-2 bg-primary text-white rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/20"
+            className="min-h-[44px] px-4 py-2 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/20"
           >
             Edit
           </button>
           <button
             onClick={() => setIsDeleteModalOpen(true)}
-            className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-error/60 hover:text-error hover:bg-error/5 rounded-lg md:rounded-xl transition-all opacity-0 group-hover:opacity-100"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-error/60 hover:text-error hover:bg-error/5 rounded-xl transition-all"
           >
-            <Trash2 size={14} className="md:size-4" />
+            <Trash2 size={18} />
           </button>
         </div>
       </div>
@@ -811,25 +821,25 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, onLinkWor
         </div>
       )}
 
-      <UpdateProgressModal
-        isOpen={isProgressModalOpen}
-        onClose={() => setIsProgressModalOpen(false)}
-        currentValue={krData.currentValue}
-        targetValue={krData.targetValue}
-        unit={krData.unit}
-        onSave={(newValue, note) => {
-          setKrData({ ...krData, currentValue: newValue, lastNote: note });
-          setIsProgressModalOpen(false);
-        }}
-      />
-
       <EditKRModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         initialData={krData}
         title="Edit Key Result"
-        onSave={(newData) => {
-          setKrData(prev => ({ ...prev, ...newData }));
+        onSave={async (newData) => {
+          const res = await fetch(`/api/key-results/${kr.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: newData.title,
+              targetValue: newData.targetValue,
+              unit: newData.unit
+            })
+          });
+          if (res.ok) {
+            setKrData(prev => ({ ...prev, ...newData }));
+            onRefresh();
+          }
           setIsEditModalOpen(false);
         }}
       />
@@ -851,86 +861,6 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, onLinkWor
         }}
         title="Delete Key Result"
         message={`Are you sure you want to delete "${krData.title}"?`}
-      />
-    </div>
-  );
-}
-
-// Keep all the existing modal components from the original file
-interface SubKeyResult {
-  id: string;
-  title: string;
-  currentValue: number;
-  targetValue: number;
-  unit?: string;
-  lastNote?: string;
-}
-
-function SubKeyResultRow({ skr, onUpdate, onDelete }: { skr: SubKeyResult, onUpdate: (updatedSkr: SubKeyResult) => void, onDelete: () => void }) {
-  const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-  const progress = Math.min(100, Math.round((skr.currentValue / skr.targetValue) * 100)) || 0;
-
-  return (
-    <div className="grid grid-cols-12 items-center gap-4 px-4 py-3 rounded-xl hover:bg-surface-container-low transition-colors group border-l-2 border-outline-variant/20 ml-4">
-      <div className="col-span-6">
-        <p className="text-xs font-semibold text-on-surface">{skr.title}</p>
-      </div>
-      <div className="col-span-3">
-        <div className="h-1.5 bg-surface-container-high rounded-full overflow-hidden">
-          <div
-            className="h-full bg-tertiary transition-all duration-1000"
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-      </div>
-      <div className="col-span-3 flex justify-end gap-1">
-        <button
-          onClick={() => setIsProgressModalOpen(true)}
-          className="p-1.5 text-on-surface-variant hover:text-primary rounded-lg opacity-0 group-hover:opacity-100 transition-all"
-        >
-          <span className="material-symbols-outlined text-sm">trending_up</span>
-        </button>
-        <button
-          onClick={() => setIsDeleteModalOpen(true)}
-          className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
-        >
-          <span className="material-symbols-outlined text-sm">delete</span>
-        </button>
-      </div>
-
-      {skr.lastNote && (
-        <div className="col-span-12 mt-1 flex items-start gap-2 bg-amber-50/30 p-1.5 rounded-lg border border-amber-100/30 ml-4">
-          <span className="material-symbols-outlined text-amber-600 text-[10px] mt-0.5">chat_bubble</span>
-          <p className="text-[9px] text-on-surface-variant italic leading-relaxed">
-            <span className="font-bold text-amber-700 not-italic mr-1">Note:</span>
-            {skr.lastNote}
-          </p>
-        </div>
-      )}
-
-      <UpdateProgressModal
-        isOpen={isProgressModalOpen}
-        onClose={() => setIsProgressModalOpen(false)}
-        currentValue={skr.currentValue}
-        targetValue={skr.targetValue}
-        unit={skr.unit}
-        onSave={(newValue, note) => {
-          onUpdate({ ...skr, currentValue: newValue, lastNote: note });
-          setIsProgressModalOpen(false);
-        }}
-      />
-
-      <DeleteConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={() => {
-          setIsDeleteModalOpen(false);
-          onDelete();
-        }}
-        title="Delete Sub-Key Result"
-        message={`Are you sure you want to delete "${skr.title}"?`}
       />
     </div>
   );
@@ -966,15 +896,16 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, title, message }: Dele
             {message}
           </p>
 
-          <div className="flex w-full gap-3">
+          {/* M13: Stack buttons on mobile */}
+          <div className="flex flex-col-reverse sm:flex-row w-full gap-3">
             <button
-              className="flex-1 px-6 py-3 text-sm font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest rounded-xl transition-all"
+              className="flex-1 px-6 py-3 text-sm font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest rounded-xl transition-all min-h-[48px]"
               onClick={onClose}
             >
               Cancel
             </button>
             <button
-              className="flex-1 px-6 py-3 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-all shadow-lg shadow-rose-200"
+              className="flex-1 px-6 py-3 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-all shadow-lg shadow-rose-200 min-h-[48px]"
               onClick={onConfirm}
             >
               Delete
@@ -1016,40 +947,30 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Title</label>
             <input
               type="text"
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               value={formData.title}
               onChange={e => setFormData({ ...formData, title: e.target.value })}
               placeholder="e.g., Increase user retention by 20%"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Current Value</label>
-              <input
-                type="number"
-                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                value={formData.currentValue}
-                onChange={e => setFormData({ ...formData, currentValue: Number(e.target.value) })}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Target Value</label>
-              <input
-                type="number"
-                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                value={formData.targetValue}
-                onChange={e => setFormData({ ...formData, targetValue: Number(e.target.value) })}
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Target Value</label>
+            <input
+              type="number"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              value={formData.targetValue}
+              onChange={e => setFormData({ ...formData, targetValue: Number(e.target.value) })}
+            />
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          {/* M14: Responsive grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Unit</label>
               <input
                 type="text"
-                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 value={formData.unit}
                 onChange={e => setFormData({ ...formData, unit: e.target.value })}
                 placeholder="e.g., %, USD, Users"
@@ -1059,7 +980,7 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
               <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Due Date</label>
               <input
                 type="date"
-                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 value={formData.dueDate || ''}
                 onChange={e => setFormData({ ...formData, dueDate: e.target.value })}
               />
@@ -1129,7 +1050,7 @@ function UpdateProgressModal({ isOpen, onClose, onSave, currentValue, targetValu
           <div>
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Progress Note (Optional)</label>
             <textarea
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
               value={note}
               onChange={e => setNote(e.target.value)}
               placeholder="What changed? Any blockers?"
@@ -1231,7 +1152,7 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
             <div>
               <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Select Work Item</label>
               <select
-                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
+                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
                 value={selectedItemId}
                 onChange={(e) => setSelectedItemId(e.target.value)}
               >
@@ -1247,7 +1168,7 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
                 <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Title</label>
                 <input
                   type="text"
-                  className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   value={newItemTitle}
                   onChange={e => setNewItemTitle(e.target.value)}
                   placeholder="Enter task or epic title..."
@@ -1256,7 +1177,7 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
               <div>
                 <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Type</label>
                 <select
-                  className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
+                  className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
                   value={newItemType}
                   onChange={(e) => setNewItemType(e.target.value as WorkItemType)}
                 >
@@ -1336,7 +1257,8 @@ function AddObjectiveModal({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8 space-y-6">
+        {/* M15: Responsive padding */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Objective Title</label>
             <input
