@@ -1,6 +1,5 @@
-import { useState, ChangeEvent, MouseEvent } from 'react';
-import { WorkItem, Priority, KeyResult } from '../../types';
-import { l1Objectives, l2Objectives } from '../../data/mockData';
+import { useState, ChangeEvent, MouseEvent, useEffect } from 'react';
+import { WorkItem, Priority, KeyResult, Objective } from '../../types';
 import { Clock, CheckCircle2, ChevronDown, ChevronUp, AlignLeft, ListTodo, CheckSquare, Square, Timer, AlertCircle, Link2, Target, MoreHorizontal, Edit2, Trash2, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -17,21 +16,37 @@ interface TaskCardProps {
 export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetails }: TaskCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [allObjectives, setAllObjectives] = useState<Objective[]>([]);
   const { users } = useAuth();
   const assignee = users.find(u => u.id === item.assigneeId);
-  
+
+  // Fetch objectives from API
+  useEffect(() => {
+    const fetchObjectives = async () => {
+      try {
+        const res = await fetch('/api/objectives');
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setAllObjectives(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch objectives:', error);
+      }
+    };
+    fetchObjectives();
+  }, []);
+
   // Find linked Key Result
-  const allObjectives = [...l1Objectives, ...l2Objectives];
   let linkedKr: KeyResult | undefined;
   if (item.linkedKrId) {
     for (const obj of allObjectives) {
       if (obj.keyResults) {
-        linkedKr = obj.keyResults.find(kr => kr.id === item.linkedKrId);
+        linkedKr = obj.keyResults.find((kr: KeyResult) => kr.id === item.linkedKrId);
         if (linkedKr) break;
       }
     }
   }
-  
+
   const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (onUpdate) {
       onUpdate({ ...item, dueDate: e.target.value });
@@ -56,7 +71,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
     e.stopPropagation();
     if (!onUpdate || !item.subtasks) return;
 
-    const updatedSubtasks = item.subtasks.map(st => 
+    const updatedSubtasks = item.subtasks.map(st =>
       st.id === subtaskId ? { ...st, completed: !st.completed } : st
     );
     onUpdate({ ...item, subtasks: updatedSubtasks });
@@ -85,7 +100,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
   const totalSubtasks = item.subtasks?.length || 0;
 
   return (
-    <motion.div 
+    <motion.div
       onClick={() => setIsExpanded(!isExpanded)}
       whileHover={{ scale: 1.05, y: -5 }}
       className={`bg-white/90 backdrop-blur-xl p-6 rounded-[32px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 cursor-pointer group relative overflow-hidden ${isExpanded ? 'ring-2 ring-primary/20 border-primary/30' : ''}`}
@@ -102,15 +117,15 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
           )}
         </div>
         <div className="flex items-center gap-2 relative">
-          <motion.button 
+          <motion.button
             onClick={handleMarkAsDone}
             whileHover={{ scale: 1.1, backgroundColor: '#f0fdf4' }}
             whileTap={{ scale: 0.9 }}
             className="w-10 h-10 flex items-center justify-center bg-slate-50 hover:bg-emerald-50 text-slate-300 hover:text-emerald-500 rounded-xl transition-all border border-outline-variant/10 shadow-sm"
           >
-            <motion.span 
+            <motion.span
               initial={false}
-              animate={{ 
+              animate={{
                 scale: item.status === 'Done' || item.status === 'Won' ? [1, 1.2, 1] : 1,
                 color: item.status === 'Done' || item.status === 'Won' ? '#10b981' : '#cbd5e1'
               }}
@@ -119,8 +134,8 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
               check_circle
             </motion.span>
           </motion.button>
-          
-          <button 
+
+          <button
             onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }}
             className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
           >
@@ -135,20 +150,20 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="absolute right-0 top-12 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 z-20 overflow-hidden"
               >
-                <button 
+                <button
                   onClick={(e) => { e.stopPropagation(); onViewDetails?.(item); setIsMenuOpen(false); }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors text-left"
                 >
                   <Eye size={16} /> View Details
                 </button>
-                <button 
+                <button
                   onClick={(e) => { e.stopPropagation(); onEdit?.(item); setIsMenuOpen(false); }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors text-left"
                 >
                   <Edit2 size={16} /> Edit Task
                 </button>
                 <div className="h-px bg-slate-100"></div>
-                <button 
+                <button
                   onClick={(e) => { e.stopPropagation(); onDelete?.(item.id); setIsMenuOpen(false); }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-error hover:bg-error/5 transition-colors text-left"
                 >
@@ -159,17 +174,16 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
           </AnimatePresence>
         </div>
       </div>
-      
+
       <div className="space-y-5">
-        <motion.h4 
+        <motion.h4
           layout
-          className={`text-2xl font-black leading-tight font-headline transition-colors duration-300 flex items-start gap-2 ${
-            item.status === 'Done' || item.status === 'Won' ? 'text-slate-400 line-through' : 'text-on-surface group-hover:text-primary'
-          }`}
+          className={`text-2xl font-black leading-tight font-headline transition-colors duration-300 flex items-start gap-2 ${item.status === 'Done' || item.status === 'Won' ? 'text-slate-400 line-through' : 'text-on-surface group-hover:text-primary'
+            }`}
         >
           {item.title}
           {linkedKr && (
-            <motion.span 
+            <motion.span
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               className="mt-1.5 flex-shrink-0"
@@ -192,7 +206,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
               <span className="text-primary">{(linkedKr.currentValue || 0)}/{(linkedKr.targetValue || 100)} {linkedKr.unit || '%'}</span>
             </div>
             <div className="h-1.5 w-full bg-primary/10 rounded-full overflow-hidden">
-              <motion.div 
+              <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${((linkedKr.currentValue || 0) / (linkedKr.targetValue || 100)) * 100}%` }}
                 className="h-full bg-primary"
@@ -210,12 +224,11 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
               <span className="text-on-surface">{Math.round((completedSubtasks / totalSubtasks) * 100)}%</span>
             </div>
             <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden relative">
-              <motion.div 
+              <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${(completedSubtasks / totalSubtasks) * 100}%` }}
-                className={`h-full transition-all duration-700 ease-out ${
-                  completedSubtasks === totalSubtasks ? 'bg-emerald-500' : 'bg-primary'
-                }`}
+                className={`h-full transition-all duration-700 ease-out ${completedSubtasks === totalSubtasks ? 'bg-emerald-500' : 'bg-primary'
+                  }`}
               />
             </div>
           </div>
@@ -225,9 +238,9 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
           <div className="flex items-center gap-5">
             <div className="flex items-center gap-2.5">
               <div className="relative">
-                <img 
-                  src={assignee?.avatar} 
-                  alt={assignee?.fullName} 
+                <img
+                  src={assignee?.avatar}
+                  alt={assignee?.fullName}
                   className="w-8 h-8 rounded-xl object-cover border border-outline-variant/10 shadow-sm"
                   referrerPolicy="no-referrer"
                 />
@@ -235,7 +248,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
               </div>
               <span className="text-[10px] font-black text-on-surface uppercase tracking-widest">{assignee?.fullName}</span>
             </div>
-            
+
             <div className="h-4 w-px bg-slate-100"></div>
 
             <div className="flex items-center gap-4">
@@ -287,20 +300,19 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subtasks</p>
                   <div className="space-y-2">
                     {item.subtasks.map(st => (
-                      <div 
-                        key={st.id} 
+                      <div
+                        key={st.id}
                         className="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-xl border border-outline-variant/10 hover:border-primary/20 transition-all cursor-pointer group/st"
                         onClick={(e) => toggleSubtask(e, st.id)}
                       >
-                        <motion.div 
+                        <motion.div
                           layout
-                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                            st.completed ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-200' : 'border-slate-200 group-hover/st:border-primary'
-                          }`}
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${st.completed ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-200' : 'border-slate-200 group-hover/st:border-primary'
+                            }`}
                         >
                           <AnimatePresence>
                             {st.completed && (
-                              <motion.span 
+                              <motion.span
                                 initial={{ scale: 0, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 exit={{ scale: 0, opacity: 0 }}
@@ -311,7 +323,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
                             )}
                           </AnimatePresence>
                         </motion.div>
-                        <motion.span 
+                        <motion.span
                           layout
                           className={`text-sm font-medium transition-all duration-300 ${st.completed ? 'text-slate-400 line-through' : 'text-on-surface'}`}
                         >

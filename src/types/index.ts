@@ -3,9 +3,13 @@ export type Department = 'BOD' | 'Tech' | 'Marketing' | 'Media' | 'Sale';
 export interface User {
   id: string;
   fullName: string;
+  username: string;
+  password?: string;
   department: string;
-  role: string;
+  role: string; // Admin, Leader, Member
+  scope?: string; // Vị trí công việc
   avatar: string;
+  isAdmin: boolean;
 }
 
 export interface Sprint {
@@ -30,6 +34,8 @@ export interface Objective {
   title: string;
   department: string;
   progressPercentage: number;
+  ownerId?: string;
+  owner?: User;
   keyResults: KeyResult[];
 }
 
@@ -54,11 +60,11 @@ export interface WorkItem {
   subtasks?: any[];
   createdAt: string;
   updatedAt: string;
-  
+
   // Specific fields
   dealValue?: number;
   leadsCount?: number;
-  
+
   // Relations (optional for frontend display)
   assignee?: User;
   sprint?: Sprint;

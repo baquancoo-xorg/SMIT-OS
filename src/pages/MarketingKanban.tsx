@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import DraggableTaskCard from '../components/board/DraggableTaskCard';
-import { 
-  DndContext, 
-  DragEndEvent, 
-  PointerSensor, 
-  useSensor, 
+import {
+  DndContext,
+  DragEndEvent,
+  PointerSensor,
+  useSensor,
   useSensors,
   rectIntersection,
   DragOverEvent,
@@ -12,10 +12,10 @@ import {
   DragOverlay,
   defaultDropAnimationSideEffects
 } from '@dnd-kit/core';
-import { 
-  SortableContext, 
+import {
+  SortableContext,
   verticalListSortingStrategy,
-  arrayMove 
+  arrayMove
 } from '@dnd-kit/sortable';
 import TaskCard from '../components/board/TaskCard';
 import TaskTableView from '../components/board/TaskTableView';
@@ -36,20 +36,28 @@ export default function MarketingKanban() {
   const [items, setItems] = useState<WorkItem[]>([]);
   const [activeItem, setActiveItem] = useState<WorkItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { currentUser } = useAuth();
 
   const fetchData = async () => {
     try {
+      setError(null);
       const res = await fetch('/api/work-items');
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch data');
+      }
+
       const data = await res.json();
       if (Array.isArray(data)) {
-        const mktItems = data.filter((item: WorkItem) => 
+        const mktItems = data.filter((item: WorkItem) =>
           ['Campaign', 'MktTask', 'Task'].includes(item.type)
         );
         setItems(mktItems);
       }
     } catch (error) {
       console.error('Failed to fetch Marketing board data:', error);
+      setError('Failed to load data. Please refresh the page.');
     } finally {
       setLoading(false);
     }
@@ -59,14 +67,7 @@ export default function MarketingKanban() {
     fetchData();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
+  // ALL HOOKS MUST BE CALLED BEFORE ANY EARLY RETURNS
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -100,7 +101,7 @@ export default function MarketingKanban() {
         setItems(prev => {
           const activeIndex = prev.findIndex(i => i.id === activeId);
           const overIndex = prev.findIndex(i => i.id === overId);
-          
+
           const updatedItems = [...prev];
           updatedItems[activeIndex] = { ...activeItem, status: overItem.status };
           return arrayMove(updatedItems, activeIndex, overIndex);
@@ -151,7 +152,7 @@ export default function MarketingKanban() {
       setItems(prev => {
         const activeIndex = prev.findIndex(i => i.id === activeId);
         const overIndex = prev.findIndex(i => i.id === overId);
-        
+
         if (overIndex !== -1) {
           return arrayMove(prev, activeIndex, overIndex);
         }
@@ -221,6 +222,30 @@ export default function MarketingKanban() {
     setIsDetailsModalOpen(true);
   };
 
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-error font-bold mb-4">{error}</p>
+          <button
+            onClick={fetchData}
+            className="px-4 py-2 bg-primary text-white rounded-lg font-bold hover:bg-primary/90"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex flex-col p-6 md:p-10 space-y-8 w-full">
       {/* Marketing Workspace Header */}
@@ -236,14 +261,14 @@ export default function MarketingKanban() {
 
         <div className="flex items-center gap-3">
           <div className="flex p-1 bg-surface-container-high rounded-full border border-outline-variant/10">
-            <button 
+            <button
               onClick={() => setView('board')}
               className={`flex items-center gap-2 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${view === 'board' ? 'bg-white text-primary shadow-md' : 'text-slate-500 hover:text-primary'}`}
             >
               <LayoutGrid size={14} />
               Board
             </button>
-            <button 
+            <button
               onClick={() => setView('table')}
               className={`flex items-center gap-2 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${view === 'table' ? 'bg-white text-primary shadow-md' : 'text-slate-500 hover:text-primary'}`}
             >
@@ -251,7 +276,7 @@ export default function MarketingKanban() {
               Table
             </button>
           </div>
-          <button 
+          <button
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all"
           >
@@ -294,9 +319,9 @@ export default function MarketingKanban() {
 
       {view === 'table' ? (
         <div className="flex-1 overflow-y-auto pb-8">
-          <TaskTableView 
-            items={items} 
-            onUpdate={handleUpdateTask} 
+          <TaskTableView
+            items={items}
+            onUpdate={handleUpdateTask}
             onDelete={handleDeleteTask}
             onBulkDelete={handleBulkDelete}
             onEdit={handleEditTask}
@@ -304,78 +329,77 @@ export default function MarketingKanban() {
           />
         </div>
       ) : (
-        <DndContext 
+        <DndContext
           sensors={sensors}
           collisionDetection={rectIntersection}
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-        <div className="flex-1 flex gap-6 overflow-x-auto pb-4 items-start">
-          {COLUMNS.map(col => {
-            const columnItems = items.filter(i => i.status === col);
-            
-            return (
-              <div key={col} className="min-w-[320px] w-[320px] flex flex-col bg-slate-50/50 rounded-3xl border border-slate-200/50">
-                <div className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${
-                      col === 'Idea' ? 'bg-slate-400' :
-                      col === 'Doing' ? 'bg-primary' :
-                      col === 'Review' ? 'bg-secondary' :
-                      'bg-tertiary'
-                    }`}></div>
-                    <h3 className="font-black text-on-surface text-xs uppercase tracking-widest">{col}</h3>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full bg-white text-slate-500 text-[10px] font-black border border-slate-200 shadow-sm">
-                    {columnItems.length}
-                  </span>
-                </div>
-                
-                <SortableContext 
-                  id={col}
-                  items={columnItems.map(i => i.id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  <div className="flex-1 p-3 space-y-4 min-h-[200px]">
-                    {columnItems.map(item => (
-                      <DraggableTaskCard 
-                        key={item.id} 
-                        item={item} 
-                        onUpdate={handleUpdateTask} 
-                        onDelete={handleDeleteTask}
-                        onEdit={handleEditTask}
-                        onViewDetails={handleViewDetails}
-                      />
-                    ))}
-                    {columnItems.length === 0 && (
-                      <div className="h-32 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-400 gap-2">
-                        <span className="material-symbols-outlined text-3xl opacity-20">inventory_2</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Empty Column</span>
-                      </div>
-                    )}
-                  </div>
-                </SortableContext>
-              </div>
-            );
-          })}
-        </div>
+          <div className="flex-1 flex gap-6 overflow-x-auto pb-4 items-start">
+            {COLUMNS.map(col => {
+              const columnItems = items.filter(i => i.status === col);
 
-        <DragOverlay dropAnimation={{
-          sideEffects: defaultDropAnimationSideEffects({
-            styles: {
-              active: {
-                opacity: '0.5',
+              return (
+                <div key={col} className="min-w-[320px] w-[320px] flex flex-col bg-slate-50/50 rounded-3xl border border-slate-200/50">
+                  <div className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${col === 'Idea' ? 'bg-slate-400' :
+                        col === 'Doing' ? 'bg-primary' :
+                          col === 'Review' ? 'bg-secondary' :
+                            'bg-tertiary'
+                        }`}></div>
+                      <h3 className="font-black text-on-surface text-xs uppercase tracking-widest">{col}</h3>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full bg-white text-slate-500 text-[10px] font-black border border-slate-200 shadow-sm">
+                      {columnItems.length}
+                    </span>
+                  </div>
+
+                  <SortableContext
+                    id={col}
+                    items={columnItems.map(i => i.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="flex-1 p-3 space-y-4 min-h-[200px]">
+                      {columnItems.map(item => (
+                        <DraggableTaskCard
+                          key={item.id}
+                          item={item}
+                          onUpdate={handleUpdateTask}
+                          onDelete={handleDeleteTask}
+                          onEdit={handleEditTask}
+                          onViewDetails={handleViewDetails}
+                        />
+                      ))}
+                      {columnItems.length === 0 && (
+                        <div className="h-32 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-400 gap-2">
+                          <span className="material-symbols-outlined text-3xl opacity-20">inventory_2</span>
+                          <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Empty Column</span>
+                        </div>
+                      )}
+                    </div>
+                  </SortableContext>
+                </div>
+              );
+            })}
+          </div>
+
+          <DragOverlay dropAnimation={{
+            sideEffects: defaultDropAnimationSideEffects({
+              styles: {
+                active: {
+                  opacity: '0.5',
+                },
               },
-            },
-          }),
-        }}>
-          {activeItem ? <TaskCard item={activeItem} /> : null}
-        </DragOverlay>
-      </DndContext>
+            }),
+          }}>
+            {activeItem ? <TaskCard item={activeItem} /> : null}
+          </DragOverlay>
+        </DndContext>
       )}
 
-      <TaskModal 
+      <TaskModal
         isOpen={isModalOpen}
         onClose={() => { setIsModalOpen(false); setEditingTask(null); }}
         onSave={handleCreateTask}

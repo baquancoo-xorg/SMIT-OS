@@ -1,20 +1,88 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# SMIT OS - The Kinetic Workspace
 
-# Run and deploy your AI Studio app
+A comprehensive workspace management system for managing Tech, Marketing, Media, and Sales operations.
 
-This contains everything you need to run your app locally.
+## Quick Start
 
-View your app in AI Studio: https://ai.studio/apps/0e015db3-073c-4443-b09a-77f0a035bf72
+### 1. Install dependencies
+```bash
+npm install
+```
 
-## Run Locally
+### 2. Setup database
+```bash
+# Push schema to database
+npm run db:push
 
-**Prerequisites:**  Node.js
+# Setup initial admin user
+npm run db:setup
+```
 
+### 3. Start development server
+```bash
+npm run dev
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Open http://localhost:3005
+
+### 4. Login
+- **Username:** `dominium`
+- **Password:** `change-me-local-only`
+
+## Database Management
+
+```bash
+# View database in browser
+npm run db:studio
+
+# Push schema changes
+npm run db:push
+
+# Reset database (WARNING: deletes all data)
+npx prisma db push --force-reset
+```
+
+## Tech Stack
+
+- **Frontend:** React 19 + TypeScript + TailwindCSS
+- **Backend:** Express + Prisma ORM
+- **Database:** PostgreSQL
+- **Auth:** bcryptjs for password hashing
+- **Drag & Drop:** @dnd-kit
+- **UI:** Lucide Icons + Motion
+
+## Project Structure
+
+```
+├── prisma/              # Database schema
+├── scripts/             # Database setup scripts
+├── src/
+│   ├── components/      # Reusable components
+│   ├── contexts/        # React contexts (Auth)
+│   ├── pages/           # Page components
+│   └── types/           # TypeScript types
+└── server.ts            # Express server
+```
+
+## Features
+
+- 🔐 Authentication with password hashing
+- 👥 User management (Admin only)
+- 📊 OKRs tracking
+-  Tech & Product Kanban board
+- 📈 Marketing Kanban board
+- 🎬 Media Kanban board
+- 💰 Sales Kanban board
+- 📅 Weekly reports
+- ⚙️ Settings management
+
+## Database
+
+This project uses a **real PostgreSQL database**. No mock or seed data is used.
+
+All data is managed through:
+- **Settings page**: User & Sprint management (Admin only)
+- **Kanban boards**: Work items management
+- **OKRs page**: Objectives & Key Results
+
+See [DATABASE.md](./DATABASE.md) for more details.

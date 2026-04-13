@@ -1,6 +1,5 @@
-import React from 'react';
-import { WorkItem } from '../../types';
-import { l1Objectives, l2Objectives } from '../../data/mockData';
+import React, { useEffect, useState } from 'react';
+import { WorkItem, Objective } from '../../types';
 import { X, Calendar, Clock, Target, User as UserIcon, AlignLeft, CheckSquare, Link2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -13,12 +12,29 @@ interface TaskDetailsModalProps {
 
 export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsModalProps) {
   const { users } = useAuth();
+  const [allObjectives, setAllObjectives] = useState<Objective[]>([]);
+
   if (!isOpen || !task) return null;
 
   const assignee = users.find(u => u.id === task.assigneeId);
-  
+
+  // Fetch objectives from API
+  useEffect(() => {
+    const fetchObjectives = async () => {
+      try {
+        const res = await fetch('/api/objectives');
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setAllObjectives(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch objectives:', error);
+      }
+    };
+    fetchObjectives();
+  }, []);
+
   // Find linked Key Result
-  const allObjectives = [...l1Objectives, ...l2Objectives];
   let linkedKr: any;
   if (task.linkedKrId) {
     for (const obj of allObjectives) {
@@ -54,7 +70,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -103,11 +119,10 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
                   </div>
                 )}
                 <div className="flex items-center gap-2">
-                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
-                    task.status === 'Done' || task.status === 'Won' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                    task.status === 'In Progress' || task.status === 'Doing' ? 'bg-primary/5 text-primary border-primary/10' :
-                    'bg-slate-50 text-slate-500 border-slate-100'
-                  }`}>
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${task.status === 'Done' || task.status === 'Won' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                      task.status === 'In Progress' || task.status === 'Doing' ? 'bg-primary/5 text-primary border-primary/10' :
+                        'bg-slate-50 text-slate-500 border-slate-100'
+                    }`}>
                     {task.status}
                   </span>
                 </div>
@@ -126,7 +141,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
                   <span className="text-primary">{(linkedKr.currentValue || 0)} / {(linkedKr.targetValue || 100)} {linkedKr.unit || '%'}</span>
                 </div>
                 <div className="h-2 w-full bg-primary/10 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-primary"
                     style={{ width: `${((linkedKr.currentValue || 0) / (linkedKr.targetValue || 100)) * 100}%` }}
                   />
@@ -155,9 +170,9 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
                   </div>
                   <span className="text-xs font-bold text-slate-500">{completedSubtasks} / {totalSubtasks} completed</span>
                 </div>
-                
+
                 <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className={`h-full transition-all duration-500 ${completedSubtasks === totalSubtasks ? 'bg-emerald-500' : 'bg-primary'}`}
                     style={{ width: `${(completedSubtasks / totalSubtasks) * 100}%` }}
                   />
@@ -166,9 +181,8 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
                 <div className="space-y-2 mt-4">
                   {task.subtasks.map(st => (
                     <div key={st.id} className="flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        st.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300'
-                      }`}>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${st.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300'
+                        }`}>
                         {st.completed && <CheckSquare size={12} />}
                       </div>
                       <span className={`text-sm font-medium ${st.completed ? 'text-slate-400 line-through' : 'text-slate-700'}`}>

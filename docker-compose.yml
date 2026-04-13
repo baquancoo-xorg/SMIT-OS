@@ -10,9 +10,10 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: smitos_db
     ports:
-      - "5431:5432"
+      - "5435:5432"
     volumes:
-      - smit_os_db_data:/var/lib/postgresql/data
+      - /Users/dominium/Documents/database:/var/lib/postgresql/data
 
-volumes:
-  smit_os_db_data:
+# volumes:
+#   smit_os_db_data:
+#     driver: local

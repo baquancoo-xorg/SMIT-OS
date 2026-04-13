@@ -6,16 +6,21 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
   id         String   @id @default(uuid())
   fullName   String
+  username   String   @unique
+  password   String
   department String
-  role       String
+  role       String   // Admin, Leader, Member
+  scope      String?  // Vị trí công việc (e.g., "Backend Developer")
   avatar     String
+  isAdmin    Boolean  @default(false)
+  objectives Objective[]
   workItems  WorkItem[]
   reports    WeeklyReport[]
 }
@@ -33,6 +38,8 @@ model Objective {
   title              String
   department         String
   progressPercentage Float       @default(0)
+  ownerId            String?
+  owner              User?       @relation(fields: [ownerId], references: [id])
   keyResults         KeyResult[]
 }
 
@@ -40,6 +47,9 @@ model KeyResult {
   id                 String    @id @default(uuid())
   title              String
   progressPercentage Float     @default(0)
+  currentValue       Float     @default(0)
+  targetValue        Float     @default(100)
+  unit               String    @default("%")
   objectiveId        String
   objective          Objective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
 }

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import DraggableTaskCard from '../components/board/DraggableTaskCard';
-import { 
-  DndContext, 
-  DragEndEvent, 
-  PointerSensor, 
-  useSensor, 
+import {
+  DndContext,
+  DragEndEvent,
+  PointerSensor,
+  useSensor,
   useSensors,
   rectIntersection,
   DragOverEvent,
@@ -12,10 +12,10 @@ import {
   DragOverlay,
   defaultDropAnimationSideEffects
 } from '@dnd-kit/core';
-import { 
-  SortableContext, 
+import {
+  SortableContext,
   verticalListSortingStrategy,
-  arrayMove 
+  arrayMove
 } from '@dnd-kit/sortable';
 import TaskCard from '../components/board/TaskCard';
 import TaskTableView from '../components/board/TaskTableView';
@@ -38,24 +38,31 @@ export default function TechScrumBoard() {
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [activeItem, setActiveItem] = useState<WorkItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { currentUser } = useAuth();
 
   const fetchData = async () => {
     try {
+      setError(null);
       const [itemRes, sprintRes] = await Promise.all([
         fetch('/api/work-items'),
         fetch('/api/sprints')
       ]);
+
+      if (!itemRes.ok || !sprintRes.ok) {
+        throw new Error('Failed to fetch data');
+      }
+
       const itemData = await itemRes.json();
       const sprintData = await sprintRes.json();
-      
+
       if (Array.isArray(itemData)) {
-        const techItems = itemData.filter((item: WorkItem) => 
+        const techItems = itemData.filter((item: WorkItem) =>
           ['Epic', 'UserStory', 'TechTask', 'Task'].includes(item.type)
         );
         setItems(techItems);
       }
-      
+
       if (Array.isArray(sprintData)) {
         setSprints(sprintData);
         if (sprintData.length > 0 && !selectedSprintId) {
@@ -64,6 +71,7 @@ export default function TechScrumBoard() {
       }
     } catch (error) {
       console.error('Failed to fetch Tech board data:', error);
+      setError('Failed to load data. Please refresh the page.');
     } finally {
       setLoading(false);
     }
@@ -72,14 +80,6 @@ export default function TechScrumBoard() {
   useEffect(() => {
     fetchData();
   }, []);
-
-  if (loading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -114,7 +114,7 @@ export default function TechScrumBoard() {
     setItems(prev => {
       const activeIndex = prev.findIndex(i => i.id === activeId);
       const updatedItems = [...prev];
-      
+
       let newStatus = activeItem.status;
       let newSprintId = activeItem.sprintId;
 
@@ -131,13 +131,13 @@ export default function TechScrumBoard() {
 
       if (activeItem.status !== newStatus || activeItem.sprintId !== newSprintId) {
         updatedItems[activeIndex] = { ...activeItem, status: newStatus, sprintId: newSprintId };
-        
+
         if (overItem) {
           const overIndex = prev.findIndex(i => i.id === overId);
           return arrayMove(updatedItems, activeIndex, overIndex);
         }
       }
-      
+
       return updatedItems;
     });
   };
@@ -183,7 +183,7 @@ export default function TechScrumBoard() {
       setItems(prev => {
         const activeIndex = prev.findIndex(i => i.id === activeId);
         const overIndex = prev.findIndex(i => i.id === overId);
-        
+
         if (overIndex !== -1) {
           return arrayMove(prev, activeIndex, overIndex);
         }
@@ -254,6 +254,30 @@ export default function TechScrumBoard() {
     setIsDetailsModalOpen(true);
   };
 
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-error font-bold mb-4">{error}</p>
+          <button
+            onClick={fetchData}
+            className="px-4 py-2 bg-primary text-white rounded-lg font-bold hover:bg-primary/90"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const backlogItems = items.filter(i => !i.sprintId);
   const sprintItems = items.filter(i => i.sprintId === selectedSprintId);
 
@@ -277,14 +301,14 @@ export default function TechScrumBoard() {
 
         <div className="flex items-center gap-3">
           <div className="flex p-1 bg-surface-container-high rounded-full border border-outline-variant/10">
-            <button 
+            <button
               onClick={() => setView('board')}
               className={`flex items-center gap-2 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view === 'board' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'}`}
             >
               <LayoutGrid size={12} />
               Board
             </button>
-            <button 
+            <button
               onClick={() => setView('table')}
               className={`flex items-center gap-2 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view === 'table' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'}`}
             >
@@ -292,7 +316,7 @@ export default function TechScrumBoard() {
               Table
             </button>
           </div>
-          <button 
+          <button
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg shadow-primary/20 hover:scale-95 transition-all"
           >
@@ -310,7 +334,7 @@ export default function TechScrumBoard() {
             <span>Active Sprint:</span>
           </div>
           <div className="relative">
-            <select 
+            <select
               value={selectedSprintId}
               onChange={(e) => setSelectedSprintId(e.target.value)}
               className="appearance-none bg-surface-container-low border border-outline-variant/20 rounded-xl px-4 py-2 pr-10 text-sm font-bold text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer hover:bg-surface-container"
@@ -342,9 +366,9 @@ export default function TechScrumBoard() {
 
       {view === 'table' ? (
         <div className="flex-1 overflow-y-auto pb-8">
-          <TaskTableView 
-            items={items} 
-            onUpdate={handleUpdateTask} 
+          <TaskTableView
+            items={items}
+            onUpdate={handleUpdateTask}
             onDelete={handleDeleteTask}
             onBulkDelete={handleBulkDelete}
             onEdit={handleEditTask}
@@ -352,7 +376,7 @@ export default function TechScrumBoard() {
           />
         </div>
       ) : (
-        <DndContext 
+        <DndContext
           sensors={sensors}
           collisionDetection={rectIntersection}
           onDragStart={handleDragStart}
@@ -371,18 +395,18 @@ export default function TechScrumBoard() {
                   {backlogItems.length}
                 </span>
               </div>
-              
-              <SortableContext 
+
+              <SortableContext
                 id="backlog"
                 items={backlogItems.map(i => i.id)}
                 strategy={verticalListSortingStrategy}
               >
                 <div className="flex-1 p-4 space-y-4 overflow-y-auto custom-scrollbar">
                   {backlogItems.map(item => (
-                    <DraggableTaskCard 
-                      key={item.id} 
-                      item={item} 
-                      onUpdate={handleUpdateTask} 
+                    <DraggableTaskCard
+                      key={item.id}
+                      item={item}
+                      onUpdate={handleUpdateTask}
                       onDelete={handleDeleteTask}
                       onEdit={handleEditTask}
                       onViewDetails={handleViewDetails}
@@ -402,35 +426,34 @@ export default function TechScrumBoard() {
             <div className="w-full lg:w-3/4 flex gap-4 overflow-x-auto pb-4 items-start custom-scrollbar h-[500px] lg:h-auto shrink-0 lg:shrink">
               {COLUMNS.map(col => {
                 const columnItems = sprintItems.filter(i => i.status === col);
-                
+
                 return (
                   <div key={col} className="min-w-[280px] flex-1 flex flex-col bg-slate-50/50 rounded-[32px] border border-slate-200/50 h-full max-h-full overflow-hidden">
                     <div className="p-4 flex items-center justify-between bg-white/30">
                       <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${
-                          col === 'To Do' ? 'bg-slate-400' :
+                        <div className={`w-2 h-2 rounded-full ${col === 'To Do' ? 'bg-slate-400' :
                           col === 'In Progress' ? 'bg-primary' :
-                          col === 'Code Review' ? 'bg-secondary' :
-                          'bg-tertiary'
-                        }`}></div>
+                            col === 'Code Review' ? 'bg-secondary' :
+                              'bg-tertiary'
+                          }`}></div>
                         <h3 className="font-black text-on-surface text-[10px] uppercase tracking-widest">{col}</h3>
                       </div>
                       <span className="px-2 py-0.5 rounded-full bg-white text-slate-500 text-[10px] font-black border border-slate-200 shadow-sm">
                         {columnItems.length}
                       </span>
                     </div>
-                    
-                    <SortableContext 
+
+                    <SortableContext
                       id={col}
                       items={columnItems.map(i => i.id)}
                       strategy={verticalListSortingStrategy}
                     >
                       <div className="flex-1 p-3 space-y-4 overflow-y-auto custom-scrollbar min-h-[200px]">
                         {columnItems.map(item => (
-                          <DraggableTaskCard 
-                            key={item.id} 
-                            item={item} 
-                            onUpdate={handleUpdateTask} 
+                          <DraggableTaskCard
+                            key={item.id}
+                            item={item}
+                            onUpdate={handleUpdateTask}
                             onDelete={handleDeleteTask}
                             onEdit={handleEditTask}
                             onViewDetails={handleViewDetails}
@@ -458,7 +481,7 @@ export default function TechScrumBoard() {
         </DndContext>
       )}
 
-      <TaskModal 
+      <TaskModal
         isOpen={isModalOpen}
         onClose={() => { setIsModalOpen(false); setEditingTask(null); }}
         onSave={handleCreateTask}

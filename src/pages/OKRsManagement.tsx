@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Objective, KeyResult, WorkItem, WorkItemType } from '../types';
+import { Objective, KeyResult, WorkItem, WorkItemType, User } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { Target, Plus, ChevronDown, ChevronRight, Briefcase, Users, Zap, Edit2, X, Link as LinkIcon, Filter, TrendingUp, Trash2, AlertTriangle, Calendar } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -121,20 +121,20 @@ export default function OKRsManagement() {
 
         <div className="flex items-center gap-4">
           <div className="flex p-1 bg-surface-container-high rounded-full border border-outline-variant/10">
-            <button 
+            <button
               className={`px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'L1' ? 'text-primary bg-white shadow-md' : 'text-slate-500 hover:text-primary'}`}
               onClick={() => setActiveTab('L1')}
             >
               Company (L1)
             </button>
-            <button 
+            <button
               className={`px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'L2' ? 'text-primary bg-white shadow-md' : 'text-slate-500 hover:text-primary'}`}
               onClick={() => setActiveTab('L2')}
             >
               Team (L2)
             </button>
           </div>
-          <button 
+          <button
             onClick={() => setIsAddObjModalOpen(true)}
             className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all"
           >
@@ -162,8 +162,8 @@ export default function OKRsManagement() {
             </h4>
           </div>
           <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mt-4 relative z-10">
-            <div 
-              className="h-full bg-primary transition-all duration-1000" 
+            <div
+              className="h-full bg-primary transition-all duration-1000"
               style={{ width: `${objectives.length > 0 ? (objectives.reduce((sum, obj) => sum + obj.progressPercentage, 0) / objectives.length) : 0}%` }}
             ></div>
           </div>
@@ -199,7 +199,7 @@ export default function OKRsManagement() {
           <div className="flex gap-3">
             <div className="flex items-center gap-3 bg-surface-container-high px-6 py-2 rounded-full border border-outline-variant/10">
               <span className="material-symbols-outlined text-[18px] text-slate-400">filter_list</span>
-              <select 
+              <select
                 className="text-[10px] font-black bg-transparent border-none focus:ring-0 text-on-surface-variant uppercase tracking-widest outline-none cursor-pointer"
                 value={departmentFilter}
                 onChange={(e) => setDepartmentFilter(e.target.value)}
@@ -218,10 +218,10 @@ export default function OKRsManagement() {
         <div className="space-y-12">
           {filteredObjectives.length > 0 ? (
             filteredObjectives.map(obj => (
-              <ObjectiveCard 
-                key={obj.id} 
-                objective={obj} 
-                isL2={activeTab === 'L2'} 
+              <ObjectiveCard
+                key={obj.id}
+                objective={obj}
+                isL2={activeTab === 'L2'}
                 workItems={items}
                 onLinkWorkItem={handleLinkWorkItem}
                 onRefresh={fetchData}
@@ -255,7 +255,7 @@ function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWor
         ...data,
         progressPercentage: Math.round((data.currentValue / data.targetValue) * 100),
       };
-      
+
       const res = await fetch(`/api/objectives/${objective.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -265,7 +265,7 @@ function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWor
           }
         })
       });
-      
+
       if (res.ok) {
         onRefresh();
         setIsAddKRModalOpen(false);
@@ -329,7 +329,7 @@ function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWor
                     />
                   </div>
                 ) : (
-                  <h3 
+                  <h3
                     className="flex items-center gap-3 text-2xl font-black text-on-surface cursor-pointer hover:text-primary transition-colors font-headline"
                     onClick={() => setIsEditingTitle(true)}
                   >
@@ -353,24 +353,25 @@ function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWor
         <div className="space-y-6">
           {objective.keyResults.length > 0 ? (
             objective.keyResults.map((kr, index) => (
-              <KeyResultRow 
-                key={kr.id} 
-                kr={kr} 
+              <KeyResultRow
+                key={kr.id}
+                kr={kr}
                 index={index}
-                isL2={isL2} 
-                department={objective.department} 
+                isL2={isL2}
+                department={objective.department}
+                owner={objective.owner}
                 workItems={workItems}
                 onLinkWorkItem={onLinkWorkItem}
-                onDelete={() => handleDeleteKR(kr.id)} 
+                onDelete={() => handleDeleteKR(kr.id)}
                 onRefresh={onRefresh}
               />
             ))
           ) : (
             <div className="text-center py-6 text-xs font-black uppercase tracking-widest text-slate-300 italic">No key results established.</div>
           )}
-          
+
           <div className="pt-8 border-t border-outline-variant/5">
-            <button 
+            <button
               onClick={() => setIsAddKRModalOpen(true)}
               className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest hover:gap-4 transition-all"
             >
@@ -392,7 +393,7 @@ function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWor
   );
 }
 
-function KeyResultRow({ kr, index, isL2, department, workItems, onLinkWorkItem, onDelete, onRefresh }: { kr: KeyResult; index: number; isL2: boolean; department?: string; workItems: WorkItem[]; onLinkWorkItem: (krId: string, item: WorkItem) => void; onDelete: () => void; onRefresh: () => void; key?: string | number }) {
+function KeyResultRow({ kr, index, isL2, department, owner, workItems, onLinkWorkItem, onDelete, onRefresh }: { kr: KeyResult; index: number; isL2: boolean; department?: string; owner?: User; workItems: WorkItem[]; onLinkWorkItem: (krId: string, item: WorkItem) => void; onDelete: () => void; onRefresh: () => void; key?: string | number }) {
   const [krData, setKrData] = useState(kr);
   const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -426,9 +427,9 @@ function KeyResultRow({ kr, index, isL2, department, workItems, onLinkWorkItem, 
           <div className="flex items-center gap-4 mt-2 ml-11">
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[8px] font-black text-slate-500 border border-outline-variant/10">
-                NQ
+                {owner ? owner.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'N/A'}
               </div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nguyễn Quân</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{owner?.fullName || 'Unassigned'}</p>
             </div>
             {krData.dueDate && (
               <span className="text-[10px] font-black text-error bg-error/5 px-2 py-0.5 rounded-full flex items-center gap-1 border border-error/10">
@@ -444,33 +445,33 @@ function KeyResultRow({ kr, index, isL2, department, workItems, onLinkWorkItem, 
             <span className="text-on-surface">{krData.currentValue} / {krData.targetValue} {krData.unit}</span>
           </div>
           <div className="h-2 bg-slate-100 rounded-full overflow-hidden relative">
-            <div 
-              className={`h-full transition-all duration-1000 ease-out ${progress === 100 ? 'bg-emerald-500' : 'bg-primary'}`} 
+            <div
+              className={`h-full transition-all duration-1000 ease-out ${progress === 100 ? 'bg-emerald-500' : 'bg-primary'}`}
               style={{ width: `${progress}%` }}
             ></div>
           </div>
         </div>
         <div className="col-span-3 flex justify-end gap-2">
-          <button 
+          <button
             onClick={() => setIsLinkModalOpen(true)}
             className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all opacity-0 group-hover:opacity-100"
             title="Link Work Item"
           >
             <LinkIcon size={16} />
           </button>
-          <button 
+          <button
             onClick={() => setIsProgressModalOpen(true)}
             className="px-4 py-2 bg-slate-100 hover:bg-primary/5 hover:text-primary rounded-xl text-[10px] font-black uppercase tracking-widest transition-all opacity-0 group-hover:opacity-100"
           >
             Check-in
           </button>
-          <button 
+          <button
             onClick={() => setIsEditModalOpen(true)}
             className="px-4 py-2 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/20"
           >
             Edit
           </button>
-          <button 
+          <button
             onClick={() => setIsDeleteModalOpen(true)}
             className="w-10 h-10 flex items-center justify-center text-error/60 hover:text-error hover:bg-error/5 rounded-xl transition-all opacity-0 group-hover:opacity-100"
           >
@@ -484,19 +485,17 @@ function KeyResultRow({ kr, index, isL2, department, workItems, onLinkWorkItem, 
         <div className="flex flex-wrap gap-2 ml-0 mt-1">
           {linkedItems.map(item => (
             <div key={item.id} className="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant/10 px-2 py-1 rounded-lg shadow-sm">
-              <span className={`text-[8px] font-black uppercase px-1 rounded ${
-                item.type === 'Epic' ? 'bg-purple-100 text-purple-700' :
+              <span className={`text-[8px] font-black uppercase px-1 rounded ${item.type === 'Epic' ? 'bg-purple-100 text-purple-700' :
                 item.type === 'Deal' ? 'bg-emerald-100 text-emerald-700' :
-                'bg-slate-100 text-slate-700'
-              }`}>
+                  'bg-slate-100 text-slate-700'
+                }`}>
                 {item.type}
               </span>
               <span className="text-[10px] font-medium text-on-surface truncate max-w-[150px]">{item.title}</span>
-              <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${
-                item.status === 'Done' || item.status === 'Won' ? 'bg-emerald-50 text-emerald-600' :
+              <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${item.status === 'Done' || item.status === 'Won' ? 'bg-emerald-50 text-emerald-600' :
                 item.status === 'In Progress' || item.status === 'Doing' ? 'bg-blue-50 text-blue-600' :
-                'bg-slate-100 text-slate-500'
-              }`}>
+                  'bg-slate-100 text-slate-500'
+                }`}>
                 {item.status}
               </span>
             </div>
@@ -527,9 +526,9 @@ function KeyResultRow({ kr, index, isL2, department, workItems, onLinkWorkItem, 
         }}
       />
 
-      <EditKRModal 
-        isOpen={isEditModalOpen} 
-        onClose={() => setIsEditModalOpen(false)} 
+      <EditKRModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
         initialData={krData}
         title="Edit Key Result"
         onSave={(newData) => {
@@ -575,7 +574,7 @@ function SubKeyResultRow({ skr, onUpdate, onDelete }: { skr: SubKeyResult, onUpd
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const progress = Math.min(100, Math.round((skr.currentValue / skr.targetValue) * 100)) || 0;
-  
+
   return (
     <div className="grid grid-cols-12 items-center gap-4 px-4 py-3 rounded-xl hover:bg-surface-container-low transition-colors group border-l-2 border-outline-variant/20 ml-4">
       <div className="col-span-6">
@@ -583,20 +582,20 @@ function SubKeyResultRow({ skr, onUpdate, onDelete }: { skr: SubKeyResult, onUpd
       </div>
       <div className="col-span-3">
         <div className="h-1.5 bg-surface-container-high rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-tertiary transition-all duration-1000" 
+          <div
+            className="h-full bg-tertiary transition-all duration-1000"
             style={{ width: `${progress}%` }}
           ></div>
         </div>
       </div>
       <div className="col-span-3 flex justify-end gap-1">
-        <button 
+        <button
           onClick={() => setIsProgressModalOpen(true)}
           className="p-1.5 text-on-surface-variant hover:text-primary rounded-lg opacity-0 group-hover:opacity-100 transition-all"
         >
           <span className="material-symbols-outlined text-sm">trending_up</span>
         </button>
-        <button 
+        <button
           onClick={() => setIsDeleteModalOpen(true)}
           className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
         >
@@ -654,13 +653,13 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, title, message }: Dele
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-[60] backdrop-blur-sm">
       <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-8 relative border border-outline-variant/20">
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
         >
           <span className="material-symbols-outlined">close</span>
         </button>
-        
+
         <div className="flex flex-col items-center text-center">
           <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-6">
             <span className="material-symbols-outlined text-rose-600 text-3xl">warning</span>
@@ -669,16 +668,16 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, title, message }: Dele
           <p className="text-sm text-on-surface-variant mb-8 leading-relaxed">
             {message}
           </p>
-          
+
           <div className="flex w-full gap-3">
-            <button 
-              className="flex-1 px-6 py-3 text-sm font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest rounded-xl transition-all" 
+            <button
+              className="flex-1 px-6 py-3 text-sm font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest rounded-xl transition-all"
               onClick={onClose}
             >
               Cancel
             </button>
-            <button 
-              className="flex-1 px-6 py-3 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-all shadow-lg shadow-rose-200" 
+            <button
+              className="flex-1 px-6 py-3 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-all shadow-lg shadow-rose-200"
               onClick={onConfirm}
             >
               Delete
@@ -706,80 +705,80 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm">
       <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-lg p-8 relative border border-outline-variant/20">
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
         >
           <span className="material-symbols-outlined">close</span>
         </button>
-        
+
         <h3 className="text-xl font-bold text-on-surface mb-6">{title || 'Edit Key Result'}</h3>
-        
+
         <div className="space-y-6">
           <div>
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Title</label>
-            <input 
-              type="text" 
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" 
-              value={formData.title} 
-              onChange={e => setFormData({...formData, title: e.target.value})} 
+            <input
+              type="text"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              value={formData.title}
+              onChange={e => setFormData({ ...formData, title: e.target.value })}
               placeholder="e.g., Increase user retention by 20%"
             />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Current Value</label>
-              <input 
-                type="number" 
-                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" 
-                value={formData.currentValue} 
-                onChange={e => setFormData({...formData, currentValue: Number(e.target.value)})} 
+              <input
+                type="number"
+                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                value={formData.currentValue}
+                onChange={e => setFormData({ ...formData, currentValue: Number(e.target.value) })}
               />
             </div>
             <div>
               <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Target Value</label>
-              <input 
-                type="number" 
-                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" 
-                value={formData.targetValue} 
-                onChange={e => setFormData({...formData, targetValue: Number(e.target.value)})} 
+              <input
+                type="number"
+                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                value={formData.targetValue}
+                onChange={e => setFormData({ ...formData, targetValue: Number(e.target.value) })}
               />
             </div>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Unit</label>
-              <input 
-                type="text" 
-                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" 
-                value={formData.unit} 
-                onChange={e => setFormData({...formData, unit: e.target.value})} 
+              <input
+                type="text"
+                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                value={formData.unit}
+                onChange={e => setFormData({ ...formData, unit: e.target.value })}
                 placeholder="e.g., %, USD, Users"
               />
             </div>
             <div>
               <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Due Date</label>
-              <input 
-                type="date" 
-                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" 
-                value={formData.dueDate || ''} 
-                onChange={e => setFormData({...formData, dueDate: e.target.value})} 
+              <input
+                type="date"
+                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                value={formData.dueDate || ''}
+                onChange={e => setFormData({ ...formData, dueDate: e.target.value })}
               />
             </div>
           </div>
         </div>
-        
+
         <div className="flex justify-end gap-3 mt-10">
-          <button 
-            className="px-6 py-3 text-sm font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest rounded-xl transition-all" 
+          <button
+            className="px-6 py-3 text-sm font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest rounded-xl transition-all"
             onClick={onClose}
           >
             Cancel
           </button>
-          <button 
-            className="px-6 py-3 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-xl transition-all shadow-lg shadow-primary/20" 
+          <button
+            className="px-6 py-3 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-xl transition-all shadow-lg shadow-primary/20"
             onClick={() => onSave(formData)}
           >
             Save Changes
@@ -808,61 +807,61 @@ function UpdateProgressModal({ isOpen, onClose, onSave, currentValue, targetValu
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-[70] backdrop-blur-sm">
       <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-sm p-8 relative border border-outline-variant/20">
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
         >
           <span className="material-symbols-outlined">close</span>
         </button>
-        
+
         <h3 className="text-xl font-bold text-on-surface mb-1">Check-in Progress</h3>
         <p className="text-sm text-on-surface-variant mb-6">Target: <span className="font-bold text-on-surface">{targetValue} {unit}</span></p>
-        
+
         <div className="space-y-6">
           <div>
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Current Value ({unit})</label>
-            <input 
-              type="number" 
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-2xl font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-center" 
-              value={val} 
-              onChange={e => setVal(Number(e.target.value))} 
+            <input
+              type="number"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-2xl font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-center"
+              value={val}
+              onChange={e => setVal(Number(e.target.value))}
               autoFocus
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Progress Note (Optional)</label>
-            <textarea 
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none" 
-              value={note} 
+            <textarea
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
+              value={note}
               onChange={e => setNote(e.target.value)}
               placeholder="What changed? Any blockers?"
             />
           </div>
-          
+
           <div className="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/10">
             <div className="flex justify-between text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">
               <span>New Progress</span>
               <span>{Math.min(100, Math.round((val / targetValue) * 100))}%</span>
             </div>
             <div className="h-2 bg-surface-container-high rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-primary transition-all duration-500" 
+              <div
+                className="h-full bg-primary transition-all duration-500"
                 style={{ width: `${Math.min(100, Math.round((val / targetValue) * 100))}%` }}
               ></div>
             </div>
           </div>
         </div>
-        
+
         <div className="flex w-full gap-3 mt-8">
-          <button 
-            className="flex-1 px-6 py-3 text-sm font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest rounded-xl transition-all" 
+          <button
+            className="flex-1 px-6 py-3 text-sm font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest rounded-xl transition-all"
             onClick={onClose}
           >
             Cancel
           </button>
-          <button 
-            className="flex-1 px-6 py-3 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-xl transition-all shadow-lg shadow-primary/20" 
+          <button
+            className="flex-1 px-6 py-3 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-xl transition-all shadow-lg shadow-primary/20"
             onClick={() => onSave(val, note)}
           >
             Update
@@ -906,23 +905,23 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm">
       <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-8 relative border border-outline-variant/20">
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
         >
           <span className="material-symbols-outlined">close</span>
         </button>
-        
+
         <h3 className="text-xl font-bold text-on-surface mb-6">Link Work Item</h3>
-        
+
         <div className="flex p-1 bg-surface-container-high rounded-xl mb-6">
-          <button 
+          <button
             className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${mode === 'select' ? 'bg-surface text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
             onClick={() => setMode('select')}
           >
             Select Existing
           </button>
-          <button 
+          <button
             className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${mode === 'create' ? 'bg-surface text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
             onClick={() => setMode('create')}
           >
@@ -934,7 +933,7 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
           {mode === 'select' ? (
             <div>
               <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Select Work Item</label>
-              <select 
+              <select
                 className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
                 value={selectedItemId}
                 onChange={(e) => setSelectedItemId(e.target.value)}
@@ -949,17 +948,17 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
             <>
               <div>
                 <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Title</label>
-                <input 
-                  type="text" 
-                  className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" 
-                  value={newItemTitle} 
+                <input
+                  type="text"
+                  className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  value={newItemTitle}
                   onChange={e => setNewItemTitle(e.target.value)}
                   placeholder="Enter task or epic title..."
                 />
               </div>
               <div>
                 <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Type</label>
-                <select 
+                <select
                   className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
                   value={newItemType}
                   onChange={(e) => setNewItemType(e.target.value as WorkItemType)}
@@ -975,16 +974,16 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
             </>
           )}
         </div>
-        
+
         <div className="flex w-full gap-3 mt-10">
-          <button 
-            className="flex-1 px-6 py-3 text-sm font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest rounded-xl transition-all" 
+          <button
+            className="flex-1 px-6 py-3 text-sm font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest rounded-xl transition-all"
             onClick={onClose}
           >
             Cancel
           </button>
-          <button 
-            className="flex-1 px-6 py-3 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-xl transition-all shadow-lg shadow-primary/20 disabled:opacity-50" 
+          <button
+            className="flex-1 px-6 py-3 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-xl transition-all shadow-lg shadow-primary/20 disabled:opacity-50"
             onClick={handleSave}
             disabled={mode === 'select' ? !selectedItemId : !newItemTitle.trim()}
           >
@@ -1008,7 +1007,7 @@ function AddObjectiveModal({ isOpen, onClose, onAdd, level }: { isOpen: boolean;
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-200"
@@ -1017,32 +1016,32 @@ function AddObjectiveModal({ isOpen, onClose, onAdd, level }: { isOpen: boolean;
           <h2 className="text-2xl font-black font-headline text-slate-800">
             Add New {level} Objective
           </h2>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded-full transition-colors"
           >
             <X size={20} />
           </button>
         </div>
-        
+
         <div className="flex-1 overflow-y-auto p-8 space-y-6">
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Objective Title</label>
-            <input 
-              type="text" 
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" 
-              value={formData.title} 
-              onChange={e => setFormData({...formData, title: e.target.value})} 
+            <input
+              type="text"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              value={formData.title}
+              onChange={e => setFormData({ ...formData, title: e.target.value })}
               placeholder="e.g., Achieve record revenue growth in Q3"
             />
           </div>
-          
+
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Department</label>
-            <select 
+            <select
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
               value={formData.department}
-              onChange={e => setFormData({...formData, department: e.target.value})}
+              onChange={e => setFormData({ ...formData, department: e.target.value })}
             >
               <option>All Departments</option>
               <option>Engineering</option>
@@ -1055,24 +1054,24 @@ function AddObjectiveModal({ isOpen, onClose, onAdd, level }: { isOpen: boolean;
 
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Description</label>
-            <textarea 
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all h-32 resize-none" 
-              value={formData.description} 
-              onChange={e => setFormData({...formData, description: e.target.value})} 
+            <textarea
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all h-32 resize-none"
+              value={formData.description}
+              onChange={e => setFormData({ ...formData, description: e.target.value })}
               placeholder="Describe the desired outcome and impact..."
             />
           </div>
         </div>
-        
+
         <div className="px-8 py-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50">
-          <button 
-            className="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200/50 rounded-xl transition-all" 
+          <button
+            className="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200/50 rounded-xl transition-all"
             onClick={onClose}
           >
             Cancel
           </button>
-          <button 
-            className="px-8 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20 transition-all" 
+          <button
+            className="px-8 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20 transition-all"
             onClick={() => {
               onAdd(formData);
               onClose();
