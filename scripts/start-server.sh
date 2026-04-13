@@ -27,6 +27,6 @@ sleep 5
 
 # Start the application server
 cd "$PROJECT_DIR"
-npm run dev >> "$LOG_FILE" 2>&1 &
+npm run start >> "$LOG_FILE" 2>&1 &
 
 echo "[$(date)] Server process started (PID: $!)" >> "$LOG_FILE"
