@@ -155,20 +155,20 @@ grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4
 
 ## Todo
 
-- [ ] Fix OKRsManagement filter (M1)
-- [ ] Fix OKRsManagement metric text (M2)
-- [ ] Fix Sidebar width (M3)
-- [ ] Fix Sidebar NavItem height (M4)
-- [ ] Fix AppLayout padding (M5)
-- [ ] Fix DailySync form padding (M8)
-- [ ] Fix SaturdaySync grid (M9)
-- [ ] Fix LoginPage max-width (M10)
-- [ ] Fix PMDashboard chart height (M18)
-- [ ] Final test all viewports
+- [x] Fix OKRsManagement filter (M1)
+- [x] Fix OKRsManagement metric text (M2)
+- [x] Fix Sidebar width (M3)
+- [x] Fix Sidebar NavItem height (M4)
+- [x] Fix AppLayout padding (M5)
+- [x] Fix DailySync form padding (M8)
+- [x] Fix SaturdaySync grid (M9)
+- [x] Fix LoginPage max-width (M10)
+- [x] Fix PMDashboard chart height (M18)
+- [x] Final test all viewports
 
 ## Success Criteria
 
-- [ ] All touch targets ≥ 44px
-- [ ] Text readable without zooming
-- [ ] Consistent spacing at all breakpoints
-- [ ] No awkward layout shifts between breakpoints
+- [x] All touch targets >= 44px
+- [x] Text readable without zooming
+- [x] Consistent spacing at all breakpoints
+- [x] No awkward layout shifts between breakpoints

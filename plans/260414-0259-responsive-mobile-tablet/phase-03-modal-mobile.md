@@ -174,20 +174,20 @@ Key changes:
 
 ## Todo
 
-- [ ] Apply base modal pattern to all modals
-- [ ] Fix WeeklyCheckinModal responsive (C6)
-- [ ] Fix ReportDetailDialog header (C7)
-- [ ] Fix TaskModal grid (M6)
-- [ ] Add margin to TaskDetailsModal (M7)
-- [ ] Fix DeleteConfirmModal buttons (M13)
-- [ ] Fix EditKRModal grid (M14)
-- [ ] Fix AddObjectiveModal padding (M15)
-- [ ] Test all modals at 375px
+- [x] Apply base modal pattern to all modals
+- [x] Fix WeeklyCheckinModal responsive (C6)
+- [x] Fix ReportDetailDialog header (C7)
+- [x] Fix TaskModal grid (M6)
+- [x] Add margin to TaskDetailsModal (M7)
+- [x] Fix DeleteConfirmModal buttons (M13)
+- [x] Fix EditKRModal grid (M14)
+- [x] Fix AddObjectiveModal padding (M15)
+- [x] Test all modals at 375px
 
 ## Success Criteria
 
-- [ ] All modals usable on 375px width
-- [ ] No content cut off at bottom
-- [ ] All buttons ≥ 44px height
-- [ ] Forms scrollable when content exceeds viewport
-- [ ] Close/dismiss always accessible
+- [x] All modals usable on 375px width
+- [x] No content cut off at bottom
+- [x] All buttons >= 44px height
+- [x] Forms scrollable when content exceeds viewport
+- [x] Close/dismiss always accessible

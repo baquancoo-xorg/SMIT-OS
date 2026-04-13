@@ -140,17 +140,17 @@ Fix layout issues in Settings, Dashboard, Header and improve touch targets.
 
 ## Todo
 
-- [ ] Fix Settings grid breakpoint (C5)
-- [ ] Convert ProductBacklog stats to 2x2 grid (C8)
-- [ ] Add min-h to TaskCard dropdown items (C9)
-- [ ] Fix PMDashboard grid progression (C11)
-- [ ] Optimize Header search dropdown (C12)
-- [ ] Test all changes at 375px and 768px
+- [x] Fix Settings grid breakpoint (C5)
+- [x] Convert ProductBacklog stats to 2x2 grid (C8)
+- [x] Add min-h to TaskCard dropdown items (C9)
+- [x] Fix PMDashboard grid progression (C11)
+- [x] Optimize Header search dropdown (C12)
+- [x] Test all changes at 375px and 768px
 
 ## Success Criteria
 
-- [ ] Settings shows 2-col at tablet (768px+)
-- [ ] Stats readable as 2x2 grid on mobile
-- [ ] All dropdown items ≥ 48px height
-- [ ] Dashboard cards balance evenly
-- [ ] Search dropdown dismissable on mobile
+- [x] Settings shows 2-col at tablet (768px+)
+- [x] Stats readable as 2x2 grid on mobile
+- [x] All dropdown items >= 48px height
+- [x] Dashboard cards balance evenly
+- [x] Search dropdown dismissable on mobile

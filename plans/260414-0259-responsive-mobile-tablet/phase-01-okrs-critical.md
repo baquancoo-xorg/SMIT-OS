@@ -148,14 +148,14 @@ Fix 3 critical issues in OKRsManagement.tsx affecting mobile usability.
 
 ## Todo
 
-- [ ] Update header layout (C1)
-- [ ] Fix text truncation in ObjectiveAccordionCard (C2)
-- [ ] Fix text truncation in ChildObjectiveCard (C2)
-- [ ] Fix text truncation in ObjectiveAccordionCardL2 (C2)
-- [ ] Refactor KeyResultRow grid (C3)
-- [ ] Test at 375px viewport
-- [ ] Test at 768px viewport
-- [ ] Verify desktop unchanged
+- [x] Update header layout (C1)
+- [x] Fix text truncation in ObjectiveAccordionCard (C2)
+- [x] Fix text truncation in ChildObjectiveCard (C2)
+- [x] Fix text truncation in ObjectiveAccordionCardL2 (C2)
+- [x] Refactor KeyResultRow grid (C3)
+- [x] Test at 375px viewport
+- [x] Test at 768px viewport
+- [x] Verify desktop unchanged
 
 ## Testing
 
@@ -172,8 +172,8 @@ npm run dev
 
 ## Success Criteria
 
-- [ ] Header stacks vertically on < 640px
-- [ ] Tab buttons show "L1/L2" only on mobile
-- [ ] Objective titles show 2 lines on mobile
-- [ ] KR action buttons always reachable
-- [ ] Touch targets ≥ 44px
+- [x] Header stacks vertically on < 640px
+- [x] Tab buttons show "L1/L2" only on mobile
+- [x] Objective titles show 2 lines on mobile
+- [x] KR action buttons always reachable
+- [x] Touch targets >= 44px

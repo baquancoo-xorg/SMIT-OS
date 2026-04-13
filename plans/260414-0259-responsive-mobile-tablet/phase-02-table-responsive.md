@@ -172,19 +172,19 @@ Add `min-w-[XXpx]` to all th elements:
 
 ## Todo
 
-- [ ] Add scroll wrapper to DailySync table (C4)
-- [ ] Add min-widths to DailySync columns
-- [ ] Create MobileCardView component for TaskTableView (C10)
-- [ ] Add view toggle to TaskTableView
-- [ ] Add min-widths to ReportTableView (M11)
-- [ ] Apply same pattern to ProductBacklog table (M12)
-- [ ] Fix WeeklyCheckinModal plans table (M17)
-- [ ] Test all tables at 375px
+- [x] Add scroll wrapper to DailySync table (C4)
+- [x] Add min-widths to DailySync columns
+- [x] Create MobileCardView component for TaskTableView (C10)
+- [x] Add view toggle to TaskTableView
+- [x] Add min-widths to ReportTableView (M11)
+- [x] Apply same pattern to ProductBacklog table (M12)
+- [x] Fix WeeklyCheckinModal plans table (M17)
+- [x] Test all tables at 375px
 
 ## Success Criteria
 
-- [ ] All tables scrollable horizontally on mobile
-- [ ] Scroll indicator visible on mobile
-- [ ] TaskTableView shows cards by default on mobile
-- [ ] Card view is touch-friendly (44px+ targets)
-- [ ] Column content never truncates unexpectedly
+- [x] All tables scrollable horizontally on mobile
+- [x] Scroll indicator visible on mobile
+- [x] TaskTableView shows cards by default on mobile
+- [x] Card view is touch-friendly (44px+ targets)
+- [x] Column content never truncates unexpectedly
