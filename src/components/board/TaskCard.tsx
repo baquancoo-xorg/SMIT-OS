@@ -102,8 +102,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
   return (
     <motion.div
       onClick={() => setIsExpanded(!isExpanded)}
-      whileHover={{ scale: 1.05, y: -5 }}
-      className={`bg-white/90 backdrop-blur-xl p-6 rounded-[32px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 cursor-pointer group relative overflow-hidden ${isExpanded ? 'ring-2 ring-primary/20 border-primary/30' : ''}`}
+      className={`bg-white/90 backdrop-blur-xl p-6 rounded-[32px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 transition-all duration-500 cursor-pointer group relative overflow-hidden ${isExpanded ? 'ring-2 ring-primary/20 border-primary/30' : ''}`}
     >
       <div className="flex items-start justify-between mb-6">
         <div className="flex flex-wrap gap-2">
@@ -178,7 +177,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
       <div className="space-y-5">
         <motion.h4
           layout
-          className={`text-2xl font-black leading-tight font-headline transition-colors duration-300 flex items-start gap-2 ${item.status === 'Done' || item.status === 'Won' ? 'text-slate-400 line-through' : 'text-on-surface group-hover:text-primary'
+          className={`text-base font-black leading-tight font-headline transition-colors duration-300 flex items-start gap-2 ${item.status === 'Done' || item.status === 'Won' ? 'text-slate-400 line-through' : 'text-on-surface'
             }`}
         >
           {item.title}
@@ -289,7 +288,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
               {item.description && (
                 <div className="space-y-2">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</p>
-                  <p className="text-xs text-on-surface-variant leading-relaxed bg-surface-container-low p-4 rounded-xl border border-outline-variant/10">
+                  <p className="text-xs text-on-surface-variant leading-relaxed bg-surface-container-low p-4 rounded-2xl border border-outline-variant/10">
                     {item.description}
                   </p>
                 </div>

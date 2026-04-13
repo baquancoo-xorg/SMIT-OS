@@ -4,13 +4,14 @@ import ReportTableView from '../components/board/ReportTableView';
 import ReportDetailDialog from '../components/modals/ReportDetailDialog';
 import { Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { WeeklyReport } from '../types';
+import { WeeklyReport, Sprint } from '../types';
 
 export default function SaturdaySync() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<WeeklyReport | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [reports, setReports] = useState<WeeklyReport[]>([]);
+  const [sprints, setSprints] = useState<Sprint[]>([]);
   const [loading, setLoading] = useState(true);
   const { users, currentUser } = useAuth();
 
@@ -28,8 +29,19 @@ export default function SaturdaySync() {
     }
   };
 
+  const fetchSprints = async () => {
+    try {
+      const res = await fetch('/api/sprints');
+      const data = await res.json();
+      setSprints(data);
+    } catch (error) {
+      console.error('Failed to fetch sprints:', error);
+    }
+  };
+
   useEffect(() => {
     fetchReports();
+    fetchSprints();
   }, []);
 
   const handleViewDetail = (report: WeeklyReport) => {
@@ -107,7 +119,7 @@ export default function SaturdaySync() {
       </div>
 
       <div className="flex-1 overflow-y-auto pb-8">
-        <ReportTableView reports={reports} onViewDetail={handleViewDetail} />
+        <ReportTableView reports={reports} onViewDetail={handleViewDetail} sprints={sprints} />
       </div>
 
       <WeeklyCheckinModal
