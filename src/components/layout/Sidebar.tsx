@@ -1,4 +1,5 @@
-import { LayoutDashboard, Target, KanbanSquare, Trello, Filter, CalendarSync, Settings, LogOut } from 'lucide-react';
+import React from 'react';
+import { LayoutDashboard, Target, KanbanSquare, Trello, Filter, CalendarSync, Settings, LogOut, Inbox } from 'lucide-react';
 import { ViewType } from '../../App';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -12,7 +13,7 @@ export default function Sidebar({ currentView, onViewChange, onLogout }: Sidebar
   const { currentUser } = useAuth();
 
   return (
-    <aside className="h-full flex flex-col p-6 bg-white/70 backdrop-blur-xl rounded-r-3xl w-72 shadow-2xl z-50">
+    <aside className="h-full flex flex-col p-4 md:p-6 lg:p-5 xl:p-6 bg-white/70 backdrop-blur-xl rounded-r-2xl lg:rounded-r-3xl w-64 lg:w-56 xl:w-72 shadow-2xl z-50">
       <div className="flex flex-col items-start mb-10 px-2">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl soft-gradient flex items-center justify-center text-white font-black text-xl">S</div>
@@ -71,6 +72,12 @@ export default function Sidebar({ currentView, onViewChange, onLogout }: Sidebar
         <div className="space-y-2">
           <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">System</p>
           <NavItem
+            icon={<Inbox size={18} />}
+            label="Product Backlog"
+            active={currentView === 'backlog'}
+            onClick={() => onViewChange('backlog')}
+          />
+          <NavItem
             icon="event_repeat"
             label="Reports"
             active={currentView === 'sync'}
@@ -99,7 +106,7 @@ export default function Sidebar({ currentView, onViewChange, onLogout }: Sidebar
   );
 }
 
-function NavItem({ icon, label, active, onClick }: { icon: string; label: string; active?: boolean; onClick?: () => void }) {
+function NavItem({ icon, label, active, onClick }: { icon: string | React.ReactNode; label: string; active?: boolean; onClick?: () => void }) {
   return (
     <div
       onClick={onClick}
@@ -108,7 +115,11 @@ function NavItem({ icon, label, active, onClick }: { icon: string; label: string
         : 'text-slate-500 hover:text-primary'
         }`}
     >
-      <span className="material-symbols-outlined" style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>{icon}</span>
+      {typeof icon === 'string' ? (
+        <span className="material-symbols-outlined" style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>{icon}</span>
+      ) : (
+        icon
+      )}
       <span className="font-medium">{label}</span>
     </div>
   );

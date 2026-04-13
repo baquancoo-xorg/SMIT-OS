@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
 import WeeklyCheckinModal from '../components/modals/WeeklyCheckinModal';
 import ReportTableView from '../components/board/ReportTableView';
-import { Plus, LayoutGrid, List } from 'lucide-react';
+import ReportDetailDialog from '../components/modals/ReportDetailDialog';
+import { Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { WeeklyReport } from '../types';
 
 export default function SaturdaySync() {
-  const [view, setView] = useState<'grid' | 'table'>('grid');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<WeeklyReport | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [reports, setReports] = useState<WeeklyReport[]>([]);
   const [loading, setLoading] = useState(true);
   const { users, currentUser } = useAuth();
-  
+
   const leaders = users.filter(u => u.role.includes('Leader') || u.role === 'PM' || u.role.includes('Director'));
 
   const fetchReports = async () => {
@@ -30,6 +32,11 @@ export default function SaturdaySync() {
     fetchReports();
   }, []);
 
+  const handleViewDetail = (report: WeeklyReport) => {
+    setSelectedReport(report);
+    setIsDetailOpen(true);
+  };
+
   if (loading || !currentUser) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -38,7 +45,7 @@ export default function SaturdaySync() {
     );
   }
 
-  const averageConfidence = reports.length > 0 
+  const averageConfidence = reports.length > 0
     ? (reports.reduce((sum, r) => sum + (r.confidenceScore || 0), 0) / reports.length).toFixed(1)
     : '0.0';
 
@@ -58,23 +65,7 @@ export default function SaturdaySync() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex p-1 bg-surface-container-high rounded-full border border-outline-variant/10">
-            <button 
-              onClick={() => setView('grid')}
-              className={`flex items-center gap-2 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${view === 'grid' ? 'bg-white text-primary shadow-md' : 'text-slate-500 hover:text-primary'}`}
-            >
-              <LayoutGrid size={14} />
-              Grid
-            </button>
-            <button 
-              onClick={() => setView('table')}
-              className={`flex items-center gap-2 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${view === 'table' ? 'bg-white text-primary shadow-md' : 'text-slate-500 hover:text-primary'}`}
-            >
-              <List size={14} />
-              Table
-            </button>
-          </div>
-          <button 
+          <button
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all"
           >
@@ -115,112 +106,21 @@ export default function SaturdaySync() {
         </div>
       </div>
 
-      {view === 'table' ? (
-        <div className="flex-1 overflow-y-auto pb-8">
-          <ReportTableView reports={reports} />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 overflow-y-auto pb-8">
-          {reports.map(report => (
-            <ReportCard key={report.id} report={report} />
-          ))}
-          {reports.length === 0 && (
-            <div className="col-span-full py-20 text-center space-y-4">
-              <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-300">
-                <span className="material-symbols-outlined text-4xl">description</span>
-              </div>
-              <p className="text-slate-400 font-medium">No reports submitted yet for this cycle.</p>
-            </div>
-          )}
-        </div>
-      )}
+      <div className="flex-1 overflow-y-auto pb-8">
+        <ReportTableView reports={reports} onViewDetail={handleViewDetail} />
+      </div>
 
-      <WeeklyCheckinModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <WeeklyCheckinModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         onSuccess={fetchReports}
       />
-    </div>
-  );
-}
 
-function ReportCard({ report }: { report: WeeklyReport; key?: string | number }) {
-  const deptColors: Record<string, string> = {
-    'Tech': 'text-blue-500 bg-blue-50',
-    'Marketing': 'text-orange-500 bg-orange-50',
-    'Media': 'text-pink-500 bg-pink-50',
-    'Sale': 'text-emerald-500 bg-emerald-50',
-    'BOD': 'text-indigo-500 bg-indigo-50',
-  };
-  
-  const user = report.user;
-  const colorClass = user ? (deptColors[user.department] || 'text-slate-500 bg-slate-50') : 'text-slate-500 bg-slate-50';
-
-  return (
-    <div className="bg-white rounded-[40px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden flex flex-col hover:scale-[1.02] transition-all duration-500 group">
-      <div className="p-8 border-b border-outline-variant/5 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            {user?.avatar ? (
-              <img 
-                src={user.avatar} 
-                alt={user.fullName} 
-                className="w-14 h-14 rounded-2xl object-cover border border-outline-variant/10 shadow-sm group-hover:rotate-6 transition-transform duration-500"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center font-black text-on-surface border border-outline-variant/10 shadow-sm group-hover:rotate-6 transition-transform">
-                {user?.fullName.split(' ').map((n: string) => n[0]).join('') || '?'}
-              </div>
-            )}
-            <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-lg border-2 border-white flex items-center justify-center ${colorClass}`}>
-              <span className="text-[10px] font-black">{user?.department[0] || 'U'}</span>
-            </div>
-          </div>
-          <div>
-            <h3 className="font-black text-on-surface text-lg font-headline">{user?.fullName || 'Unknown User'}</h3>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{user?.department} • {user?.role}</p>
-          </div>
-        </div>
-        <div className="text-right">
-          <div className="text-3xl font-black text-on-surface font-headline">{report.confidenceScore || 0}</div>
-          <div className="text-[8px] font-black uppercase text-slate-400 tracking-[0.2em]">Confidence</div>
-        </div>
-      </div>
-      
-      <div className="p-8 space-y-8 flex-1">
-        <div className="space-y-3">
-          <h4 className="text-[10px] font-black uppercase text-emerald-500 tracking-[0.2em] flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Progress
-          </h4>
-          <p className="text-sm text-on-surface-variant leading-relaxed font-medium pl-3.5 border-l-2 border-emerald-100">
-            {report.progress}
-          </p>
-        </div>
-        <div className="space-y-3">
-          <h4 className="text-[10px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary"></span> Plans
-          </h4>
-          <p className="text-sm text-on-surface-variant leading-relaxed font-medium pl-3.5 border-l-2 border-primary/10">
-            {report.plans}
-          </p>
-        </div>
-        <div className="space-y-3">
-          <h4 className="text-[10px] font-black uppercase text-error tracking-[0.2em] flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-error"></span> Blockers
-          </h4>
-          <p className="text-sm text-error/80 leading-relaxed font-medium pl-3.5 border-l-2 border-error/10">
-            {report.blockers || 'None'}
-          </p>
-        </div>
-      </div>
-      
-      <div className="p-6 bg-slate-50/50 border-t border-outline-variant/5 flex justify-center">
-        <button className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors flex items-center gap-2">
-          View Full Report
-          <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-        </button>
-      </div>
+      <ReportDetailDialog
+        report={selectedReport}
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+      />
     </div>
   );
 }

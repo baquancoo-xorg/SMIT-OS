@@ -40,6 +40,9 @@ model Objective {
   progressPercentage Float       @default(0)
   ownerId            String?
   owner              User?       @relation(fields: [ownerId], references: [id])
+  parentId           String?     // For L2 objectives, references parent L1 objective
+  parent             Objective?  @relation("ObjectiveHierarchy", fields: [parentId], references: [id])
+  children           Objective[] @relation("ObjectiveHierarchy")
   keyResults         KeyResult[]
 }
 
@@ -65,12 +68,13 @@ model WorkItem {
   assignee    User?    @relation(fields: [assigneeId], references: [id])
   sprintId    String?
   sprint      Sprint?  @relation(fields: [sprintId], references: [id])
+  linkedKrId  String?  // Links work item to a Key Result
+  startDate   DateTime?
+  dueDate     DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   // Specific fields for different views
-  dealValue   Float?   // For Sale
-  leadsCount  Int?     // For Marketing
   storyPoints Int?     // For Tech
 }
 

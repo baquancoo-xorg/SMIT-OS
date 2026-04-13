@@ -186,6 +186,21 @@ app.get("/api/objectives", handleAsync(async (req: any, res: any) => {
           avatar: true,
           department: true,
         }
+      },
+      parent: true,
+      children: {
+        include: {
+          keyResults: true,
+          owner: {
+            select: {
+              id: true,
+              fullName: true,
+              username: true,
+              avatar: true,
+              department: true,
+            }
+          }
+        }
       }
     },
   });
@@ -193,7 +208,7 @@ app.get("/api/objectives", handleAsync(async (req: any, res: any) => {
 }));
 
 app.post("/api/objectives", handleAsync(async (req: any, res: any) => {
-  const { keyResults, ...objectiveData } = req.body;
+  const { keyResults, children, ...objectiveData } = req.body;
   const objective = await prisma.objective.create({
     data: {
       ...objectiveData,
@@ -201,18 +216,39 @@ app.post("/api/objectives", handleAsync(async (req: any, res: any) => {
         create: keyResults || [],
       },
     },
-    include: { keyResults: true },
+    include: {
+      keyResults: true,
+      parent: true,
+      children: true,
+    },
   });
   res.json(objective);
 }));
 
 app.put("/api/objectives/:id", handleAsync(async (req: any, res: any) => {
   const { id } = req.params;
-  const { keyResults, ...objectiveData } = req.body;
+  const { keyResults, children, ...objectiveData } = req.body;
   const objective = await prisma.objective.update({
     where: { id },
     data: objectiveData,
-    include: { keyResults: true },
+    include: {
+      keyResults: true,
+      parent: true,
+      children: {
+        include: {
+          keyResults: true,
+          owner: {
+            select: {
+              id: true,
+              fullName: true,
+              username: true,
+              avatar: true,
+              department: true,
+            }
+          }
+        }
+      }
+    },
   });
   res.json(objective);
 }));
@@ -257,7 +293,12 @@ app.get("/api/work-items", handleAsync(async (req: any, res: any) => {
   const items = await prisma.workItem.findMany({
     include: { assignee: true, sprint: true },
   });
-  res.json(items);
+  // Add linkedKrId to response for compatibility with frontend
+  const itemsWithKr = items.map((item: any) => ({
+    ...item,
+    linkedKrId: item.linkedKrId || null,
+  }));
+  res.json(itemsWithKr);
 }));
 
 app.get("/api/work-items/:id", handleAsync(async (req: any, res: any) => {
@@ -266,7 +307,7 @@ app.get("/api/work-items/:id", handleAsync(async (req: any, res: any) => {
     include: { assignee: true, sprint: true },
   });
   if (!item) return res.status(404).json({ error: "Not found" });
-  res.json(item);
+  res.json({ ...item, linkedKrId: item.linkedKrId || null });
 }));
 
 app.post("/api/work-items", handleAsync(async (req: any, res: any) => {

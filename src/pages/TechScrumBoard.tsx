@@ -58,7 +58,8 @@ export default function TechScrumBoard() {
 
       if (Array.isArray(itemData)) {
         const techItems = itemData.filter((item: WorkItem) =>
-          ['Epic', 'UserStory', 'TechTask', 'Task'].includes(item.type)
+          item.assignee?.department === 'Tech' ||
+          ['Epic', 'UserStory', 'TechTask'].includes(item.type)
         );
         setItems(techItems);
       }

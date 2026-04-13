@@ -15,7 +15,9 @@
     "db:studio": "prisma studio",
     "db:reset": "tsx scripts/reset-data.ts",
     "db:seed-okrs": "tsx scripts/seed-okrs.ts",
-    "db:seed-members": "tsx scripts/seed-members-sprints.ts"
+    "db:seed-members": "tsx scripts/seed-members-sprints.ts",
+    "db:seed-tasks": "tsx scripts/seed-tasks.ts",
+    "db:clear-seed-tasks": "tsx scripts/clear-and-seed-tasks.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -35,6 +37,7 @@
     "prisma": "^6.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "recharts": "^3.8.1",
     "tsx": "^4.21.0",
     "vite": "^6.2.0"
   },

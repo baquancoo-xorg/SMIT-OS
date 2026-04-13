@@ -27,6 +27,8 @@ export interface KeyResult {
   currentValue?: number;
   targetValue?: number;
   unit?: string;
+  dueDate?: string;
+  lastNote?: string;
 }
 
 export interface Objective {
@@ -34,9 +36,12 @@ export interface Objective {
   title: string;
   department: string;
   progressPercentage: number;
+  level?: string; // 'L1' or 'L2'
+  parentId?: string; // For L2 objectives, references parent L1 objective
   ownerId?: string;
   owner?: User;
   keyResults: KeyResult[];
+  children?: Objective[]; // For L1 objectives with child L2 objectives
 }
 
 export type WorkItemType = 'Epic' | 'UserStory' | 'TechTask' | 'Campaign' | 'MediaTask' | 'MktTask' | 'Deal' | 'SaleTask' | 'Task';
@@ -53,6 +58,7 @@ export interface WorkItem {
   assigneeId?: string;
   sprintId?: string;
   linkedKrId?: string;
+  startDate?: string;
   dueDate?: string;
   estimatedTime?: string;
   storyPoints?: number;
@@ -60,10 +66,6 @@ export interface WorkItem {
   subtasks?: any[];
   createdAt: string;
   updatedAt: string;
-
-  // Specific fields
-  dealValue?: number;
-  leadsCount?: number;
 
   // Relations (optional for frontend display)
   assignee?: User;

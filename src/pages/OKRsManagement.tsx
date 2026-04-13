@@ -13,7 +13,21 @@ export default function OKRsManagement() {
   const [items, setItems] = useState<WorkItem[]>([]);
   const [objectives, setObjectives] = useState<Objective[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedObjectives, setExpandedObjectives] = useState<Set<string>>(new Set());
   const { users } = useAuth();
+
+  // Department-specific color configuration
+  const deptColors: Record<string, { bg: string; text: string; border: string; icon: string; badge: string }> = {
+    BOD: { bg: 'bg-primary/5', text: 'text-primary', border: 'border-primary/10', icon: 'bg-primary', badge: 'bg-primary-fixed text-on-primary-fixed border-primary/10' },
+    Sale: { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200', icon: 'bg-emerald-600', badge: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
+    Tech: { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-200', icon: 'bg-blue-600', badge: 'bg-blue-50 text-blue-600 border-blue-200' },
+    Marketing: { bg: 'bg-purple-50', text: 'text-purple-600', border: 'border-purple-200', icon: 'bg-purple-600', badge: 'bg-purple-50 text-purple-600 border-purple-200' },
+    Media: { bg: 'bg-orange-50', text: 'text-orange-600', border: 'border-orange-200', icon: 'bg-orange-600', badge: 'bg-orange-50 text-orange-600 border-orange-200' },
+  };
+
+  const getDeptColor = (department: string) => {
+    return deptColors[department] || deptColors.BOD;
+  };
 
   const fetchData = async () => {
     try {
@@ -42,12 +56,40 @@ export default function OKRsManagement() {
     return 'On Track';
   };
 
-  const filteredObjectives = objectives.filter(obj => {
-    // In current schema, level is not explicitly stored, we might need to infer or update schema
-    // For now, let's assume all are L1 or filter by department
-    if (activeTab === 'L1' && obj.department !== 'BOD') return false;
-    if (activeTab === 'L2' && obj.department === 'BOD') return false;
+  // L1 (Company) = objectives with department === 'BOD' (top-level company objectives)
+  // L2 (Team) = objectives with department !== 'BOD' (team/department objectives)
+  // Also support new parentId-based hierarchy
+  const getL1Objectives = () => {
+    return objectives.filter(obj => obj.department === 'BOD');
+  };
 
+  const getL2Objectives = () => {
+    return objectives.filter(obj => obj.department !== 'BOD');
+  };
+
+  const getChildren = (parentId: string) => {
+    return objectives.filter(obj => obj.parentId === parentId);
+  };
+
+  const toggleExpand = (objId: string) => {
+    setExpandedObjectives(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(objId)) {
+        newSet.delete(objId);
+      } else {
+        newSet.add(objId);
+      }
+      return newSet;
+    });
+  };
+
+  const filteredL1Objectives = getL1Objectives().filter(obj => {
+    if (departmentFilter !== 'All' && obj.department !== departmentFilter) return false;
+    if (statusFilter !== 'All' && getStatus(obj.progressPercentage) !== statusFilter) return false;
+    return true;
+  });
+
+  const filteredL2Objectives = getL2Objectives().filter(obj => {
     if (departmentFilter !== 'All' && obj.department !== departmentFilter) return false;
     if (statusFilter !== 'All' && getStatus(obj.progressPercentage) !== statusFilter) return false;
     return true;
@@ -55,21 +97,19 @@ export default function OKRsManagement() {
 
   const handleLinkWorkItem = async (krId: string, item: WorkItem) => {
     try {
-      // If it's a new item (from create mode in modal)
       if (item.id.startsWith('new-')) {
         const res = await fetch('/api/work-items', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...item,
-            id: undefined, // Let DB generate ID
+            id: undefined,
             linkedKrId: krId
           })
         });
         const newItem = await res.json();
         setItems(prev => [...prev, newItem]);
       } else {
-        // Update existing item
         const res = await fetch(`/api/work-items/${item.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -149,46 +189,47 @@ export default function OKRsManagement() {
         onClose={() => setIsAddObjModalOpen(false)}
         onAdd={handleAddObjective}
         level={activeTab}
+        objectives={objectives}
       />
 
       {/* Metric Grid - Bento Style */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white p-8 rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10">Quarterly Progress</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
+        <div className="bg-white p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl lg:rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-primary/5 rounded-full -mr-12 -mt-12 md:-mr-16 md:-mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+          <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10">Quarterly Progress</p>
           <div className="flex items-baseline gap-1 relative z-10">
-            <h4 className="text-4xl font-black font-headline">
+            <h4 className="text-2xl md:text-3xl lg:text-4xl font-black font-headline">
               {objectives.length > 0 ? (objectives.reduce((sum, obj) => sum + obj.progressPercentage, 0) / objectives.length).toFixed(1) : '0.0'}%
             </h4>
           </div>
-          <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mt-4 relative z-10">
+          <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mt-3 md:mt-4 relative z-10">
             <div
               className="h-full bg-primary transition-all duration-1000"
               style={{ width: `${objectives.length > 0 ? (objectives.reduce((sum, obj) => sum + obj.progressPercentage, 0) / objectives.length) : 0}%` }}
             ></div>
           </div>
         </div>
-        <div className="bg-white p-8 rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2 group">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Objectives Active</p>
+        <div className="bg-white p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl lg:rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2 group">
+          <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Objectives Active</p>
           <div className="flex items-baseline gap-2">
-            <h4 className="text-4xl font-black font-headline">{objectives.length}</h4>
+            <h4 className="text-2xl md:text-3xl lg:text-4xl font-black font-headline">{objectives.length}</h4>
             <span className="text-xs font-bold text-tertiary">+{objectives.length > 0 ? '2' : '0'} New</span>
           </div>
-          <p className="text-[10px] font-bold text-slate-400 mt-2">Across {new Set(objectives.map(o => o.department)).size} Departments</p>
+          <p className="text-[9px] md:text-[10px] font-bold text-slate-400 mt-2">Across {new Set(objectives.map(o => o.department)).size} Departments</p>
         </div>
-        <div className="bg-white p-8 rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Critical Path Health</p>
-          <h4 className="text-4xl font-black font-headline text-tertiary">Stable</h4>
+        <div className="bg-white p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl lg:rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2">
+          <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Critical Path Health</p>
+          <h4 className="text-2xl md:text-3xl lg:text-4xl font-black font-headline text-tertiary">Stable</h4>
           <div className="flex items-center gap-1 mt-2">
             <div className="w-2 h-2 rounded-full bg-tertiary animate-pulse"></div>
-            <span className="text-[10px] font-bold text-tertiary">System Normal</span>
+            <span className="text-[9px] md:text-[10px] font-bold text-tertiary">System Normal</span>
           </div>
         </div>
-        <div className="bg-primary p-8 rounded-[40px] shadow-xl shadow-primary/20 flex flex-col gap-2 relative overflow-hidden group">
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16 group-hover:scale-150 transition-transform duration-700"></div>
-          <p className="text-[10px] font-black text-white/60 uppercase tracking-widest relative z-10">Days Remaining</p>
-          <h4 className="text-4xl font-black font-headline text-white relative z-10">42 Days</h4>
-          <p className="text-[10px] font-bold text-white/80 mt-2 relative z-10">Q2 Deadline: June 30</p>
+        <div className="bg-primary p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl lg:rounded-[40px] shadow-xl shadow-primary/20 flex flex-col gap-2 relative overflow-hidden group">
+          <div className="absolute bottom-0 left-0 w-24 h-24 md:w-32 md:h-32 bg-white/10 rounded-full -ml-12 -mb-12 md:-ml-16 md:-mb-16 group-hover:scale-150 transition-transform duration-700"></div>
+          <p className="text-[9px] md:text-[10px] font-black text-white/60 uppercase tracking-widest relative z-10">Days Remaining</p>
+          <h4 className="text-2xl md:text-3xl lg:text-4xl font-black font-headline text-white relative z-10">42 Days</h4>
+          <p className="text-[9px] md:text-[10px] font-bold text-white/80 mt-2 relative z-10">Q2 Deadline: June 30</p>
         </div>
       </div>
 
@@ -205,7 +246,6 @@ export default function OKRsManagement() {
                 onChange={(e) => setDepartmentFilter(e.target.value)}
               >
                 <option value="All">All Departments</option>
-                <option value="BOD">BOD</option>
                 <option value="Tech">Tech</option>
                 <option value="Marketing">Marketing</option>
                 <option value="Media">Media</option>
@@ -215,23 +255,50 @@ export default function OKRsManagement() {
           </div>
         </div>
 
-        <div className="space-y-12">
-          {filteredObjectives.length > 0 ? (
-            filteredObjectives.map(obj => (
-              <ObjectiveCard
-                key={obj.id}
-                objective={obj}
-                isL2={activeTab === 'L2'}
-                workItems={items}
-                onLinkWorkItem={handleLinkWorkItem}
-                onRefresh={fetchData}
-              />
-            ))
+        <div className="space-y-6">
+          {activeTab === 'L1' ? (
+            filteredL1Objectives.length > 0 ? (
+              filteredL1Objectives.map(obj => (
+                <ObjectiveAccordionCard
+                  key={obj.id}
+                  objective={obj}
+                  children={getChildren(obj.id)}
+                  workItems={items}
+                  onLinkWorkItem={handleLinkWorkItem}
+                  onRefresh={fetchData}
+                  isExpanded={expandedObjectives.has(obj.id)}
+                  onToggleExpand={() => toggleExpand(obj.id)}
+                  getDeptColor={getDeptColor}
+                />
+              ))
+            ) : (
+              <div className="text-center py-12 md:py-20 bg-slate-50/50 border-2 border-dashed border-outline-variant/10 rounded-2xl md:rounded-[40px]">
+                <span className="material-symbols-outlined text-3xl md:text-4xl text-slate-300 mb-4">search_off</span>
+                <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] md:text-xs">No L1 objectives found matching your filters.</p>
+              </div>
+            )
           ) : (
-            <div className="text-center py-20 bg-slate-50/50 border-2 border-dashed border-outline-variant/10 rounded-[40px]">
-              <span className="material-symbols-outlined text-4xl text-slate-300 mb-4">search_off</span>
-              <p className="text-slate-400 font-black uppercase tracking-widest text-xs">No objectives found matching your filters.</p>
-            </div>
+            filteredL2Objectives.length > 0 ? (
+              filteredL2Objectives.map(obj => {
+                const parent = objectives.find(o => o.id === obj.parentId);
+                return (
+                  <ObjectiveAccordionCardL2
+                    key={obj.id}
+                    objective={obj}
+                    parentObjective={parent || null}
+                    workItems={items}
+                    onLinkWorkItem={handleLinkWorkItem}
+                    onRefresh={fetchData}
+                    getDeptColor={getDeptColor}
+                  />
+                );
+              })
+            ) : (
+              <div className="text-center py-12 md:py-20 bg-slate-50/50 border-2 border-dashed border-outline-variant/10 rounded-2xl md:rounded-[40px]">
+                <span className="material-symbols-outlined text-3xl md:text-4xl text-slate-300 mb-4">search_off</span>
+                <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] md:text-xs">No L2 objectives found matching your filters.</p>
+              </div>
+            )
           )}
         </div>
       </div>
@@ -239,55 +306,290 @@ export default function OKRsManagement() {
   );
 }
 
-function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWorkItem, onRefresh }: { objective: Objective; isL2: boolean; workItems: WorkItem[]; onLinkWorkItem: (krId: string, item: WorkItem) => void; onRefresh: () => void; key?: string | number }) {
-  const [objective, setObjective] = useState(initialObjective);
-  const [expanded, setExpanded] = useState(true);
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [isAddKRModalOpen, setIsAddKRModalOpen] = useState(false);
-  const { users } = useAuth();
+// Accordion-style L1 Objective Card with expandable L2 children
+function ObjectiveAccordionCard({
+  objective,
+  children,
+  workItems,
+  onLinkWorkItem,
+  onRefresh,
+  isExpanded,
+  onToggleExpand,
+  getDeptColor,
+  key: _key,
+}: {
+  objective: Objective;
+  children: Objective[];
+  workItems: WorkItem[];
+  onLinkWorkItem: (krId: string, item: WorkItem) => void;
+  onRefresh: () => void;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  getDeptColor: (dept: string) => { bg: string; text: string; border: string; icon: string; badge: string };
+  key?: string | number;
+}) {
+  const colors = getDeptColor(objective.department);
 
-  // For now, we don't have parentL1 in the schema easily accessible here
-  const parentL1 = null;
+  return (
+    <div className="bg-white rounded-2xl md:rounded-3xl lg:rounded-[40px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden group">
+      {/* L1 Objective Header - Clickable to expand/collapse */}
+      <div
+        onClick={onToggleExpand}
+        className="p-5 md:p-6 lg:p-8 cursor-pointer hover:bg-slate-50/50 transition-colors flex items-center justify-between"
+      >
+        <div className="flex items-center gap-4 md:gap-6 flex-1">
+          <div className={`w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-2xl md:rounded-3xl ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
+            <span className="material-symbols-outlined text-2xl md:text-3xl">ads_click</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 md:gap-3 mb-1 flex-wrap">
+              <span className={`${colors.badge} text-[8px] md:text-[10px] px-2 md:px-3 py-1 rounded-full font-black uppercase tracking-widest border`}>
+                L1 - {objective.department}
+              </span>
+              <span className={`flex-shrink-0 flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-xl ${colors.icon} text-white text-xs font-black shadow-sm`}>O</span>
+              <h3 className={`text-base md:text-lg lg:text-xl font-black text-on-surface font-headline hover:${colors.text} transition-colors truncate`}>{objective.title}</h3>
+            </div>
+            <p className="text-xs md:text-sm text-on-surface-variant font-medium">
+              {children.length} child objective{children.length !== 1 ? 's' : ''} · {objective.keyResults.length} key result{objective.keyResults.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 md:gap-6 flex-shrink-0 ml-4">
+          <div className="text-right">
+            <div className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Progress</div>
+            <div className={`text-xl md:text-2xl font-black ${colors.text} font-headline`}>{objective.progressPercentage}%</div>
+          </div>
+          {isExpanded ? (
+            <ChevronDown size={20} className="text-slate-400 flex-shrink-0 md:size-7" />
+          ) : (
+            <ChevronRight size={20} className="text-slate-400 flex-shrink-0 md:size-7" />
+          )}
+        </div>
+      </div>
 
-  const handleAddKR = async (data: any) => {
+      {/* Expandable Content */}
+      <AnimatePresence initial={false}>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <div className="px-5 md:px-8 lg:px-10 pb-6 md:pb-8 lg:pb-10 space-y-6 md:space-y-8 border-t border-outline-variant/10">
+              {/* L1 Key Results */}
+              <div className="pt-4 md:pt-6">
+                <h4 className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 md:mb-4">Key Results</h4>
+                <div className="space-y-3 md:space-y-4">
+                  {objective.keyResults.length > 0 ? (
+                    objective.keyResults.map((kr, index) => (
+                      <KeyResultRow
+                        key={kr.id}
+                        kr={kr}
+                        index={index}
+                        isL2={false}
+                        department={objective.department}
+                        owner={objective.owner}
+                        workItems={workItems}
+                        onLinkWorkItem={onLinkWorkItem}
+                        onDelete={() => { }}
+                        onRefresh={onRefresh}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-center py-4 md:py-6 text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-300 italic">No key results established.</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Child L2 Objectives */}
+              {children.length > 0 && (
+                <div className="pt-4 md:pt-6 border-t border-outline-variant/10">
+                  <h4 className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 md:mb-4">
+                    Child Objectives (L2)
+                  </h4>
+                  <div className="space-y-3 md:space-y-4">
+                    {children.map(child => (
+                      <ChildObjectiveCard
+                        key={child.id}
+                        objective={child}
+                        workItems={workItems}
+                        onLinkWorkItem={onLinkWorkItem}
+                        onRefresh={onRefresh}
+                        getDeptColor={getDeptColor}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex items-center gap-4 pt-4 border-t border-outline-variant/10">
+                <AddKRButton objectiveId={objective.id} onRefresh={onRefresh} />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// Child L2 Objective Card (nested inside L1 accordion)
+function ChildObjectiveCard({
+  objective,
+  workItems,
+  onLinkWorkItem,
+  onRefresh,
+  getDeptColor,
+  key: _key,
+}: {
+  objective: Objective;
+  workItems: WorkItem[];
+  onLinkWorkItem: (krId: string, item: WorkItem) => void;
+  onRefresh: () => void;
+  getDeptColor: (dept: string) => { bg: string; text: string; border: string; icon: string; badge: string };
+  key?: string | number;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const colors = getDeptColor(objective.department);
+
+  return (
+    <div className="rounded-2xl md:rounded-3xl border-2 border-outline-variant/10 bg-surface-container-low/30 overflow-hidden">
+      <div
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="p-4 md:p-6 cursor-pointer hover:bg-surface-container-low/50 transition-colors flex items-center justify-between"
+      >
+        <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
+          <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
+            <span className="material-symbols-outlined text-xl md:text-2xl">track_changes</span>
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`${colors.badge} text-[8px] md:text-[9px] px-1.5 md:px-2 py-0.5 rounded-full font-black uppercase tracking-widest border`}>L2</span>
+              <span className={`flex-shrink-0 flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-lg ${colors.icon} text-white text-[10px] font-black shadow-sm`}>O</span>
+              <h4 className="text-sm md:text-base font-bold text-on-surface font-headline truncate">{objective.title}</h4>
+            </div>
+            <p className="text-[9px] md:text-[10px] text-on-surface-variant font-medium mt-0.5">
+              {objective.keyResults.length} KR{objective.keyResults.length !== 1 ? 's' : ''} · {objective.department}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 md:gap-4 flex-shrink-0 ml-3">
+          <div className="text-right">
+            <div className={`text-base md:text-lg font-black ${colors.text} font-headline`}>{objective.progressPercentage}%</div>
+          </div>
+          {isExpanded ? <ChevronDown size={16} className="text-slate-400 md:size-5" /> : <ChevronRight size={16} className="text-slate-400 md:size-5" />}
+        </div>
+      </div>
+
+      <AnimatePresence initial={false}>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 md:px-6 pb-4 md:pb-6 space-y-3 border-t border-outline-variant/10">
+              {objective.keyResults.length > 0 ? (
+                objective.keyResults.map((kr, index) => (
+                  <KeyResultRow
+                    key={kr.id}
+                    kr={kr}
+                    index={index}
+                    isL2={true}
+                    department={objective.department}
+                    owner={objective.owner}
+                    workItems={workItems}
+                    onLinkWorkItem={onLinkWorkItem}
+                    onDelete={() => { }}
+                    onRefresh={onRefresh}
+                  />
+                ))
+              ) : (
+                <div className="text-center py-3 md:py-4 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-300 italic">No key results.</div>
+              )}
+              <AddKRButton objectiveId={objective.id} onRefresh={onRefresh} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function AddKRButton({ objectiveId, onRefresh }: { objectiveId: string; onRefresh: () => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleAdd = async (data: any) => {
     try {
-      const newKR = {
-        ...data,
-        progressPercentage: Math.round((data.currentValue / data.targetValue) * 100),
-      };
-
-      const res = await fetch(`/api/objectives/${objective.id}`, {
+      const res = await fetch(`/api/objectives/${objectiveId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           keyResults: {
-            create: [newKR]
+            create: [{
+              ...data,
+              progressPercentage: Math.round((data.currentValue / data.targetValue) * 100),
+            }]
           }
         })
       });
 
       if (res.ok) {
         onRefresh();
-        setIsAddKRModalOpen(false);
+        setIsOpen(false);
       }
     } catch (error) {
       console.error('Failed to add KR:', error);
     }
   };
 
-  const handleDeleteKR = async (krId: string) => {
-    try {
-      // In our current simple API, we might need a specific KR delete or update objective
-      // Let's assume we can update objective to remove KR or have a separate endpoint
-      // For now, let's just update the local state and notify user if we need a better API
-      setObjective(prev => ({
-        ...prev,
-        keyResults: prev.keyResults.filter(kr => kr.id !== krId)
-      }));
-    } catch (error) {
-      console.error('Failed to delete KR:', error);
-    }
-  };
+  return (
+    <>
+      <button
+        onClick={() => setIsOpen(true)}
+        className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest hover:gap-4 transition-all"
+      >
+        <span className="material-symbols-outlined text-[18px]">add_circle</span>
+        Add Key Result
+      </button>
+      <EditKRModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        onSave={handleAdd}
+        initialData={{ title: '', targetValue: 100, currentValue: 0, unit: '%' }}
+        title="Add New Key Result"
+      />
+    </>
+  );
+}
+
+// Accordion-style L2 Objective Card
+function ObjectiveAccordionCardL2({
+  objective: initialObjective,
+  parentObjective,
+  workItems,
+  onLinkWorkItem,
+  onRefresh,
+  getDeptColor,
+}: {
+  objective: Objective;
+  parentObjective?: Objective | null;
+  workItems: WorkItem[];
+  onLinkWorkItem: (krId: string, item: WorkItem) => void;
+  onRefresh: () => void;
+  getDeptColor: (dept: string) => { bg: string; text: string; border: string; icon: string; badge: string };
+  key?: string | number;
+}) {
+  const [objective, setObjective] = useState(initialObjective);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false); // Default collapsed
+  const colors = getDeptColor(objective.department);
+  const { users } = useAuth();
 
   const handleUpdateObjectiveTitle = async () => {
     try {
@@ -303,92 +605,100 @@ function ObjectiveCard({ objective: initialObjective, isL2, workItems, onLinkWor
   };
 
   return (
-    <div className="bg-white rounded-[40px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden group">
-      <div className="p-10">
-        <div className="flex items-start justify-between mb-10">
-          <div className="flex gap-6 flex-1">
-            <div className="w-16 h-16 rounded-3xl bg-primary/5 flex items-center justify-center text-primary border border-primary/10 group-hover:rotate-6 transition-transform duration-500 flex-shrink-0">
-              <span className="material-symbols-outlined text-4xl">ads_click</span>
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-4 mb-2">
-                <span className="bg-primary-fixed text-on-primary-fixed text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest border border-primary/10">
-                  {objective.level} {objective.department || 'Corporate'}
-                </span>
-                {isEditingTitle ? (
-                  <div className="flex items-center gap-3">
-                    <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-xl bg-primary text-white text-sm font-black shadow-sm">O</span>
-                    <input
-                      type="text"
-                      className="text-2xl font-black text-on-surface bg-slate-50 border-none focus:ring-2 focus:ring-primary/20 rounded-xl px-4 py-1 outline-none font-headline w-full"
-                      value={objective.title}
-                      onChange={(e) => setObjective({ ...objective, title: e.target.value })}
-                      onBlur={handleUpdateObjectiveTitle}
-                      onKeyDown={(e) => e.key === 'Enter' && handleUpdateObjectiveTitle()}
-                      autoFocus
-                    />
-                  </div>
-                ) : (
-                  <h3
-                    className="flex items-center gap-3 text-2xl font-black text-on-surface cursor-pointer hover:text-primary transition-colors font-headline"
-                    onClick={() => setIsEditingTitle(true)}
-                  >
-                    <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-xl bg-primary text-white text-sm font-black shadow-sm">O</span>
-                    {objective.title}
-                  </h3>
-                )}
-              </div>
-              <p className="text-on-surface-variant text-sm max-w-2xl font-medium leading-relaxed">
-                {isL2 && parentL1 ? `Aligns to: ${parentL1.title}` : 'Expand our operational footprint while maintaining high satisfaction.'}
-              </p>
-            </div>
+    <div className="bg-white rounded-2xl md:rounded-3xl lg:rounded-[40px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden group">
+      {/* Header - Clickable to expand/collapse */}
+      <div
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="p-5 md:p-6 lg:p-8 cursor-pointer hover:bg-slate-50/50 transition-colors flex items-center justify-between"
+      >
+        <div className="flex items-center gap-4 md:gap-6 flex-1 min-w-0">
+          <div className={`w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-2xl md:rounded-3xl ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
+            <span className="material-symbols-outlined text-2xl md:text-3xl">track_changes</span>
           </div>
-          <div className="text-right">
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Overall Progress</div>
-            <div className="text-4xl font-black text-primary font-headline">{objective.progressPercentage}%</div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 md:gap-3 mb-1 flex-wrap">
+              <span className={`${colors.badge} text-[8px] md:text-[10px] px-2 md:px-3 py-1 rounded-full font-black uppercase tracking-widest border`}>
+                L2 - {objective.department}
+              </span>
+              {isEditingTitle ? (
+                <input
+                  type="text"
+                  className="text-base md:text-lg font-black text-on-surface bg-slate-50 border-none focus:ring-2 focus:ring-primary/20 rounded-xl px-3 md:px-4 py-1 outline-none font-headline w-full"
+                  value={objective.title}
+                  onChange={(e) => setObjective({ ...objective, title: e.target.value })}
+                  onBlur={handleUpdateObjectiveTitle}
+                  onKeyDown={(e) => e.key === 'Enter' && handleUpdateObjectiveTitle()}
+                  onClick={(e) => e.stopPropagation()}
+                  autoFocus
+                />
+              ) : (
+                <h3
+                  className={`text-base md:text-lg font-black text-on-surface font-headline cursor-pointer hover:${colors.text} transition-colors truncate`}
+                  onClick={(e) => { e.stopPropagation(); setIsEditingTitle(true); }}
+                >
+                  {objective.title}
+                </h3>
+              )}
+            </div>
+            {parentObjective && (
+              <p className="text-xs text-on-surface-variant font-medium truncate">
+                Aligns to: <span className="text-primary font-bold">{parentObjective.title}</span>
+              </p>
+            )}
+            <p className="text-xs md:text-sm text-on-surface-variant font-medium mt-1">
+              {objective.keyResults.length} key result{objective.keyResults.length !== 1 ? 's' : ''}
+            </p>
           </div>
         </div>
-
-        {/* Key Results List */}
-        <div className="space-y-6">
-          {objective.keyResults.length > 0 ? (
-            objective.keyResults.map((kr, index) => (
-              <KeyResultRow
-                key={kr.id}
-                kr={kr}
-                index={index}
-                isL2={isL2}
-                department={objective.department}
-                owner={objective.owner}
-                workItems={workItems}
-                onLinkWorkItem={onLinkWorkItem}
-                onDelete={() => handleDeleteKR(kr.id)}
-                onRefresh={onRefresh}
-              />
-            ))
-          ) : (
-            <div className="text-center py-6 text-xs font-black uppercase tracking-widest text-slate-300 italic">No key results established.</div>
-          )}
-
-          <div className="pt-8 border-t border-outline-variant/5">
-            <button
-              onClick={() => setIsAddKRModalOpen(true)}
-              className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest hover:gap-4 transition-all"
-            >
-              <span className="material-symbols-outlined text-[18px]">add_circle</span>
-              Add Key Result
-            </button>
+        <div className="flex items-center gap-4 md:gap-6 flex-shrink-0 ml-4">
+          <div className="text-right">
+            <div className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Progress</div>
+            <div className={`text-xl md:text-2xl font-black ${colors.text} font-headline`}>{objective.progressPercentage}%</div>
           </div>
+          {isExpanded ? (
+            <ChevronDown size={20} className="text-slate-400 flex-shrink-0 md:size-7" />
+          ) : (
+            <ChevronRight size={20} className="text-slate-400 flex-shrink-0 md:size-7" />
+          )}
         </div>
       </div>
 
-      <EditKRModal
-        isOpen={isAddKRModalOpen}
-        onClose={() => setIsAddKRModalOpen(false)}
-        onSave={handleAddKR}
-        initialData={{ title: '', targetValue: 100, currentValue: 0, unit: '%' }}
-        title="Add New Key Result"
-      />
+      {/* Expandable Content */}
+      <AnimatePresence initial={false}>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <div className="px-5 md:px-8 lg:px-10 pb-6 md:pb-8 lg:pb-10 space-y-4 border-t border-outline-variant/10">
+              {/* Key Results List */}
+              {objective.keyResults.length > 0 ? (
+                objective.keyResults.map((kr, index) => (
+                  <KeyResultRow
+                    key={kr.id}
+                    kr={kr}
+                    index={index}
+                    isL2={true}
+                    department={objective.department}
+                    owner={objective.owner}
+                    workItems={workItems}
+                    onLinkWorkItem={onLinkWorkItem}
+                    onDelete={() => { }}
+                    onRefresh={onRefresh}
+                  />
+                ))
+              ) : (
+                <div className="text-center py-4 md:py-6 text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-300 italic">No key results established.</div>
+              )}
+
+              <AddKRButton objectiveId={objective.id} onRefresh={onRefresh} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -403,44 +713,31 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, onLinkWor
   const progress = Math.min(100, Math.round((krData.currentValue / krData.targetValue) * 100)) || 0;
   const linkedItems = workItems.filter(item => item.linkedKrId === kr.id);
 
-  const handleUpdateProgress = async (newValue: number, note?: string) => {
-    try {
-      // For now, update KR data on objective
-      // In a real app, we might have a separate KR endpoint
-      // Let's assume we can update objective's KR
-      setKrData(prev => ({ ...prev, currentValue: newValue, lastNote: note }));
-      setIsProgressModalOpen(false);
-      // Ideally call API here
-    } catch (error) {
-      console.error('Failed to update progress:', error);
-    }
-  };
-
   return (
-    <div className="flex flex-col gap-4 p-6 rounded-[32px] hover:bg-slate-50/50 transition-all duration-500 group border border-transparent hover:border-outline-variant/10">
-      <div className="grid grid-cols-12 items-center gap-6">
-        <div className="col-span-6">
-          <div className="flex items-center gap-3">
-            <span className="flex-shrink-0 flex items-center justify-center px-2 py-1 min-w-[32px] h-8 rounded-xl bg-secondary/10 text-secondary text-xs font-black shadow-sm border border-secondary/20">KR{index + 1}</span>
-            <p className="text-sm font-black text-on-surface group-hover:text-primary transition-colors">{krData.title}</p>
+    <div className="flex flex-col gap-3 md:gap-4 p-4 md:p-6 rounded-2xl md:rounded-[32px] hover:bg-slate-50/50 transition-all duration-500 group border border-transparent hover:border-outline-variant/10">
+      <div className="grid grid-cols-12 items-center gap-3 md:gap-6">
+        <div className="col-span-12 md:col-span-6">
+          <div className="flex items-center gap-2 md:gap-3">
+            <span className="flex-shrink-0 flex items-center justify-center px-2 py-1 min-w-[28px] md:min-w-[32px] h-7 md:h-8 rounded-lg md:rounded-xl bg-secondary/10 text-secondary text-[10px] md:text-xs font-black shadow-sm border border-secondary/20">KR{index + 1}</span>
+            <p className="text-xs md:text-sm font-black text-on-surface group-hover:text-primary transition-colors">{krData.title}</p>
           </div>
-          <div className="flex items-center gap-4 mt-2 ml-11">
+          <div className="flex items-center gap-3 md:gap-4 mt-2 ml-0 md:ml-11 flex-wrap">
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[8px] font-black text-slate-500 border border-outline-variant/10">
                 {owner ? owner.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'N/A'}
               </div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{owner?.fullName || 'Unassigned'}</p>
+              <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">{owner?.fullName || 'Unassigned'}</p>
             </div>
             {krData.dueDate && (
-              <span className="text-[10px] font-black text-error bg-error/5 px-2 py-0.5 rounded-full flex items-center gap-1 border border-error/10">
+              <span className="text-[9px] md:text-[10px] font-black text-error bg-error/5 px-2 py-0.5 rounded-full flex items-center gap-1 border border-error/10">
                 <span className="material-symbols-outlined text-[12px]">calendar_today</span>
                 {krData.dueDate}
               </span>
             )}
           </div>
         </div>
-        <div className="col-span-3">
-          <div className="flex justify-between items-end mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+        <div className="col-span-12 md:col-span-3">
+          <div className="flex justify-between items-end mb-2 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
             <span>Progress</span>
             <span className="text-on-surface">{krData.currentValue} / {krData.targetValue} {krData.unit}</span>
           </div>
@@ -451,31 +748,31 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, onLinkWor
             ></div>
           </div>
         </div>
-        <div className="col-span-3 flex justify-end gap-2">
+        <div className="col-span-12 md:col-span-3 flex justify-end gap-1 md:gap-2 flex-wrap">
           <button
             onClick={() => setIsLinkModalOpen(true)}
-            className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+            className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg md:rounded-xl transition-all opacity-0 group-hover:opacity-100"
             title="Link Work Item"
           >
-            <LinkIcon size={16} />
+            <LinkIcon size={14} className="md:size-4" />
           </button>
           <button
             onClick={() => setIsProgressModalOpen(true)}
-            className="px-4 py-2 bg-slate-100 hover:bg-primary/5 hover:text-primary rounded-xl text-[10px] font-black uppercase tracking-widest transition-all opacity-0 group-hover:opacity-100"
+            className="px-3 md:px-4 py-1.5 md:py-2 bg-slate-100 hover:bg-primary/5 hover:text-primary rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all opacity-0 group-hover:opacity-100"
           >
             Check-in
           </button>
           <button
             onClick={() => setIsEditModalOpen(true)}
-            className="px-4 py-2 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/20"
+            className="px-3 md:px-4 py-1.5 md:py-2 bg-primary text-white rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/20"
           >
             Edit
           </button>
           <button
             onClick={() => setIsDeleteModalOpen(true)}
-            className="w-10 h-10 flex items-center justify-center text-error/60 hover:text-error hover:bg-error/5 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+            className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-error/60 hover:text-error hover:bg-error/5 rounded-lg md:rounded-xl transition-all opacity-0 group-hover:opacity-100"
           >
-            <Trash2 size={16} />
+            <Trash2 size={14} className="md:size-4" />
           </button>
         </div>
       </div>
@@ -559,6 +856,7 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, onLinkWor
   );
 }
 
+// Keep all the existing modal components from the original file
 interface SubKeyResult {
   id: string;
   title: string;
@@ -570,7 +868,6 @@ interface SubKeyResult {
 
 function SubKeyResultRow({ skr, onUpdate, onDelete }: { skr: SubKeyResult, onUpdate: (updatedSkr: SubKeyResult) => void, onDelete: () => void }) {
   const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const progress = Math.min(100, Math.round((skr.currentValue / skr.targetValue) * 100)) || 0;
@@ -995,15 +1292,30 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
   );
 }
 
-function AddObjectiveModal({ isOpen, onClose, onAdd, level }: { isOpen: boolean; onClose: () => void; onAdd: (obj: any) => void; level: 'L1' | 'L2' }) {
+function AddObjectiveModal({
+  isOpen,
+  onClose,
+  onAdd,
+  level,
+  objectives
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onAdd: (obj: any) => void;
+  level: 'L1' | 'L2';
+  objectives: Objective[];
+}) {
   const [formData, setFormData] = useState({
     title: '',
-    department: 'All Departments',
+    department: 'Tech',
     description: '',
-    ownerId: 'u1'
+    ownerId: '',
+    parentId: level === 'L2' ? (objectives.filter(o => !o.parentId)[0]?.id || '') : '',
   });
 
   if (!isOpen) return null;
+
+  const l1Objectives = objectives.filter(o => !o.parentId);
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -1043,14 +1355,28 @@ function AddObjectiveModal({ isOpen, onClose, onAdd, level }: { isOpen: boolean;
               value={formData.department}
               onChange={e => setFormData({ ...formData, department: e.target.value })}
             >
-              <option>All Departments</option>
-              <option>Engineering</option>
-              <option>Product</option>
-              <option>Marketing</option>
-              <option>Sales</option>
-              <option>HR</option>
+              <option value="Tech">Tech</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Media">Media</option>
+              <option value="Sale">Sale</option>
             </select>
           </div>
+
+          {level === 'L2' && (
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Parent Objective (L1)</label>
+              <select
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
+                value={formData.parentId}
+                onChange={e => setFormData({ ...formData, parentId: e.target.value })}
+              >
+                <option value="">-- Select parent objective --</option>
+                {l1Objectives.map(obj => (
+                  <option key={obj.id} value={obj.id}>[{obj.department}] {obj.title}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Description</label>
@@ -1073,8 +1399,12 @@ function AddObjectiveModal({ isOpen, onClose, onAdd, level }: { isOpen: boolean;
           <button
             className="px-8 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20 transition-all"
             onClick={() => {
-              onAdd(formData);
-              onClose();
+              onAdd({
+                ...formData,
+                level,
+                progressPercentage: 0,
+                keyResults: [],
+              });
             }}
           >
             Create Objective

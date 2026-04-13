@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { WorkItem, WorkItemType, Priority } from '../../types';
+import { WorkItem, WorkItemType, Priority, KeyResult, Objective } from '../../types';
 import { X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -21,6 +21,37 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
   const [assigneeId, setAssigneeId] = useState(initialData?.assigneeId || (users.length > 0 ? users[0].id : ''));
   const [status, setStatus] = useState(initialData?.status || defaultStatus);
   const [dueDate, setDueDate] = useState(initialData?.dueDate || '');
+  const [startDate, setStartDate] = useState(initialData?.startDate || '');
+  const [storyPoints, setStoryPoints] = useState<number | undefined>(initialData?.storyPoints);
+  const [linkedKrId, setLinkedKrId] = useState<string | undefined>(initialData?.linkedKrId);
+  const [keyResults, setKeyResults] = useState<{ kr: KeyResult; objective: Objective }[]>([]);
+  const [loadingKR, setLoadingKR] = useState(false);
+
+  // Fetch Key Results from API
+  useEffect(() => {
+    if (!isOpen) return;
+    const fetchKeyResults = async () => {
+      setLoadingKR(true);
+      try {
+        const res = await fetch('/api/objectives');
+        if (res.ok) {
+          const objectives: Objective[] = await res.json();
+          const krsWithObj: { kr: KeyResult; objective: Objective }[] = [];
+          objectives.forEach(obj => {
+            obj.keyResults.forEach(kr => {
+              krsWithObj.push({ kr, objective: obj });
+            });
+          });
+          setKeyResults(krsWithObj);
+        }
+      } catch (error) {
+        console.error('Failed to fetch key results:', error);
+      } finally {
+        setLoadingKR(false);
+      }
+    };
+    fetchKeyResults();
+  }, [isOpen]);
 
   // Update state when initialData changes
   useEffect(() => {
@@ -32,6 +63,9 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
       setAssigneeId(initialData.assigneeId || (users.length > 0 ? users[0].id : ''));
       setStatus(initialData.status);
       setDueDate(initialData.dueDate || '');
+      setStartDate(initialData.startDate || '');
+      setStoryPoints(initialData.storyPoints);
+      setLinkedKrId(initialData.linkedKrId);
     } else {
       setTitle('');
       setDescription('');
@@ -40,6 +74,9 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
       setAssigneeId(users.length > 0 ? users[0].id : '');
       setStatus(defaultStatus);
       setDueDate('');
+      setStartDate('');
+      setStoryPoints(undefined);
+      setLinkedKrId(undefined);
     }
   }, [initialData, defaultType, defaultStatus, isOpen, users]);
 
@@ -58,6 +95,9 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
       assigneeId,
       status,
       dueDate: dueDate || undefined,
+      startDate: startDate || undefined,
+      storyPoints,
+      linkedKrId: linkedKrId || undefined,
     };
 
     onSave(newTask);
@@ -66,7 +106,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-3xl p-8 w-full max-w-2xl shadow-2xl">
+      <div className="bg-white rounded-3xl p-8 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-black font-headline text-on-surface">{initialData ? 'Edit Task' : 'Create New Task'}</h2>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
@@ -77,8 +117,8 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
         <div className="space-y-6">
           <div>
             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Title</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
@@ -88,7 +128,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
 
           <div>
             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Description</label>
-            <textarea 
+            <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[100px]"
@@ -99,7 +139,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Type</label>
-              <select 
+              <select
                 value={type}
                 onChange={(e) => setType(e.target.value as WorkItemType)}
                 className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
@@ -117,7 +157,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
 
             <div>
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Priority</label>
-              <select 
+              <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as Priority)}
                 className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
@@ -131,7 +171,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
 
             <div>
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Assignee</label>
-              <select 
+              <select
                 value={assigneeId}
                 onChange={(e) => setAssigneeId(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
@@ -143,25 +183,86 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
             </div>
 
             <div>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Status</label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+              >
+                <option value="To Do">To Do</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Review">Review</option>
+                <option value="Done">Done</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Start Date</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+              />
+            </div>
+
+            <div>
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Due Date</label>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
               />
             </div>
+
+            {(type === 'Epic' || type === 'UserStory' || type === 'TechTask') && (
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Story Points</label>
+                <input
+                  type="number"
+                  value={storyPoints || ''}
+                  onChange={(e) => setStoryPoints(e.target.value ? parseInt(e.target.value) : undefined)}
+                  className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                  placeholder="e.g., 5"
+                />
+              </div>
+            )}
+
+            <div className={type === 'Epic' || type === 'UserStory' || type === 'TechTask' ? 'col-span-2' : ''}>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                Link to Key Result <span className="text-slate-300 normal-case tracking-normal">(Optional)</span>
+              </label>
+              {loadingKR ? (
+                <div className="px-4 py-3 rounded-xl border border-outline-variant/20 bg-slate-50 text-slate-400 text-sm">
+                  Loading key results...
+                </div>
+              ) : (
+                <select
+                  value={linkedKrId || ''}
+                  onChange={(e) => setLinkedKrId(e.target.value || undefined)}
+                  className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                >
+                  <option value="">No Key Result</option>
+                  {keyResults.map(({ kr, objective }) => (
+                    <option key={kr.id} value={kr.id}>
+                      [{objective.department}] {objective.title} → {kr.title}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
           </div>
         </div>
 
         <div className="mt-8 flex justify-end gap-4">
-          <button 
+          <button
             onClick={onClose}
             className="px-6 py-3 rounded-full font-bold text-sm text-slate-500 hover:bg-slate-100 transition-all"
           >
             Cancel
           </button>
-          <button 
+          <button
             onClick={handleSave}
             disabled={!title.trim()}
             className="px-6 py-3 rounded-full font-bold text-sm bg-primary text-white shadow-lg shadow-primary/20 hover:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"

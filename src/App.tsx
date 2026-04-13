@@ -8,6 +8,7 @@ import AppLayout from './components/layout/AppLayout';
 import PMDashboard from './pages/PMDashboard';
 import OKRsManagement from './pages/OKRsManagement';
 import TechScrumBoard from './pages/TechScrumBoard';
+import ProductBacklog from './pages/ProductBacklog';
 import MarketingKanban from './pages/MarketingKanban';
 import MediaKanban from './pages/MediaKanban';
 import SaleKanban from './pages/SaleKanban';
@@ -17,7 +18,7 @@ import Profile from './pages/Profile';
 import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'mkt' | 'media' | 'sale' | 'sync' | 'settings' | 'profile';
+export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'backlog' | 'mkt' | 'media' | 'sale' | 'sync' | 'settings' | 'profile';
 
 function AppContent() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -40,6 +41,7 @@ function AppContent() {
       {currentView === 'dashboard' && <PMDashboard key="dashboard" />}
       {currentView === 'okrs' && <OKRsManagement key="okrs" />}
       {currentView === 'tech' && <TechScrumBoard key="tech" />}
+      {currentView === 'backlog' && <ProductBacklog key="backlog" />}
       {currentView === 'mkt' && <MarketingKanban key="mkt" />}
       {currentView === 'media' && <MediaKanban key="media" />}
       {currentView === 'sale' && <SaleKanban key="sale" />}

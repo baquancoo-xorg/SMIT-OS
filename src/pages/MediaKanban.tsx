@@ -21,19 +21,21 @@ import TaskCard from '../components/board/TaskCard';
 import TaskTableView from '../components/board/TaskTableView';
 import TaskModal from '../components/board/TaskModal';
 import TaskDetailsModal from '../components/board/TaskDetailsModal';
-import { WorkItem } from '../types';
-import { LayoutGrid, List } from 'lucide-react';
+import { WorkItem, Sprint } from '../types';
+import { LayoutGrid, List, ChevronDown, Filter, Database } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
-const COLUMNS = ['Idea', 'Doing', 'Review', 'Done'];
+const COLUMNS = ['To Do', 'In Progress', 'Review', 'Done'];
 
 export default function MediaKanban() {
   const [view, setView] = useState<'board' | 'table'>('board');
+  const [selectedSprintId, setSelectedSprintId] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<WorkItem | null>(null);
   const [viewingTask, setViewingTask] = useState<WorkItem | null>(null);
   const [items, setItems] = useState<WorkItem[]>([]);
+  const [sprints, setSprints] = useState<Sprint[]>([]);
   const [activeItem, setActiveItem] = useState<WorkItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,18 +44,31 @@ export default function MediaKanban() {
   const fetchData = async () => {
     try {
       setError(null);
-      const res = await fetch('/api/work-items');
+      const [itemRes, sprintRes] = await Promise.all([
+        fetch('/api/work-items'),
+        fetch('/api/sprints')
+      ]);
 
-      if (!res.ok) {
+      if (!itemRes.ok || !sprintRes.ok) {
         throw new Error('Failed to fetch data');
       }
 
-      const data = await res.json();
+      const data = await itemRes.json();
+      const sprintData = await sprintRes.json();
+
       if (Array.isArray(data)) {
         const mediaItems = data.filter((item: WorkItem) =>
-          ['MediaTask', 'Task'].includes(item.type)
+          item.assignee?.department === 'Media' ||
+          ['MediaTask'].includes(item.type)
         );
         setItems(mediaItems);
+      }
+
+      if (Array.isArray(sprintData)) {
+        setSprints(sprintData);
+        if (sprintData.length > 0 && !selectedSprintId) {
+          setSelectedSprintId(sprintData[0].id);
+        }
       }
     } catch (error) {
       console.error('Failed to fetch Media board data:', error);
@@ -91,29 +106,40 @@ export default function MediaKanban() {
     if (activeId === overId) return;
 
     const activeItem = items.find(i => i.id === activeId);
+    if (!activeItem) return;
+
     const overItem = items.find(i => i.id === overId);
-
     const isOverAColumn = COLUMNS.includes(overId as string);
+    const isOverBacklog = overId === 'backlog';
 
-    if (activeItem) {
-      if (overItem && activeItem.status !== overItem.status) {
-        setItems(prev => {
-          const activeIndex = prev.findIndex(i => i.id === activeId);
-          const overIndex = prev.findIndex(i => i.id === overId);
+    setItems(prev => {
+      const activeIndex = prev.findIndex(i => i.id === activeId);
+      const updatedItems = [...prev];
 
-          const updatedItems = [...prev];
-          updatedItems[activeIndex] = { ...activeItem, status: overItem.status };
-          return arrayMove(updatedItems, activeIndex, overIndex);
-        });
-      } else if (isOverAColumn && activeItem.status !== overId) {
-        setItems(prev => {
-          const activeIndex = prev.findIndex(i => i.id === activeId);
-          const updatedItems = [...prev];
-          updatedItems[activeIndex] = { ...activeItem, status: overId as string };
-          return updatedItems;
-        });
+      let newStatus = activeItem.status;
+      let newSprintId = activeItem.sprintId;
+
+      if (isOverBacklog) {
+        newSprintId = undefined;
+      } else if (isOverAColumn) {
+        newStatus = overId as string;
+        newSprintId = selectedSprintId;
+      } else if (overItem) {
+        newStatus = overItem.status;
+        newSprintId = overItem.sprintId;
       }
-    }
+
+      if (activeItem.status !== newStatus || activeItem.sprintId !== newSprintId) {
+        updatedItems[activeIndex] = { ...activeItem, status: newStatus, sprintId: newSprintId };
+
+        if (overItem) {
+          const overIndex = prev.findIndex(i => i.id === overId);
+          return arrayMove(updatedItems, activeIndex, overIndex);
+        }
+      }
+
+      return updatedItems;
+    });
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -129,21 +155,26 @@ export default function MediaKanban() {
     if (!activeItem) return;
 
     let newStatus = activeItem.status;
-    if (COLUMNS.includes(overId as string)) {
+    let newSprintId = activeItem.sprintId;
+
+    if (overId === 'backlog') {
+      newSprintId = null;
+    } else if (COLUMNS.includes(overId as string)) {
       newStatus = overId as string;
+      newSprintId = selectedSprintId;
     }
 
-    if (activeItem.status !== newStatus) {
+    if (activeItem.status !== newStatus || activeItem.sprintId !== newSprintId) {
       try {
         const res = await fetch(`/api/work-items/${activeId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: newStatus })
+          body: JSON.stringify({ status: newStatus, sprintId: newSprintId })
         });
         const updated = await res.json();
         setItems(prev => prev.map(i => i.id === updated.id ? updated : i));
       } catch (error) {
-        console.error('Failed to update task status:', error);
+        console.error('Failed to update task status/sprint:', error);
       }
     }
 
@@ -185,7 +216,8 @@ export default function MediaKanban() {
           body: JSON.stringify({
             ...newTask,
             id: undefined,
-            assigneeId: currentUser?.id
+            assigneeId: currentUser?.id,
+            sprintId: selectedSprintId || null
           })
         });
         const data = await res.json();
@@ -245,73 +277,88 @@ export default function MediaKanban() {
     );
   }
 
+  const backlogItems = items.filter(i => !i.sprintId);
+  const sprintItems = items.filter(i => i.sprintId === selectedSprintId);
+
   return (
-    <div className="h-full flex flex-col p-6 md:p-10 space-y-8 w-full">
-      {/* Media Workspace Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div className="h-full flex flex-col p-6 lg:p-10 space-y-6 w-full">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
+          <nav className="flex items-center gap-2 mb-1 text-on-surface-variant font-medium text-xs">
             <span className="hover:text-primary cursor-pointer">Media</span>
-            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+            <span className="material-symbols-outlined text-[12px]">chevron_right</span>
             <span className="text-on-surface">Production</span>
           </nav>
-          <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Media <span className="text-tertiary">Kanban</span></h2>
+          <h2 className="text-3xl font-black font-headline tracking-tight text-on-surface flex items-center gap-3">
+            <span className="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center text-tertiary">
+              <Database size={20} />
+            </span>
+            Media Workspace
+          </h2>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="flex p-1 bg-surface-container-high rounded-full border border-outline-variant/10">
             <button
               onClick={() => setView('board')}
-              className={`flex items-center gap-2 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${view === 'board' ? 'bg-white text-primary shadow-md' : 'text-slate-500 hover:text-primary'}`}
+              className={`flex items-center gap-2 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view === 'board' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'}`}
             >
-              <LayoutGrid size={14} />
+              <LayoutGrid size={12} />
               Board
             </button>
             <button
               onClick={() => setView('table')}
-              className={`flex items-center gap-2 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${view === 'table' ? 'bg-white text-primary shadow-md' : 'text-slate-500 hover:text-primary'}`}
+              className={`flex items-center gap-2 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view === 'table' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'}`}
             >
-              <List size={14} />
+              <List size={12} />
               Table
             </button>
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all"
+            className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg shadow-primary/20 hover:scale-95 transition-all"
           >
-            <span className="material-symbols-outlined text-[20px]">add</span>
+            <span className="material-symbols-outlined text-[18px]">add</span>
             New Task
           </button>
         </div>
       </div>
 
-      {/* Active Sprint Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-outline-variant/10 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center text-pink-600">
-            <span className="material-symbols-outlined">movie</span>
+      {/* Sprint Filter Bar */}
+      <div className="flex items-center justify-between bg-white/50 backdrop-blur-md p-4 rounded-3xl border border-outline-variant/10 shadow-sm">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest">
+            <Filter size={14} />
+            <span>Active Sprint:</span>
           </div>
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Videos</p>
-            <h4 className="text-xl font-black font-headline">{items.filter(i => i.type === 'MediaTask').length}</h4>
+          <div className="relative">
+            <select
+              value={selectedSprintId}
+              onChange={(e) => setSelectedSprintId(e.target.value)}
+              className="appearance-none bg-surface-container-low border border-outline-variant/20 rounded-xl px-4 py-2 pr-10 text-sm font-bold text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer hover:bg-surface-container"
+            >
+              <option value="">No Sprint (Backlog)</option>
+              {sprints.map(s => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           </div>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-outline-variant/10 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-tertiary/10 flex items-center justify-center text-tertiary">
-            <span className="material-symbols-outlined">visibility</span>
+
+        <div className="hidden lg:flex items-center gap-6">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-primary"></div>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              Velocity: {items.reduce((sum, i) => sum + (i.storyPoints || 0), 0)} Pts
+            </span>
           </div>
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Views</p>
-            <h4 className="text-xl font-black font-headline">{items.length > 0 ? '1.2M' : '0'}</h4>
-          </div>
-        </div>
-        <div className="bg-white p-6 rounded-2xl border border-outline-variant/10 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
-            <span className="material-symbols-outlined">thumb_up</span>
-          </div>
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Engagement</p>
-            <h4 className="text-xl font-black font-headline">{items.length > 0 ? '8.5%' : '0%'}</h4>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-tertiary"></div>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              Done: {items.length > 0 ? Math.round((items.filter(i => i.status === 'Done').length / items.length) * 100) : 0}%
+            </span>
           </div>
         </div>
       </div>
@@ -335,53 +382,94 @@ export default function MediaKanban() {
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex-1 flex gap-6 overflow-x-auto pb-4 items-start">
-            {COLUMNS.map(col => {
-              const columnItems = items.filter(i => i.status === col);
-
-              return (
-                <div key={col} className="min-w-[320px] w-[320px] flex flex-col bg-slate-50/50 rounded-3xl border border-slate-200/50">
-                  <div className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${col === 'Idea' ? 'bg-slate-400' :
-                        col === 'Doing' ? 'bg-primary' :
-                          col === 'Review' ? 'bg-secondary' :
-                            'bg-tertiary'
-                        }`}></div>
-                      <h3 className="font-black text-on-surface text-xs uppercase tracking-widest">{col}</h3>
-                    </div>
-                    <span className="px-2 py-0.5 rounded-full bg-white text-slate-500 text-[10px] font-black border border-slate-200 shadow-sm">
-                      {columnItems.length}
-                    </span>
-                  </div>
-
-                  <SortableContext
-                    id={col}
-                    items={columnItems.map(i => i.id)}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <div className="flex-1 p-3 space-y-4 min-h-[200px]">
-                      {columnItems.map(item => (
-                        <DraggableTaskCard
-                          key={item.id}
-                          item={item}
-                          onUpdate={handleUpdateTask}
-                          onDelete={handleDeleteTask}
-                          onEdit={handleEditTask}
-                          onViewDetails={handleViewDetails}
-                        />
-                      ))}
-                      {columnItems.length === 0 && (
-                        <div className="h-32 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-400 gap-2">
-                          <span className="material-symbols-outlined text-3xl opacity-20">inventory_2</span>
-                          <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Empty Column</span>
-                        </div>
-                      )}
-                    </div>
-                  </SortableContext>
+          <div className="flex-1 flex flex-col lg:flex-row gap-6 overflow-hidden min-h-0">
+            {/* Product Backlog (25%) */}
+            <div className="w-full lg:w-1/4 h-[400px] lg:h-auto flex flex-col bg-surface-container-low/30 rounded-[32px] border border-outline-variant/10 overflow-hidden shrink-0 lg:shrink">
+              <div className="p-5 flex items-center justify-between border-b border-outline-variant/5 bg-white/40">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">inventory_2</span>
+                  <h3 className="font-black text-on-surface text-xs uppercase tracking-widest">Product Backlog</h3>
                 </div>
-              );
-            })}
+                <span className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black">
+                  {backlogItems.length}
+                </span>
+              </div>
+
+              <SortableContext
+                id="backlog"
+                items={backlogItems.map(i => i.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="flex-1 p-4 space-y-4 overflow-y-auto custom-scrollbar">
+                  {backlogItems.map(item => (
+                    <DraggableTaskCard
+                      key={item.id}
+                      item={item}
+                      onUpdate={handleUpdateTask}
+                      onDelete={handleDeleteTask}
+                      onEdit={handleEditTask}
+                      onViewDetails={handleViewDetails}
+                    />
+                  ))}
+                  {backlogItems.length === 0 && (
+                    <div className="h-40 border-2 border-dashed border-outline-variant/20 rounded-3xl flex flex-col items-center justify-center text-slate-400 gap-2">
+                      <span className="material-symbols-outlined text-4xl opacity-20">inbox</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Backlog is empty</span>
+                    </div>
+                  )}
+                </div>
+              </SortableContext>
+            </div>
+
+            {/* Active Sprint Board (75%) */}
+            <div className="w-full lg:w-3/4 flex gap-4 overflow-x-auto pb-4 items-start custom-scrollbar h-[500px] lg:h-auto shrink-0 lg:shrink">
+              {COLUMNS.map(col => {
+                const columnItems = sprintItems.filter(i => i.status === col);
+
+                return (
+                  <div key={col} className="min-w-[280px] flex-1 flex flex-col bg-slate-50/50 rounded-[32px] border border-slate-200/50 h-full max-h-full overflow-hidden">
+                    <div className="p-4 flex items-center justify-between bg-white/30">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${col === 'To Do' ? 'bg-slate-400' :
+                          col === 'In Progress' ? 'bg-primary' :
+                            col === 'Review' ? 'bg-secondary' :
+                              'bg-tertiary'
+                          }`}></div>
+                        <h3 className="font-black text-on-surface text-[10px] uppercase tracking-widest">{col}</h3>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full bg-white text-slate-500 text-[10px] font-black border border-slate-200 shadow-sm">
+                        {columnItems.length}
+                      </span>
+                    </div>
+
+                    <SortableContext
+                      id={col}
+                      items={columnItems.map(i => i.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="flex-1 p-3 space-y-4 overflow-y-auto custom-scrollbar">
+                        {columnItems.map(item => (
+                          <DraggableTaskCard
+                            key={item.id}
+                            item={item}
+                            onUpdate={handleUpdateTask}
+                            onDelete={handleDeleteTask}
+                            onEdit={handleEditTask}
+                            onViewDetails={handleViewDetails}
+                          />
+                        ))}
+                        {columnItems.length === 0 && (
+                          <div className="h-32 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-400 gap-2">
+                            <span className="material-symbols-outlined text-3xl opacity-20">inventory_2</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Empty Column</span>
+                          </div>
+                        )}
+                      </div>
+                    </SortableContext>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           <DragOverlay dropAnimation={{
@@ -403,7 +491,7 @@ export default function MediaKanban() {
         onClose={() => { setIsModalOpen(false); setEditingTask(null); }}
         onSave={handleCreateTask}
         defaultType="MediaTask"
-        defaultStatus="Idea"
+        defaultStatus="To Do"
         initialData={editingTask}
       />
 

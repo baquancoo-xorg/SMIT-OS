@@ -16,9 +16,9 @@ export default function AppLayout({ children, currentView, onViewChange, onLogou
 
   return (
     <div className="flex h-screen bg-surface overflow-hidden font-sans text-on-surface">
-      <div className={`fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden transition-opacity ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setIsSidebarOpen(false)}></div>
+      <div className={`fixed inset-0 bg-black/20 backdrop-blur-sm z-40 xl:hidden transition-opacity ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setIsSidebarOpen(false)}></div>
 
-      <div className={`fixed lg:static inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 shrink-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed xl:static inset-y-0 left-0 z-50 transform transition-all duration-300 ease-in-out xl:translate-x-0 shrink-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <Sidebar currentView={currentView} onViewChange={(view) => { onViewChange(view); setIsSidebarOpen(false); }} onLogout={onLogout} />
       </div>
 
