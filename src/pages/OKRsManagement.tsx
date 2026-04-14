@@ -123,6 +123,21 @@ export default function OKRsManagement() {
     }
   };
 
+  const handleLinkObjective = async (krId: string, parentKrId: string) => {
+    try {
+      const res = await fetch(`/api/key-results/${krId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ parentKrId })
+      });
+      if (res.ok) {
+        fetchData();
+      }
+    } catch (error) {
+      console.error('Failed to link objective:', error);
+    }
+  };
+
   const handleAddObjective = async (newObj: any) => {
     try {
       const res = await fetch('/api/objectives', {
@@ -268,6 +283,7 @@ export default function OKRsManagement() {
                   objective={obj}
                   children={getChildren(obj.id)}
                   workItems={items}
+                  objectives={objectives}
                   onLinkWorkItem={handleLinkWorkItem}
                   onRefresh={fetchData}
                   isExpanded={expandedObjectives.has(obj.id)}
@@ -291,7 +307,9 @@ export default function OKRsManagement() {
                     objective={obj}
                     parentObjective={parent || null}
                     workItems={items}
+                    objectives={objectives}
                     onLinkWorkItem={handleLinkWorkItem}
+                    onLinkObjective={handleLinkObjective}
                     onRefresh={fetchData}
                     getDeptColor={getDeptColor}
                   />
@@ -315,6 +333,7 @@ function ObjectiveAccordionCard({
   objective,
   children,
   workItems,
+  objectives,
   onLinkWorkItem,
   onRefresh,
   isExpanded,
@@ -325,6 +344,7 @@ function ObjectiveAccordionCard({
   objective: Objective;
   children: Objective[];
   workItems: WorkItem[];
+  objectives: Objective[];
   onLinkWorkItem: (krId: string, item: WorkItem) => void;
   onRefresh: () => void;
   isExpanded: boolean;
@@ -396,6 +416,7 @@ function ObjectiveAccordionCard({
                         department={objective.department}
                         owner={objective.owner}
                         workItems={workItems}
+                        objectives={objectives}
                         onLinkWorkItem={onLinkWorkItem}
                         onDelete={async () => {
                           await fetch(`/api/key-results/${kr.id}`, { method: 'DELETE' });
@@ -583,14 +604,18 @@ function ObjectiveAccordionCardL2({
   objective: initialObjective,
   parentObjective,
   workItems,
+  objectives,
   onLinkWorkItem,
+  onLinkObjective,
   onRefresh,
   getDeptColor,
 }: {
   objective: Objective;
   parentObjective?: Objective | null;
   workItems: WorkItem[];
+  objectives: Objective[];
   onLinkWorkItem: (krId: string, item: WorkItem) => void;
+  onLinkObjective?: (krId: string, parentKrId: string) => void;
   onRefresh: () => void;
   getDeptColor: (dept: string) => { bg: string; text: string; border: string; icon: string; badge: string };
   key?: string | number;
@@ -695,7 +720,9 @@ function ObjectiveAccordionCardL2({
                     department={objective.department}
                     owner={objective.owner}
                     workItems={workItems}
+                    objectives={objectives}
                     onLinkWorkItem={onLinkWorkItem}
+                    onLinkObjective={onLinkObjective}
                     onDelete={async () => {
                       await fetch(`/api/key-results/${kr.id}`, { method: 'DELETE' });
                       onRefresh();
@@ -716,7 +743,20 @@ function ObjectiveAccordionCardL2({
   );
 }
 
-function KeyResultRow({ kr, index, isL2, department, owner, workItems, onLinkWorkItem, onDelete, onRefresh }: { kr: KeyResult; index: number; isL2: boolean; department?: string; owner?: User; workItems: WorkItem[]; onLinkWorkItem: (krId: string, item: WorkItem) => void; onDelete: () => void; onRefresh: () => void; key?: string | number }) {
+function KeyResultRow({ kr, index, isL2, department, owner, workItems, objectives, onLinkWorkItem, onLinkObjective, onDelete, onRefresh }: { 
+  kr: KeyResult; 
+  index: number; 
+  isL2: boolean; 
+  department?: string; 
+  owner?: User; 
+  workItems: WorkItem[]; 
+  objectives?: Objective[];
+  onLinkWorkItem: (krId: string, item: WorkItem) => void; 
+  onLinkObjective?: (krId: string, parentKrId: string) => void;
+  onDelete: () => void; 
+  onRefresh: () => void; 
+  key?: string | number 
+}) {
   const [krData, setKrData] = useState(kr);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -724,6 +764,7 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, onLinkWor
 
   const progress = Math.min(100, Math.round((krData.currentValue / krData.targetValue) * 100)) || 0;
   const linkedItems = workItems.filter(item => item.linkedKrId === kr.id);
+  const parentKR = krData.parentKrId ? objectives?.flatMap(o => o.keyResults).find(kr => kr.id === krData.parentKrId) : null;
 
   return (
     <div className="flex flex-col gap-3 md:gap-4 p-4 md:p-6 rounded-2xl md:rounded-[32px] hover:bg-slate-50/50 transition-all duration-500 group border border-transparent hover:border-outline-variant/10">
@@ -748,6 +789,12 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, onLinkWor
                 {krData.dueDate}
               </span>
             )}
+            {parentKR && (
+              <span className="text-[10px] font-black text-primary bg-primary/5 px-2 py-0.5 rounded-full flex items-center gap-1 border border-primary/10">
+                <span className="material-symbols-outlined text-[12px]">link</span>
+                Aligned to L1 KR
+              </span>
+            )}
           </div>
         </div>
         {/* Progress section */}
@@ -765,13 +812,24 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, onLinkWor
         </div>
         {/* Actions - horizontal on mobile, end-aligned on desktop */}
         <div className="flex items-center gap-2 md:col-span-3 md:justify-end">
-          <button
-            onClick={() => setIsLinkModalOpen(true)}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
-            title="Link Work Item"
-          >
-            <LinkIcon size={18} />
-          </button>
+          {isL2 && onLinkObjective && (
+            <button
+              onClick={() => setIsLinkModalOpen(true)}
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+              title="Link to L1 Key Result"
+            >
+              <LinkIcon size={18} />
+            </button>
+          )}
+          {!isL2 && (
+            <button
+              onClick={() => setIsLinkModalOpen(true)}
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+              title="Link Work Item"
+            >
+              <LinkIcon size={18} />
+            </button>
+          )}
           <button
             onClick={() => setIsEditModalOpen(true)}
             className="min-h-[44px] px-4 py-2 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/20"
@@ -844,13 +902,23 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, onLinkWor
         }}
       />
 
-      <LinkWorkItemModal
-        isOpen={isLinkModalOpen}
-        onClose={() => setIsLinkModalOpen(false)}
-        krId={kr.id}
-        onLink={(item) => onLinkWorkItem(kr.id, item)}
-        workItems={workItems}
-      />
+      {isL2 && onLinkObjective && objectives ? (
+        <LinkObjectiveModal
+          isOpen={isLinkModalOpen}
+          onClose={() => setIsLinkModalOpen(false)}
+          krId={kr.id}
+          onLink={(parentKrId) => onLinkObjective(kr.id, parentKrId)}
+          l1Objectives={objectives.filter(o => !o.parentId)}
+        />
+      ) : (
+        <LinkWorkItemModal
+          isOpen={isLinkModalOpen}
+          onClose={() => setIsLinkModalOpen(false)}
+          krId={kr.id}
+          onLink={(item) => onLinkWorkItem(kr.id, item)}
+          workItems={workItems}
+        />
+      )}
 
       <DeleteConfirmModal
         isOpen={isDeleteModalOpen}
@@ -1206,6 +1274,88 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
             disabled={mode === 'select' ? !selectedItemId : !newItemTitle.trim()}
           >
             Link Item
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LinkObjectiveModal({ 
+  isOpen, 
+  onClose, 
+  krId, 
+  onLink, 
+  l1Objectives 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  krId: string; 
+  onLink: (parentKrId: string) => void; 
+  l1Objectives: Objective[] 
+}) {
+  const [selectedL1KrId, setSelectedL1KrId] = useState('');
+
+  if (!isOpen) return null;
+
+  const handleSave = () => {
+    if (selectedL1KrId) {
+      onLink(selectedL1KrId);
+    }
+    onClose();
+  };
+
+  // Flatten all L1 KRs
+  const allL1KRs = l1Objectives.flatMap(obj => 
+    obj.keyResults.map(kr => ({ ...kr, objectiveTitle: obj.title, department: obj.department }))
+  );
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm">
+      <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-8 relative border border-outline-variant/20">
+        <button
+          onClick={onClose}
+          className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
+        >
+          <span className="material-symbols-outlined">close</span>
+        </button>
+
+        <h3 className="text-xl font-bold text-on-surface mb-2">Link to L1 Key Result</h3>
+        <p className="text-sm text-on-surface-variant mb-6">
+          Align this L2 Key Result with a parent L1 Key Result for better tracking.
+        </p>
+
+        <div>
+          <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">
+            Select L1 Key Result
+          </label>
+          <select
+            className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none max-h-60"
+            value={selectedL1KrId}
+            onChange={(e) => setSelectedL1KrId(e.target.value)}
+          >
+            <option value="">-- Choose an L1 Key Result --</option>
+            {allL1KRs.map(kr => (
+              <option key={kr.id} value={kr.id}>
+                [{kr.department}] {kr.objectiveTitle.substring(0, 50)}{kr.objectiveTitle.length > 50 ? '...' : ''} → {kr.title}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex w-full gap-3 mt-10">
+          <button
+            className="flex-1 px-6 py-3 text-sm font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest rounded-xl transition-all"
+            onClick={onClose}
+          >
+            Cancel
+          </button>
+          <button
+            className="flex-1 px-6 py-3 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-xl transition-all shadow-lg shadow-primary/20 disabled:opacity-50"
+            onClick={handleSave}
+            disabled={!selectedL1KrId}
+          >
+            Link to L1 KR
           </button>
         </div>
       </div>

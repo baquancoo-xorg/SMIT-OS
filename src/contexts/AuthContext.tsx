@@ -8,7 +8,7 @@ interface AuthContextType {
   loading: boolean;
   isAdmin: boolean;
   login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
+  logout: () => Promise<void>;
   refreshUsers: () => Promise<void>;
 }
 
@@ -19,33 +19,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchUsers = async () => {
+  // Check existing session on mount
+  const checkSession = async () => {
     try {
-      const res = await fetch('/api/users');
-      const data = await res.json();
-      setUsers(data);
+      const res = await fetch('/api/auth/me', {
+        credentials: 'include',
+      });
 
-      // Try to restore session from localStorage
-      const savedUserId = localStorage.getItem('smit_os_user_id');
-      if (savedUserId && !currentUser) {
-        const user = data.find((u: User) => u.id === savedUserId);
-        if (user) {
-          setCurrentUser(user);
-        }
+      if (res.ok) {
+        const user = await res.json();
+        setCurrentUser(user);
       }
+      // If 401, user is not logged in - that's fine
     } catch (error) {
-      console.error('Failed to fetch users:', error);
+      console.error('Session check failed:', error);
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch('/api/users', {
+        credentials: 'include',
+      });
+
+      if (res.status === 401) {
+        // Session expired
+        setCurrentUser(null);
+        return;
+      }
+
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+    }
+  };
+
   const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const res = await fetch('/api/login', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
+        credentials: 'include',
       });
 
       if (!res.ok) {
@@ -55,7 +75,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const user = await res.json();
       setCurrentUser(user);
-      localStorage.setItem('smit_os_user_id', user.id);
       return { success: true };
     } catch (error) {
       console.error('Login failed:', error);
@@ -63,14 +82,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
-    setCurrentUser(null);
-    localStorage.removeItem('smit_os_user_id');
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      setCurrentUser(null);
+    }
   };
 
   useEffect(() => {
-    fetchUsers();
+    checkSession();
   }, []);
+
+  // Fetch users after authentication
+  useEffect(() => {
+    if (currentUser) {
+      fetchUsers();
+    }
+  }, [currentUser]);
 
   return (
     <AuthContext.Provider value={{

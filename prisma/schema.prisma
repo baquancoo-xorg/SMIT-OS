@@ -57,6 +57,9 @@ model KeyResult {
   targetValue        Float     @default(100)
   unit               String    @default("%")
   objectiveId        String
+  parentKrId         String?   // For L2 KRs, references parent L1 KR for alignment
+  parentKR           KeyResult? @relation("KRAlignment", fields: [parentKrId], references: [id])
+  childKRs           KeyResult[] @relation("KRAlignment")
   objective          Objective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
 }
 

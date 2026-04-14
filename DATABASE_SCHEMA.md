@@ -85,7 +85,7 @@ Stores organizational objectives as part of the OKR (Objectives and Key Results)
 
 ### 4. `KeyResult`
 
-Stores key results associated with objectives for tracking OKR progress.
+Stores key results associated with objectives for tracking OKR progress. Supports hierarchical alignment between L1 and L2 Key Results.
 
 | Column | Data Type | Constraints | Description |
 |--------|-----------|-------------|-------------|
@@ -96,9 +96,12 @@ Stores key results associated with objectives for tracking OKR progress.
 | `targetValue` | Float | NOT NULL, Default: `100` | Target value to achieve |
 | `unit` | String | NOT NULL, Default: `"%"` | Unit of measurement (e.g., "%", "users", "tasks") |
 | `objectiveId` | String (UUID) | NOT NULL, Foreign Key → Objective.id | ID of the parent objective |
+| `parentKrId` | String (UUID) | NULLABLE, Foreign Key → KeyResult.id | ID of the parent L1 Key Result (for L2 KRs alignment) |
 
 **Relationships:**
 - Many-to-One with `Objective` (cascade on delete)
+- Many-to-One with `KeyResult` (parent L1 KR alignment, self-referencing via `parentKrId`)
+- One-to-Many with `KeyResult` (child L2 KRs, self-referencing)
 
 ---
 

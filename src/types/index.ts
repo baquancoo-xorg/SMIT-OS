@@ -29,6 +29,7 @@ export interface KeyResult {
   unit?: string;
   dueDate?: string;
   lastNote?: string;
+  parentKrId?: string; // For L2 KRs, references parent L1 KR for alignment
 }
 
 export interface Objective {
