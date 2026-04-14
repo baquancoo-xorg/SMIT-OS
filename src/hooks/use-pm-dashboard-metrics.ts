@@ -85,8 +85,10 @@ export function usePMDashboardMetrics(
   const departmentData = useMemo(() => {
     const deptMap: Record<string, number> = {};
     workItems.forEach((item) => {
-      const dept = item.assignee?.department || 'Unassigned';
-      deptMap[dept] = (deptMap[dept] || 0) + 1;
+      const depts = item.assignee?.departments || ['Unassigned'];
+      depts.forEach(dept => {
+        deptMap[dept] = (deptMap[dept] || 0) + 1;
+      });
     });
     return Object.entries(deptMap).map(([name, value]) => ({ name, value }));
   }, [workItems]);

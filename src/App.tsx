@@ -23,7 +23,7 @@ export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'backlog' | 'mkt' | 'medi
 
 function AppContent() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
-  const { currentUser, users, setCurrentUser, loading, isAdmin, logout } = useAuth();
+  const { currentUser, loading, logout } = useAuth();
 
   if (loading) {
     return (
@@ -38,7 +38,7 @@ function AppContent() {
   }
 
   return (
-    <AppLayout currentView={currentView} onViewChange={setCurrentView} onLogout={logout} isAdmin={isAdmin}>
+    <AppLayout currentView={currentView} onViewChange={setCurrentView} onLogout={logout}>
       {currentView === 'dashboard' && <PMDashboard key="dashboard" />}
       {currentView === 'okrs' && <OKRsManagement key="okrs" />}
       {currentView === 'tech' && <TechBoard key="tech" />}

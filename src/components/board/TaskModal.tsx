@@ -12,7 +12,7 @@ interface TaskModalProps {
   initialData?: WorkItem | null;
 }
 
-export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'TechTask', defaultStatus = 'To Do', initialData }: TaskModalProps) {
+export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'TechTask', defaultStatus = 'Todo', initialData }: TaskModalProps) {
   const { users } = useAuth();
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
@@ -190,7 +190,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
               >
-                <option value="To Do">To Do</option>
+                <option value="Todo">Todo</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Review">Review</option>
                 <option value="Done">Done</option>

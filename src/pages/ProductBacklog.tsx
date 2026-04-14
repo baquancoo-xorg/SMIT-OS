@@ -30,7 +30,7 @@ export default function ProductBacklog() {
       if (res.ok) {
         const data: WorkItem[] = await res.json();
         const backlogItems = data.filter((item: WorkItem) =>
-          !item.sprintId && (item.assignee?.department === 'Tech' || ['Epic', 'UserStory', 'TechTask'].includes(item.type))
+          !item.sprintId && (item.assignee?.departments?.includes('Tech') || ['Epic', 'UserStory', 'TechTask'].includes(item.type))
         );
         setItems(backlogItems);
       }
@@ -355,7 +355,7 @@ export default function ProductBacklog() {
         onClose={() => { setIsModalOpen(false); setEditingTask(null); }}
         onSave={handleCreateTask}
         defaultType="TechTask"
-        defaultStatus="To Do"
+        defaultStatus="Todo"
         initialData={editingTask}
       />
 

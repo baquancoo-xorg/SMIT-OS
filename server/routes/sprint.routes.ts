@@ -5,6 +5,39 @@ import { handleAsync } from '../utils/async-handler';
 export function createSprintRoutes(prisma: PrismaClient) {
   const router = Router();
 
+  // Get active sprint with stats - MUST be before /:id
+  router.get('/active', handleAsync(async (_req: any, res: any) => {
+    const today = new Date();
+
+    const sprint = await prisma.sprint.findFirst({
+      where: {
+        startDate: { lte: today },
+        endDate: { gte: today }
+      },
+      include: { workItems: true }
+    });
+
+    if (!sprint) {
+      return res.json({ sprint: null, stats: null, daysLeft: null });
+    }
+
+    const items = sprint.workItems;
+    const stats = {
+      total: items.length,
+      done: items.filter(i => i.status === 'Done').length,
+      inProgress: items.filter(i => i.status === 'InProgress').length,
+      todo: items.filter(i => i.status === 'Todo').length,
+      blocked: items.filter(i => i.priority === 'Urgent' && i.status !== 'Done').length,
+      progress: items.length > 0
+        ? Math.round((items.filter(i => i.status === 'Done').length / items.length) * 100)
+        : 0
+    };
+
+    const daysLeft = Math.ceil((sprint.endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    res.json({ sprint, stats, daysLeft });
+  }));
+
   router.get('/', handleAsync(async (_req: any, res: any) => {
     const sprints = await prisma.sprint.findMany();
     res.json(sprints);

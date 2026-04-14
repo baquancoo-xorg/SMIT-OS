@@ -12,7 +12,7 @@ async function main() {
   const findUser = (name: string) => users.find(u => u.fullName === name);
 
   // Try multiple name variations
-  const nguyenQuan = findUser('Nguyễn Quân') || findUser('Nguyễn Quân') || users.find(u => u.department === 'BOD' && u.role === 'Leader');
+  const nguyenQuan = findUser('Nguyễn Quân') || findUser('Nguyễn Quân') || users.find(u => u.departments.includes('BOD') && u.role === 'Leader');
   const thaiPhong = findUser('Thái Phong');
   const thanhLong = findUser('Thành Long');
   const haCanh = findUser('Hà Canh');

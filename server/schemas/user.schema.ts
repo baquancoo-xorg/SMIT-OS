@@ -8,7 +8,7 @@ export const createUserSchema = z.object({
     .max(50)
     .regex(/^[a-zA-Z0-9_]+$/, 'Username: letters, numbers, underscores only'),
   password: z.string().min(6, 'Password min 6 chars').optional(),
-  department: z.string().min(1, 'Department required').max(50),
+  departments: z.array(z.string().max(50)).min(1, 'At least one department required'),
   role: z.string().min(1, 'Role required').max(50),
   scope: z.string().max(100).optional().nullable(),
   avatar: z.string().url('Invalid avatar URL'),

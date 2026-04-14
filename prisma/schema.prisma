@@ -15,7 +15,7 @@ model User {
   fullName             String
   username             String         @unique
   password             String
-  department           String
+  departments          String[]       // Multiple departments supported
   role                 String         // Admin, Leader, Member
   scope                String?        // Vị trí công việc (e.g., "Backend Developer")
   avatar               String
@@ -61,6 +61,7 @@ model KeyResult {
   parentKR           KeyResult? @relation("KRAlignment", fields: [parentKrId], references: [id])
   childKRs           KeyResult[] @relation("KRAlignment")
   objective          Objective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  workItemLinks      WorkItemKrLink[]
 }
 
 model WorkItem {
@@ -74,7 +75,15 @@ model WorkItem {
   assignee    User?    @relation(fields: [assigneeId], references: [id])
   sprintId    String?
   sprint      Sprint?  @relation(fields: [sprintId], references: [id])
-  linkedKrId  String?  // Links work item to a Key Result
+
+  // Hierarchy: Epic -> Story -> Task
+  parentId    String?
+  parent      WorkItem?  @relation("WorkItemHierarchy", fields: [parentId], references: [id])
+  children    WorkItem[] @relation("WorkItemHierarchy")
+
+  // KR linking via junction table (replaces linkedKrId)
+  krLinks     WorkItemKrLink[]
+
   startDate   DateTime?
   dueDate     DateTime?
   createdAt   DateTime @default(now())
@@ -82,6 +91,17 @@ model WorkItem {
 
   // Specific fields for different views
   storyPoints Int?     // For Tech
+}
+
+model WorkItemKrLink {
+  id          String    @id @default(uuid())
+  workItemId  String
+  workItem    WorkItem  @relation(fields: [workItemId], references: [id], onDelete: Cascade)
+  keyResultId String
+  keyResult   KeyResult @relation(fields: [keyResultId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([workItemId, keyResultId])
 }
 
 model WeeklyReport {
@@ -92,8 +112,9 @@ model WeeklyReport {
   progress   String    // JSON string
   plans      String    // JSON string
   blockers   String    // JSON string
-  score      Int       @default(0)
-  status     String    @default("Review") // Review, Approved
+  score           Int    @default(0)
+  confidenceScore Int    @default(0)
+  status          String @default("Review") // Review, Approved
   approvedBy String?
   approver   User?     @relation("ApprovedReports", fields: [approvedBy], references: [id])
   approvedAt DateTime?
@@ -115,4 +136,14 @@ model DailyReport {
   approvedAt  DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model OkrCycle {
+  id        String   @id @default(uuid())
+  name      String   // e.g., "Q2/2026"
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean  @default(false) // Only one cycle should be active
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

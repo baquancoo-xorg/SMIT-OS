@@ -1,13 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, Search, ChevronRight, User as UserIcon, Calendar, Tag, Settings, Menu } from 'lucide-react';
+import { Bell, Search, ChevronRight, User as UserIcon, Calendar, Tag, Menu } from 'lucide-react';
 import { WorkItem } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
+import DateCalendarWidget from './DateCalendarWidget';
+import SprintContextWidget from './SprintContextWidget';
+import { ViewType } from '../../App';
 
-export default function Header({ onViewChange, onMenuClick, isAdmin }: {
-  onViewChange?: (view: string) => void;
+export default function Header({ onMenuClick, onViewChange }: {
   onMenuClick?: () => void;
-  isAdmin: boolean;
+  onViewChange?: (view: ViewType) => void;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -21,6 +23,7 @@ export default function Header({ onViewChange, onMenuClick, isAdmin }: {
     const fetchAllWorkItems = async () => {
       try {
         const res = await fetch('/api/work-items');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (Array.isArray(data)) {
           setAllWorkItems(data);
@@ -143,16 +146,10 @@ export default function Header({ onViewChange, onMenuClick, isAdmin }: {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 md:gap-4 ml-8">
-          {isAdmin && (
-            <button
-              onClick={() => onViewChange?.('settings')}
-              className="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-xl transition-all active:scale-95 border border-transparent hover:border-outline-variant/10"
-              title="Settings"
-            >
-              <Settings size={20} />
-            </button>
-          )}
+        {/* Widgets - hidden on mobile */}
+        <div className="hidden md:flex items-center gap-2">
+          <DateCalendarWidget workItems={allWorkItems} />
+          <SprintContextWidget onViewBacklog={() => onViewChange?.('backlog')} />
         </div>
       </div>
     </header>

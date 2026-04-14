@@ -7,9 +7,10 @@ interface SidebarProps {
   currentView: ViewType;
   onViewChange: (view: ViewType) => void;
   onLogout: () => void;
+  onSettingsClick?: () => void;
 }
 
-export default function Sidebar({ currentView, onViewChange, onLogout }: SidebarProps) {
+export default function Sidebar({ currentView, onViewChange, onLogout, onSettingsClick }: SidebarProps) {
   const { currentUser } = useAuth();
 
   return (
@@ -100,13 +101,24 @@ export default function Sidebar({ currentView, onViewChange, onLogout }: Sidebar
             <p className="text-xs font-bold text-on-surface truncate">{currentUser?.fullName}</p>
             <p className="text-[10px] font-medium text-slate-600 truncate">{currentUser?.role}</p>
           </div>
-          <button
-            onClick={onLogout}
-            className="p-2 text-slate-400 hover:text-error transition-colors rounded-xl hover:bg-slate-100"
-            title="Logout"
-          >
-            <LogOut size={18} />
-          </button>
+          <div className="flex items-center gap-1">
+            {currentUser?.isAdmin && (
+              <button
+                onClick={onSettingsClick}
+                className="p-2 text-slate-400 hover:text-primary transition-colors rounded-xl hover:bg-slate-100"
+                title="Settings"
+              >
+                <Settings size={18} />
+              </button>
+            )}
+            <button
+              onClick={onLogout}
+              className="p-2 text-slate-400 hover:text-error transition-colors rounded-xl hover:bg-slate-100"
+              title="Logout"
+            >
+              <LogOut size={18} />
+            </button>
+          </div>
         </div>
       </div>
     </aside>

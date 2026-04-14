@@ -17,6 +17,7 @@ import { createWorkItemRoutes } from "./server/routes/work-item.routes";
 import { createSprintRoutes } from "./server/routes/sprint.routes";
 import { createReportRoutes } from "./server/routes/report.routes";
 import { createDailyReportRoutes } from "./server/routes/daily-report.routes";
+import { createOkrCycleRoutes } from "./server/routes/okr-cycle.routes";
 
 const prisma = new PrismaClient();
 const app = express();
@@ -39,6 +40,7 @@ app.use("/api/work-items", createWorkItemRoutes(prisma));
 app.use("/api/sprints", createSprintRoutes(prisma));
 app.use("/api/reports", createReportRoutes(prisma));
 app.use("/api/daily-reports", createDailyReportRoutes(prisma));
+app.use("/api/okr-cycles", createOkrCycleRoutes(prisma));
 
 // OKRs recalculate endpoint (legacy path)
 import { createOKRService } from "./server/services/okr.service";

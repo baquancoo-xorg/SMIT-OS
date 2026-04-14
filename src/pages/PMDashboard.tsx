@@ -133,6 +133,13 @@ export default function PMDashboard() {
   // ==================== Tier 2: Charts Data ====================
 
   // Department Progress (L2 objectives)
+  // Colors: Tech #0059B6, Marketing #F54A00, Media #E60076, Sale #009966
+  const deptColors: Record<string, string> = {
+    'Tech': 'bg-[#0059B6]',
+    'Marketing': 'bg-[#F54A00]',
+    'Media': 'bg-[#E60076]',
+    'Sale': 'bg-[#009966]'
+  };
   const l2Objectives = objectives.filter(obj => obj.level === 'L2' || (obj.department !== 'BOD' && !obj.parentId));
   const departmentMap: Record<string, number[]> = {
     'Tech': [],
@@ -150,14 +157,15 @@ export default function PMDashboard() {
     name: dept,
     progress: progresses.length > 0
       ? Math.round(progresses.reduce((sum, p) => sum + p, 0) / progresses.length)
-      : 0
+      : 0,
+    color: deptColors[dept] || 'bg-primary'
   }));
 
-  // Status Breakdown
+  // Status Breakdown - colors synced with Board pages
   const statusData = [
     { name: 'Todo', count: workItems.filter(i => i.status === 'Todo').length, color: 'bg-slate-400' },
     { name: 'In Progress', count: workItems.filter(i => i.status === 'In Progress').length, color: 'bg-primary' },
-    { name: 'Review', count: workItems.filter(i => i.status === 'Review').length, color: 'bg-yellow-500' },
+    { name: 'Review', count: workItems.filter(i => i.status === 'Review').length, color: 'bg-secondary' },
     { name: 'Done', count: doneItems, color: 'bg-tertiary' },
   ];
   const totalItems = statusData.reduce((sum, s) => sum + s.count, 0);
@@ -366,7 +374,7 @@ export default function PMDashboard() {
                 <span className="w-20 text-sm font-medium text-on-surface-variant">{dept.name}</span>
                 <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-primary transition-all duration-1000"
+                    className={`h-full ${dept.color} transition-all duration-1000`}
                     style={{ width: `${dept.progress}%` }}
                   />
                 </div>
@@ -462,7 +470,7 @@ export default function PMDashboard() {
             )}
           </div>
           {urgentItems.length > 0 ? (
-            <div className="space-y-3 max-h-[280px] overflow-y-auto pr-2">
+            <div className="space-y-3 max-h-[280px] overflow-y-auto scrollbar-hide">
               {urgentItems.map(item => (
                 <div
                   key={item.id}
@@ -507,43 +515,15 @@ export default function PMDashboard() {
           </h3>
 
           <div className="space-y-6">
-            {/* Sprint Deadline */}
-            {currentSprint ? (
-              <div className="p-4 bg-primary/5 border border-primary/10 rounded-2xl">
-                <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Current Sprint</p>
-                    <h4 className="text-base font-bold text-on-surface mt-1">{currentSprint.name}</h4>
-                  </div>
-                  <span className={`px-3 py-1 text-sm font-bold rounded-full ${
-                    daysLeft && daysLeft <= 3
-                      ? 'bg-error/10 text-error'
-                      : daysLeft && daysLeft <= 7
-                        ? 'bg-yellow-100 text-yellow-600'
-                        : 'bg-primary/10 text-primary'
-                  }`}>
-                    {daysLeft}d left
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${sprintProgress}%` }} />
-                </div>
-              </div>
-            ) : (
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center text-slate-400">
-                No active sprint
-              </div>
-            )}
-
             {/* OKRs at Risk */}
             <div>
               <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">OKRs at Risk</h4>
               {criticalObjectives.length > 0 ? (
-                <div className="space-y-3 max-h-[180px] overflow-y-auto">
+                <div className="space-y-3 max-h-[280px] overflow-y-auto scrollbar-hide">
                   {criticalObjectives.map(obj => (
                     <div
                       key={obj.id}
-                      className={`p-3 rounded-xl border ${
+                      className={`p-3 rounded-2xl border ${
                         obj.progressPercentage < 15
                           ? 'bg-error/5 border-error/20'
                           : 'bg-yellow-50 border-yellow-200'

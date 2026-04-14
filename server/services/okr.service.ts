@@ -5,7 +5,7 @@ const OWNER_SELECT = {
   fullName: true,
   username: true,
   avatar: true,
-  department: true,
+  departments: true,
 };
 
 export function createOKRService(prisma: PrismaClient) {

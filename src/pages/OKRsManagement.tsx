@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Objective, KeyResult, WorkItem, WorkItemType, User } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
-import { Target, Plus, ChevronDown, ChevronRight, Briefcase, Users, Zap, Edit2, X, Link as LinkIcon, Filter, TrendingUp, Trash2, AlertTriangle, Calendar } from 'lucide-react';
+import { Target, Plus, ChevronDown, ChevronRight, Briefcase, Users, Zap, Edit2, X, Link as LinkIcon, Filter, TrendingUp, Trash2, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function OKRsManagement() {
@@ -17,12 +17,13 @@ export default function OKRsManagement() {
   const { users } = useAuth();
 
   // Department-specific color configuration
+  // Tech: #0059B6, Marketing: #F54A00, Media: #E60076, Sale: #009966
   const deptColors: Record<string, { bg: string; text: string; border: string; icon: string; badge: string }> = {
     BOD: { bg: 'bg-primary/5', text: 'text-primary', border: 'border-primary/10', icon: 'bg-primary', badge: 'bg-primary-fixed text-on-primary-fixed border-primary/10' },
-    Sale: { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200', icon: 'bg-emerald-600', badge: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
-    Tech: { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-200', icon: 'bg-blue-600', badge: 'bg-blue-50 text-blue-600 border-blue-200' },
-    Marketing: { bg: 'bg-purple-50', text: 'text-purple-600', border: 'border-purple-200', icon: 'bg-purple-600', badge: 'bg-purple-50 text-purple-600 border-purple-200' },
-    Media: { bg: 'bg-orange-50', text: 'text-orange-600', border: 'border-orange-200', icon: 'bg-orange-600', badge: 'bg-orange-50 text-orange-600 border-orange-200' },
+    Sale: { bg: 'bg-[#009966]/10', text: 'text-[#009966]', border: 'border-[#009966]/20', icon: 'bg-[#009966]', badge: 'bg-[#009966]/10 text-[#009966] border-[#009966]/20' },
+    Tech: { bg: 'bg-[#0059B6]/10', text: 'text-[#0059B6]', border: 'border-[#0059B6]/20', icon: 'bg-[#0059B6]', badge: 'bg-[#0059B6]/10 text-[#0059B6] border-[#0059B6]/20' },
+    Marketing: { bg: 'bg-[#F54A00]/10', text: 'text-[#F54A00]', border: 'border-[#F54A00]/20', icon: 'bg-[#F54A00]', badge: 'bg-[#F54A00]/10 text-[#F54A00] border-[#F54A00]/20' },
+    Media: { bg: 'bg-[#E60076]/10', text: 'text-[#E60076]', border: 'border-[#E60076]/20', icon: 'bg-[#E60076]', badge: 'bg-[#E60076]/10 text-[#E60076] border-[#E60076]/20' },
   };
 
   const getDeptColor = (department: string) => {
@@ -55,6 +56,41 @@ export default function OKRsManagement() {
     if (progress < 70) return 'At Risk';
     return 'On Track';
   };
+
+  // Calculate Days Remaining until Q2 deadline (June 30)
+  const getQ2Deadline = () => {
+    const now = new Date();
+    const year = now.getMonth() > 5 ? now.getFullYear() + 1 : now.getFullYear(); // If past June, use next year
+    const q2End = new Date(year, 5, 30); // June 30
+    const diffTime = q2End.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return { daysLeft: Math.max(0, diffDays), deadline: q2End };
+  };
+
+  // Calculate Critical Path Health based on objectives status
+  const getCriticalPathHealth = () => {
+    if (objectives.length === 0) return { status: 'No Data', color: 'text-slate-400', bgColor: 'bg-slate-400', message: 'No objectives' };
+
+    const offTrack = objectives.filter(obj => obj.progressPercentage < 30).length;
+    const atRisk = objectives.filter(obj => obj.progressPercentage >= 30 && obj.progressPercentage < 70).length;
+    const onTrack = objectives.filter(obj => obj.progressPercentage >= 70).length;
+
+    const offTrackPct = (offTrack / objectives.length) * 100;
+    const atRiskPct = (atRisk / objectives.length) * 100;
+
+    if (offTrackPct > 30) {
+      return { status: 'Critical', color: 'text-error', bgColor: 'bg-error', message: `${offTrack} objectives off track` };
+    } else if (offTrackPct > 10 || atRiskPct > 50) {
+      return { status: 'At Risk', color: 'text-amber-500', bgColor: 'bg-amber-500', message: `${atRisk} objectives at risk` };
+    } else if (onTrack === objectives.length) {
+      return { status: 'Excellent', color: 'text-emerald-500', bgColor: 'bg-emerald-500', message: 'All on track' };
+    } else {
+      return { status: 'Stable', color: 'text-tertiary', bgColor: 'bg-tertiary', message: 'System normal' };
+    }
+  };
+
+  const q2Info = getQ2Deadline();
+  const healthInfo = getCriticalPathHealth();
 
   // L1 (Company) = objectives with department === 'BOD' (top-level company objectives)
   // L2 (Team) = objectives with department !== 'BOD' (team/department objectives)
@@ -238,17 +274,17 @@ export default function OKRsManagement() {
         </div>
         <div className="bg-white p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl lg:rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Critical Path Health</p>
-          <h4 className="text-2xl md:text-3xl lg:text-4xl font-black font-headline text-tertiary">Stable</h4>
+          <h4 className={`text-2xl md:text-3xl lg:text-4xl font-black font-headline ${healthInfo.color}`}>{healthInfo.status}</h4>
           <div className="flex items-center gap-1 mt-2">
-            <div className="w-2 h-2 rounded-full bg-tertiary animate-pulse"></div>
-            <span className="text-[10px] font-bold text-tertiary">System Normal</span>
+            <div className={`w-2 h-2 rounded-full ${healthInfo.bgColor} animate-pulse`}></div>
+            <span className={`text-[10px] font-bold ${healthInfo.color}`}>{healthInfo.message}</span>
           </div>
         </div>
         <div className="bg-primary p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl lg:rounded-[40px] shadow-xl shadow-primary/20 flex flex-col gap-2 relative overflow-hidden group">
           <div className="absolute bottom-0 left-0 w-24 h-24 md:w-32 md:h-32 bg-white/10 rounded-full -ml-12 -mb-12 md:-ml-16 md:-mb-16 group-hover:scale-150 transition-transform duration-700"></div>
           <p className="text-[10px] font-black text-white/60 uppercase tracking-widest relative z-10">Days Remaining</p>
-          <h4 className="text-2xl md:text-3xl lg:text-4xl font-black font-headline text-white relative z-10">42 Days</h4>
-          <p className="text-[10px] font-bold text-white/80 mt-2 relative z-10">Q2 Deadline: June 30</p>
+          <h4 className="text-2xl md:text-3xl lg:text-4xl font-black font-headline text-white relative z-10">{q2Info.daysLeft} Days</h4>
+          <p className="text-[10px] font-bold text-white/80 mt-2 relative z-10">Q2 Deadline: {q2Info.deadline.toLocaleDateString('vi-VN', { day: '2-digit', month: 'long' })}</p>
         </div>
       </div>
 
@@ -783,12 +819,6 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, objective
               </div>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{owner?.fullName || 'Unassigned'}</p>
             </div>
-            {krData.dueDate && (
-              <span className="text-[10px] font-black text-error bg-error/5 px-2 py-0.5 rounded-full flex items-center gap-1 border border-error/10">
-                <span className="material-symbols-outlined text-[12px]">calendar_today</span>
-                {krData.dueDate}
-              </span>
-            )}
             {parentKR && (
               <span className="text-[10px] font-black text-primary bg-primary/5 px-2 py-0.5 rounded-full flex items-center gap-1 border border-primary/10">
                 <span className="material-symbols-outlined text-[12px]">link</span>
@@ -817,15 +847,6 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, objective
               onClick={() => setIsLinkModalOpen(true)}
               className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
               title="Link to L1 Key Result"
-            >
-              <LinkIcon size={18} />
-            </button>
-          )}
-          {!isL2 && (
-            <button
-              onClick={() => setIsLinkModalOpen(true)}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
-              title="Link Work Item"
             >
               <LinkIcon size={18} />
             </button>
@@ -988,8 +1009,8 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, title, message }: Dele
 interface EditKRModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: { title: string; targetValue: number; currentValue: number; unit: string; dueDate?: string }) => void;
-  initialData: { title: string; targetValue: number; currentValue: number; unit: string; dueDate?: string };
+  onSave: (data: { title: string; targetValue: number; currentValue: number; unit: string }) => void;
+  initialData: { title: string; targetValue: number; currentValue: number; unit: string };
   title?: string;
 }
 
@@ -1032,27 +1053,15 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
             />
           </div>
 
-          {/* M14: Responsive grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Unit</label>
-              <input
-                type="text"
-                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                value={formData.unit}
-                onChange={e => setFormData({ ...formData, unit: e.target.value })}
-                placeholder="e.g., %, USD, Users"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Due Date</label>
-              <input
-                type="date"
-                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                value={formData.dueDate || ''}
-                onChange={e => setFormData({ ...formData, dueDate: e.target.value })}
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Unit</label>
+            <input
+              type="text"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              value={formData.unit}
+              onChange={e => setFormData({ ...formData, unit: e.target.value })}
+              placeholder="e.g., %, USD, Users"
+            />
           </div>
         </div>
 
@@ -1178,7 +1187,7 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
         title: newItemTitle,
         linkedKrId: krId,
         assigneeId: 'u1',
-        status: 'To Do',
+        status: 'Todo',
         priority: 'Medium',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()

@@ -808,7 +808,7 @@ async function main() {
   const userMap = new Map<string, string>();
   users.forEach(user => {
     userMap.set(user.fullName, user.id);
-    console.log(`   Found user: ${user.fullName} (${user.department})`);
+    console.log(`   Found user: ${user.fullName} (${user.departments.join(', ')})`);
   });
 
   console.log('\n');
@@ -834,6 +834,7 @@ async function main() {
           plans: reportData.plans,
           blockers: reportData.blockers,
           score: reportData.score,
+          confidenceScore: reportData.confidenceScore,
         },
       });
 

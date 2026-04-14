@@ -4,7 +4,7 @@ declare global {
   namespace Express {
     interface Request {
       user?: JWTPayload & {
-        department?: string | null;
+        departments?: string[];
       };
     }
   }

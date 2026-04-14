@@ -5,7 +5,7 @@ const USER_SELECT = {
   id: true,
   fullName: true,
   username: true,
-  department: true,
+  departments: true,
   role: true,
   scope: true,
   avatar: true,
@@ -26,7 +26,7 @@ export function createUserService(prisma: PrismaClient) {
       fullName: string;
       username: string;
       password?: string;
-      department: string;
+      departments: string[];
       role: string;
       avatar: string;
       isAdmin?: boolean;

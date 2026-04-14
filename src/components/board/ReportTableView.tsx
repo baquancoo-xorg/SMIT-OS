@@ -51,14 +51,14 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            {/* M11: Min column widths for predictable layout */}
+            {/* Column order: Created at → Reporter → Status → Department → Week → Sprint */}
             <tr className="bg-slate-50/50 border-b border-outline-variant/10">
-              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Department</th>
-              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[150px]">Người báo cáo</th>
-              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[90px]">Status</th>
               <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Created at</th>
+              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[150px]">Reporter</th>
+              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[90px]">Status</th>
+              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Department</th>
+              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[180px]">Week</th>
               <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Sprint</th>
-              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[140px]">Week</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100/50">
@@ -76,16 +76,12 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
                   onClick={() => onViewDetail(report)}
                   className="hover:bg-primary/[0.02] transition-colors group cursor-pointer"
                 >
-                  {/* Department */}
+                  {/* Created at */}
                   <td className="px-8 py-5">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${user?.department === 'Tech' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                      user?.department === 'Marketing' ? 'bg-orange-50 text-orange-600 border-orange-100' :
-                        user?.department === 'Media' ? 'bg-pink-50 text-pink-600 border-pink-100' :
-                          user?.department === 'Sale' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                            'bg-indigo-50 text-indigo-600 border-indigo-100'
-                      }`}>
-                      {user?.department || 'N/A'}
-                    </span>
+                    <div className="flex items-center gap-2 text-sm text-on-surface-variant">
+                      <span className="material-symbols-outlined text-[16px] text-slate-400">calendar_today</span>
+                      {formatDate(report.createdAt)}
+                    </div>
                   </td>
 
                   {/* Reporter */}
@@ -116,11 +112,33 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
                     </span>
                   </td>
 
-                  {/* Created at */}
+                  {/* Department */}
+                  <td className="px-8 py-5">
+                    <div className="flex flex-wrap gap-1">
+                      {user?.departments?.map(dept => (
+                        <span key={dept} className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                          dept === 'Tech' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                          dept === 'Marketing' ? 'bg-orange-50 text-orange-600 border-orange-100' :
+                          dept === 'Media' ? 'bg-pink-50 text-pink-600 border-pink-100' :
+                          dept === 'Sale' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                          'bg-indigo-50 text-indigo-600 border-indigo-100'
+                        }`}>
+                          {dept}
+                        </span>
+                      )) || <span className="text-slate-400 text-[10px]">N/A</span>}
+                    </div>
+                  </td>
+
+                  {/* Week - Format: DD/MM/YYYY - DD/MM/YYYY (W15) */}
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-2 text-sm text-on-surface-variant">
-                      <span className="material-symbols-outlined text-[16px] text-slate-400">calendar_today</span>
-                      {formatDate(report.createdAt)}
+                      <span className="material-symbols-outlined text-[16px] text-slate-400">date_range</span>
+                      <span>
+                        {weekStart.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })} - {weekEnding.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                      </span>
+                      <span className="text-xs font-bold text-slate-400 ml-1">
+                        (W{weekNumber})
+                      </span>
                     </div>
                   </td>
 
@@ -130,19 +148,6 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
                       <span className="material-symbols-outlined text-[16px] text-primary">track_changes</span>
                       <span className="text-sm font-bold text-on-surface">
                         {sprint ? sprint.name : 'N/A'}
-                      </span>
-                    </div>
-                  </td>
-
-                  {/* Week */}
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-2 text-sm text-on-surface-variant">
-                      <span className="material-symbols-outlined text-[16px] text-slate-400">date_range</span>
-                      <span>
-                        {weekStart.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })} - {weekEnding.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                      </span>
-                      <span className="text-xs font-bold text-slate-400 ml-1">
-                        (W{weekNumber})
                       </span>
                     </div>
                   </td>

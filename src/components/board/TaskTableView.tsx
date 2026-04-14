@@ -49,7 +49,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
   };
 
   const statusColors: Record<string, string> = {
-    'To Do': 'bg-slate-100 text-slate-600',
+    'Todo': 'bg-slate-100 text-slate-600',
     'In Progress': 'bg-blue-100 text-blue-600',
     'Doing': 'bg-blue-100 text-blue-600',
     'Code Review': 'bg-purple-100 text-purple-600',

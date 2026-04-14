@@ -22,22 +22,22 @@ function generatePassword(): string {
 
 // Member data from CSV
 const members = [
-  { name: 'Thái Phong', department: 'Tech&Product', role: 'Leader', scope: 'Product Manager, Tech Leader', isLeader: true },
-  { name: 'Đăng Khoa', department: 'Tech&Product', role: 'Member', scope: 'Leader Frontend', isLeader: false },
-  { name: 'Thành Long', department: 'Media', role: 'Leader', scope: 'Leader Media', isLeader: true },
-  { name: 'Hà Canh', department: 'Marketing', role: 'Leader', scope: 'Fullstack Marketer', isLeader: true },
-  { name: 'Nguyễn Quân', department: 'BOD', role: 'Leader', scope: 'Project Manager, Sale Leader', isLeader: true },
-  { name: 'Giang Trường', department: 'Tech&Product', role: 'Member', scope: 'Backend Developer', isLeader: false },
-  { name: 'Thuỳ Dương', department: 'Media', role: 'Member', scope: 'Graphic Creator', isLeader: false },
-  { name: 'Việt Dũng', department: 'Media', role: 'Member', scope: 'Video Creator', isLeader: false },
-  { name: 'Kim Tuyến', department: 'Media', role: 'Member', scope: 'Content Creator', isLeader: false },
-  { name: 'Kim Huệ', department: 'Sale', role: 'Member', scope: 'Account Executive', isLeader: false },
-  { name: 'Phương Linh', department: 'Sale', role: 'Member', scope: 'Intern Account Executive', isLeader: false },
-  { name: 'Hồng Nhung', department: 'Sale', role: 'Member', scope: 'Customer Support, Junior Account Executive', isLeader: false },
-  { name: 'Tuấn Anh', department: 'Tech&Product', role: 'Member', scope: 'Senior Product Designer', isLeader: false },
-  { name: 'Ngọc Phong', department: 'Tech&Product', role: 'Member', scope: 'Backend Developer', isLeader: false },
-  { name: 'Xuân Bách', department: 'Tech&Product', role: 'Member', scope: 'Frontend Developer', isLeader: false },
-  { name: 'Huy Hoàng', department: 'Tech&Product', role: 'Member', scope: 'Backend Developer', isLeader: false },
+  { name: 'Thái Phong', departments: ['Tech'], role: 'Leader', scope: 'Product Manager, Tech Leader', isLeader: true },
+  { name: 'Đăng Khoa', departments: ['Tech'], role: 'Member', scope: 'Leader Frontend', isLeader: false },
+  { name: 'Thành Long', departments: ['Media'], role: 'Leader', scope: 'Leader Media', isLeader: true },
+  { name: 'Hà Canh', departments: ['Marketing'], role: 'Leader', scope: 'Fullstack Marketer', isLeader: true },
+  { name: 'Nguyễn Quân', departments: ['BOD', 'Sale'], role: 'Leader', scope: 'Project Manager, Sale Leader', isLeader: true },
+  { name: 'Giang Trường', departments: ['Tech'], role: 'Member', scope: 'Backend Developer', isLeader: false },
+  { name: 'Thuỳ Dương', departments: ['Media'], role: 'Member', scope: 'Graphic Creator', isLeader: false },
+  { name: 'Việt Dũng', departments: ['Media'], role: 'Member', scope: 'Video Creator', isLeader: false },
+  { name: 'Kim Tuyến', departments: ['Media'], role: 'Member', scope: 'Content Creator', isLeader: false },
+  { name: 'Kim Huệ', departments: ['Sale'], role: 'Member', scope: 'Account Executive', isLeader: false },
+  { name: 'Phương Linh', departments: ['Sale'], role: 'Member', scope: 'Intern Account Executive', isLeader: false },
+  { name: 'Hồng Nhung', departments: ['Sale'], role: 'Member', scope: 'Customer Support, Junior Account Executive', isLeader: false },
+  { name: 'Tuấn Anh', departments: ['Tech'], role: 'Member', scope: 'Senior Product Designer', isLeader: false },
+  { name: 'Ngọc Phong', departments: ['Tech'], role: 'Member', scope: 'Backend Developer', isLeader: false },
+  { name: 'Xuân Bách', departments: ['Tech'], role: 'Member', scope: 'Frontend Developer', isLeader: false },
+  { name: 'Huy Hoàng', departments: ['Tech'], role: 'Member', scope: 'Backend Developer', isLeader: false },
 ];
 
 // Skip recruitment positions
@@ -58,17 +58,12 @@ async function main() {
     const password = generatePassword();
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Map department to match OKRs
-    let dept = member.department;
-    if (dept === 'Tech&Product') dept = 'Tech';
-    if (dept === 'BOD') dept = 'BOD';
-
     await prisma.user.create({
       data: {
         fullName: member.name,
         username,
         password: hashedPassword,
-        department: dept,
+        departments: member.departments,
         role: member.role,
         scope: member.scope,
         avatar: `https://picsum.photos/seed/${username}/200/200`,

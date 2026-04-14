@@ -23,7 +23,7 @@ async function main() {
       fullName: 'Dominium Admin',
       username: 'dominium',
       password: hashedPassword,
-      department: 'BOD',
+      departments: ['BOD'],
       role: 'Admin',
       avatar: 'https://picsum.photos/seed/admin/200/200',
       isAdmin: true,

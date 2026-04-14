@@ -71,7 +71,7 @@ export function createReportRoutes(prisma: PrismaClient) {
 
     const report = await prisma.weeklyReport.findUnique({
       where: { id },
-      include: { user: { select: { department: true, role: true } } },
+      include: { user: { select: { departments: true, role: true } } },
     });
 
     if (!report) {
@@ -79,7 +79,9 @@ export function createReportRoutes(prisma: PrismaClient) {
     }
 
     if (!user.isAdmin && user.role?.includes('Leader')) {
-      if (report.user.department !== user.department || report.user.role !== 'Member') {
+      // Check if leader shares at least one department with the report user
+      const sharedDepts = report.user.departments.filter(d => user.departments?.includes(d));
+      if (sharedDepts.length === 0 || report.user.role !== 'Member') {
         return res.status(403).json({ error: "Can only approve your team members' reports" });
       }
     }

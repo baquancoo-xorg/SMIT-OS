@@ -53,7 +53,8 @@ export default function ReportDetailDialog({ report, isOpen, onClose, onApprove 
     'BOD': 'bg-indigo-50 text-indigo-600 border-indigo-200',
   };
 
-  const deptColor = user ? (deptColors[user.department] || 'bg-slate-50 text-slate-600 border-slate-200') : 'bg-slate-50 text-slate-600 border-slate-200';
+  const primaryDept = user?.departments?.[0] || '';
+  const deptColor = user ? (deptColors[primaryDept] || 'bg-slate-50 text-slate-600 border-slate-200') : 'bg-slate-50 text-slate-600 border-slate-200';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
@@ -65,78 +66,71 @@ export default function ReportDetailDialog({ report, isOpen, onClose, onApprove 
         className="relative bg-white rounded-[40px] shadow-2xl w-full max-w-6xl max-h-[92vh] overflow-hidden flex flex-col border border-gray-100"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header - C7: Stack on mobile */}
-        <div className="flex-shrink-0 px-4 md:px-10 py-4 md:py-7 border-b border-gray-100 bg-white">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            {/* User Info */}
-            <div className="flex items-center gap-4 md:gap-6">
-              <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center font-black text-gray-700 text-sm md:text-lg border border-gray-200 shadow-sm flex-shrink-0">
-                {user?.fullName.split(' ').map(n => n[0]).join('') || '?'}
-              </div>
-              <div>
-                <h3 className="text-lg md:text-2xl font-black text-gray-900 font-headline">{user?.fullName || 'Unknown User'}</h3>
-                <div className="flex items-center gap-2 md:gap-3 mt-1 flex-wrap">
-                  <span className={`px-2 md:px-4 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest border ${deptColor}`}>
-                    {user?.department}
+        {/* Header */}
+        <div className="flex-shrink-0 px-6 md:px-10 py-5 md:py-6 border-b border-gray-100 bg-white">
+          <div className="flex items-center justify-between gap-4">
+            {/* Left: Reporter Info */}
+            <div className="flex-1 min-w-0">
+              <h3 className="text-xl md:text-2xl font-black text-gray-900 font-headline truncate">{user?.fullName || 'Unknown User'}</h3>
+              <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                {user?.departments?.map(dept => (
+                  <span key={dept} className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${deptColors[dept] || 'bg-slate-50 text-slate-600 border-slate-200'}`}>
+                    {dept}
                   </span>
-                  <span className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">{user?.role}</span>
-                </div>
+                ))}
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{user?.role}</span>
               </div>
             </div>
 
-            {/* Metrics & Actions - wrap on mobile */}
-            <div className="flex flex-wrap items-center gap-2 md:gap-4 lg:gap-8">
-              <div className="text-left md:text-right">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">WEEK</p>
-                <p className="text-xs md:text-sm font-bold text-gray-900 mt-0.5">
-                  {weekStart.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })} - {weekEnding.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                </p>
-              </div>
-              <div className="text-left md:text-right">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">STATUS</p>
-                <span className={`inline-block px-2 md:px-4 py-1 md:py-1.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest ${
-                  report.status === 'Approved'
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-amber-100 text-amber-700'
-                }`}>
-                  {report.status || 'Review'}
-                </span>
-              </div>
-              <div className="text-left md:text-right">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">SCORE</p>
-                <p className="text-xl md:text-3xl font-black text-gray-900 font-headline">{report.score || 0}<span className="text-sm md:text-base text-gray-400">/10</span></p>
-              </div>
-              {/* Confidence Score - hidden on very small screens */}
-              <div className="hidden sm:block text-right bg-gradient-to-br from-gray-50 to-slate-50 rounded-2xl md:rounded-3xl px-4 md:px-6 py-3 md:py-4 border border-gray-200">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">CONFIDENCE</p>
-                <div className="flex items-center gap-2 md:gap-3 mt-1 md:mt-1.5">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <div
-                        key={i}
-                        className={`w-2 h-4 md:w-2.5 md:h-6 rounded-md ${i < Math.floor((report.confidenceScore || 0) / 2) ? 'bg-gradient-to-b from-emerald-400 to-emerald-500' : 'bg-gray-200'}`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-lg md:text-xl font-black text-gray-900 font-headline">{(report.confidenceScore || 0)}<span className="text-xs md:text-sm text-gray-400">/10</span></span>
+            {/* Right: Metrics Grid */}
+            <div className="flex items-center gap-4">
+              <div className="hidden md:grid grid-cols-4 gap-4">
+                <div className="text-center px-3">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Week</p>
+                  <p className="text-xs font-bold text-gray-900">
+                    {weekStart.getDate().toString().padStart(2, '0')}/{(weekStart.getMonth() + 1).toString().padStart(2, '0')} - {weekEnding.getDate().toString().padStart(2, '0')}/{(weekEnding.getMonth() + 1).toString().padStart(2, '0')}
+                  </p>
+                  <p className="text-[10px] text-gray-400">{weekEnding.getFullYear()}</p>
+                </div>
+                <div className="text-center px-3">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Status</p>
+                  <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                    report.status === 'Approved'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : 'bg-amber-100 text-amber-700'
+                  }`}>
+                    {report.status || 'Review'}
+                  </span>
+                </div>
+                <div className="text-center px-3">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Score</p>
+                  <p className="text-2xl font-black text-gray-900 font-headline">{report.score || 0}<span className="text-sm text-gray-400">/10</span></p>
+                </div>
+                <div className="text-center px-3">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Confidence</p>
+                  <p className="text-2xl font-black text-gray-900 font-headline">{report.confidenceScore || 0}<span className="text-sm text-gray-400">/10</span></p>
                 </div>
               </div>
-              {canApprove && (
+
+              {/* Actions */}
+              <div className="flex items-center gap-2">
+                {canApprove && (
+                  <button
+                    onClick={handleApprove}
+                    disabled={approving}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-2xl font-bold text-sm hover:bg-emerald-600 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/20"
+                  >
+                    <CheckCircle size={18} />
+                    <span className="hidden sm:inline">{approving ? 'Approving...' : 'Approve'}</span>
+                  </button>
+                )}
                 <button
-                  onClick={handleApprove}
-                  disabled={approving}
-                  className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-emerald-500 text-white rounded-xl md:rounded-2xl font-bold text-sm hover:bg-emerald-600 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/20 min-h-[44px]"
+                  onClick={onClose}
+                  className="w-11 h-11 flex items-center justify-center rounded-2xl bg-gray-50 hover:bg-red-50 hover:text-red-500 text-gray-400 transition-all border border-gray-200 hover:border-red-200"
                 >
-                  <CheckCircle size={18} />
-                  <span className="hidden sm:inline">{approving ? 'Approving...' : 'Approve'}</span>
+                  <X size={20} />
                 </button>
-              )}
-              <button
-                onClick={onClose}
-                className="w-10 h-10 md:w-11 md:h-11 flex items-center justify-center rounded-xl md:rounded-2xl bg-gray-50 hover:bg-red-50 hover:text-red-500 text-gray-400 transition-all border border-gray-200 hover:border-red-200 min-h-[44px] min-w-[44px]"
-              >
-                <X size={20} />
-              </button>
+              </div>
             </div>
           </div>
         </div>

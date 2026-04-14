@@ -5,7 +5,7 @@ export interface User {
   fullName: string;
   username: string;
   password?: string;
-  department: string;
+  departments: string[];  // Multiple departments supported
   role: string; // Admin, Leader, Member
   scope?: string; // Vị trí công việc
   avatar: string;
@@ -17,6 +17,16 @@ export interface Sprint {
   name: string;
   startDate: string;
   endDate: string;
+}
+
+export interface OkrCycle {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface KeyResult {

@@ -13,14 +13,15 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
 
     if (userRole === 'Member') {
       where.userId = userId;
-    } else if (userRole?.includes('Leader')) {
-      where.OR = [{ userId }, { user: { department: userDepartment } }];
+    } else if (userRole?.includes('Leader') && userDepartment) {
+      // Leader can see own reports + reports from users in same department
+      where.OR = [{ userId }, { user: { departments: { has: userDepartment } } }];
     }
 
     const reports = await prisma.dailyReport.findMany({
       where,
       include: {
-        user: { select: { id: true, fullName: true, department: true, role: true, avatar: true } },
+        user: { select: { id: true, fullName: true, departments: true, role: true, avatar: true } },
         approver: { select: { id: true, fullName: true } },
       },
       orderBy: { reportDate: 'desc' },
@@ -32,7 +33,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
     const report = await prisma.dailyReport.findUnique({
       where: { id: req.params.id },
       include: {
-        user: { select: { id: true, fullName: true, department: true, role: true, avatar: true } },
+        user: { select: { id: true, fullName: true, departments: true, role: true, avatar: true } },
         approver: { select: { id: true, fullName: true } },
       },
     });
@@ -113,7 +114,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
 
     const report = await prisma.dailyReport.findUnique({
       where: { id },
-      include: { user: { select: { department: true, role: true } } },
+      include: { user: { select: { departments: true, role: true } } },
     });
 
     if (!report) {
@@ -121,7 +122,9 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
     }
 
     if (!user.isAdmin && user.role?.includes('Leader')) {
-      if (report.user.department !== user.department || report.user.role !== 'Member') {
+      // Check if leader shares at least one department with the report user
+      const sharedDepts = report.user.departments.filter(d => user.departments?.includes(d));
+      if (sharedDepts.length === 0 || report.user.role !== 'Member') {
         return res.status(403).json({ error: "Can only approve your team members' reports" });
       }
     }

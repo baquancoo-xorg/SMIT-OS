@@ -17,7 +17,7 @@ export default function DailySync() {
       const params = new URLSearchParams({
         userId: currentUser?.id || '',
         userRole: currentUser?.role || '',
-        userDepartment: currentUser?.department || ''
+        userDepartment: currentUser?.departments?.[0] || ''
       });
       const res = await fetch(`/api/daily-reports?${params}`);
       const data = await res.json();

@@ -58,7 +58,7 @@ export function createAuthRoutes(prisma: PrismaClient) {
         id: true,
         fullName: true,
         username: true,
-        department: true,
+        departments: true,
         role: true,
         scope: true,
         avatar: true,

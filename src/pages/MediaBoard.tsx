@@ -26,7 +26,7 @@ import { WorkItem, Sprint } from '../types';
 import { LayoutGrid, List, ChevronDown, Filter, Database } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
-const COLUMNS = ['To Do', 'In Progress', 'Review', 'Done'];
+const COLUMNS = ['Todo', 'In Progress', 'Review', 'Done'];
 
 export default function MediaBoard() {
   const [view, setView] = useState<'board' | 'table'>('board');
@@ -59,7 +59,7 @@ export default function MediaBoard() {
 
       if (Array.isArray(data)) {
         const mediaItems = data.filter((item: WorkItem) =>
-          item.assignee?.department === 'Media' ||
+          item.assignee?.departments?.includes('Media') ||
           ['MediaTask'].includes(item.type)
         );
         setItems(mediaItems);
@@ -286,7 +286,9 @@ export default function MediaBoard() {
   }
 
   const backlogItems = items.filter(i => !i.sprintId);
-  const sprintItems = items.filter(i => i.sprintId === selectedSprintId);
+  const sprintItems = selectedSprintId
+    ? items.filter(i => i.sprintId === selectedSprintId)
+    : items.filter(i => i.sprintId);
   // Stats items: All sprints = all items with sprintId, specific sprint = items in that sprint
   const statsItems = selectedSprintId
     ? items.filter(i => i.sprintId === selectedSprintId)
@@ -303,7 +305,7 @@ export default function MediaBoard() {
             <span className="text-on-surface">Media</span>
           </nav>
           <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">
-            <span className="text-pink-600 italic">Media</span> Workspace
+            <span className="text-[#E60076] italic">Media</span> Workspace
           </h2>
         </div>
 
@@ -365,7 +367,7 @@ export default function MediaBoard() {
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50">
             <div className="w-2 h-2 rounded-full bg-slate-400"></div>
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-              To Do: {statsItems.filter(i => i.status === 'To Do').length}
+              Todo: {statsItems.filter(i => i.status === 'Todo').length}
             </span>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/5">
@@ -456,7 +458,7 @@ export default function MediaBoard() {
                   <div key={col} className="min-w-[280px] flex-1 flex flex-col bg-slate-50/50 rounded-[32px] border border-slate-200/50 h-full max-h-full overflow-hidden">
                     <div className="p-4 flex items-center justify-between bg-white/30">
                       <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${col === 'To Do' ? 'bg-slate-400' :
+                        <div className={`w-2 h-2 rounded-full ${col === 'Todo' ? 'bg-slate-400' :
                           col === 'In Progress' ? 'bg-primary' :
                             col === 'Review' ? 'bg-secondary' :
                               'bg-tertiary'
@@ -515,7 +517,7 @@ export default function MediaBoard() {
         onClose={() => { setIsModalOpen(false); setEditingTask(null); }}
         onSave={handleCreateTask}
         defaultType="MediaTask"
-        defaultStatus="To Do"
+        defaultStatus="Todo"
         initialData={editingTask}
       />
 

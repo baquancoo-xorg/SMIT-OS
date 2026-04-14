@@ -389,7 +389,7 @@ async function main() {
 
   // Fallback: If user_Quan is not mapped, find BOD department user
   if (!userMap.has('user_Quan')) {
-    const bodUser = users.find(u => u.department === 'BOD');
+    const bodUser = users.find(u => u.departments.includes('BOD'));
     if (bodUser) {
       userMap.set('user_Quan', bodUser.id);
       console.log(`   Fallback mapped user_Quan → ${bodUser.fullName} (${bodUser.username})`);

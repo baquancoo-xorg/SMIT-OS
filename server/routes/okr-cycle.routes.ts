@@ -1,0 +1,65 @@
+import { Router } from 'express';
+import { PrismaClient } from '@prisma/client';
+import { handleAsync } from '../utils/async-handler';
+
+export function createOkrCycleRoutes(prisma: PrismaClient) {
+  const router = Router();
+
+  // Get all cycles
+  router.get('/', handleAsync(async (_req: any, res: any) => {
+    const cycles = await prisma.okrCycle.findMany({
+      orderBy: { startDate: 'desc' },
+    });
+    res.json(cycles);
+  }));
+
+  // Get active cycle
+  router.get('/active', handleAsync(async (_req: any, res: any) => {
+    const cycle = await prisma.okrCycle.findFirst({
+      where: { isActive: true },
+    });
+    res.json(cycle);
+  }));
+
+  // Create cycle
+  router.post('/', handleAsync(async (req: any, res: any) => {
+    const cycle = await prisma.okrCycle.create({
+      data: {
+        name: req.body.name,
+        startDate: new Date(req.body.startDate),
+        endDate: new Date(req.body.endDate),
+        isActive: req.body.isActive || false,
+      },
+    });
+    res.json(cycle);
+  }));
+
+  // Update cycle
+  router.put('/:id', handleAsync(async (req: any, res: any) => {
+    const data: any = { ...req.body };
+    if (data.startDate) data.startDate = new Date(data.startDate);
+    if (data.endDate) data.endDate = new Date(data.endDate);
+
+    // If setting as active, deactivate all other cycles first
+    if (data.isActive === true) {
+      await prisma.okrCycle.updateMany({
+        where: { isActive: true },
+        data: { isActive: false },
+      });
+    }
+
+    const cycle = await prisma.okrCycle.update({
+      where: { id: req.params.id },
+      data,
+    });
+    res.json(cycle);
+  }));
+
+  // Delete cycle
+  router.delete('/:id', handleAsync(async (req: any, res: any) => {
+    await prisma.okrCycle.delete({ where: { id: req.params.id } });
+    res.status(204).send();
+  }));
+
+  return router;
+}

@@ -12,7 +12,7 @@ interface WeeklyCheckinModalProps {
 
 export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: WeeklyCheckinModalProps) {
   const { currentUser } = useAuth();
-  const [selectedTeam, setSelectedTeam] = useState(currentUser?.department || 'Tech');
+  const [selectedTeam, setSelectedTeam] = useState(currentUser?.departments?.[0] || 'Tech');
   const [confidenceScore, setConfidenceScore] = useState<number | ''>('');
   const [blockers, setBlockers] = useState('');
   const [loading, setLoading] = useState(false);
@@ -36,10 +36,10 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
 
   // Update selectedTeam when currentUser changes
   useEffect(() => {
-    if (currentUser?.department) {
-      setSelectedTeam(currentUser.department);
+    if (currentUser?.departments?.[0]) {
+      setSelectedTeam(currentUser.departments[0]);
     }
-  }, [currentUser?.department]);
+  }, [currentUser?.departments]);
 
   useEffect(() => {
     const fetchObjectives = async () => {

@@ -15,7 +15,42 @@ export default function SaturdaySync() {
   const [loading, setLoading] = useState(true);
   const { users, currentUser } = useAuth();
 
-  const leaders = users.filter(u => u.role.includes('Leader') || u.role === 'PM' || u.role.includes('Director'));
+  // Get current week's date range (Monday to Sunday)
+  const getCurrentWeekRange = () => {
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + mondayOffset);
+    monday.setHours(0, 0, 0, 0);
+
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+
+    return { monday, sunday };
+  };
+
+  // Get next Saturday at 15:00
+  const getNextSaturday = () => {
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const daysUntilSaturday = dayOfWeek === 6 ? 7 : (6 - dayOfWeek);
+    const nextSat = new Date(now);
+    nextSat.setDate(now.getDate() + daysUntilSaturday);
+    nextSat.setHours(15, 0, 0, 0);
+
+    // Format display
+    const isToday = dayOfWeek === 6 && now.getHours() < 15;
+    const isTomorrow = daysUntilSaturday === 1;
+
+    if (isToday) return 'Today, 15:00';
+    if (isTomorrow) return 'Tomorrow, 15:00';
+
+    const day = nextSat.getDate().toString().padStart(2, '0');
+    const month = (nextSat.getMonth() + 1).toString().padStart(2, '0');
+    return `Saturday, ${day}/${month}, 15:00`;
+  };
 
   const fetchReports = async () => {
     try {
@@ -73,11 +108,22 @@ export default function SaturdaySync() {
     );
   }
 
-  const averageConfidence = reports.length > 0
-    ? (reports.reduce((sum, r) => sum + (r.confidenceScore || 0), 0) / reports.length).toFixed(1)
+  // Filter reports for current week
+  const { monday, sunday } = getCurrentWeekRange();
+  const currentWeekReports = reports.filter(r => {
+    const reportDate = new Date(r.weekEnding);
+    return reportDate >= monday && reportDate <= sunday;
+  });
+
+  // Calculate average confidence using 'score' field (correct field name)
+  const averageConfidence = currentWeekReports.length > 0
+    ? (currentWeekReports.reduce((sum, r) => sum + (r.score || 0), 0) / currentWeekReports.length).toFixed(1)
     : '0.0';
 
-  const activeBlockers = reports.filter(r => r.blockers && r.blockers.length > 10).length;
+  // Count approved and pending reports
+  const approvedReports = reports.filter(r => r.status === 'Approved').length;
+  const pendingReports = reports.filter(r => r.status !== 'Approved').length;
+  const nextSyncTime = getNextSaturday();
 
   return (
     <div className="h-full flex flex-col p-6 md:p-10 space-y-8 w-full">
@@ -116,21 +162,23 @@ export default function SaturdaySync() {
           </div>
         </div>
         <div className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reports Submitted</p>
-          <h4 className="text-3xl font-black font-headline">{reports.length}/{leaders.length}</h4>
-          <p className="text-[10px] font-bold text-emerald-500 mt-1">{Math.round((reports.length / leaders.length) * 100)}% Completion</p>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Approved</p>
+          <h4 className="text-3xl font-black font-headline text-emerald-600">{approvedReports}</h4>
+          <p className="text-[10px] font-bold mt-1 text-emerald-500">
+            {reports.length > 0 ? Math.round((approvedReports / reports.length) * 100) : 0}% of total
+          </p>
         </div>
         <div className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Blockers</p>
-          <h4 className={`text-3xl font-black font-headline ${activeBlockers > 0 ? 'text-error' : ''}`}>{activeBlockers}</h4>
-          <p className={`text-[10px] font-bold mt-1 ${activeBlockers > 0 ? 'text-error' : 'text-emerald-500'}`}>
-            {activeBlockers > 0 ? 'Attention Required' : 'System Normal'}
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Review</p>
+          <h4 className={`text-3xl font-black font-headline ${pendingReports > 0 ? 'text-amber-600' : 'text-slate-400'}`}>{pendingReports}</h4>
+          <p className={`text-[10px] font-bold mt-1 ${pendingReports > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>
+            {pendingReports > 0 ? 'Need attention' : 'All clear'}
           </p>
         </div>
         <div className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Next Sync</p>
-          <h4 className="text-xl font-black font-headline">Tomorrow, 09:00</h4>
-          <p className="text-[10px] font-bold text-slate-400 mt-1">Zoom Meeting ID: 422 991</p>
+          <h4 className="text-xl font-black font-headline">{nextSyncTime}</h4>
+          <p className="text-[10px] font-bold text-slate-400 mt-1">Office Meeting Room</p>
         </div>
       </div>
 
