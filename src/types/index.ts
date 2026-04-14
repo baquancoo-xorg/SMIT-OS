@@ -59,6 +59,26 @@ export type WorkItemType = 'Epic' | 'UserStory' | 'TechTask' | 'Campaign' | 'Med
 
 export type Priority = 'Low' | 'Medium' | 'High' | 'Urgent';
 
+// Task types for Workspace boards
+export const TASK_TYPES: WorkItemType[] = ['TechTask', 'MktTask', 'MediaTask', 'SaleTask', 'Deal', 'Campaign'];
+
+// Epic/Story types for Team Backlog
+export const BACKLOG_TYPES: WorkItemType[] = ['Epic', 'UserStory'];
+
+// Type guards
+export const isTaskType = (type: string): boolean => TASK_TYPES.includes(type as WorkItemType);
+export const isBacklogType = (type: string): boolean => BACKLOG_TYPES.includes(type as WorkItemType);
+
+export interface WorkItemKrLink {
+  id: string;
+  workItemId: string;
+  keyResultId: string;
+  keyResult?: KeyResult & {
+    objective?: { id: string; title: string; department: string };
+  };
+  createdAt: string;
+}
+
 export interface WorkItem {
   id: string;
   type: string;
@@ -68,7 +88,15 @@ export interface WorkItem {
   status: string;
   assigneeId?: string;
   sprintId?: string;
-  linkedKrId?: string;
+
+  // Hierarchy: Epic -> Story -> Task
+  parentId?: string;
+  parent?: { id: string; title: string; type: string };
+  children?: { id: string; title: string; type: string; status: string }[];
+
+  // KR links via junction table
+  krLinks?: WorkItemKrLink[];
+
   startDate?: string;
   dueDate?: string;
   estimatedTime?: string;

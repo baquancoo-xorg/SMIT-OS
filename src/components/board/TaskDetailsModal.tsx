@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { WorkItem, Objective } from '../../types';
+import React from 'react';
+import { WorkItem } from '../../types';
 import { X, Calendar, Clock, Target, User as UserIcon, AlignLeft, CheckSquare, Link2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -12,40 +12,13 @@ interface TaskDetailsModalProps {
 
 export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsModalProps) {
   const { users } = useAuth();
-  const [allObjectives, setAllObjectives] = useState<Objective[]>([]);
-
-  // Fetch objectives from API - MUST be before early return (React Hooks Rules)
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const fetchObjectives = async () => {
-      try {
-        const res = await fetch('/api/objectives');
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setAllObjectives(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch objectives:', error);
-      }
-    };
-    fetchObjectives();
-  }, [isOpen]);
 
   if (!isOpen || !task) return null;
 
   const assignee = users.find(u => u.id === task.assigneeId);
 
-  // Find linked Key Result
-  let linkedKr: any;
-  if (task.linkedKrId) {
-    for (const obj of allObjectives) {
-      if (obj.keyResults) {
-        linkedKr = obj.keyResults.find((kr: any) => kr.id === task.linkedKrId);
-        if (linkedKr) break;
-      }
-    }
-  }
+  // Get first linked Key Result from krLinks (already included from API)
+  const linkedKr = task.krLinks?.[0]?.keyResult;
 
   const typeColors: Record<string, string> = {
     Epic: 'bg-primary/10 text-primary',

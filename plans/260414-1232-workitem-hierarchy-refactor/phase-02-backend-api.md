@@ -140,16 +140,17 @@ router.delete('/:id/kr-links/:krId', async (req, res) => {
 
 ## Todo
 
-- [ ] Update Zod schema with parentId
-- [ ] Add workItemKrLinkSchema
-- [ ] Update GET /work-items to include parent/children/krLinks
-- [ ] Update POST /work-items to support parentId
-- [ ] Update PUT /work-items to support parentId
-- [ ] Add POST /work-items/:id/kr-links endpoint
-- [ ] Add DELETE /work-items/:id/kr-links/:krId endpoint
+- [x] Update Zod schema with parentId
+- [x] Add workItemKrLinkSchema
+- [x] Update GET /work-items to include parent/children/krLinks
+- [x] Update POST /work-items to support parentId
+- [x] Update PUT /work-items to support parentId
+- [x] Add POST /work-items/:id/kr-links endpoint
+- [x] Add DELETE /work-items/:id/kr-links/:krId endpoint
+- [x] Add circular reference validation
 
 ## Success Criteria
 
-- [ ] API accepts parentId in create/update
-- [ ] API returns parent, children, krLinks
-- [ ] KR linking endpoints work correctly
+- [x] API accepts parentId in create/update
+- [x] API returns parent, children, krLinks
+- [x] KR linking endpoints work correctly

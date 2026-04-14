@@ -159,17 +159,17 @@ const handleSave = () => {
 
 ## Todo
 
-- [ ] Add allowedTypes prop
-- [ ] Remove linkedKrId state and UI
-- [ ] Remove fetchKeyResults logic
-- [ ] Add parent selection state
-- [ ] Add fetchParents logic
-- [ ] Filter type dropdown by allowedTypes
-- [ ] Add parent dropdown UI (edit mode only)
-- [ ] Update handleSave to include parentId
+- [x] Add allowedTypes prop
+- [x] Remove linkedKrId state and UI
+- [x] Remove fetchKeyResults logic
+- [x] Add parent selection state
+- [x] Add fetchParents logic
+- [x] Filter type dropdown by allowedTypes
+- [x] Add parent dropdown UI (edit mode only)
+- [x] Update handleSave to include parentId
 
 ## Success Criteria
 
-- [ ] No KR linking UI
-- [ ] Parent selection works in edit mode
-- [ ] Type dropdown respects allowedTypes prop
+- [x] No KR linking UI
+- [x] Parent selection works in edit mode
+- [x] Type dropdown respects allowedTypes prop

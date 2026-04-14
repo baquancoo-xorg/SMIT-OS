@@ -106,15 +106,15 @@ const fetchData = async () => {
 
 ## Todo
 
-- [ ] Import BACKLOG_TYPES constant
-- [ ] Update fetchData filter
-- [ ] Update type filter dropdown options
-- [ ] Remove Task count from stats
-- [ ] Pass allowedTypes to TaskModal
-- [ ] Update empty state text
+- [x] Import BACKLOG_TYPES constant
+- [x] Update fetchData filter
+- [x] Update type filter dropdown options
+- [x] Remove Task count from stats
+- [x] Pass allowedTypes to TaskModal
+- [x] Update empty state text
 
 ## Success Criteria
 
-- [ ] Only Epic and UserStory visible
-- [ ] Only Epic and UserStory can be created
-- [ ] Stats show correct counts
+- [x] Only Epic and UserStory visible
+- [x] Only Epic and UserStory can be created
+- [x] Stats show correct counts

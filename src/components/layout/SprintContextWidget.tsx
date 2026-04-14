@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, CheckCircle2, RefreshCw, ListTodo, Ban } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -56,15 +56,15 @@ export default function SprintContextWidget({ onViewBacklog }: Props) {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 px-3 py-2">
-        <div className="w-24 h-4 bg-slate-100 rounded animate-pulse" />
+      <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-full border border-slate-200">
+        <div className="w-24 h-4 bg-slate-200 rounded animate-pulse" />
       </div>
     );
   }
 
   if (!data?.sprint) {
     return (
-      <div className="flex items-center gap-2 px-3 py-2 text-slate-400 text-sm">
+      <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-full border border-slate-200 text-slate-400 text-sm">
         <BarChart3 size={16} />
         No active sprint
       </div>
@@ -78,9 +78,9 @@ export default function SprintContextWidget({ onViewBacklog }: Props) {
       {/* Trigger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors"
+        className="flex items-center gap-2.5 px-4 py-2 bg-slate-50 rounded-full border border-slate-200 hover:bg-slate-100 hover:border-slate-300 transition-all"
       >
-        <BarChart3 size={16} className="text-slate-500" />
+        <BarChart3 size={16} className="text-primary" />
         <span className="text-sm font-medium text-slate-700">{sprint.name}</span>
         {/* Mini progress bar */}
         <div className="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden">
@@ -127,22 +127,34 @@ export default function SprintContextWidget({ onViewBacklog }: Props) {
             </div>
 
             {/* Stats */}
-            <div className="p-4 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-600">✅ Done</span>
+            <div className="p-4 space-y-2.5">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-600 flex items-center gap-2">
+                  <CheckCircle2 size={14} className="text-tertiary" />
+                  Done
+                </span>
                 <span className="font-bold text-slate-800">{stats?.done}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-600">🔄 In Progress</span>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-600 flex items-center gap-2">
+                  <RefreshCw size={14} className="text-primary" />
+                  In Progress
+                </span>
                 <span className="font-bold text-slate-800">{stats?.inProgress}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-600">📋 Todo</span>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-600 flex items-center gap-2">
+                  <ListTodo size={14} className="text-slate-400" />
+                  Todo
+                </span>
                 <span className="font-bold text-slate-800">{stats?.todo}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-600">🚫 Blocked</span>
-                <span className="font-bold text-red-500">{stats?.blocked}</span>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-600 flex items-center gap-2">
+                  <Ban size={14} className="text-error" />
+                  Blocked
+                </span>
+                <span className="font-bold text-error">{stats?.blocked}</span>
               </div>
             </div>
 

@@ -133,26 +133,35 @@ export default function OKRsManagement() {
 
   const handleLinkWorkItem = async (krId: string, item: WorkItem) => {
     try {
+      let workItemId = item.id;
+
       if (item.id.startsWith('new-')) {
+        // Create new work item first
         const res = await fetch('/api/work-items', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...item,
             id: undefined,
-            linkedKrId: krId
           })
         });
         const newItem = await res.json();
+        workItemId = newItem.id;
         setItems(prev => [...prev, newItem]);
-      } else {
-        const res = await fetch(`/api/work-items/${item.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ linkedKrId: krId })
-        });
-        const updatedItem = await res.json();
-        setItems(prev => prev.map(i => i.id === updatedItem.id ? updatedItem : i));
+      }
+
+      // Link work item to KR via junction table
+      await fetch(`/api/work-items/${workItemId}/kr-links`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keyResultId: krId })
+      });
+
+      // Refresh items to get updated krLinks
+      const res = await fetch('/api/work-items');
+      if (res.ok) {
+        const data = await res.json();
+        setItems(data);
       }
     } catch (error) {
       console.error('Failed to link work item:', error);
@@ -799,7 +808,7 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, objective
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
 
   const progress = Math.min(100, Math.round((krData.currentValue / krData.targetValue) * 100)) || 0;
-  const linkedItems = workItems.filter(item => item.linkedKrId === kr.id);
+  const linkedItems = workItems.filter(item => item.krLinks?.some(link => link.keyResultId === kr.id));
   const parentKR = krData.parentKrId ? objectives?.flatMap(o => o.keyResults).find(kr => kr.id === krData.parentKrId) : null;
 
   return (
@@ -1185,7 +1194,6 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
         id: `new-${Date.now()}`,
         type: newItemType,
         title: newItemTitle,
-        linkedKrId: krId,
         assigneeId: 'u1',
         status: 'Todo',
         priority: 'Medium',

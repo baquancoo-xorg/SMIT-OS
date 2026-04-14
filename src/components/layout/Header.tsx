@@ -72,11 +72,11 @@ export default function Header({ onMenuClick, onViewChange }: {
             <Menu size={24} />
           </button>
 
-          <div className="flex-1 max-w-[280px] sm:max-w-md md:max-w-lg lg:max-w-xl relative" ref={searchRef}>
+          <div className="flex-1 max-w-[280px] sm:max-w-md md:max-w-lg lg:max-w-xl relative ml-6 xl:ml-10" ref={searchRef}>
             <div className="relative group">
               <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
               <input
-                className="w-full bg-slate-50/50 border border-outline-variant/10 rounded-2xl py-2.5 pl-14 pr-6 text-sm text-on-surface focus:ring-4 focus:ring-primary/10 focus:bg-white focus:border-primary/30 transition-all placeholder:text-slate-400 font-medium"
+                className="w-full bg-white border border-slate-200 rounded-2xl py-2.5 pl-14 pr-6 text-sm text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary/30 transition-all placeholder:text-slate-400 font-medium"
                 placeholder="Search..."
                 type="text"
                 value={searchQuery}

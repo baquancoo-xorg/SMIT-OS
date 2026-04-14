@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { WorkItem, WorkItemType, Priority, KeyResult, Objective } from '../../types';
+import { WorkItem, WorkItemType, Priority } from '../../types';
 import { X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -10,48 +10,74 @@ interface TaskModalProps {
   defaultType?: WorkItemType;
   defaultStatus?: string;
   initialData?: WorkItem | null;
+  allowedTypes?: WorkItemType[];
 }
 
-export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'TechTask', defaultStatus = 'Todo', initialData }: TaskModalProps) {
+const ALL_TYPES: WorkItemType[] = ['Epic', 'UserStory', 'TechTask', 'Campaign', 'MktTask', 'MediaTask', 'SaleTask', 'Deal'];
+
+const TYPE_LABELS: Record<WorkItemType, string> = {
+  Epic: 'Epic',
+  UserStory: 'User Story',
+  TechTask: 'Tech Task',
+  Campaign: 'Campaign',
+  MktTask: 'Marketing Task',
+  MediaTask: 'Media Task',
+  SaleTask: 'Sale Task',
+  Deal: 'Deal',
+  Task: 'Task',
+};
+
+export default function TaskModal({
+  isOpen,
+  onClose,
+  onSave,
+  defaultType = 'TechTask',
+  defaultStatus = 'Todo',
+  initialData,
+  allowedTypes,
+}: TaskModalProps) {
   const { users } = useAuth();
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
-  const [type, setType] = useState<WorkItemType>(initialData?.type || defaultType);
-  const [priority, setPriority] = useState<Priority>(initialData?.priority || 'Medium');
+  const [type, setType] = useState<WorkItemType>(initialData?.type as WorkItemType || defaultType);
+  const [priority, setPriority] = useState<Priority>(initialData?.priority as Priority || 'Medium');
   const [assigneeId, setAssigneeId] = useState(initialData?.assigneeId || (users.length > 0 ? users[0].id : ''));
   const [status, setStatus] = useState(initialData?.status || defaultStatus);
   const [dueDate, setDueDate] = useState(initialData?.dueDate || '');
   const [startDate, setStartDate] = useState(initialData?.startDate || '');
   const [storyPoints, setStoryPoints] = useState<number | undefined>(initialData?.storyPoints);
-  const [linkedKrId, setLinkedKrId] = useState<string | undefined>(initialData?.linkedKrId);
-  const [keyResults, setKeyResults] = useState<{ kr: KeyResult; objective: Objective }[]>([]);
-  const [loadingKR, setLoadingKR] = useState(false);
 
-  // Fetch Key Results from API
+  // Parent selection state (edit mode only)
+  const [parentId, setParentId] = useState<string | undefined>(initialData?.parentId);
+  const [availableParents, setAvailableParents] = useState<WorkItem[]>([]);
+  const [loadingParents, setLoadingParents] = useState(false);
+
+  const typeOptions = allowedTypes || ALL_TYPES;
+
+  // Fetch available parents (Epic/UserStory) for edit mode
   useEffect(() => {
-    if (!isOpen) return;
-    const fetchKeyResults = async () => {
-      setLoadingKR(true);
+    if (!isOpen || !initialData) return;
+
+    const fetchParents = async () => {
+      setLoadingParents(true);
       try {
-        const res = await fetch('/api/objectives');
+        const res = await fetch('/api/work-items');
         if (res.ok) {
-          const objectives: Objective[] = await res.json();
-          const krsWithObj: { kr: KeyResult; objective: Objective }[] = [];
-          objectives.forEach(obj => {
-            obj.keyResults.forEach(kr => {
-              krsWithObj.push({ kr, objective: obj });
-            });
-          });
-          setKeyResults(krsWithObj);
+          const items: WorkItem[] = await res.json();
+          const parents = items.filter(
+            item => ['Epic', 'UserStory'].includes(item.type) && item.id !== initialData?.id
+          );
+          setAvailableParents(parents);
         }
       } catch (error) {
-        console.error('Failed to fetch key results:', error);
+        console.error('Failed to fetch parents:', error);
       } finally {
-        setLoadingKR(false);
+        setLoadingParents(false);
       }
     };
-    fetchKeyResults();
-  }, [isOpen]);
+
+    fetchParents();
+  }, [isOpen, initialData]);
 
   // Update state when initialData changes
   useEffect(() => {
@@ -65,7 +91,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
       setDueDate(initialData.dueDate || '');
       setStartDate(initialData.startDate || '');
       setStoryPoints(initialData.storyPoints);
-      setLinkedKrId(initialData.linkedKrId);
+      setParentId(initialData.parentId);
     } else {
       setTitle('');
       setDescription('');
@@ -76,7 +102,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
       setDueDate('');
       setStartDate('');
       setStoryPoints(undefined);
-      setLinkedKrId(undefined);
+      setParentId(undefined);
     }
   }, [initialData, defaultType, defaultStatus, isOpen, users]);
 
@@ -97,12 +123,15 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
       dueDate: dueDate || undefined,
       startDate: startDate || undefined,
       storyPoints,
-      linkedKrId: linkedKrId || undefined,
-    };
+      parentId: parentId || undefined,
+    } as WorkItem;
 
     onSave(newTask);
     onClose();
   };
+
+  const showStoryPoints = type === 'Epic' || type === 'UserStory' || type === 'TechTask';
+  const showParentSelect = initialData && type !== 'Epic';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -136,7 +165,6 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
             />
           </div>
 
-          {/* M6: Responsive grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Type</label>
@@ -145,14 +173,9 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
                 onChange={(e) => setType(e.target.value as WorkItemType)}
                 className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
               >
-                <option value="Epic">Epic</option>
-                <option value="UserStory">User Story</option>
-                <option value="TechTask">Tech Task</option>
-                <option value="Campaign">Campaign</option>
-                <option value="MktTask">Marketing Task</option>
-                <option value="MediaTask">Media Task</option>
-                <option value="SaleTask">Sale Task</option>
-                <option value="Deal">Deal</option>
+                {typeOptions.map(t => (
+                  <option key={t} value={t}>{TYPE_LABELS[t]}</option>
+                ))}
               </select>
             </div>
 
@@ -217,7 +240,7 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
               />
             </div>
 
-            {(type === 'Epic' || type === 'UserStory' || type === 'TechTask') && (
+            {showStoryPoints && (
               <div>
                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Story Points</label>
                 <input
@@ -230,29 +253,31 @@ export default function TaskModal({ isOpen, onClose, onSave, defaultType = 'Tech
               </div>
             )}
 
-            <div className={type === 'Epic' || type === 'UserStory' || type === 'TechTask' ? 'col-span-2' : ''}>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                Link to Key Result <span className="text-slate-300 normal-case tracking-normal">(Optional)</span>
-              </label>
-              {loadingKR ? (
-                <div className="px-4 py-3 rounded-2xl border border-outline-variant/20 bg-slate-50 text-slate-400 text-sm">
-                  Loading key results...
-                </div>
-              ) : (
-                <select
-                  value={linkedKrId || ''}
-                  onChange={(e) => setLinkedKrId(e.target.value || undefined)}
-                  className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
-                >
-                  <option value="">No Key Result</option>
-                  {keyResults.map(({ kr, objective }) => (
-                    <option key={kr.id} value={kr.id}>
-                      [{objective.department}] {objective.title} → {kr.title}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
+            {showParentSelect && (
+              <div className={showStoryPoints ? '' : 'col-span-2'}>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                  Link to Parent <span className="text-slate-300 normal-case tracking-normal">(Optional)</span>
+                </label>
+                {loadingParents ? (
+                  <div className="px-4 py-3 rounded-2xl border border-outline-variant/20 bg-slate-50 text-slate-400 text-sm">
+                    Loading parents...
+                  </div>
+                ) : (
+                  <select
+                    value={parentId || ''}
+                    onChange={(e) => setParentId(e.target.value || undefined)}
+                    className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
+                  >
+                    <option value="">No Parent</option>
+                    {availableParents.map(p => (
+                      <option key={p.id} value={p.id}>
+                        [{TYPE_LABELS[p.type as WorkItemType] || p.type}] {p.title}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

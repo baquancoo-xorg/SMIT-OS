@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Calendar } from 'lucide-react';
+import { Calendar, Pin, AlertTriangle } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addDays } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
 import { WorkItem } from '../../types';
@@ -45,9 +45,9 @@ export default function DateCalendarWidget({ workItems }: Props) {
       {/* Trigger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors"
+        className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-full border border-slate-200 hover:bg-slate-100 hover:border-slate-300 transition-all"
       >
-        <Calendar size={16} className="text-slate-500" />
+        <Calendar size={16} className="text-primary" />
         <span className="text-sm font-medium text-slate-700">
           {format(today, 'EEE, MMM d')}
         </span>
@@ -92,8 +92,9 @@ export default function DateCalendarWidget({ workItems }: Props) {
             {/* Today's Deadlines */}
             {todayDeadlines.length > 0 && (
               <div className="px-4 py-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">
-                  📌 Today's Deadlines
+                <h4 className="text-xs font-bold text-error uppercase mb-2 flex items-center gap-1.5">
+                  <Pin size={12} className="text-error" />
+                  Today's Deadlines
                 </h4>
                 {todayDeadlines.slice(0, 3).map(item => (
                   <div key={item.id} className="text-sm text-slate-700 py-1">
@@ -106,8 +107,9 @@ export default function DateCalendarWidget({ workItems }: Props) {
             {/* Upcoming */}
             {upcomingDeadlines.length > 0 && (
               <div className="px-4 py-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">
-                  ⚠️ Upcoming (3 days)
+                <h4 className="text-xs font-bold text-amber-600 uppercase mb-2 flex items-center gap-1.5">
+                  <AlertTriangle size={12} className="text-amber-500" />
+                  Upcoming (3 days)
                 </h4>
                 {upcomingDeadlines.slice(0, 3).map(item => (
                   <div key={item.id} className="flex justify-between text-sm text-slate-700 py-1">

@@ -519,6 +519,7 @@ export default function MediaBoard() {
         defaultType="MediaTask"
         defaultStatus="Todo"
         initialData={editingTask}
+        allowedTypes={['MediaTask']}
       />
 
       <TaskDetailsModal

@@ -101,16 +101,16 @@ const SALE_TASK_TYPES: WorkItemType[] = ['Deal', 'SaleTask'];
 
 ## Todo
 
-- [ ] Update TechBoard TaskModal props
-- [ ] Update MarketingBoard TaskModal props
-- [ ] Update MediaBoard TaskModal props
-- [ ] Update SaleBoard TaskModal props
-- [ ] Test each board creates correct type
+- [x] Update TechBoard TaskModal props
+- [x] Update MarketingBoard TaskModal props
+- [x] Update MediaBoard TaskModal props
+- [x] Update SaleBoard TaskModal props
+- [x] Test each board creates correct type
 
 ## Success Criteria
 
-- [ ] TechBoard only creates TechTask
-- [ ] MarketingBoard only creates Campaign, MktTask
-- [ ] MediaBoard only creates MediaTask
-- [ ] SaleBoard only creates Deal, SaleTask
-- [ ] No Epic/UserStory in any workspace board
+- [x] TechBoard only creates TechTask
+- [x] MarketingBoard only creates Campaign, MktTask
+- [x] MediaBoard only creates MediaTask
+- [x] SaleBoard only creates Deal, SaleTask
+- [x] No Epic/UserStory in any workspace board

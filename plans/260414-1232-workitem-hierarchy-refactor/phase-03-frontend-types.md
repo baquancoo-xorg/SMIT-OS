@@ -79,13 +79,13 @@ export const isBacklogType = (type: string): boolean =>
 
 ## Todo
 
-- [ ] Add WorkItemKrLink interface
-- [ ] Update WorkItem with parentId, parent, children, krLinks
-- [ ] Remove linkedKrId from interface
-- [ ] Add TASK_TYPES and BACKLOG_TYPES constants
-- [ ] Add type guard helpers
+- [x] Add WorkItemKrLink interface
+- [x] Update WorkItem with parentId, parent, children, krLinks
+- [x] Remove linkedKrId from interface
+- [x] Add TASK_TYPES and BACKLOG_TYPES constants
+- [x] Add type guard helpers
 
 ## Success Criteria
 
-- [ ] No TypeScript errors
-- [ ] Types match API responses
+- [x] No TypeScript errors
+- [x] Types match API responses

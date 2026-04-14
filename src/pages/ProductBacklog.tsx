@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { WorkItem, WorkItemType, Priority } from '../types';
+import { WorkItem, WorkItemType, Priority, BACKLOG_TYPES } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   LayoutGrid, List, Plus, Search, Filter, Trash2, Edit2, Eye,
@@ -29,8 +29,9 @@ export default function ProductBacklog() {
       const res = await fetch('/api/work-items');
       if (res.ok) {
         const data: WorkItem[] = await res.json();
+        // Team Backlog: Only Epic and UserStory
         const backlogItems = data.filter((item: WorkItem) =>
-          !item.sprintId && (item.assignee?.departments?.includes('Tech') || ['Epic', 'UserStory', 'TechTask'].includes(item.type))
+          BACKLOG_TYPES.includes(item.type as WorkItemType)
         );
         setItems(backlogItems);
       }
@@ -214,8 +215,8 @@ export default function ProductBacklog() {
 
       {/* Stats & Filters */}
       <div className="flex flex-col lg:flex-row gap-4">
-        {/* Stats - C8: 2x2 grid on mobile */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white/50 backdrop-blur-md p-4 rounded-3xl border border-outline-variant/10 shadow-sm">
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4 bg-white/50 backdrop-blur-md p-4 rounded-3xl border border-outline-variant/10 shadow-sm">
           <div className="text-center">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total</p>
             <p className="text-2xl font-black font-headline text-on-surface">{filteredItems.length}</p>
@@ -227,10 +228,6 @@ export default function ProductBacklog() {
           <div className="text-center">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stories</p>
             <p className="text-2xl font-black font-headline text-primary">{items.filter(i => i.type === 'UserStory').length}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tasks</p>
-            <p className="text-2xl font-black font-headline text-tertiary">{items.filter(i => i.type === 'TechTask' || i.type === 'Task').length}</p>
           </div>
         </div>
 
@@ -256,8 +253,6 @@ export default function ProductBacklog() {
               <option value="All">All Types</option>
               <option value="Epic">Epic</option>
               <option value="UserStory">User Story</option>
-              <option value="TechTask">Tech Task</option>
-              <option value="Task">Task</option>
             </select>
           </div>
           <select
@@ -330,7 +325,7 @@ export default function ProductBacklog() {
             <div className="h-full flex flex-col items-center justify-center text-center py-20 bg-slate-50/50 border-2 border-dashed border-outline-variant/10 rounded-[40px]">
               <span className="material-symbols-outlined text-6xl text-slate-300 mb-4">inbox</span>
               <p className="text-slate-400 font-black uppercase tracking-widest text-xs mb-2">Backlog is empty</p>
-              <p className="text-slate-300 text-xs font-medium">Create your first Epic, Story, or Task to get started.</p>
+              <p className="text-slate-300 text-xs font-medium">Create your first Epic or Story to get started.</p>
             </div>
           ) : (
             Object.entries(groupedByType).map(([type, typeItems]) => (
@@ -354,9 +349,10 @@ export default function ProductBacklog() {
         isOpen={isModalOpen}
         onClose={() => { setIsModalOpen(false); setEditingTask(null); }}
         onSave={handleCreateTask}
-        defaultType="TechTask"
+        defaultType="Epic"
         defaultStatus="Todo"
         initialData={editingTask}
+        allowedTypes={['Epic', 'UserStory']}
       />
 
       <TaskDetailsModal

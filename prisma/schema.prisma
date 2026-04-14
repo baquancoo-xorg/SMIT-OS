@@ -78,7 +78,7 @@ model WorkItem {
 
   // Hierarchy: Epic -> Story -> Task
   parentId    String?
-  parent      WorkItem?  @relation("WorkItemHierarchy", fields: [parentId], references: [id])
+  parent      WorkItem?  @relation("WorkItemHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
   children    WorkItem[] @relation("WorkItemHierarchy")
 
   // KR linking via junction table (replaces linkedKrId)

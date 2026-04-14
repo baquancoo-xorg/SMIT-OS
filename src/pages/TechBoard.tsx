@@ -515,6 +515,7 @@ export default function TechBoard() {
         defaultType="TechTask"
         defaultStatus="Todo"
         initialData={editingTask}
+        allowedTypes={['TechTask']}
       />
 
       <TaskDetailsModal

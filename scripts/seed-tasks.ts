@@ -424,7 +424,6 @@ async function main() {
           status: task.status,
           assigneeId,
           sprintId,
-          linkedKrId: null, // Will be set manually later
           storyPoints: task.storyPoints,
           dueDate: new Date(task.dueDate),
           startDate: new Date(task.dueDate), // Placeholder, can be updated later

@@ -521,6 +521,7 @@ export default function MarketingBoard() {
         defaultType="MktTask"
         defaultStatus="Todo"
         initialData={editingTask}
+        allowedTypes={['Campaign', 'MktTask']}
       />
 
       <TaskDetailsModal

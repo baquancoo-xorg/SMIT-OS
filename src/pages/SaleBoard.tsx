@@ -519,6 +519,7 @@ export default function SaleBoard() {
         defaultType="Deal"
         defaultStatus="Todo"
         initialData={editingTask}
+        allowedTypes={['Deal', 'SaleTask']}
       />
 
       <TaskDetailsModal

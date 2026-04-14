@@ -1,8 +1,9 @@
 ---
 name: workitem-hierarchy-refactor
-status: pending
+status: completed
 priority: high
 created: 2026-04-14
+completed: 2026-04-14
 estimated_effort: 3-4h
 brainstorm: ../reports/brainstorm-260414-1232-workitem-hierarchy-refactor.md
 ---
@@ -78,9 +79,16 @@ If issues arise:
 
 ## Success Criteria
 
-- [ ] Task can link to Epic/Story (optional)
-- [ ] Epic/Story can link to KR via junction table
-- [ ] Team Backlog only shows Epic, UserStory types
-- [ ] Workspace boards only show Task types
-- [ ] Existing data migrated correctly
-- [ ] All tests pass
+- [x] Task can link to Epic/Story (optional)
+- [x] Epic/Story can link to KR via junction table
+- [x] Team Backlog only shows Epic, UserStory types
+- [x] Workspace boards only show Task types
+- [x] Existing data migrated correctly
+- [x] All tests pass
+
+## Additional Fixes (Implementation Notes)
+
+- Fixed enum mismatches: Priority "Urgent", Status "In Progress"
+- Removed N+1 queries from TaskCard/TaskDetailsModal
+- Added circular reference validation in backend API
+- onDelete: SetNull for parent-child relationships

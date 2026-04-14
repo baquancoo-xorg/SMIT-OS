@@ -1,5 +1,5 @@
-import { useState, ChangeEvent, MouseEvent, useEffect } from 'react';
-import { WorkItem, Priority, KeyResult, Objective } from '../../types';
+import { useState, ChangeEvent, MouseEvent } from 'react';
+import { WorkItem, Priority } from '../../types';
 import { Clock, CheckCircle2, ChevronDown, ChevronUp, AlignLeft, ListTodo, CheckSquare, Square, Timer, AlertCircle, Link2, Target, MoreHorizontal, Edit2, Trash2, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -16,36 +16,11 @@ interface TaskCardProps {
 export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetails }: TaskCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [allObjectives, setAllObjectives] = useState<Objective[]>([]);
   const { users } = useAuth();
   const assignee = users.find(u => u.id === item.assigneeId);
 
-  // Fetch objectives from API
-  useEffect(() => {
-    const fetchObjectives = async () => {
-      try {
-        const res = await fetch('/api/objectives');
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setAllObjectives(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch objectives:', error);
-      }
-    };
-    fetchObjectives();
-  }, []);
-
-  // Find linked Key Result
-  let linkedKr: KeyResult | undefined;
-  if (item.linkedKrId) {
-    for (const obj of allObjectives) {
-      if (obj.keyResults) {
-        linkedKr = obj.keyResults.find((kr: KeyResult) => kr.id === item.linkedKrId);
-        if (linkedKr) break;
-      }
-    }
-  }
+  // Get first linked Key Result from krLinks (already included from API)
+  const linkedKr = item.krLinks?.[0]?.keyResult;
 
   const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (onUpdate) {

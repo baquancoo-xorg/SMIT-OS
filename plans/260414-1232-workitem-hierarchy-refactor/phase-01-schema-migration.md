@@ -149,21 +149,21 @@ After verifying migration success:
 
 ## Todo
 
-- [ ] Add parentId, parent, children to WorkItem
-- [ ] Create WorkItemKrLink model
-- [ ] Update KeyResult model
-- [ ] Generate Prisma migration
-- [ ] Create migration script
-- [ ] Run migration script
-- [ ] Verify data integrity
-- [ ] Remove linkedKrId column
+- [x] Add parentId, parent, children to WorkItem
+- [x] Create WorkItemKrLink model
+- [x] Update KeyResult model
+- [x] Generate Prisma migration
+- [x] Create migration script
+- [x] Run migration script
+- [x] Verify data integrity
+- [x] Remove linkedKrId column
 
 ## Success Criteria
 
-- [ ] parentId column exists in WorkItem
-- [ ] WorkItemKrLink table created
-- [ ] Existing linkedKrId data migrated
-- [ ] No data loss
+- [x] parentId column exists in WorkItem
+- [x] WorkItemKrLink table created
+- [x] Existing linkedKrId data migrated
+- [x] No data loss
 
 ## Risk Assessment
 
