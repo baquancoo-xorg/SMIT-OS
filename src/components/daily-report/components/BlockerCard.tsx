@@ -75,7 +75,7 @@ export default function BlockerCard({
           <textarea
             value={blocker.description}
             onChange={(e) => onUpdate('description', e.target.value)}
-            className="w-full text-sm p-3 rounded-full border border-red-200 focus:border-red-400 focus:ring-1 focus:ring-red-400 outline-none min-h-[60px] bg-white placeholder-slate-400"
+            className="w-full text-sm p-3 rounded-3xl border border-red-200 focus:border-red-400 focus:ring-1 focus:ring-red-400 outline-none min-h-[60px] bg-white placeholder-slate-400"
             placeholder="Mô tả chi tiết..."
           />
         </div>

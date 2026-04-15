@@ -67,7 +67,7 @@ export default function DailyReportBase({
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center bg-black/20 p-2.5 rounded-xl border border-white/20">
+            <div className="flex items-center bg-black/20 p-2.5 rounded-3xl border border-white/20">
               <CalendarClock size={18} className="text-white/70 mr-2" />
               <div className="flex flex-col">
                 <label className="text-[10px] text-white/70 font-bold uppercase tracking-wider leading-none mb-1">

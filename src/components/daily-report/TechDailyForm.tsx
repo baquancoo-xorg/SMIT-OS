@@ -193,7 +193,7 @@ export default function TechDailyForm({ tasks, onClose, onSuccess }: TechDailyFo
                   <input
                     type="text"
                     placeholder="VD: feature/smit-chat-auth"
-                    className="w-full border border-slate-300 rounded-xl p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none font-semibold text-slate-700"
+                    className="w-full border border-slate-300 rounded-3xl p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none font-semibold text-slate-700"
                     value={taskMetrics[task.id]?.prLink || ''}
                     onChange={(e) => updateTaskMetric(task.id, 'prLink', e.target.value)}
                   />
@@ -210,7 +210,7 @@ export default function TechDailyForm({ tasks, onClose, onSuccess }: TechDailyFo
                   />
                 </div>
               </div>
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="p-3 bg-slate-50 rounded-3xl border border-slate-200">
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">
                   Loại công việc
                 </label>

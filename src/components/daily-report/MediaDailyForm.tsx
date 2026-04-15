@@ -113,7 +113,7 @@ export default function MediaDailyForm({ tasks, onClose, onSuccess }: MediaDaily
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-xs font-bold text-slate-500 mb-1">Link File / Link Bài Đăng</label>
-                  <input type="text" placeholder="Dán link ấn phẩm..." className="w-full border border-slate-300 rounded-xl p-2 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-medium text-slate-700" value={taskMetrics[task.id]?.link || ''} onChange={(e) => updateTaskMetric(task.id, 'link', e.target.value)} />
+                  <input type="text" placeholder="Dán link ấn phẩm..." className="w-full border border-slate-300 rounded-3xl p-2 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-medium text-slate-700" value={taskMetrics[task.id]?.link || ''} onChange={(e) => updateTaskMetric(task.id, 'link', e.target.value)} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1">Loại ấn phẩm</label>
@@ -125,24 +125,24 @@ export default function MediaDailyForm({ tasks, onClose, onSuccess }: MediaDaily
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-pink-50/50 p-4 rounded-xl border border-pink-100">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-pink-50/50 p-4 rounded-3xl border border-pink-100">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Số ấn phẩm</label>
-                  <input type="number" placeholder="0" className="w-full border border-pink-200 rounded-full p-2.5 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-pink-700 bg-white" value={taskMetrics[task.id]?.publicationsCount || ''} onChange={(e) => updateTaskMetric(task.id, 'publicationsCount', parseInt(e.target.value) || 0)} />
+                  <input type="number" placeholder="0" className="w-full border border-pink-200 rounded-3xl p-2.5 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-pink-700 bg-white" value={taskMetrics[task.id]?.publicationsCount || ''} onChange={(e) => updateTaskMetric(task.id, 'publicationsCount', parseInt(e.target.value) || 0)} />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Lượt xem</label>
-                  <input type="text" placeholder="VD: 15.5K" className="w-full border border-pink-200 rounded-full p-2.5 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-slate-700 bg-white" value={taskMetrics[task.id]?.views || ''} onChange={(e) => updateTaskMetric(task.id, 'views', e.target.value)} />
+                  <input type="text" placeholder="VD: 15.5K" className="w-full border border-pink-200 rounded-3xl p-2.5 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-slate-700 bg-white" value={taskMetrics[task.id]?.views || ''} onChange={(e) => updateTaskMetric(task.id, 'views', e.target.value)} />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tương tác</label>
-                  <input type="text" placeholder="VD: 1.2K" className="w-full border border-pink-200 rounded-full p-2.5 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-slate-700 bg-white" value={taskMetrics[task.id]?.engagement || ''} onChange={(e) => updateTaskMetric(task.id, 'engagement', e.target.value)} />
+                  <input type="text" placeholder="VD: 1.2K" className="w-full border border-pink-200 rounded-3xl p-2.5 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-slate-700 bg-white" value={taskMetrics[task.id]?.engagement || ''} onChange={(e) => updateTaskMetric(task.id, 'engagement', e.target.value)} />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Follower mới</label>
                   <div className="relative">
                     <span className="absolute left-2 top-2 text-slate-400 font-bold">+</span>
-                    <input type="number" placeholder="0" className="w-full border border-pink-200 rounded-full p-2.5 pl-6 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-pink-600 bg-white" value={taskMetrics[task.id]?.followers || ''} onChange={(e) => updateTaskMetric(task.id, 'followers', parseInt(e.target.value) || 0)} />
+                    <input type="number" placeholder="0" className="w-full border border-pink-200 rounded-3xl p-2.5 pl-6 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-pink-600 bg-white" value={taskMetrics[task.id]?.followers || ''} onChange={(e) => updateTaskMetric(task.id, 'followers', parseInt(e.target.value) || 0)} />
                   </div>
                 </div>
               </div>

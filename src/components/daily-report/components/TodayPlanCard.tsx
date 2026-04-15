@@ -102,7 +102,7 @@ export default function TodayPlanCard({
             type="text"
             value={plan.output}
             onChange={(e) => onUpdate('output', e.target.value)}
-            className={`w-full text-sm p-3 rounded-full border ${
+            className={`w-full text-sm p-3 rounded-3xl border ${
               isPriority
                 ? 'border-red-200 focus:border-red-500 focus:ring-red-500'
                 : `border-slate-300 ${colors.focus}`
@@ -124,7 +124,7 @@ export default function TodayPlanCard({
               type="number"
               value={plan.progress || ''}
               onChange={(e) => onUpdate('progress', parseInt(e.target.value) || 0)}
-              className={`w-full text-sm p-3 pl-7 pr-8 rounded-full border ${
+              className={`w-full text-sm p-3 pl-7 pr-8 rounded-3xl border ${
                 isPriority
                   ? 'border-red-200 focus:border-red-500 focus:ring-red-500 text-red-600'
                   : `border-slate-300 ${colors.focus} ${colors.text}`

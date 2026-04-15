@@ -108,29 +108,29 @@ export default function SaleDailyForm({ tasks, onClose, onSuccess }: SaleDailyFo
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-500 mb-1">Ghi chú kết quả</label>
-                <input type="text" placeholder="VD: Đã tư vấn xong / Đã gửi báo giá..." className="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none font-medium text-slate-700" value={taskMetrics[task.id]?.note || ''} onChange={(e) => updateTaskMetric(task.id, 'note', e.target.value)} />
+                <input type="text" placeholder="VD: Đã tư vấn xong / Đã gửi báo giá..." className="w-full border border-slate-300 rounded-3xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none font-medium text-slate-700" value={taskMetrics[task.id]?.note || ''} onChange={(e) => updateTaskMetric(task.id, 'note', e.target.value)} />
               </div>
-              <div className="space-y-4 bg-emerald-50/40 p-4 rounded-xl border border-emerald-100">
+              <div className="space-y-4 bg-emerald-50/40 p-4 rounded-3xl border border-emerald-100">
                 <div>
                   <h4 className="text-[11px] font-black text-emerald-800 mb-2 uppercase tracking-wider border-b border-emerald-200/50 pb-1.5">Phễu Lead & Chăm sóc</h4>
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                    <div className="bg-white p-3 rounded-full border border-emerald-100/50 shadow-sm">
+                    <div className="bg-white p-3 rounded-3xl border border-emerald-100/50 shadow-sm">
                       <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Lead nhận/Hunt</label>
                       <input type="number" placeholder="0" className="w-full p-1.5 text-sm focus:outline-none font-bold text-slate-700 bg-transparent" value={taskMetrics[task.id]?.leadsReceived || ''} onChange={(e) => updateTaskMetric(task.id, 'leadsReceived', parseInt(e.target.value) || 0)} />
                     </div>
-                    <div className="bg-white p-3 rounded-full border border-emerald-100/50 shadow-sm">
+                    <div className="bg-white p-3 rounded-3xl border border-emerald-100/50 shadow-sm">
                       <label className="block text-[10px] font-bold text-blue-500 uppercase mb-1">Đang xử lý</label>
                       <input type="number" placeholder="0" className="w-full p-1.5 text-sm focus:outline-none font-bold text-blue-600 bg-transparent" value={taskMetrics[task.id]?.leadsAttempted || ''} onChange={(e) => updateTaskMetric(task.id, 'leadsAttempted', parseInt(e.target.value) || 0)} />
                     </div>
-                    <div className="bg-white p-3 rounded-full border border-emerald-100/50 shadow-sm">
+                    <div className="bg-white p-3 rounded-3xl border border-emerald-100/50 shadow-sm">
                       <label className="block text-[10px] font-bold text-emerald-600 uppercase mb-1">Đạt chuẩn (SQL)</label>
                       <input type="number" placeholder="0" className="w-full p-1.5 text-sm focus:outline-none font-bold text-emerald-700 bg-transparent" value={taskMetrics[task.id]?.leadsQualified || ''} onChange={(e) => updateTaskMetric(task.id, 'leadsQualified', parseInt(e.target.value) || 0)} />
                     </div>
-                    <div className="bg-amber-50 p-3 rounded-full border border-amber-200/50 shadow-sm">
+                    <div className="bg-amber-50 p-3 rounded-3xl border border-amber-200/50 shadow-sm">
                       <label className="block text-[10px] font-bold text-amber-600 uppercase mb-1">Demo Booked</label>
                       <input type="number" placeholder="0" className="w-full p-1.5 text-sm focus:outline-none font-bold text-amber-700 bg-transparent" value={taskMetrics[task.id]?.demosBooked || ''} onChange={(e) => updateTaskMetric(task.id, 'demosBooked', parseInt(e.target.value) || 0)} />
                     </div>
-                    <div className="bg-white p-3 rounded-full border border-emerald-100/50 shadow-sm">
+                    <div className="bg-white p-3 rounded-3xl border border-emerald-100/50 shadow-sm">
                       <label className="block text-[10px] font-bold text-red-500 uppercase mb-1">Hủy / Rác</label>
                       <input type="number" placeholder="0" className="w-full p-1.5 text-sm focus:outline-none font-bold text-red-600 bg-transparent" value={taskMetrics[task.id]?.leadsUnqualified || ''} onChange={(e) => updateTaskMetric(task.id, 'leadsUnqualified', parseInt(e.target.value) || 0)} />
                     </div>
@@ -139,21 +139,21 @@ export default function SaleDailyForm({ tasks, onClose, onSuccess }: SaleDailyFo
                 <div>
                   <h4 className="text-[11px] font-black text-emerald-800 mb-2 uppercase tracking-wider border-b border-emerald-200/50 pb-1.5">Pipeline & Hỗ trợ</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div className="bg-white p-3 rounded-full border border-emerald-100/50 shadow-sm">
+                    <div className="bg-white p-3 rounded-3xl border border-emerald-100/50 shadow-sm">
                       <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Giá trị Cơ hội mới</label>
                       <div className="relative">
                         <input type="number" placeholder="0" className="w-full p-1.5 pr-6 text-sm focus:outline-none font-bold text-slate-700 bg-transparent" value={taskMetrics[task.id]?.oppValue || ''} onChange={(e) => updateTaskMetric(task.id, 'oppValue', parseInt(e.target.value) || 0)} />
                         <span className="absolute right-2 top-1.5 text-slate-400 font-bold text-xs">₫</span>
                       </div>
                     </div>
-                    <div className="bg-emerald-100/50 p-3 rounded-full border border-emerald-200 shadow-sm">
+                    <div className="bg-emerald-100/50 p-3 rounded-3xl border border-emerald-200 shadow-sm">
                       <label className="block text-[10px] font-bold text-emerald-700 uppercase mb-1">Doanh thu WON</label>
                       <div className="relative">
                         <input type="number" placeholder="0" className="w-full p-1.5 pr-6 text-sm focus:outline-none font-bold text-emerald-700 bg-transparent" value={taskMetrics[task.id]?.revenue || ''} onChange={(e) => updateTaskMetric(task.id, 'revenue', parseInt(e.target.value) || 0)} />
                         <span className="absolute right-2 top-1.5 text-emerald-600/50 font-bold text-xs">₫</span>
                       </div>
                     </div>
-                    <div className="bg-white p-3 rounded-full border border-emerald-100/50 shadow-sm">
+                    <div className="bg-white p-3 rounded-3xl border border-emerald-100/50 shadow-sm">
                       <div className="flex items-center justify-between mb-2">
                         <label className="block text-[10px] font-bold text-indigo-500 uppercase">Ticket Support</label>
                       </div>
@@ -165,7 +165,7 @@ export default function SaleDailyForm({ tasks, onClose, onSuccess }: SaleDailyFo
                           className="text-xs"
                         />
                       </div>
-                      <input type="number" placeholder="Số lượng giải quyết..." className="w-full p-2 text-sm focus:outline-none font-bold text-indigo-600 bg-slate-50 rounded-full border border-slate-100" value={taskMetrics[task.id]?.ticketsResolved || ''} onChange={(e) => updateTaskMetric(task.id, 'ticketsResolved', parseInt(e.target.value) || 0)} />
+                      <input type="number" placeholder="Số lượng giải quyết..." className="w-full p-2 text-sm focus:outline-none font-bold text-indigo-600 bg-slate-50 rounded-3xl border border-slate-100" value={taskMetrics[task.id]?.ticketsResolved || ''} onChange={(e) => updateTaskMetric(task.id, 'ticketsResolved', parseInt(e.target.value) || 0)} />
                     </div>
                   </div>
                 </div>
