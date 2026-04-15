@@ -18,7 +18,6 @@ export const createWorkItemSchema = z.object({
   type: WorkItemTypeEnum.default('TechTask'),
   status: z.enum(['Backlog', 'Todo', 'In Progress', 'Review', 'Done']).default('Backlog'),
   priority: z.enum(['Low', 'Medium', 'High', 'Urgent']).default('Medium'),
-  storyPoints: z.number().min(0).max(100).optional().nullable(),
   assigneeId: z.string().uuid().nullable().optional(),
   sprintId: z.string().uuid().nullable().optional(),
   parentId: z.string().uuid().nullable().optional(),

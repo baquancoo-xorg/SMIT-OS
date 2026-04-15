@@ -131,6 +131,8 @@ model DailyReport {
   tasksData   String    // JSON: {completedYesterday: string[], doingYesterday: string[], doingToday: string[]}
   blockers    String?
   impactLevel String?   // none, low, high
+  teamType    String?   // tech, marketing, media, sale
+  teamMetrics Json?     // JSONB: team-specific metrics
   approvedBy  String?
   approver    User?     @relation("ApprovedDailyReports", fields: [approvedBy], references: [id])
   approvedAt  DateTime?

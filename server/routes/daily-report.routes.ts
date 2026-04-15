@@ -42,7 +42,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
   }));
 
   router.post('/', handleAsync(async (req: any, res: any) => {
-    const { userId, reportDate, tasksData, blockers, impactLevel } = req.body;
+    const { userId, reportDate, tasksData, blockers, impactLevel, teamType, teamMetrics } = req.body;
 
     const existing = await prisma.dailyReport.findFirst({
       where: { userId, reportDate: new Date(reportDate) },
@@ -59,6 +59,8 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
         tasksData: typeof tasksData === 'string' ? tasksData : JSON.stringify(tasksData),
         blockers,
         impactLevel,
+        teamType: teamType || null,
+        teamMetrics: teamMetrics || null,
         status: 'Review',
       },
       include: { user: true },
@@ -139,6 +141,45 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
       include: { user: true },
     });
     res.json(updated);
+  }));
+
+  // PM Dashboard: Aggregate stats by team
+  router.get('/stats/team-summary', RBAC.leaderOrAdmin, handleAsync(async (req: any, res: any) => {
+    const { startDate, endDate } = req.query;
+    const start = startDate ? new Date(startDate as string) : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const end = endDate ? new Date(endDate as string) : new Date();
+
+    const reports = await prisma.dailyReport.findMany({
+      where: {
+        reportDate: { gte: start, lte: end },
+        teamType: { not: null },
+      },
+      include: { user: { select: { id: true, fullName: true, departments: true } } },
+    });
+
+    const teamStats: Record<string, any> = { tech: { count: 0, blockers: 0, metrics: {} }, marketing: { count: 0, blockers: 0, metrics: {} }, media: { count: 0, blockers: 0, metrics: {} }, sale: { count: 0, blockers: 0, metrics: {} } };
+
+    for (const report of reports) {
+      const team = report.teamType as string;
+      if (!teamStats[team]) continue;
+
+      teamStats[team].count++;
+      if (report.impactLevel === 'high') teamStats[team].blockers++;
+
+      const metrics = report.teamMetrics as any;
+      if (!metrics?.yesterdayTasks) continue;
+
+      for (const task of metrics.yesterdayTasks) {
+        if (!task.metrics) continue;
+        for (const [key, value] of Object.entries(task.metrics)) {
+          if (typeof value === 'number') {
+            teamStats[team].metrics[key] = (teamStats[team].metrics[key] || 0) + value;
+          }
+        }
+      }
+    }
+
+    res.json({ period: { start, end }, stats: teamStats, totalReports: reports.length });
   }));
 
   router.delete('/:id', handleAsync(async (req: any, res: any) => {

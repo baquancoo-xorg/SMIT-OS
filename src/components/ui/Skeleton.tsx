@@ -19,7 +19,7 @@ export function Skeleton({ className = '', variant = 'text', ...props }: Skeleto
 
 export function CardSkeleton() {
   return (
-    <div className="p-4 rounded-2xl bg-surface-container space-y-3">
+    <div className="p-4 rounded-3xl bg-surface-container space-y-3">
       <Skeleton className="h-6 w-3/4" />
       <Skeleton className="h-4 w-full" />
       <Skeleton className="h-4 w-2/3" />
@@ -39,7 +39,7 @@ export function TableRowSkeleton() {
 
 export function ChartSkeleton() {
   return (
-    <div className="p-6 rounded-2xl bg-surface-container space-y-4">
+    <div className="p-6 rounded-3xl bg-surface-container space-y-4">
       <Skeleton className="h-5 w-1/3" />
       <div className="flex items-end gap-2 h-32">
         {[40, 65, 45, 80, 55, 70, 50].map((h, i) => (

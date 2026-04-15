@@ -25,6 +25,7 @@ import TaskDetailsModal from '../components/board/TaskDetailsModal';
 import { WorkItem, Sprint } from '../types';
 import { LayoutGrid, List, ChevronDown, Filter, Database } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import CustomFilter from '../components/ui/CustomFilter';
 
 const COLUMNS = ['Todo', 'In Progress', 'Review', 'Done'];
 
@@ -345,19 +346,14 @@ export default function MarketingBoard() {
             <Filter size={14} />
             <span>Active Sprint:</span>
           </div>
-          <div className="relative">
-            <select
-              value={selectedSprintId}
-              onChange={(e) => setSelectedSprintId(e.target.value)}
-              className="appearance-none bg-surface-container-low border border-outline-variant/20 rounded-xl px-4 py-2 pr-10 text-sm font-bold text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer hover:bg-surface-container"
-            >
-              <option value="">All Sprints</option>
-              {sprints.map(s => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}
-            </select>
-            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          </div>
+          <CustomFilter
+            value={selectedSprintId}
+            onChange={setSelectedSprintId}
+            options={[
+              { value: '', label: 'All Sprints' },
+              ...sprints.map(s => ({ value: s.id, label: s.name }))
+            ]}
+          />
         </div>
 
         <div className="hidden lg:flex items-center gap-4">
@@ -414,7 +410,7 @@ export default function MarketingBoard() {
         >
           <div className="flex-1 flex flex-col lg:flex-row gap-6 overflow-hidden min-h-0">
             {/* Backlog (25%) */}
-            <div className="w-full lg:w-1/4 h-[400px] lg:h-auto flex flex-col bg-surface-container-low/30 rounded-[32px] border border-outline-variant/10 overflow-hidden shrink-0 lg:shrink">
+            <div className="w-full lg:w-1/4 h-[400px] lg:h-auto flex flex-col bg-surface-container-low/30 rounded-3xl border border-outline-variant/10 overflow-hidden shrink-0 lg:shrink">
               <div className="p-5 flex items-center justify-between border-b border-outline-variant/5 bg-white/40">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">inventory_2</span>
@@ -457,7 +453,7 @@ export default function MarketingBoard() {
                 const columnItems = sprintItems.filter(i => i.status === col);
 
                 return (
-                  <div key={col} className="min-w-[280px] flex-1 flex flex-col bg-slate-50/50 rounded-[32px] border border-slate-200/50 h-full max-h-full overflow-hidden">
+                  <div key={col} className="min-w-[280px] flex-1 flex flex-col bg-slate-50/50 rounded-3xl border border-slate-200/50 h-full max-h-full overflow-hidden">
                     <div className="p-4 flex items-center justify-between bg-white/30">
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${col === 'Todo' ? 'bg-slate-400' :
@@ -488,7 +484,7 @@ export default function MarketingBoard() {
                         />
                       ))}
                       {columnItems.length === 0 && (
-                        <div className="h-32 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-400 gap-2">
+                        <div className="h-32 border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center text-slate-400 gap-2">
                           <span className="material-symbols-outlined text-3xl opacity-20">inventory_2</span>
                           <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Empty Column</span>
                         </div>

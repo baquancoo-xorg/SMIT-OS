@@ -77,7 +77,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
   return (
     <motion.div
       onClick={() => setIsExpanded(!isExpanded)}
-      className={`bg-white/90 backdrop-blur-xl p-6 rounded-[32px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 transition-all duration-500 cursor-pointer group relative overflow-hidden ${isExpanded ? 'ring-2 ring-primary/20 border-primary/30' : ''}`}
+      className={`bg-white/90 backdrop-blur-xl p-6 rounded-3xl border border-outline-variant/10 shadow-xl shadow-slate-200/20 transition-all duration-500 cursor-pointer group relative overflow-hidden ${isExpanded ? 'ring-2 ring-primary/20 border-primary/30' : ''}`}
     >
       <div className="flex items-start justify-between mb-6">
         <div className="flex flex-wrap gap-2">
@@ -106,7 +106,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="absolute right-0 top-12 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 z-20 overflow-hidden"
+                className="absolute right-0 top-12 w-48 bg-white rounded-3xl shadow-xl border border-slate-100 z-20 overflow-hidden"
               >
                 <button
                   onClick={(e) => { e.stopPropagation(); onViewDetails?.(item); setIsMenuOpen(false); }}
@@ -211,11 +211,6 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {item.storyPoint && (
-              <span className="px-2.5 py-1 rounded-lg bg-primary/5 text-primary text-[10px] font-black border border-primary/10">
-                {item.storyPoint} SP
-              </span>
-            )}
             <div className={`text-slate-300 transition-transform duration-500 ${isExpanded ? 'rotate-180' : ''}`}>
               <span className="material-symbols-outlined text-[20px]">expand_more</span>
             </div>
@@ -235,7 +230,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
               {item.description && (
                 <div className="space-y-2">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</p>
-                  <p className="text-xs text-on-surface-variant leading-relaxed bg-surface-container-low p-4 rounded-2xl border border-outline-variant/10">
+                  <p className="text-xs text-on-surface-variant leading-relaxed bg-surface-container-low p-4 rounded-3xl border border-outline-variant/10">
                     {item.description}
                   </p>
                 </div>

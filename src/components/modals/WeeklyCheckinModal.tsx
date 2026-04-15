@@ -3,12 +3,26 @@ import { X, Plus, Trash2, AlertCircle, TrendingUp, Calendar, Target, CheckCircle
 import { Objective, KeyResult } from '../../types';
 import { motion } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
+import CustomSelect from '../ui/CustomSelect';
 
 interface WeeklyCheckinModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
 }
+
+const confidenceLabels: Record<number, string> = {
+  1: 'Rất thấp',
+  2: 'Thấp',
+  3: 'Hơi thấp',
+  4: 'Dưới trung bình',
+  5: 'Trung bình',
+  6: 'Khá',
+  7: 'Tự tin',
+  8: 'Khá tự tin',
+  9: 'Rất tự tin',
+  10: 'Cực kỳ tự tin'
+};
 
 export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: WeeklyCheckinModalProps) {
   const { currentUser } = useAuth();
@@ -155,7 +169,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
         {/* Header */}
         <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+            <div className="w-12 h-12 rounded-3xl bg-primary/10 flex items-center justify-center text-primary">
               <Calendar size={24} />
             </div>
             <div>
@@ -167,15 +181,13 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
             {canSwitchTeam && (
               <>
                 {/* C6: Mobile dropdown */}
-                <select
-                  value={selectedTeam}
-                  onChange={(e) => setSelectedTeam(e.target.value)}
-                  className="md:hidden bg-surface-container-low border border-outline-variant/30 rounded-xl px-3 py-2 text-sm font-bold min-h-[44px]"
-                >
-                  {(['Tech', 'Marketing', 'Media', 'Sale'] as const).map(team => (
-                    <option key={team} value={team}>{team}</option>
-                  ))}
-                </select>
+                <div className="md:hidden">
+                  <CustomSelect
+                    value={selectedTeam}
+                    onChange={setSelectedTeam}
+                    options={['Tech', 'Marketing', 'Media', 'Sale'].map(team => ({ value: team, label: team }))}
+                  />
+                </div>
                 {/* Desktop buttons */}
                 <div className="hidden md:flex bg-slate-200/50 p-1 rounded-xl border border-slate-200">
                   {(['Tech', 'Marketing', 'Media', 'Sale'] as const).map(team => (
@@ -199,7 +211,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
         {/* Body - C6: Responsive padding */}
         <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-10">
           {/* Confidence Score */}
-          <section className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex items-center justify-between">
+          <section className="bg-slate-50 p-6 rounded-3xl border border-slate-200 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                 <TrendingUp size={20} />
@@ -209,16 +221,15 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                 <p className="text-xs text-slate-500 font-medium">Mức độ tự tin hoàn thành mục tiêu Quý</p>
               </div>
             </div>
-            <select 
-              value={confidenceScore}
-              onChange={(e) => setConfidenceScore(Number(e.target.value))}
-              className="bg-white border border-slate-200 rounded-2xl px-4 py-2.5 text-sm font-bold text-primary focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-            >
-              <option value="">Chọn mức độ (1-10)</option>
-              {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                <option key={n} value={n}>{n} - {n <= 3 ? 'Rất thấp' : n <= 6 ? 'Trung bình' : n <= 8 ? 'Tự tin' : 'Rất tự tin'}</option>
-              ))}
-            </select>
+            <CustomSelect
+              value={confidenceScore === '' ? '' : String(confidenceScore)}
+              onChange={(val) => setConfidenceScore(val ? Number(val) : '')}
+              options={[
+                { value: '', label: 'Chọn mức độ (1-10)' },
+                ...[1,2,3,4,5,6,7,8,9,10].map(n => ({ value: String(n), label: `${n} - ${confidenceLabels[n]}` }))
+              ]}
+              placeholder="Chọn mức độ (1-10)"
+            />
           </section>
 
           {/* Section 1: KR Reviews */}
@@ -229,7 +240,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
             </div>
             <div className="space-y-8">
               {krReviews.map((review, idx) => (
-                <div key={review.kr_id} className="bg-slate-50 rounded-2xl p-6 border border-slate-200 space-y-6">
+                <div key={review.kr_id} className="bg-slate-50 rounded-3xl p-6 border border-slate-200 space-y-6">
                   <div className="flex items-start justify-between">
                     <div className="max-w-2xl">
                       <h4 className="font-bold text-slate-800 leading-tight mb-2">{review.title}</h4>
@@ -261,7 +272,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                           newReviews[idx].progress_added = val;
                           setKrReviews(newReviews);
                         }}
-                        className="w-20 bg-white border border-slate-200 rounded-2xl px-3 py-2 text-center text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                        className="w-20 bg-white border border-slate-200 rounded-3xl px-3 py-2 text-center text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                       />
                     </div>
                   </div>
@@ -277,7 +288,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                           setKrReviews(newReviews);
                         }}
                         placeholder="Liệt kê các task/epic đã hoàn thành..."
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-3xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
                       />
                     </div>
                     <div className="space-y-2">
@@ -290,7 +301,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                           setKrReviews(newReviews);
                         }}
                         placeholder="Phân tích xem việc đã làm giúp ích gì cho KR..."
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-3xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
                       />
                     </div>
                   </div>
@@ -316,7 +327,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
             </div>
             
             {/* M17: Scroll wrapper for mobile */}
-            <div className="overflow-hidden border border-slate-200 rounded-2xl">
+            <div className="overflow-hidden border border-slate-200 rounded-3xl">
               <div className="overflow-x-auto">
                 <div className="min-w-[500px]">
               <table className="w-full text-left border-collapse">
@@ -394,12 +405,12 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
               <AlertCircle className="text-rose-500" size={20} />
               <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">Rào cản & Yêu cầu hỗ trợ</h3>
             </div>
-            <div className="bg-rose-50 border border-rose-100 rounded-2xl p-6">
+            <div className="bg-rose-50 border border-rose-100 rounded-3xl p-6">
               <textarea 
                 value={blockers}
                 onChange={(e) => setBlockers(e.target.value)}
                 placeholder="Nêu rõ các khó khăn đang gặp phải (nếu có)..."
-                className="w-full px-4 py-3 bg-white border border-rose-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-300 transition-all min-h-[120px] resize-none text-rose-900 placeholder:text-rose-300"
+                className="w-full px-4 py-3 bg-white border border-rose-200 rounded-3xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-300 transition-all min-h-[120px] resize-none text-rose-900 placeholder:text-rose-300"
               />
             </div>
           </section>
@@ -409,14 +420,14 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
         <div className="px-8 py-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200/50 rounded-xl transition-all"
+            className="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200/50 rounded-full transition-all"
           >
             Hủy
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="px-8 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
+            className="px-8 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-full shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
           >
             {loading ? 'Đang gửi...' : 'Gửi báo cáo'}
           </button>

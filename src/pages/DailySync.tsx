@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Plus, Calendar, CheckCircle, AlertTriangle, Eye, X } from 'lucide-react';
+import { Plus, Calendar, CheckCircle, Eye, X, BarChart3, FileText } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { DailyReport, WorkItem, DailyReportTasksData } from '../types';
+import TeamFormSelector from '../components/daily-report/TeamFormSelector';
+import PMDashboard from '../components/daily-report/PMDashboard';
+import { getTeamDisplayName } from '../utils/team-detection';
+
+type TabType = 'reports' | 'dashboard';
 
 export default function DailySync() {
   const [reports, setReports] = useState<DailyReport[]>([]);
@@ -10,7 +15,25 @@ export default function DailySync() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<DailyReport | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>('reports');
   const { currentUser } = useAuth();
+
+  // Dashboard date range - default to current week
+  const getWeekRange = () => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    return {
+      start: monday.toISOString().split('T')[0],
+      end: sunday.toISOString().split('T')[0]
+    };
+  };
+  const [dateRange, setDateRange] = useState(getWeekRange);
+
+  const canViewDashboard = currentUser?.isAdmin || currentUser?.role?.includes('Leader');
 
   const fetchReports = async () => {
     try {
@@ -91,15 +114,49 @@ export default function DailySync() {
           </h2>
         </div>
 
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all"
-        >
-          <Plus size={18} />
-          New Report
-        </button>
+        <div className="flex items-center gap-3">
+          {canViewDashboard && (
+            <div className="flex bg-slate-100 rounded-full p-1">
+              <button
+                onClick={() => setActiveTab('reports')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                  activeTab === 'reports' ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                <FileText size={16} />
+                Reports
+              </button>
+              <button
+                onClick={() => setActiveTab('dashboard')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                  activeTab === 'dashboard' ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                <BarChart3 size={16} />
+                Dashboard
+              </button>
+            </div>
+          )}
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all"
+          >
+            <Plus size={18} />
+            New Report
+          </button>
+        </div>
       </div>
 
+      {/* Dashboard Tab */}
+      {activeTab === 'dashboard' && canViewDashboard && (
+        <div className="flex-1 overflow-y-auto">
+          <PMDashboard dateRange={dateRange} onDateRangeChange={setDateRange} onRefresh={fetchReports} />
+        </div>
+      )}
+
+      {/* Reports Tab */}
+      {activeTab === 'reports' && (
+        <>
       {/* Stats - 2x2 grid on mobile */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
         <div className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm">
@@ -122,7 +179,7 @@ export default function DailySync() {
 
       {/* Reports Table - C4: Scroll wrapper for mobile */}
       <div className="flex-1 overflow-y-auto">
-        <div className="bg-white rounded-[32px] border border-outline-variant/10 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-3xl border border-outline-variant/10 shadow-sm overflow-hidden">
           <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
             <div className="min-w-[700px]">
           <table className="w-full">
@@ -130,6 +187,7 @@ export default function DailySync() {
               <tr className="bg-slate-50/50 border-b border-outline-variant/10">
                 <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[100px]">Date</th>
                 <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[150px]">Reporter</th>
+                <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[80px]">Team</th>
                 <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[100px]">Status</th>
                 <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[80px]">Impact</th>
                 <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[120px]">Blockers</th>
@@ -155,6 +213,21 @@ export default function DailySync() {
                         <p className="text-[10px] text-slate-400 uppercase tracking-widest">{report.user?.role}</p>
                       </div>
                     </div>
+                  </td>
+                  <td className="px-4 md:px-8 py-5">
+                    {report.teamType ? (
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                        report.teamType === 'tech' ? 'bg-indigo-100 text-indigo-700' :
+                        report.teamType === 'marketing' ? 'bg-orange-100 text-orange-700' :
+                        report.teamType === 'media' ? 'bg-pink-100 text-pink-700' :
+                        report.teamType === 'sale' ? 'bg-emerald-100 text-emerald-700' :
+                        'bg-slate-100 text-slate-500'
+                      }`}>
+                        {getTeamDisplayName(report.teamType as any)}
+                      </span>
+                    ) : (
+                      <span className="text-slate-400 text-sm">-</span>
+                    )}
                   </td>
                   <td className="px-4 md:px-8 py-5">
                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
@@ -191,7 +264,7 @@ export default function DailySync() {
               ))}
               {reports.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-8 py-16 text-center">
+                  <td colSpan={7} className="px-8 py-16 text-center">
                     <p className="text-slate-400 font-medium">No daily reports yet</p>
                   </td>
                 </tr>
@@ -203,10 +276,12 @@ export default function DailySync() {
           <p className="text-[10px] text-slate-400 text-center py-2 md:hidden">← Scroll horizontally →</p>
         </div>
       </div>
+        </>
+      )}
 
-      {/* Create Modal */}
+      {/* Create Modal - Team-specific form */}
       {isModalOpen && (
-        <DailyReportModal
+        <TeamFormSelector
           tasks={tasks}
           onClose={() => setIsModalOpen(false)}
           onSuccess={() => { fetchReports(); setIsModalOpen(false); }}
@@ -223,204 +298,6 @@ export default function DailySync() {
           tasks={tasks}
         />
       )}
-    </div>
-  );
-}
-
-// Create Modal Component
-function DailyReportModal({
-  tasks,
-  onClose,
-  onSuccess
-}: {
-  tasks: WorkItem[];
-  onClose: () => void;
-  onSuccess: () => void;
-}) {
-  const { currentUser } = useAuth();
-  const [completedYesterday, setCompletedYesterday] = useState<string[]>([]);
-  const [doingYesterday, setDoingYesterday] = useState<string[]>([]);
-  const [doingToday, setDoingToday] = useState<string[]>([]);
-  const [blockers, setBlockers] = useState('');
-  const [impactLevel, setImpactLevel] = useState<'none' | 'low' | 'high'>('none');
-  const [submitting, setSubmitting] = useState(false);
-
-  const userTasks = tasks.filter(t => t.assigneeId === currentUser?.id);
-  const inProgressTasks = userTasks.filter(t => t.status === 'In Progress' || t.status === 'Doing');
-  const allTasks = userTasks;
-
-  const handleSubmit = async () => {
-    if (submitting) return;
-    setSubmitting(true);
-
-    try {
-      const res = await fetch('/api/daily-reports', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: currentUser?.id,
-          reportDate: new Date().toISOString(),
-          tasksData: { completedYesterday, doingYesterday, doingToday },
-          blockers: blockers || null,
-          impactLevel
-        })
-      });
-
-      if (res.ok) {
-        onSuccess();
-      }
-    } catch (error) {
-      console.error('Failed to create report:', error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-md" />
-      <div
-        className="relative bg-white rounded-[32px] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="px-4 md:px-8 py-4 md:py-6 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="text-lg md:text-xl font-black font-headline">New Daily Report</h3>
-          <button onClick={onClose} className="p-2 min-h-[44px] min-w-[44px] hover:bg-slate-100 rounded-xl transition-colors">
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* M8: Responsive padding */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
-          {/* Yesterday's Tasks */}
-          <div>
-            <h4 className="text-xs font-black uppercase text-emerald-500 tracking-widest mb-4 flex items-center gap-2">
-              <CheckCircle size={14} /> Tasks completed yesterday
-            </h4>
-            <div className="space-y-2">
-              {inProgressTasks.map(task => (
-                <label key={task.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={completedYesterday.includes(task.id)}
-                    onChange={e => {
-                      if (e.target.checked) {
-                        setCompletedYesterday([...completedYesterday, task.id]);
-                        setDoingYesterday(doingYesterday.filter(id => id !== task.id));
-                      } else {
-                        setCompletedYesterday(completedYesterday.filter(id => id !== task.id));
-                      }
-                    }}
-                    className="w-4 h-4 rounded text-emerald-500"
-                  />
-                  <span className="text-sm font-medium">{task.title}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Still working on */}
-          <div>
-            <h4 className="text-xs font-black uppercase text-amber-500 tracking-widest mb-4 flex items-center gap-2">
-              <AlertTriangle size={14} /> Still working on (from yesterday)
-            </h4>
-            <div className="space-y-2">
-              {inProgressTasks.filter(t => !completedYesterday.includes(t.id)).map(task => (
-                <label key={task.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={doingYesterday.includes(task.id)}
-                    onChange={e => {
-                      if (e.target.checked) {
-                        setDoingYesterday([...doingYesterday, task.id]);
-                      } else {
-                        setDoingYesterday(doingYesterday.filter(id => id !== task.id));
-                      }
-                    }}
-                    className="w-4 h-4 rounded text-amber-500"
-                  />
-                  <span className="text-sm font-medium">{task.title}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Today's Plan */}
-          <div>
-            <h4 className="text-xs font-black uppercase text-primary tracking-widest mb-4 flex items-center gap-2">
-              <Calendar size={14} /> Plan for today
-            </h4>
-            <div className="space-y-2">
-              {allTasks.map(task => (
-                <label key={task.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={doingToday.includes(task.id)}
-                    onChange={e => {
-                      if (e.target.checked) {
-                        setDoingToday([...doingToday, task.id]);
-                      } else {
-                        setDoingToday(doingToday.filter(id => id !== task.id));
-                      }
-                    }}
-                    className="w-4 h-4 rounded text-primary"
-                  />
-                  <span className="text-sm font-medium">{task.title}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Blockers */}
-          <div>
-            <h4 className="text-xs font-black uppercase text-red-500 tracking-widest mb-4">Blockers & Difficulties</h4>
-            <textarea
-              value={blockers}
-              onChange={e => setBlockers(e.target.value)}
-              placeholder="Describe any blockers or difficulties..."
-              className="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none h-24"
-            />
-          </div>
-
-          {/* Impact Level */}
-          <div>
-            <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-4">Impact Level</h4>
-            <div className="flex gap-3">
-              {['none', 'low', 'high'].map(level => (
-                <button
-                  key={level}
-                  onClick={() => setImpactLevel(level as any)}
-                  className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
-                    impactLevel === level
-                      ? level === 'high' ? 'bg-red-500 text-white' :
-                        level === 'low' ? 'bg-yellow-500 text-white' :
-                        'bg-slate-500 text-white'
-                      : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                  }`}
-                >
-                  {level.charAt(0).toUpperCase() + level.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="px-8 py-6 border-t border-slate-100 flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-6 py-3 rounded-xl font-bold text-sm text-slate-500 hover:bg-slate-100 transition-all"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={submitting}
-            className="px-6 py-3 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all disabled:opacity-50"
-          >
-            {submitting ? 'Submitting...' : 'Submit Report'}
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
@@ -455,7 +332,7 @@ function DailyReportDetailModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/30 backdrop-blur-md" />
       <div
-        className="relative bg-white rounded-[32px] shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col"
+        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">

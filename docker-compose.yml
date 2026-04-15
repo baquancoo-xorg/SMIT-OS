@@ -1,13 +1,15 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:15-alpine
     container_name: smit_os_db
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: smitos
+      POSTGRES_PASSWORD: "change-me-local-only"
       POSTGRES_DB: smitos_db
     ports:
       - "5435:5432"

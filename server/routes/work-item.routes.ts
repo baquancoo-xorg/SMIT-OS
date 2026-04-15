@@ -79,7 +79,6 @@ export function createWorkItemRoutes(prisma: PrismaClient) {
         type: data.type,
         status: data.status,
         priority: data.priority,
-        storyPoints: data.storyPoints,
         assigneeId: data.assigneeId,
         sprintId: data.sprintId,
         parentId: data.parentId,

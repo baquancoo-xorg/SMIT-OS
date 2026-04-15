@@ -3,6 +3,8 @@ import { Objective, KeyResult, WorkItem, WorkItemType, User } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { Target, Plus, ChevronDown, ChevronRight, Briefcase, Users, Zap, Edit2, X, Link as LinkIcon, Filter, TrendingUp, Trash2, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import CustomSelect from '../components/ui/CustomSelect';
+import CustomFilter from '../components/ui/CustomFilter';
 
 export default function OKRsManagement() {
   const [activeTab, setActiveTab] = useState<'L1' | 'L2'>('L1');
@@ -258,7 +260,7 @@ export default function OKRsManagement() {
 
       {/* Metric Grid - Bento Style */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
-        <div className="bg-white p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl lg:rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2 relative overflow-hidden group">
+        <div className="bg-white p-5 md:p-6 lg:p-8 rounded-3xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-primary/5 rounded-full -mr-12 -mt-12 md:-mr-16 md:-mt-16 group-hover:scale-150 transition-transform duration-700"></div>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10">Quarterly Progress</p>
           <div className="flex items-baseline gap-1 relative z-10">
@@ -273,7 +275,7 @@ export default function OKRsManagement() {
             ></div>
           </div>
         </div>
-        <div className="bg-white p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl lg:rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2 group">
+        <div className="bg-white p-5 md:p-6 lg:p-8 rounded-3xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2 group">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Objectives Active</p>
           <div className="flex items-baseline gap-2">
             <h4 className="text-2xl md:text-3xl lg:text-4xl font-black font-headline">{objectives.length}</h4>
@@ -281,7 +283,7 @@ export default function OKRsManagement() {
           </div>
           <p className="text-[10px] font-bold text-slate-400 mt-2">Across {new Set(objectives.map(o => o.department)).size} Departments</p>
         </div>
-        <div className="bg-white p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl lg:rounded-[40px] border border-outline-variant/10 shadow-sm flex flex-col gap-2">
+        <div className="bg-white p-5 md:p-6 lg:p-8 rounded-3xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Critical Path Health</p>
           <h4 className={`text-2xl md:text-3xl lg:text-4xl font-black font-headline ${healthInfo.color}`}>{healthInfo.status}</h4>
           <div className="flex items-center gap-1 mt-2">
@@ -289,7 +291,7 @@ export default function OKRsManagement() {
             <span className={`text-[10px] font-bold ${healthInfo.color}`}>{healthInfo.message}</span>
           </div>
         </div>
-        <div className="bg-primary p-5 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl lg:rounded-[40px] shadow-xl shadow-primary/20 flex flex-col gap-2 relative overflow-hidden group">
+        <div className="bg-primary p-5 md:p-6 lg:p-8 rounded-3xl md:rounded-3xl lg:rounded-3xl shadow-xl shadow-primary/20 flex flex-col gap-2 relative overflow-hidden group">
           <div className="absolute bottom-0 left-0 w-24 h-24 md:w-32 md:h-32 bg-white/10 rounded-full -ml-12 -mb-12 md:-ml-16 md:-mb-16 group-hover:scale-150 transition-transform duration-700"></div>
           <p className="text-[10px] font-black text-white/60 uppercase tracking-widest relative z-10">Days Remaining</p>
           <h4 className="text-2xl md:text-3xl lg:text-4xl font-black font-headline text-white relative z-10">{q2Info.daysLeft} Days</h4>
@@ -302,20 +304,18 @@ export default function OKRsManagement() {
         <div className="flex items-center justify-between">
           <h3 className="text-2xl font-black text-on-surface font-headline">OKR Tree List</h3>
           <div className="flex gap-3">
-            <div className="flex items-center gap-3 bg-surface-container-high px-4 md:px-6 py-2 rounded-full border border-outline-variant/10 min-h-[44px]">
-              <span className="material-symbols-outlined text-[18px] text-slate-400">filter_list</span>
-              <select
-                className="text-[10px] font-black bg-transparent border-none focus:ring-0 text-on-surface-variant uppercase tracking-widest outline-none cursor-pointer min-h-[36px]"
-                value={departmentFilter}
-                onChange={(e) => setDepartmentFilter(e.target.value)}
-              >
-                <option value="All">All Departments</option>
-                <option value="Tech">Tech</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Media">Media</option>
-                <option value="Sale">Sale</option>
-              </select>
-            </div>
+            <CustomFilter
+              value={departmentFilter}
+              onChange={setDepartmentFilter}
+              options={[
+                { value: 'All', label: 'All Departments' },
+                { value: 'Tech', label: 'Tech' },
+                { value: 'Marketing', label: 'Marketing' },
+                { value: 'Media', label: 'Media' },
+                { value: 'Sale', label: 'Sale' }
+              ]}
+              icon={<Filter size={14} />}
+            />
           </div>
         </div>
 
@@ -337,7 +337,7 @@ export default function OKRsManagement() {
                 />
               ))
             ) : (
-              <div className="text-center py-12 md:py-20 bg-slate-50/50 border-2 border-dashed border-outline-variant/10 rounded-2xl md:rounded-[40px]">
+              <div className="text-center py-12 md:py-20 bg-slate-50/50 border-2 border-dashed border-outline-variant/10 rounded-3xl md:rounded-3xl">
                 <span className="material-symbols-outlined text-3xl md:text-4xl text-slate-300 mb-4">search_off</span>
                 <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] md:text-xs">No L1 objectives found matching your filters.</p>
               </div>
@@ -361,7 +361,7 @@ export default function OKRsManagement() {
                 );
               })
             ) : (
-              <div className="text-center py-12 md:py-20 bg-slate-50/50 border-2 border-dashed border-outline-variant/10 rounded-2xl md:rounded-[40px]">
+              <div className="text-center py-12 md:py-20 bg-slate-50/50 border-2 border-dashed border-outline-variant/10 rounded-3xl md:rounded-3xl">
                 <span className="material-symbols-outlined text-3xl md:text-4xl text-slate-300 mb-4">search_off</span>
                 <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] md:text-xs">No L2 objectives found matching your filters.</p>
               </div>
@@ -400,14 +400,14 @@ function ObjectiveAccordionCard({
   const colors = getDeptColor(objective.department);
 
   return (
-    <div className="bg-white rounded-2xl md:rounded-3xl lg:rounded-[40px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden group">
+    <div className="bg-white rounded-3xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden group">
       {/* L1 Objective Header - Clickable to expand/collapse */}
       <div
         onClick={onToggleExpand}
         className="p-5 md:p-6 lg:p-8 cursor-pointer hover:bg-slate-50/50 transition-colors flex items-center justify-between"
       >
         <div className="flex items-center gap-4 md:gap-6 flex-1">
-          <div className={`w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-2xl md:rounded-3xl ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
+          <div className={`w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-3xl md:rounded-3xl ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
             <span className="material-symbols-outlined text-2xl md:text-3xl">ads_click</span>
           </div>
           <div className="flex-1 min-w-0">
@@ -529,13 +529,13 @@ function ChildObjectiveCard({
   const colors = getDeptColor(objective.department);
 
   return (
-    <div className="rounded-2xl md:rounded-3xl border-2 border-outline-variant/10 bg-surface-container-low/30 overflow-hidden">
+    <div className="rounded-3xl md:rounded-3xl border-2 border-outline-variant/10 bg-surface-container-low/30 overflow-hidden">
       <div
         onClick={() => setIsExpanded(!isExpanded)}
         className="p-4 md:p-6 cursor-pointer hover:bg-surface-container-low/50 transition-colors flex items-center justify-between"
       >
         <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
-          <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
+          <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-3xl ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
             <span className="material-symbols-outlined text-xl md:text-2xl">track_changes</span>
           </div>
           <div className="min-w-0 flex-1">
@@ -685,14 +685,14 @@ function ObjectiveAccordionCardL2({
   };
 
   return (
-    <div className="bg-white rounded-2xl md:rounded-3xl lg:rounded-[40px] border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden group">
+    <div className="bg-white rounded-3xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden group">
       {/* Header - Clickable to expand/collapse */}
       <div
         onClick={() => setIsExpanded(!isExpanded)}
         className="p-5 md:p-6 lg:p-8 cursor-pointer hover:bg-slate-50/50 transition-colors flex items-center justify-between"
       >
         <div className="flex items-center gap-4 md:gap-6 flex-1 min-w-0">
-          <div className={`w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-2xl md:rounded-3xl ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
+          <div className={`w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-3xl md:rounded-3xl ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
             <span className="material-symbols-outlined text-2xl md:text-3xl">track_changes</span>
           </div>
           <div className="flex-1 min-w-0">
@@ -812,7 +812,7 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, objective
   const parentKR = krData.parentKrId ? objectives?.flatMap(o => o.keyResults).find(kr => kr.id === krData.parentKrId) : null;
 
   return (
-    <div className="flex flex-col gap-3 md:gap-4 p-4 md:p-6 rounded-2xl md:rounded-[32px] hover:bg-slate-50/50 transition-all duration-500 group border border-transparent hover:border-outline-variant/10">
+    <div className="flex flex-col gap-3 md:gap-4 p-4 md:p-6 rounded-3xl md:rounded-3xl hover:bg-slate-50/50 transition-all duration-500 group border border-transparent hover:border-outline-variant/10">
       {/* C3: Mobile-first stack, grid on md+ */}
       <div className="flex flex-col gap-4 md:grid md:grid-cols-12 md:items-center md:gap-6">
         {/* Title section - full width on mobile */}
@@ -977,7 +977,7 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, title, message }: Dele
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-[60] backdrop-blur-sm">
-      <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-8 relative border border-outline-variant/20">
+      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-md p-8 relative border border-outline-variant/20">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
@@ -1030,7 +1030,7 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-lg p-8 relative border border-outline-variant/20">
+      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-lg p-8 relative border border-outline-variant/20">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
@@ -1045,7 +1045,7 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Title</label>
             <input
               type="text"
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               value={formData.title}
               onChange={e => setFormData({ ...formData, title: e.target.value })}
               placeholder="e.g., Increase user retention by 20%"
@@ -1056,7 +1056,7 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Target Value</label>
             <input
               type="number"
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               value={formData.targetValue}
               onChange={e => setFormData({ ...formData, targetValue: Number(e.target.value) })}
             />
@@ -1066,7 +1066,7 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Unit</label>
             <input
               type="text"
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               value={formData.unit}
               onChange={e => setFormData({ ...formData, unit: e.target.value })}
               placeholder="e.g., %, USD, Users"
@@ -1110,7 +1110,7 @@ function UpdateProgressModal({ isOpen, onClose, onSave, currentValue, targetValu
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-[70] backdrop-blur-sm">
-      <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-sm p-8 relative border border-outline-variant/20">
+      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-sm p-8 relative border border-outline-variant/20">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
@@ -1136,7 +1136,7 @@ function UpdateProgressModal({ isOpen, onClose, onSave, currentValue, targetValu
           <div>
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Progress Note (Optional)</label>
             <textarea
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
               value={note}
               onChange={e => setNote(e.target.value)}
               placeholder="What changed? Any blockers?"
@@ -1207,7 +1207,7 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-8 relative border border-outline-variant/20">
+      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-md p-8 relative border border-outline-variant/20">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
@@ -1236,16 +1236,14 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
           {mode === 'select' ? (
             <div>
               <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Select Work Item</label>
-              <select
-                className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
+              <CustomSelect
                 value={selectedItemId}
-                onChange={(e) => setSelectedItemId(e.target.value)}
-              >
-                <option value="">-- Choose a work item --</option>
-                {workItems.map(item => (
-                  <option key={item.id} value={item.id}>[{item.type}] {item.title}</option>
-                ))}
-              </select>
+                onChange={setSelectedItemId}
+                options={[
+                  { value: '', label: '-- Choose a work item --' },
+                  ...workItems.map(item => ({ value: item.id, label: `[${item.type}] ${item.title}` }))
+                ]}
+              />
             </div>
           ) : (
             <>
@@ -1253,7 +1251,7 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
                 <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Title</label>
                 <input
                   type="text"
-                  className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   value={newItemTitle}
                   onChange={e => setNewItemTitle(e.target.value)}
                   placeholder="Enter task or epic title..."
@@ -1261,18 +1259,18 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
               </div>
               <div>
                 <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Type</label>
-                <select
-                  className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
+                <CustomSelect
                   value={newItemType}
-                  onChange={(e) => setNewItemType(e.target.value as WorkItemType)}
-                >
-                  <option value="Epic">Epic</option>
-                  <option value="UserStory">User Story</option>
-                  <option value="TechTask">Tech Task</option>
-                  <option value="Campaign">Campaign</option>
-                  <option value="MktTask">Marketing Task</option>
-                  <option value="MediaTask">Media Task</option>
-                </select>
+                  onChange={(val) => setNewItemType(val as WorkItemType)}
+                  options={[
+                    { value: 'Epic', label: 'Epic' },
+                    { value: 'UserStory', label: 'User Story' },
+                    { value: 'TechTask', label: 'Tech Task' },
+                    { value: 'Campaign', label: 'Campaign' },
+                    { value: 'MktTask', label: 'Marketing Task' },
+                    { value: 'MediaTask', label: 'Media Task' }
+                  ]}
+                />
               </div>
             </>
           )}
@@ -1329,7 +1327,7 @@ function LinkObjectiveModal({
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-8 relative border border-outline-variant/20">
+      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-md p-8 relative border border-outline-variant/20">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
@@ -1346,18 +1344,17 @@ function LinkObjectiveModal({
           <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">
             Select L1 Key Result
           </label>
-          <select
-            className="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none max-h-60"
+          <CustomSelect
             value={selectedL1KrId}
-            onChange={(e) => setSelectedL1KrId(e.target.value)}
-          >
-            <option value="">-- Choose an L1 Key Result --</option>
-            {allL1KRs.map(kr => (
-              <option key={kr.id} value={kr.id}>
-                [{kr.department}] {kr.objectiveTitle.substring(0, 50)}{kr.objectiveTitle.length > 50 ? '...' : ''} → {kr.title}
-              </option>
-            ))}
-          </select>
+            onChange={setSelectedL1KrId}
+            options={[
+              { value: '', label: '-- Choose an L1 Key Result --' },
+              ...allL1KRs.map(kr => ({
+                value: kr.id,
+                label: `[${kr.department}] ${kr.objectiveTitle.substring(0, 50)}${kr.objectiveTitle.length > 50 ? '...' : ''} → ${kr.title}`
+              }))
+            ]}
+          />
         </div>
 
         <div className="flex w-full gap-3 mt-10">
@@ -1439,31 +1436,29 @@ function AddObjectiveModal({
 
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Department</label>
-            <select
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
+            <CustomSelect
               value={formData.department}
-              onChange={e => setFormData({ ...formData, department: e.target.value })}
-            >
-              <option value="Tech">Tech</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Media">Media</option>
-              <option value="Sale">Sale</option>
-            </select>
+              onChange={(val) => setFormData({ ...formData, department: val })}
+              options={[
+                { value: 'Tech', label: 'Tech' },
+                { value: 'Marketing', label: 'Marketing' },
+                { value: 'Media', label: 'Media' },
+                { value: 'Sale', label: 'Sale' }
+              ]}
+            />
           </div>
 
           {level === 'L2' && (
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Parent Objective (L1)</label>
-              <select
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
+              <CustomSelect
                 value={formData.parentId}
-                onChange={e => setFormData({ ...formData, parentId: e.target.value })}
-              >
-                <option value="">-- Select parent objective --</option>
-                {l1Objectives.map(obj => (
-                  <option key={obj.id} value={obj.id}>[{obj.department}] {obj.title}</option>
-                ))}
-              </select>
+                onChange={(val) => setFormData({ ...formData, parentId: val })}
+                options={[
+                  { value: '', label: '-- Select parent objective --' },
+                  ...l1Objectives.map(obj => ({ value: obj.id, label: `[${obj.department}] ${obj.title}` }))
+                ]}
+              />
             </div>
           )}
 

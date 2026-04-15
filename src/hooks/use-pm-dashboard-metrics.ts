@@ -131,7 +131,7 @@ export function usePMDashboardMetrics(
   const weeklyVelocity = useMemo(() => {
     return workItems
       .filter((i) => i.status === 'Done' && i.updatedAt && new Date(i.updatedAt) >= weekAgo)
-      .reduce((sum, i) => sum + (i.storyPoints || 0), 0);
+      .length;
   }, [workItems, weekAgo]);
 
   return {

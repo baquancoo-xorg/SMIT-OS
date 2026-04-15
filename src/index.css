@@ -40,6 +40,10 @@
   --radius-DEFAULT: 1rem;
   --radius-lg: 2rem;
   --radius-xl: 3rem;
+
+  /* Semantic tokens */
+  --radius-action: 9999px;    /* capsule - buttons, badges, chips */
+  --radius-container: 3rem;   /* 48px - inputs, cards, modals */
 }
 
 @layer base {

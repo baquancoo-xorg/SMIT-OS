@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { WorkItem, WorkItemType, Priority } from '../../types';
 import { X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import CustomSelect from '../ui/CustomSelect';
+import CustomDatePicker from '../ui/CustomDatePicker';
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -45,7 +47,6 @@ export default function TaskModal({
   const [status, setStatus] = useState(initialData?.status || defaultStatus);
   const [dueDate, setDueDate] = useState(initialData?.dueDate || '');
   const [startDate, setStartDate] = useState(initialData?.startDate || '');
-  const [storyPoints, setStoryPoints] = useState<number | undefined>(initialData?.storyPoints);
 
   // Parent selection state (edit mode only)
   const [parentId, setParentId] = useState<string | undefined>(initialData?.parentId);
@@ -90,7 +91,6 @@ export default function TaskModal({
       setStatus(initialData.status);
       setDueDate(initialData.dueDate || '');
       setStartDate(initialData.startDate || '');
-      setStoryPoints(initialData.storyPoints);
       setParentId(initialData.parentId);
     } else {
       setTitle('');
@@ -101,7 +101,6 @@ export default function TaskModal({
       setStatus(defaultStatus);
       setDueDate('');
       setStartDate('');
-      setStoryPoints(undefined);
       setParentId(undefined);
     }
   }, [initialData, defaultType, defaultStatus, isOpen, users]);
@@ -122,7 +121,6 @@ export default function TaskModal({
       status,
       dueDate: dueDate || undefined,
       startDate: startDate || undefined,
-      storyPoints,
       parentId: parentId || undefined,
     } as WorkItem;
 
@@ -130,14 +128,13 @@ export default function TaskModal({
     onClose();
   };
 
-  const showStoryPoints = type === 'Epic' || type === 'UserStory' || type === 'TechTask';
   const showParentSelect = initialData && type !== 'Epic';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="bg-white rounded-3xl p-8 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-black font-headline text-on-surface">{initialData ? 'Edit Task' : 'Create New Task'}</h2>
+          <h2 className="text-2xl font-black font-headline text-on-surface">{initialData ? 'Edit' : 'Create New'}</h2>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
             <X size={24} className="text-slate-500" />
           </button>
@@ -150,8 +147,8 @@ export default function TaskModal({
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 bg-white text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-              placeholder="Enter task title..."
+              className="w-full px-4 py-3 rounded-3xl border border-outline-variant/20 bg-white text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+              placeholder="Enter title..."
             />
           </div>
 
@@ -160,121 +157,97 @@ export default function TaskModal({
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[100px]"
-              placeholder="Enter task description..."
+              className="w-full px-4 py-3 rounded-3xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[100px]"
+              placeholder="Enter description..."
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Type</label>
-              <select
+              <CustomSelect
                 value={type}
-                onChange={(e) => setType(e.target.value as WorkItemType)}
-                className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
-              >
-                {typeOptions.map(t => (
-                  <option key={t} value={t}>{TYPE_LABELS[t]}</option>
-                ))}
-              </select>
+                onChange={(val) => setType(val as WorkItemType)}
+                options={typeOptions.map(t => ({ value: t, label: TYPE_LABELS[t] }))}
+              />
             </div>
 
             <div>
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Priority</label>
-              <select
+              <CustomSelect
                 value={priority}
-                onChange={(e) => setPriority(e.target.value as Priority)}
-                className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
-              >
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-                <option value="Urgent">Urgent</option>
-              </select>
+                onChange={(val) => setPriority(val as Priority)}
+                options={[
+                  { value: 'Low', label: 'Low' },
+                  { value: 'Medium', label: 'Medium' },
+                  { value: 'High', label: 'High' },
+                  { value: 'Urgent', label: 'Urgent' }
+                ]}
+              />
             </div>
 
             <div>
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Assignee</label>
-              <select
+              <CustomSelect
                 value={assigneeId}
-                onChange={(e) => setAssigneeId(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
-              >
-                {users.map(user => (
-                  <option key={user.id} value={user.id}>{user.fullName}</option>
-                ))}
-              </select>
+                onChange={setAssigneeId}
+                options={users.map(user => ({ value: user.id, label: user.fullName }))}
+              />
             </div>
 
             <div>
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Status</label>
-              <select
+              <CustomSelect
                 value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
-              >
-                <option value="Todo">Todo</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Review">Review</option>
-                <option value="Done">Done</option>
-              </select>
+                onChange={setStatus}
+                options={[
+                  { value: 'Todo', label: 'Todo' },
+                  { value: 'In Progress', label: 'In Progress' },
+                  { value: 'Review', label: 'Review' },
+                  { value: 'Done', label: 'Done' }
+                ]}
+              />
             </div>
 
             <div>
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Start Date</label>
-              <input
-                type="date"
+              <CustomDatePicker
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
+                onChange={setStartDate}
+                placeholder="Select start date..."
               />
             </div>
 
             <div>
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Due Date</label>
-              <input
-                type="date"
+              <CustomDatePicker
                 value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
+                onChange={setDueDate}
+                placeholder="Select due date..."
               />
             </div>
 
-            {showStoryPoints && (
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Story Points</label>
-                <input
-                  type="number"
-                  value={storyPoints || ''}
-                  onChange={(e) => setStoryPoints(e.target.value ? parseInt(e.target.value) : undefined)}
-                  className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
-                  placeholder="e.g., 5"
-                />
-              </div>
-            )}
-
             {showParentSelect && (
-              <div className={showStoryPoints ? '' : 'col-span-2'}>
+              <div>
                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
                   Link to Parent <span className="text-slate-300 normal-case tracking-normal">(Optional)</span>
                 </label>
                 {loadingParents ? (
-                  <div className="px-4 py-3 rounded-2xl border border-outline-variant/20 bg-slate-50 text-slate-400 text-sm">
+                  <div className="px-4 py-3 rounded-3xl border border-outline-variant/20 bg-slate-50 text-slate-400 text-sm">
                     Loading parents...
                   </div>
                 ) : (
-                  <select
+                  <CustomSelect
                     value={parentId || ''}
-                    onChange={(e) => setParentId(e.target.value || undefined)}
-                    className="w-full px-4 py-3 rounded-2xl border border-outline-variant/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white text-on-surface"
-                  >
-                    <option value="">No Parent</option>
-                    {availableParents.map(p => (
-                      <option key={p.id} value={p.id}>
-                        [{TYPE_LABELS[p.type as WorkItemType] || p.type}] {p.title}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setParentId(val || undefined)}
+                    options={[
+                      { value: '', label: 'No Parent' },
+                      ...availableParents.map(p => ({
+                        value: p.id,
+                        label: `[${TYPE_LABELS[p.type as WorkItemType] || p.type}] ${p.title}`
+                      }))
+                    ]}
+                  />
                 )}
               </div>
             )}
@@ -293,7 +266,7 @@ export default function TaskModal({
             disabled={!title.trim()}
             className="px-6 py-3 rounded-full font-bold text-sm bg-primary text-white shadow-lg shadow-primary/20 hover:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
           >
-            {initialData ? 'Save Changes' : 'Create Task'}
+            {initialData ? 'Save Changes' : 'Create'}
           </button>
         </div>
       </div>

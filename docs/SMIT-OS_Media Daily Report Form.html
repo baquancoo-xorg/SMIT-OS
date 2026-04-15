@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMIT OS - Media Daily Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .expand-transition { transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, padding 0.3s ease-in-out; }
+        /* Tùy chỉnh icon calendar màu trắng trên nền tối */
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body class="bg-slate-100 py-8 px-4 text-slate-800 min-h-screen">
+
+    <div class="max-w-3xl mx-auto space-y-6" id="app-container">
+        <!-- Render from JS -->
+    </div>
+
+    <script>
+        // MOCK DATA: Đội Media
+        const currentUser = { name: 'Thành Long', role: 'Media Leader', avatar: 'TL' };
+        
+        const assignedTasks = [
+            { id: 'MEDIA-301', title: 'Sản xuất TVC Sự kiện (Quý 2)' },
+            { id: 'MEDIA-302', title: 'Quay dựng đợt 1 Video UGC & Case Study' },
+            { id: 'MEDIA-305', title: 'Quản lý & đăng 33 Video TikTok' },
+            { id: 'MEDIA-308', title: 'Thiết kế Layout PDF Avatar Sale Kit' }
+        ];
+
+        let formData = {
+            reportDate: '2026-04-14', 
+            status: {}, 
+            details: {}, 
+            
+            blockers: [
+                { id: 'b1', task: 'MEDIA-302 - Quay dựng đợt 1 Video UGC & Case Study', desc: 'Vẫn đang trống việc mảng này do chưa nhận được Brief Kịch bản chi tiết từ phòng Marketing.', impact: 'high' }
+            ],
+
+            todayPlans: [
+                { id: 'p1', task: 'MEDIA-301 - Sản xuất TVC Sự kiện (Quý 2)', output: 'Xuất bản Demo Ver 1 để gửi PM duyệt', progress: '30', isHotSLA: true },
+                { id: 'p2', task: 'MEDIA-305 - Quản lý & đăng 33 Video TikTok', output: 'Lên 2 video TikTok ngắn (Chủ đề: Backup)', progress: '100', isHotSLA: false }
+            ]
+        };
+
+        // --- CÁC HÀM XỬ LÝ PHẦN 1 ---
+        function setTaskStatus(taskId, status) {
+            if (formData.status[taskId] === status) {
+                delete formData.status[taskId];
+            } else {
+                formData.status[taskId] = status;
+                if(!formData.details[taskId]) {
+                    formData.details[taskId] = { 
+                        progress: 50, link: '', version: 'demo', prodStatus: 'editing', 
+                        hasMetrics: false, views: '', engagement: '', followers: '', publicationsCount: '', // Thêm publicationsCount
+                        revisionCount: 'v1' // Thêm theo dõi vòng Feedback
+                    };
+                }
+            }
+            renderApp();
+        }
+
+        function updateDetail(taskId, field, value) {
+            formData.details[taskId][field] = value;
+            if(field === 'progress') {
+                document.getElementById(`prog-val-${taskId}`).innerText = value + '%';
+            }
+            // Nếu đổi prodStatus, render lại để hiện/ẩn dropdown Vòng sửa
+            if(field === 'prodStatus') {
+                renderApp();
+            }
+        }
+
+        // --- CÁC HÀM XỬ LÝ PHẦN 2 (BLOCKERS) ---
+        function addBlocker() {
+            formData.blockers.push({ id: 'b' + Date.now(), task: '', desc: '', impact: 'none' });
+            renderApp();
+        }
+
+        function removeBlocker(id) {
+            formData.blockers = formData.blockers.filter(b => b.id !== id);
+            renderApp();
+        }
+
+        function updateBlocker(id, field, value) {
+            const blocker = formData.blockers.find(b => b.id === id);
+            if (blocker) blocker[field] = value;
+        }
+
+        function appendBlockerTag(id, tag) {
+            const blocker = formData.blockers.find(b => b.id === id);
+            if (blocker) {
+                blocker.desc = blocker.desc ? blocker.desc + ' ' + tag : tag;
+                renderApp();
+            }
+        }
+
+        // --- CÁC HÀM XỬ LÝ PHẦN 3 ---
+        function addTodayPlan() {
+            formData.todayPlans.push({ id: 'p' + Date.now(), task: '', output: '', progress: '', isHotSLA: false });
+            renderApp();
+        }
+
+        function removeTodayPlan(id) {
+            formData.todayPlans = formData.todayPlans.filter(p => p.id !== id);
+            renderApp();
+        }
+
+        function updateTodayPlan(id, field, value) {
+            const plan = formData.todayPlans.find(p => p.id === id);
+            if (plan) plan[field] = value;
+        }
+
+        function toggleHotSLAPlan(id) {
+            const plan = formData.todayPlans.find(p => p.id === id);
+            if (plan) {
+                plan.isHotSLA = !plan.isHotSLA;
+                renderApp();
+            }
+        }
+
+        function renderApp() {
+            const container = document.getElementById('app-container');
+            
+            // 1. RENDER TASKS HÔM QUA
+            const yesterdayTasksHtml = assignedTasks.map(task => {
+                const isDone = formData.status[task.id] === 'done';
+                const isDoing = formData.status[task.id] === 'doing';
+                const details = formData.details[task.id] || {};
+
+                return `
+                    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden mb-3 shadow-sm">
+                        <!-- Header Task -->
+                        <div class="flex items-center justify-between p-4 bg-slate-50">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-xs font-bold bg-slate-200 text-slate-600 px-2 py-1 rounded uppercase">${task.id}</span>
+                                <span class="text-sm font-bold text-slate-800">${task.title}</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="setTaskStatus('${task.id}', 'done')" class="flex items-center px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${isDone ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-slate-300 text-slate-500 hover:bg-slate-100'}">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 mr-1"></i> Đã Xong / Đã Đăng
+                                </button>
+                                <button onclick="setTaskStatus('${task.id}', 'doing')" class="flex items-center px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${isDoing ? 'bg-blue-50 border-blue-500 text-blue-700' : 'bg-white border-slate-300 text-slate-500 hover:bg-slate-100'}">
+                                    <i data-lucide="activity" class="w-4 h-4 mr-1"></i> Đang Làm
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Dropdown Info cho Đã Xong (Form Media) -->
+                        <div class="expand-transition overflow-hidden bg-white border-t border-slate-100 ${isDone ? 'max-h-[800px] opacity-100 p-4' : 'max-h-0 opacity-0 p-0 border-transparent'}">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Link File / Link Bài Đăng (Drive, TikTok...)</label>
+                                    <div class="relative">
+                                        <i data-lucide="link" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                                        <input type="text" placeholder="Dán link ấn phẩm vào đây..." class="w-full pl-9 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none font-medium text-slate-700" value="${details.link || ''}" onchange="updateDetail('${task.id}', 'link', this.value)">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Loại ấn phẩm / Phiên bản</label>
+                                    <select class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none font-semibold text-slate-700" onchange="updateDetail('${task.id}', 'version', this.value)">
+                                        <option value="demo" ${details.version==='demo'?'selected':''}>📝 Bản Nháp / Demo V1</option>
+                                        <option value="final" ${details.version==='final'?'selected':''}>✅ Bản Final (Chờ duyệt)</option>
+                                        <option value="published" ${details.version==='published'?'selected':''}>🚀 Đã Đăng tải (Social)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Toggle thông minh để hiện bảng Branding Metrics -->
+                            <label class="flex items-center space-x-2 cursor-pointer mt-4 mb-3 p-2 bg-slate-50 rounded-lg border border-slate-200 w-max hover:bg-slate-100 transition-colors">
+                                <input type="checkbox" class="w-4 h-4 text-pink-600 rounded border-slate-300 focus:ring-pink-500" 
+                                       ${details.hasMetrics ? 'checked' : ''} 
+                                       onchange="updateDetail('${task.id}', 'hasMetrics', this.checked); renderApp()">
+                                <span class="text-xs font-bold text-slate-700 uppercase tracking-wide">Báo cáo Năng suất & Hiệu suất Kênh</span>
+                            </label>
+
+                            <!-- Khối hiển thị số liệu Branding (Cập nhật 4 Cột: Thêm Số ấn phẩm) -->
+                            ${details.hasMetrics ? `
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 bg-pink-50/50 p-4 rounded-xl border border-pink-100 animate-in fade-in duration-200">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Số ấn phẩm xuất bản</label>
+                                        <div class="relative">
+                                            <i data-lucide="layers" class="absolute left-2 top-2.5 w-3.5 h-3.5 text-pink-400"></i>
+                                            <input type="number" placeholder="0" class="w-full border border-pink-200 rounded-lg p-2 pl-7 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-pink-700 bg-white" value="${details.publicationsCount || ''}" onchange="updateDetail('${task.id}', 'publicationsCount', this.value)" title="Số lượng video/ảnh/bài viết đã hoàn thành trong hôm nay">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Lượt xem (Views/Reach)</label>
+                                        <input type="text" placeholder="VD: 15.5K" class="w-full border border-pink-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-slate-700 bg-white" value="${details.views || ''}" onchange="updateDetail('${task.id}', 'views', this.value)">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Tương tác (Tim/Cmt/Share)</label>
+                                        <input type="text" placeholder="VD: 1.2K" class="w-full border border-pink-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-slate-700 bg-white" value="${details.engagement || ''}" onchange="updateDetail('${task.id}', 'engagement', this.value)">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Follower / Member mới</label>
+                                        <div class="relative flex items-center">
+                                            <span class="absolute left-3 text-slate-400 font-bold">+</span>
+                                            <input type="number" placeholder="0" class="w-full border border-pink-200 rounded-lg p-2 pl-7 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-pink-600 bg-white" value="${details.followers || ''}" onchange="updateDetail('${task.id}', 'followers', this.value)">
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Dropdown Info cho Đang Làm (Form Media - Cập nhật vòng Feedback) -->
+                        <div class="expand-transition overflow-hidden bg-white border-t border-slate-100 ${isDoing ? 'max-h-60 opacity-100 p-4' : 'max-h-0 opacity-0 p-0 border-transparent'}">
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label class="flex justify-between text-xs font-bold text-slate-500 mb-2">
+                                        <span>Cập nhật % Tiến độ:</span>
+                                        <span id="prog-val-${task.id}" class="text-blue-600 text-sm">${details.progress || 50}%</span>
+                                    </label>
+                                    <input type="range" min="0" max="95" step="5" value="${details.progress || 50}" 
+                                        class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                        oninput="updateDetail('${task.id}', 'progress', this.value)">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 mb-2">Tình trạng sản xuất</label>
+                                    <div class="flex gap-2">
+                                        <select class="flex-1 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-slate-700" onchange="updateDetail('${task.id}', 'prodStatus', this.value)">
+                                            <option value="editing" ${details.prodStatus==='editing'?'selected':''}>🎬 Đang quay / dựng / design</option>
+                                            <option value="rendering" ${details.prodStatus==='rendering'?'selected':''}>⏳ Đang Render / Đợi đăng tải</option>
+                                            <option value="feedback" ${details.prodStatus==='feedback'?'selected':''}>🔄 Đang sửa theo Feedback</option>
+                                        </select>
+                                        
+                                        <!-- Hiển thị "Vòng sửa" nếu trạng thái là Đang sửa theo Feedback -->
+                                        ${details.prodStatus === 'feedback' ? `
+                                            <select class="w-24 border border-rose-300 bg-rose-50 text-rose-700 rounded-lg p-2 text-sm focus:ring-2 focus:ring-rose-500 outline-none font-bold animate-in fade-in" onchange="updateDetail('${task.id}', 'revisionCount', this.value)" title="Số lần Feedback">
+                                                <option value="v1" ${details.revisionCount==='v1'?'selected':''}>Lần 1</option>
+                                                <option value="v2" ${details.revisionCount==='v2'?'selected':''}>Lần 2</option>
+                                                <option value="v3+" ${details.revisionCount==='v3+'?'selected':''}>Lần 3+</option>
+                                            </select>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <!-- Header (Màu Hồng đặc trưng Media) -->
+                <div class="bg-pink-600 rounded-2xl shadow-lg p-6 text-white flex justify-between items-center flex-wrap gap-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="h-12 w-12 bg-white text-pink-600 rounded-full flex items-center justify-center font-black text-xl">${currentUser.avatar}</div>
+                        <div>
+                            <h1 class="text-2xl font-black flex items-center"><i data-lucide="clapperboard" class="mr-2"></i> MEDIA DAILY SYNC</h1>
+                            <p class="text-pink-100 text-sm font-medium">Xin chào ${currentUser.name} (${currentUser.role})</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center bg-pink-700/60 p-2.5 rounded-xl border border-pink-500 hover:bg-pink-700 transition-colors">
+                        <i data-lucide="calendar-clock" class="w-5 h-5 text-pink-200 mr-3"></i>
+                        <div class="flex flex-col">
+                            <label class="text-[10px] text-pink-200 font-bold uppercase tracking-wider leading-none mb-1.5">Ngày báo cáo</label>
+                            <input type="date" value="${formData.reportDate}" onchange="formData.reportDate = this.value; renderApp()" class="bg-transparent text-white text-sm font-bold focus:outline-none cursor-pointer [color-scheme:dark] p-0 border-0 leading-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- P1: Hôm qua -->
+                <div class="mt-6">
+                    <h2 class="text-lg font-black text-slate-800 mb-3 flex items-center"><i data-lucide="history" class="mr-2 text-pink-500"></i>1. Review công việc hôm qua</h2>
+                    ${yesterdayTasksHtml}
+                </div>
+
+                <!-- P2: Blockers (Rào cản Media) -->
+                <div class="mt-6 bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-black text-slate-800 flex items-center">
+                            <i data-lucide="alert-octagon" class="mr-2 text-red-500 w-5 h-5"></i>
+                            2. Khó khăn & Rủi ro trễ deadline
+                        </h2>
+                        <button onclick="addBlocker()" class="text-sm font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors flex items-center">
+                            <i data-lucide="plus" class="w-4 h-4 mr-1"></i> Thêm Vấn đề
+                        </button>
+                    </div>
+
+                    ${formData.blockers.length === 0 ? `
+                        <div class="text-center py-8 bg-slate-50 border border-dashed border-slate-200 rounded-xl">
+                            <div class="inline-flex items-center justify-center w-12 h-12 bg-emerald-100 text-emerald-500 rounded-full mb-3">
+                                <i data-lucide="check-check" class="w-6 h-6"></i>
+                            </div>
+                            <p class="text-sm font-bold text-slate-600">Xưởng sản xuất đang chạy mượt!</p>
+                            <p class="text-xs text-slate-400 mt-1">Không có rào cản nào ngăn bạn tạo ra siêu phẩm.</p>
+                        </div>
+                    ` : `
+                        <div class="space-y-4">
+                            ${formData.blockers.map((blocker, index) => `
+                                <div class="p-4 border border-red-100 bg-red-50/40 rounded-xl relative group">
+                                    <button onclick="removeBlocker('${blocker.id}')" class="absolute top-3 right-3 text-red-300 hover:text-red-500 transition-colors bg-white rounded-full p-1 shadow-sm opacity-0 group-hover:opacity-100" title="Xóa rào cản này">
+                                        <i data-lucide="x" class="w-4 h-4"></i>
+                                    </button>
+                                    
+                                    <div class="mb-4 pr-8">
+                                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1.5">Công việc / Ấn phẩm đang bị kẹt</label>
+                                        <div class="relative">
+                                            <input list="assigned-tasks" value="${blocker.task}" onchange="updateBlocker('${blocker.id}', 'task', this.value)" class="w-full text-sm p-2.5 rounded-lg border border-red-200 focus:border-red-400 focus:ring-1 focus:ring-red-400 outline-none font-semibold text-slate-700 bg-white" placeholder="Chọn task đang bị kẹt...">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div class="md:col-span-2">
+                                            <div class="flex justify-between items-end mb-1.5">
+                                                <label class="block text-[11px] font-bold text-slate-500 uppercase">Mô tả rào cản</label>
+                                                <div class="flex gap-1.5 flex-wrap justify-end">
+                                                    <button onclick="appendBlockerTag('${blocker.id}', '[Chờ Brief từ MKT]')" class="text-[10px] bg-white border border-slate-200 hover:bg-slate-100 px-1.5 py-0.5 rounded font-medium text-slate-600">Chờ Brief</button>
+                                                    <button onclick="appendBlockerTag('${blocker.id}', '[Chờ PM/BOD duyệt]')" class="text-[10px] bg-white border border-slate-200 hover:bg-slate-100 px-1.5 py-0.5 rounded font-medium text-slate-600">Chờ Duyệt</button>
+                                                    <button onclick="appendBlockerTag('${blocker.id}', '[Thiếu Source quay/VJ]')" class="text-[10px] bg-white border border-slate-200 hover:bg-slate-100 px-1.5 py-0.5 rounded font-medium text-slate-600">Thiếu Source</button>
+                                                </div>
+                                            </div>
+                                            <textarea onchange="updateBlocker('${blocker.id}', 'desc', this.value)" class="w-full text-sm p-2.5 rounded-lg border border-red-200 focus:border-red-400 focus:ring-1 focus:ring-red-400 outline-none min-h-[60px] bg-white placeholder-slate-400" placeholder="Mô tả chi tiết...">${blocker.desc}</textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1.5">Mức độ nguy cơ</label>
+                                            <select onchange="updateBlocker('${blocker.id}', 'impact', this.value)" class="w-full text-sm p-2.5 rounded-lg border border-red-200 focus:border-red-400 focus:ring-1 focus:ring-red-400 outline-none bg-white font-semibold ${blocker.impact === 'high' ? 'text-red-600' : 'text-slate-700'}">
+                                                <option value="none" ${blocker.impact === 'none' ? 'selected' : ''}>🟢 Vẫn kịp Deadline SLA</option>
+                                                <option value="low" ${blocker.impact === 'low' ? 'selected' : ''}>🟡 Chậm tiến độ (Trễ 1-2 ngày)</option>
+                                                <option value="high" ${blocker.impact === 'high' ? 'selected' : ''}>🔴 Đứng hình / Cần PM can thiệp</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `}
+                </div>
+
+                <!-- P3: Hôm nay (CẬP NHẬT CỜ ẤN PHẨM NÓNG) -->
+                <div class="mt-6 bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-black text-slate-800 flex items-center">
+                            <i data-lucide="target" class="mr-2 text-amber-500 w-5 h-5"></i>
+                            3. Mục tiêu Focus hôm nay
+                        </h2>
+                        <button onclick="addTodayPlan()" class="text-sm font-bold text-pink-600 bg-pink-50 px-3 py-1.5 rounded-lg hover:bg-pink-100 transition-colors flex items-center">
+                            <i data-lucide="plus" class="w-4 h-4 mr-1"></i> Thêm Công việc
+                        </button>
+                    </div>
+
+                    ${formData.todayPlans.length === 0 ? `
+                        <div class="text-center py-8 bg-slate-50 border border-dashed border-slate-200 rounded-xl">
+                            <div class="inline-flex items-center justify-center w-12 h-12 bg-pink-100 text-pink-500 rounded-full mb-3">
+                                <i data-lucide="target" class="w-6 h-6"></i>
+                            </div>
+                            <p class="text-sm font-bold text-slate-600">Chưa có mục tiêu nào!</p>
+                            <p class="text-xs text-slate-400 mt-1">Hãy thêm công việc bạn dự định focus trong hôm nay.</p>
+                        </div>
+                    ` : `
+                        <div class="space-y-4">
+                            ${formData.todayPlans.map((plan, index) => `
+                                <div class="p-4 rounded-xl relative group transition-all ${plan.isHotSLA ? 'border-2 border-red-300 bg-red-50/30 shadow-md' : 'border border-slate-200 bg-slate-50/50'}">
+                                    <button onclick="removeTodayPlan('${plan.id}')" class="absolute top-3 right-3 text-slate-400 hover:text-red-500 transition-colors bg-white rounded-full p-1 shadow-sm opacity-0 group-hover:opacity-100 z-10" title="Xóa công việc này">
+                                        <i data-lucide="x" class="w-4 h-4"></i>
+                                    </button>
+                                    
+                                    <div class="mb-4 pr-8">
+                                        <div class="flex justify-between items-end mb-1.5">
+                                            <label class="block text-[11px] font-bold ${plan.isHotSLA ? 'text-red-600' : 'text-slate-500'} uppercase">Mục tiêu Media #${index + 1}</label>
+                                            
+                                            <!-- Nút Cờ Ấn Phẩm Nóng -->
+                                            <button onclick="toggleHotSLAPlan('${plan.id}')" class="flex items-center px-2 py-1 rounded text-[10px] font-bold border transition-colors ${plan.isHotSLA ? 'bg-red-100 border-red-300 text-red-700 shadow-sm' : 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50'}">
+                                                <i data-lucide="siren" class="w-3 h-3 mr-1 ${plan.isHotSLA ? 'text-red-600' : ''}"></i> Ấn phẩm Nóng (SLA Đỏ)
+                                            </button>
+                                        </div>
+                                        <div class="relative">
+                                            <input list="assigned-tasks" value="${plan.task}" onchange="updateTodayPlan('${plan.id}', 'task', this.value)" class="w-full text-sm p-2.5 rounded-lg border ${plan.isHotSLA ? 'border-red-200 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 focus:border-pink-500 focus:ring-pink-500'} focus:ring-1 outline-none font-semibold text-slate-700 bg-white" placeholder="Chọn Ấn phẩm / Task cần focus...">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                        <div class="md:col-span-3">
+                                            <label class="block text-[11px] font-bold ${plan.isHotSLA ? 'text-red-500' : 'text-slate-500'} uppercase mb-1.5">Cam kết đầu ra</label>
+                                            <input type="text" onchange="updateTodayPlan('${plan.id}', 'output', this.value)" class="w-full text-sm p-2.5 rounded-lg border ${plan.isHotSLA ? 'border-red-200 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 focus:border-pink-500 focus:ring-pink-500'} focus:ring-1 outline-none bg-white placeholder-slate-400" placeholder="Kết quả sẽ đạt được (Dựng xong Demo 1, Export MP4...)" value="${plan.output}">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-bold ${plan.isHotSLA ? 'text-red-500' : 'text-slate-500'} uppercase mb-1.5">Dự kiến tiến độ</label>
+                                            <div class="relative flex items-center">
+                                                <span class="absolute left-3 text-slate-400 font-bold">+</span>
+                                                <input type="number" onchange="updateTodayPlan('${plan.id}', 'progress', this.value)" class="w-full text-sm p-2.5 pl-7 pr-8 rounded-lg border ${plan.isHotSLA ? 'border-red-200 focus:border-red-500 focus:ring-red-500 text-red-600' : 'border-slate-300 focus:border-pink-500 focus:ring-pink-500 text-pink-600'} focus:ring-1 outline-none bg-white font-bold" placeholder="0" value="${plan.progress}">
+                                                <span class="absolute right-3 text-slate-400 font-bold">%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `}
+
+                    <datalist id="assigned-tasks">
+                        ${assignedTasks.map(t => `<option value="${t.id} - ${t.title}"></option>`).join('')}
+                    </datalist>
+                </div>
+
+                <button class="w-full mt-6 py-3.5 rounded-xl font-black text-white bg-pink-600 hover:bg-pink-700 shadow-lg flex justify-center items-center transition-all hover:scale-[1.01] active:scale-[0.98]" onclick="alert('Đã nộp báo cáo cho ngày: ' + formData.reportDate)">
+                    <i data-lucide="send" class="w-5 h-5 mr-2"></i> Gửi Báo Cáo Daily
+                </button>
+            `;
+            lucide.createIcons();
+        }
+
+        renderApp();
+    </script>
+</body>
+</html>

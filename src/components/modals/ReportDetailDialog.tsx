@@ -63,7 +63,7 @@ export default function ReportDetailDialog({ report, isOpen, onClose, onApprove 
 
       {/* Dialog */}
       <div
-        className="relative bg-white rounded-[40px] shadow-2xl w-full max-w-6xl max-h-[92vh] overflow-hidden flex flex-col border border-gray-100"
+        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-6xl max-h-[92vh] overflow-hidden flex flex-col border border-gray-100"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -118,7 +118,7 @@ export default function ReportDetailDialog({ report, isOpen, onClose, onApprove 
                   <button
                     onClick={handleApprove}
                     disabled={approving}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-2xl font-bold text-sm hover:bg-emerald-600 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/20"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-full font-bold text-sm hover:bg-emerald-600 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/20"
                   >
                     <CheckCircle size={18} />
                     <span className="hidden sm:inline">{approving ? 'Approving...' : 'Approve'}</span>
@@ -126,7 +126,7 @@ export default function ReportDetailDialog({ report, isOpen, onClose, onApprove 
                 )}
                 <button
                   onClick={onClose}
-                  className="w-11 h-11 flex items-center justify-center rounded-2xl bg-gray-50 hover:bg-red-50 hover:text-red-500 text-gray-400 transition-all border border-gray-200 hover:border-red-200"
+                  className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-50 hover:bg-red-50 hover:text-red-500 text-gray-400 transition-all border border-gray-200 hover:border-red-200"
                 >
                   <X size={20} />
                 </button>

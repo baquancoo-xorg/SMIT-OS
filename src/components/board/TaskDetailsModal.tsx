@@ -100,7 +100,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
             </div>
 
             {linkedKr && (
-              <div className="bg-primary/5 rounded-2xl p-5 border border-primary/10 space-y-3">
+              <div className="bg-primary/5 rounded-3xl p-5 border border-primary/10 space-y-3">
                 <div className="flex items-center gap-2 text-xs font-black text-primary uppercase tracking-widest">
                   <Target size={16} />
                   <span>Linked Key Result</span>
@@ -125,7 +125,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
                   <AlignLeft size={16} />
                   <span>Description</span>
                 </div>
-                <div className="bg-slate-50 rounded-2xl p-5 text-sm text-slate-600 leading-relaxed border border-slate-100">
+                <div className="bg-slate-50 rounded-3xl p-5 text-sm text-slate-600 leading-relaxed border border-slate-100">
                   {task.description}
                 </div>
               </div>

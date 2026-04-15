@@ -14,7 +14,7 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
   const { currentUser } = useAuth();
 
   return (
-    <aside className="h-full flex flex-col p-4 md:p-6 xl:p-6 bg-white/70 backdrop-blur-xl rounded-r-2xl lg:rounded-r-3xl w-64 xl:w-72 shadow-2xl z-50">
+    <aside className="h-full flex flex-col p-4 md:p-6 xl:p-6 bg-white/70 backdrop-blur-xl rounded-r-3xl w-64 xl:w-72 shadow-2xl z-50">
       <div className="flex flex-col items-start mb-10 px-4">
         <h1 className="text-2xl font-bold tracking-tight text-primary font-headline leading-none">SMIT OS</h1>
         <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest mt-1">The Kinetic Workspace</p>
@@ -96,7 +96,7 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
       </nav>
 
       <div className="mt-auto pt-6 border-t border-slate-100">
-        <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-2xl border border-slate-100">
+        <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-3xl border border-slate-100">
           <div className="flex-1 min-w-0">
             <p className="text-xs font-bold text-on-surface truncate">{currentUser?.fullName}</p>
             <p className="text-[10px] font-medium text-slate-600 truncate">{currentUser?.role}</p>
@@ -130,7 +130,7 @@ function NavItem({ icon, label, active, onClick }: { icon: string | React.ReactN
     <button
       type="button"
       onClick={onClick}
-      className={`w-full text-left flex items-center gap-4 px-4 py-3 min-h-[48px] rounded-2xl cursor-pointer transition-all duration-200 ease-in-out group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${active
+      className={`w-full text-left flex items-center gap-4 px-4 py-3 min-h-[48px] rounded-full cursor-pointer transition-all duration-200 ease-in-out group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${active
         ? 'text-primary font-bold bg-primary/10 border border-primary/20'
         : 'text-slate-500 hover:text-primary hover:bg-slate-50 border border-transparent'
         }`}

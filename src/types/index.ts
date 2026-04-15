@@ -100,8 +100,6 @@ export interface WorkItem {
   startDate?: string;
   dueDate?: string;
   estimatedTime?: string;
-  storyPoints?: number;
-  storyPoint?: number; // Added for compatibility with some components
   subtasks?: any[];
   createdAt: string;
   updatedAt: string;
@@ -138,6 +136,8 @@ export interface DailyReport {
   tasksData: string; // JSON: {completedYesterday: string[], doingYesterday: string[], doingToday: string[]}
   blockers?: string;
   impactLevel?: 'none' | 'low' | 'high';
+  teamType?: 'tech' | 'marketing' | 'media' | 'sale';
+  teamMetrics?: Record<string, unknown>; // JSONB team-specific metrics
   approvedBy?: string;
   approver?: { id: string; fullName: string };
   approvedAt?: string;
@@ -150,3 +150,6 @@ export interface DailyReportTasksData {
   doingYesterday: string[];
   doingToday: string[];
 }
+
+// Re-export team-specific types
+export * from './daily-report-metrics';

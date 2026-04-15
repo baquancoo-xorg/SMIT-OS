@@ -29,7 +29,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm sm:max-w-md px-4 sm:px-0">
         {/* Logo Section */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-primary/10 mb-4">
             <Shield className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-3xl font-black font-headline text-on-surface">SMIT OS</h1>
@@ -44,7 +44,7 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+            <div className="bg-red-50 border border-red-200 rounded-full p-4">
               <p className="text-red-600 text-sm font-medium text-center">{error}</p>
             </div>
           )}
@@ -59,7 +59,7 @@ export default function LoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your username"
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm text-on-surface placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-3xl px-4 py-3 text-sm text-on-surface placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
                 required
                 autoComplete="username"
               />
@@ -75,7 +75,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 pr-12 text-sm text-on-surface placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-3xl px-4 py-3 pr-12 text-sm text-on-surface placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
                   required
                   autoComplete="current-password"
                 />
@@ -92,7 +92,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary text-white py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>

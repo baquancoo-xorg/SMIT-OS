@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import TaskModal from '../components/board/TaskModal';
 import TaskDetailsModal from '../components/board/TaskDetailsModal';
+import CustomFilter from '../components/ui/CustomFilter';
 
 export default function ProductBacklog() {
   const [view, setView] = useState<'board' | 'table'>('board');
@@ -243,38 +244,36 @@ export default function ProductBacklog() {
               className="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant/20 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <Filter size={14} className="text-slate-400" />
-            <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="appearance-none bg-surface-container-low border border-outline-variant/20 rounded-xl px-3 py-2 pr-8 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
-            >
-              <option value="All">All Types</option>
-              <option value="Epic">Epic</option>
-              <option value="UserStory">User Story</option>
-            </select>
-          </div>
-          <select
+          <CustomFilter
+            value={typeFilter}
+            onChange={setTypeFilter}
+            options={[
+              { value: 'All', label: 'All Types' },
+              { value: 'Epic', label: 'Epic' },
+              { value: 'UserStory', label: 'User Story' }
+            ]}
+            icon={<Filter size={14} />}
+          />
+          <CustomFilter
             value={priorityFilter}
-            onChange={(e) => setPriorityFilter(e.target.value)}
-            className="appearance-none bg-surface-container-low border border-outline-variant/20 rounded-xl px-3 py-2 pr-8 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
-          >
-            <option value="All">All Priorities</option>
-            <option value="Urgent">Urgent</option>
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
-          <select
+            onChange={setPriorityFilter}
+            options={[
+              { value: 'All', label: 'All Priorities' },
+              { value: 'Urgent', label: 'Urgent' },
+              { value: 'High', label: 'High' },
+              { value: 'Medium', label: 'Medium' },
+              { value: 'Low', label: 'Low' }
+            ]}
+          />
+          <CustomFilter
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
-            className="appearance-none bg-surface-container-low border border-outline-variant/20 rounded-xl px-3 py-2 pr-8 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
-          >
-            <option value="createdAt">Newest</option>
-            <option value="priority">Priority</option>
-            <option value="dueDate">Due Date</option>
-          </select>
+            onChange={(val) => setSortBy(val as any)}
+            options={[
+              { value: 'createdAt', label: 'Newest' },
+              { value: 'priority', label: 'Priority' },
+              { value: 'dueDate', label: 'Due Date' }
+            ]}
+          />
         </div>
       </div>
 
@@ -322,7 +321,7 @@ export default function ProductBacklog() {
       ) : (
         <div className="flex-1 overflow-y-auto pb-8 space-y-6 custom-scrollbar">
           {filteredItems.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center py-20 bg-slate-50/50 border-2 border-dashed border-outline-variant/10 rounded-[40px]">
+            <div className="h-full flex flex-col items-center justify-center text-center py-20 bg-slate-50/50 border-2 border-dashed border-outline-variant/10 rounded-3xl">
               <span className="material-symbols-outlined text-6xl text-slate-300 mb-4">inbox</span>
               <p className="text-slate-400 font-black uppercase tracking-widest text-xs mb-2">Backlog is empty</p>
               <p className="text-slate-300 text-xs font-medium">Create your first Epic or Story to get started.</p>
@@ -396,7 +395,7 @@ function BacklogGroupCard({
   const config = typeConfig[type] || { label: type, color: 'text-slate-700', bgColor: 'bg-slate-50', icon: 'task' };
 
   return (
-    <div className="bg-white rounded-[32px] border border-outline-variant/10 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-3xl border border-outline-variant/10 shadow-sm overflow-hidden">
       <div className="p-6 flex items-center justify-between border-b border-outline-variant/5">
         <div className="flex items-center gap-3">
           <span className={`material-symbols-outlined text-2xl ${config.color}`}>{config.icon}</span>
@@ -482,11 +481,6 @@ function BacklogItemRow({
         <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full shrink-0 ${typeColors[item.type] || 'bg-slate-100 text-slate-600'}`}>
           {item.type}
         </span>
-        {item.storyPoints && (
-          <span className="text-[10px] font-bold bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded shrink-0">
-            {item.storyPoints} SP
-          </span>
-        )}
         <h4 className="flex-1 text-sm font-bold text-on-surface truncate">{item.title}</h4>
         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shrink-0 ${priorityColors[item.priority] || priorityColors['Medium']}`}>
           {item.priority}
@@ -576,7 +570,7 @@ function BacklogTableView({
   };
 
   return (
-    <div className="bg-white rounded-[32px] border border-outline-variant/10 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-3xl border border-outline-variant/10 shadow-sm overflow-hidden">
       <table className="w-full">
         <thead>
           <tr className="border-b border-outline-variant/10 bg-surface-container-low/30">
@@ -598,7 +592,6 @@ function BacklogTableView({
             <th className="p-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Title</th>
             <th className="p-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Assignee</th>
             <th className="p-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Priority</th>
-            <th className="p-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Story Points</th>
             <th className="p-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Due Date</th>
             <th className="p-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
           </tr>
@@ -640,9 +633,6 @@ function BacklogTableView({
                   <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${priorityColors[item.priority] || priorityColors['Medium']}`}>
                     {item.priority}
                   </span>
-                </td>
-                <td className="p-4">
-                  <p className="text-xs font-bold text-on-surface">{item.storyPoints || '—'}</p>
                 </td>
                 <td className="p-4">
                   <p className="text-xs text-on-surface-variant">{item.dueDate ? new Date(item.dueDate).toLocaleDateString() : '—'}</p>

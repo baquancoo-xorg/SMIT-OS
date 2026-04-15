@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { User, Sprint, OkrCycle } from '../types';
 import { Plus, Trash2, Users, Calendar, Save, Edit2, X, Shield, UserCog, Target } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import CustomSelect from '../components/ui/CustomSelect';
 
 export default function Settings() {
   const { users, refreshUsers, isAdmin, currentUser } = useAuth();
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [okrCycles, setOkrCycles] = useState<OkrCycle[]>([]);
+
 
   // OKR Cycle states
   const [isAddingCycle, setIsAddingCycle] = useState(false);
@@ -20,6 +22,11 @@ export default function Settings() {
   const [newUser, setNewUser] = useState({ fullName: '', username: '', password: '', departments: ['Tech'] as string[], role: 'Member', scope: '', avatar: 'https://picsum.photos/seed/user/200', isAdmin: false });
 
   const allDepartments = ['BOD', 'Tech', 'Marketing', 'Media', 'Sale'];
+  const roleOptions = [
+    { value: 'Admin', label: 'Admin' },
+    { value: 'Leader', label: 'Leader' },
+    { value: 'Member', label: 'Member' }
+  ];
 
   const toggleDepartment = (dept: string, isEdit: boolean) => {
     if (isEdit) {
@@ -284,9 +291,11 @@ export default function Settings() {
 
   return (
     <div className="h-full flex flex-col p-6 md:p-10 space-y-12 w-full overflow-y-auto">
-      <div>
-        <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Workspace Settings</h2>
-        <p className="text-slate-500 mt-2">Manage users, sprints, and system configurations.</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Workspace Settings</h2>
+          <p className="text-slate-500 mt-2">Manage users, sprints, and system configurations.</p>
+        </div>
       </div>
 
       {/* C5: Earlier breakpoint for tablet */}
@@ -313,16 +322,16 @@ export default function Settings() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Full Name</label>
-                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newUser.fullName} onChange={e => setNewUser({ ...newUser, fullName: e.target.value })} />
+                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newUser.fullName} onChange={e => setNewUser({ ...newUser, fullName: e.target.value })} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Username</label>
-                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} />
+                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} />
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Password</label>
-                <input type="password" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
+                <input type="password" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Departments</label>
@@ -346,15 +355,15 @@ export default function Settings() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Role</label>
-                  <select className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })}>
-                    <option value="Admin">Admin</option>
-                    <option value="Leader">Leader</option>
-                    <option value="Member">Member</option>
-                  </select>
+                  <CustomSelect
+                    value={newUser.role}
+                    onChange={(val) => setNewUser({ ...newUser, role: val })}
+                    options={roleOptions}
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Scope (Position)</label>
-                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g., Backend Developer" value={newUser.scope} onChange={e => setNewUser({ ...newUser, scope: e.target.value })} />
+                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g., Backend Developer" value={newUser.scope} onChange={e => setNewUser({ ...newUser, scope: e.target.value })} />
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -383,16 +392,16 @@ export default function Settings() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Full Name</label>
-                      <input type="text" className="w-full bg-slate-50 border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editFormData.fullName} onChange={e => setEditFormData({ ...editFormData, fullName: e.target.value })} />
+                      <input type="text" className="w-full bg-slate-50 border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editFormData.fullName} onChange={e => setEditFormData({ ...editFormData, fullName: e.target.value })} />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Username</label>
-                      <input type="text" className="w-full bg-slate-50 border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editFormData.username} onChange={e => setEditFormData({ ...editFormData, username: e.target.value })} />
+                      <input type="text" className="w-full bg-slate-50 border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editFormData.username} onChange={e => setEditFormData({ ...editFormData, username: e.target.value })} />
                     </div>
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">New Password <span className="text-slate-400 font-normal">(leave blank to keep)</span></label>
-                    <input type="password" className="w-full bg-slate-50 border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="••••••••" value={editFormData.password} onChange={e => setEditFormData({ ...editFormData, password: e.target.value })} />
+                    <input type="password" className="w-full bg-slate-50 border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="••••••••" value={editFormData.password} onChange={e => setEditFormData({ ...editFormData, password: e.target.value })} />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Departments</label>
@@ -416,15 +425,15 @@ export default function Settings() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Role</label>
-                      <select className="w-full bg-slate-50 border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editFormData.role} onChange={e => setEditFormData({ ...editFormData, role: e.target.value })}>
-                        <option value="Admin">Admin</option>
-                        <option value="Leader">Leader</option>
-                        <option value="Member">Member</option>
-                      </select>
+                      <CustomSelect
+                        value={editFormData.role}
+                        onChange={(val) => setEditFormData({ ...editFormData, role: val })}
+                        options={roleOptions}
+                      />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Scope (Position)</label>
-                      <input type="text" className="w-full bg-slate-50 border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g., Backend Developer" value={editFormData.scope} onChange={e => setEditFormData({ ...editFormData, scope: e.target.value })} />
+                      <input type="text" className="w-full bg-slate-50 border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g., Backend Developer" value={editFormData.scope} onChange={e => setEditFormData({ ...editFormData, scope: e.target.value })} />
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -523,16 +532,16 @@ export default function Settings() {
             <div className="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/20 space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Sprint Name</label>
-                <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" placeholder="e.g., Sprint 4: Deep Space" value={newSprint.name} onChange={e => setNewSprint({ ...newSprint, name: e.target.value })} />
+                <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" placeholder="e.g., Sprint 4: Deep Space" value={newSprint.name} onChange={e => setNewSprint({ ...newSprint, name: e.target.value })} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Start Date</label>
-                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={newSprint.startDate} onChange={e => setNewSprint({ ...newSprint, startDate: e.target.value })} />
+                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={newSprint.startDate} onChange={e => setNewSprint({ ...newSprint, startDate: e.target.value })} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">End Date</label>
-                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={newSprint.endDate} onChange={e => setNewSprint({ ...newSprint, endDate: e.target.value })} />
+                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={newSprint.endDate} onChange={e => setNewSprint({ ...newSprint, endDate: e.target.value })} />
                 </div>
               </div>
               <div className="flex gap-2">
@@ -551,16 +560,16 @@ export default function Settings() {
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Sprint Name</label>
-                <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={editingSprint.name} onChange={e => setEditingSprint({ ...editingSprint, name: e.target.value })} />
+                <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={editingSprint.name} onChange={e => setEditingSprint({ ...editingSprint, name: e.target.value })} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Start Date</label>
-                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={editingSprint.startDate.split('T')[0]} onChange={e => setEditingSprint({ ...editingSprint, startDate: e.target.value })} />
+                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={editingSprint.startDate.split('T')[0]} onChange={e => setEditingSprint({ ...editingSprint, startDate: e.target.value })} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">End Date</label>
-                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={editingSprint.endDate.split('T')[0]} onChange={e => setEditingSprint({ ...editingSprint, endDate: e.target.value })} />
+                  <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={editingSprint.endDate.split('T')[0]} onChange={e => setEditingSprint({ ...editingSprint, endDate: e.target.value })} />
                 </div>
               </div>
               <div className="flex gap-2">
@@ -624,16 +633,16 @@ export default function Settings() {
               <div className="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/20 space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Cycle Name</label>
-                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g., Q2/2026" value={newCycle.name} onChange={e => setNewCycle({ ...newCycle, name: e.target.value })} />
+                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g., Q2/2026" value={newCycle.name} onChange={e => setNewCycle({ ...newCycle, name: e.target.value })} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Start Date</label>
-                    <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newCycle.startDate} onChange={e => setNewCycle({ ...newCycle, startDate: e.target.value })} />
+                    <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newCycle.startDate} onChange={e => setNewCycle({ ...newCycle, startDate: e.target.value })} />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">End Date</label>
-                    <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newCycle.endDate} onChange={e => setNewCycle({ ...newCycle, endDate: e.target.value })} />
+                    <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newCycle.endDate} onChange={e => setNewCycle({ ...newCycle, endDate: e.target.value })} />
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -652,16 +661,16 @@ export default function Settings() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Cycle Name</label>
-                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editingCycle.name} onChange={e => setEditingCycle({ ...editingCycle, name: e.target.value })} />
+                  <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editingCycle.name} onChange={e => setEditingCycle({ ...editingCycle, name: e.target.value })} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Start Date</label>
-                    <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editingCycle.startDate.split('T')[0]} onChange={e => setEditingCycle({ ...editingCycle, startDate: e.target.value })} />
+                    <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editingCycle.startDate.split('T')[0]} onChange={e => setEditingCycle({ ...editingCycle, startDate: e.target.value })} />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">End Date</label>
-                    <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-2xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editingCycle.endDate.split('T')[0]} onChange={e => setEditingCycle({ ...editingCycle, endDate: e.target.value })} />
+                    <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editingCycle.endDate.split('T')[0]} onChange={e => setEditingCycle({ ...editingCycle, endDate: e.target.value })} />
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -746,6 +755,7 @@ export default function Settings() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

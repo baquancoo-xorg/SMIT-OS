@@ -92,7 +92,7 @@ export default function Header({ onMenuClick, onViewChange }: {
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute top-full left-0 right-0 mt-2 sm:mt-4 bg-white rounded-2xl sm:rounded-[32px] border border-outline-variant/10 shadow-2xl shadow-slate-200/40 overflow-hidden max-h-[70vh] sm:max-h-[500px] flex flex-col"
+                  className="absolute top-full left-0 right-0 mt-2 sm:mt-4 bg-white rounded-2xl sm:rounded-3xl border border-outline-variant/10 shadow-2xl shadow-slate-200/40 overflow-hidden max-h-[70vh] sm:max-h-[500px] flex flex-col"
                 >
                   <div className="p-4 sm:p-6 border-b border-outline-variant/5 bg-slate-50/50">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Search Results ({searchResults.length})</p>
