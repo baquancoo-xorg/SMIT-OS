@@ -1,0 +1,89 @@
+// CRM External Database Schema (Read-only)
+// This schema connects to external CRM database synced via PeerDB
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/crm-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("CRM_DATABASE_URL")
+}
+
+// Models will be introspected from CRM database using:
+// npx prisma db pull --schema=prisma/crm-schema.prisma
+
+// After introspection, keep only these 6 models:
+// - crm_subscribers
+// - crm_businesses
+// - crm_opportunities
+// - business_transaction
+// - crm_business_pql_status
+// - crm_gate_business_creation
+
+// Placeholder models (will be replaced by db pull)
+model CrmSubscriber {
+  id              Int       @id @default(autoincrement())
+  email           String?
+  phone           String?
+  fullName        String?   @map("full_name")
+  companyRole     String?   @map("company_role")
+  adBudgetMonth   String?   @map("ad_budget_month")
+  adAccountQty    String?   @map("ad_account_quantity")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime? @updatedAt @map("updated_at")
+  PEERDB_IS_DELETED Boolean @default(false) @map("_PEERDB_IS_DELETED")
+
+  @@map("crm_subscribers")
+}
+
+model CrmBusiness {
+  id        Int       @id @default(autoincrement())
+  name      String?
+  isTrial   Boolean   @default(false) @map("is_trial")
+  createdAt DateTime  @default(now()) @map("created_at")
+  PEERDB_IS_DELETED Boolean @default(false) @map("_PEERDB_IS_DELETED")
+
+  @@map("crm_businesses")
+}
+
+model CrmOpportunity {
+  id        Int       @id @default(autoincrement())
+  name      String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  PEERDB_IS_DELETED Boolean @default(false) @map("_PEERDB_IS_DELETED")
+
+  @@map("crm_opportunities")
+}
+
+model BusinessTransaction {
+  id        Int       @id @default(autoincrement())
+  userPaid  Decimal?  @map("user_paid") @db.Decimal(16, 2)
+  isTrial   Boolean   @default(false) @map("is_trial")
+  status    String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  PEERDB_IS_DELETED Boolean @default(false) @map("_PEERDB_IS_DELETED")
+
+  @@map("business_transaction")
+}
+
+model CrmBusinessPqlStatus {
+  id         Int       @id @default(autoincrement())
+  businessId Int?      @map("business_id")
+  status     String?
+  createdAt  DateTime  @default(now()) @map("created_at")
+  PEERDB_IS_DELETED Boolean @default(false) @map("_PEERDB_IS_DELETED")
+
+  @@map("crm_business_pql_status")
+}
+
+model CrmGateBusinessCreation {
+  id         Int       @id @default(autoincrement())
+  businessId Int?      @map("business_id")
+  gateName   String?   @map("gate_name")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  PEERDB_IS_DELETED Boolean @default(false) @map("_PEERDB_IS_DELETED")
+
+  @@map("crm_gate_business_creation")
+}

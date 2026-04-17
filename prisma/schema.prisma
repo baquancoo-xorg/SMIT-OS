@@ -149,3 +149,98 @@ model OkrCycle {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// ============================================
+// Facebook Ads Integration Models (qdashboard migration)
+// ============================================
+
+model FbAdAccountConfig {
+  id                     Int       @id @default(autoincrement())
+  accountId              String    @unique @map("account_id")
+  accountName            String?   @map("account_name")
+  accessTokenEncrypted   String?   @map("access_token_encrypted")
+  encryptionKeyEncrypted String?   @map("encryption_key_encrypted")
+  tokenExpiresAt         DateTime? @map("token_expires_at")
+  currency               String    @default("USD") @db.VarChar(3)
+  isActive               Boolean   @default(true) @map("is_active")
+  lastSyncAt             DateTime? @map("last_sync_at")
+  lastSyncStatus         String?   @map("last_sync_status")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  rawAds RawAdsFacebook[]
+
+  @@index([accountId])
+  @@map("fb_ad_account_config")
+}
+
+model RawAdsFacebook {
+  id                 Int      @id @default(autoincrement())
+  accountId          String   @map("account_id")
+  dateStart          DateTime @map("date_start") @db.Date
+  adId               String?  @map("ad_id")
+  adName             String?  @map("ad_name")
+  adsetId            String?  @map("adset_id")
+  adsetName          String?  @map("adset_name")
+  campaignId         String?  @map("campaign_id")
+  campaignName       String?  @map("campaign_name")
+  campaignObjective  String?  @map("campaign_objective")
+  spend              Decimal? @db.Decimal(16, 4)
+  impressions        BigInt?
+  reach              BigInt?
+  clicks             BigInt?
+  ctr                Decimal? @db.Decimal(10, 6)
+  cpm                Decimal? @db.Decimal(16, 4)
+  cpc                Decimal? @db.Decimal(16, 4)
+  frequency          Decimal? @db.Decimal(10, 4)
+  actions            Json?
+  videoViews         Json?    @map("video_views")
+  videoPlayCount     Int?     @map("video_play_count")
+  videoThruplayCount Int?     @map("video_thruplay_count")
+  conversions        Json?
+  insightsRaw        Json?    @map("insights_raw")
+  utmContent         String?  @map("utm_content")
+  utmCampaign        String?  @map("utm_campaign")
+  utmSource          String?  @map("utm_source")
+  utmMedium          String?  @map("utm_medium")
+  syncedAt           DateTime @default(now()) @map("synced_at")
+
+  account FbAdAccountConfig @relation(fields: [accountId], references: [accountId])
+
+  @@unique([accountId, dateStart, adId], name: "accountId_dateStart_adId")
+  @@index([dateStart])
+  @@index([accountId, dateStart])
+  @@map("raw_ads_facebook")
+}
+
+model ExchangeRateSetting {
+  id           Int      @id @default(autoincrement())
+  accountId    Int?     @map("account_id")
+  currencyFrom String   @default("USD") @map("currency_from") @db.VarChar(3)
+  currencyTo   String   @default("VND") @map("currency_to") @db.VarChar(3)
+  exchangeRate Decimal  @map("exchange_rate") @db.Decimal(10, 2)
+  isDefault    Boolean  @default(false) @map("is_default")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@unique([accountId, currencyFrom, currencyTo])
+  @@index([accountId])
+  @@index([isDefault])
+  @@map("exchange_rate_settings")
+}
+
+model EtlErrorLog {
+  id           Int       @id @default(autoincrement())
+  sourceId     String?   @map("source_id")
+  sourceType   String?   @map("source_type")
+  errorType    String?   @map("error_type")
+  errorMessage String?   @map("error_message")
+  errorDetails Json?     @map("error_details")
+  occurredAt   DateTime  @default(now()) @map("occurred_at")
+  resolvedAt   DateTime? @map("resolved_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@index([sourceType])
+  @@index([occurredAt])
+  @@map("etl_error_log")
+}

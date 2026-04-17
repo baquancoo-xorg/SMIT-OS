@@ -17,9 +17,10 @@ import DailySync from './pages/DailySync';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import LoginPage from './pages/LoginPage';
+import DashboardOverview from './pages/DashboardOverview';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'backlog' | 'mkt' | 'media' | 'sale' | 'sync' | 'daily-sync' | 'settings' | 'profile';
+export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'backlog' | 'mkt' | 'media' | 'sale' | 'sync' | 'daily-sync' | 'settings' | 'profile' | 'ads-overview';
 
 function AppContent() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -50,6 +51,7 @@ function AppContent() {
       {currentView === 'daily-sync' && <DailySync key="daily-sync" />}
       {currentView === 'settings' && <Settings key="settings" />}
       {currentView === 'profile' && <Profile key="profile" />}
+      {currentView === 'ads-overview' && <DashboardOverview key="ads-overview" />}
     </AppLayout>
   );
 }

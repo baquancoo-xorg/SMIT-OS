@@ -21,13 +21,20 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
       </div>
 
       <nav className="flex-1 space-y-8 overflow-y-auto overflow-x-visible custom-scrollbar px-1">
-        {/* Overview - Standalone */}
+        {/* Analytics */}
         <div className="space-y-2">
+          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Analytics</p>
           <NavItem
             icon="grid_view"
             label="Overview"
             active={currentView === 'dashboard'}
             onClick={() => onViewChange('dashboard')}
+          />
+          <NavItem
+            icon="monitoring"
+            label="Dashboard"
+            active={currentView === 'ads-overview'}
+            onClick={() => onViewChange('ads-overview')}
           />
         </div>
 

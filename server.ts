@@ -18,6 +18,9 @@ import { createSprintRoutes } from "./server/routes/sprint.routes";
 import { createReportRoutes } from "./server/routes/report.routes";
 import { createDailyReportRoutes } from "./server/routes/daily-report.routes";
 import { createOkrCycleRoutes } from "./server/routes/okr-cycle.routes";
+import { createDashboardOverviewRoutes } from "./server/routes/dashboard-overview.routes";
+import { createFbSyncRoutes } from "./server/routes/fb-sync.routes";
+import { createAdminFbConfigRoutes } from "./server/routes/admin-fb-config.routes";
 
 const prisma = new PrismaClient();
 const app = express();
@@ -41,6 +44,9 @@ app.use("/api/sprints", createSprintRoutes(prisma));
 app.use("/api/reports", createReportRoutes(prisma));
 app.use("/api/daily-reports", createDailyReportRoutes(prisma));
 app.use("/api/okr-cycles", createOkrCycleRoutes(prisma));
+app.use("/api/dashboard/overview", createDashboardOverviewRoutes());
+app.use("/api/sync/facebook-ads", createFbSyncRoutes());
+app.use("/api/admin", createAdminFbConfigRoutes());
 
 // OKRs recalculate endpoint (legacy path)
 import { createOKRService } from "./server/services/okr.service";
