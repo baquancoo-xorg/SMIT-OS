@@ -298,9 +298,9 @@ export default function MediaBoard() {
     : items.filter(i => i.sprintId);
 
   return (
-    <div className="h-full flex flex-col py-6 lg:py-10 space-y-8 w-full">
+    <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-[var(--space-md)] shrink-0">
         <div>
           <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
             <span className="hover:text-primary cursor-pointer">Workspaces</span>
@@ -321,7 +321,7 @@ export default function MediaBoard() {
       </div>
 
       {/* Sprint Filter Bar */}
-      <div className="flex items-center justify-between bg-white/50 backdrop-blur-md p-4 rounded-3xl shadow-sm">
+      <div className="flex items-center justify-between bg-white/50 backdrop-blur-md p-[var(--space-md)] rounded-3xl shadow-sm shrink-0">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest">
             <Filter size={14} />
@@ -389,10 +389,10 @@ export default function MediaBoard() {
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex-1 flex flex-col lg:flex-row gap-6 overflow-hidden min-h-0">
+          <div className="flex-1 flex flex-col lg:flex-row gap-[var(--space-md)] min-h-0">
             {/* Backlog (25%) */}
-            <div className="w-full lg:w-1/4 h-[400px] lg:h-auto flex flex-col bg-surface-container-low/30 rounded-3xl shadow-sm overflow-hidden shrink-0 lg:shrink">
-              <div className="p-5 flex items-center justify-between border-b border-outline-variant/5 bg-white/40">
+            <div className="w-full lg:w-1/4 flex flex-col bg-surface-container-low/30 rounded-3xl shadow-sm min-h-[200px] lg:min-h-0 lg:h-full shrink-0 lg:shrink">
+              <div className="p-[var(--space-md)] flex items-center justify-between border-b border-outline-variant/5 bg-white/40 shrink-0">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">inventory_2</span>
                   <h3 className="font-black text-on-surface text-xs uppercase tracking-widest">Backlog</h3>
@@ -407,7 +407,7 @@ export default function MediaBoard() {
                 items={backlogItems.map(i => i.id)}
                 strategy={verticalListSortingStrategy}
               >
-                <div className="flex-1 p-4 space-y-4 overflow-y-auto custom-scrollbar">
+                <div className="internal-scroll p-[var(--space-sm)] space-y-[var(--space-sm)]">
                   {backlogItems.map(item => (
                     <DraggableTaskCard
                       key={item.id}
@@ -429,13 +429,13 @@ export default function MediaBoard() {
             </div>
 
             {/* Active Sprint Board (75%) */}
-            <div className="w-full lg:w-3/4 flex gap-4 overflow-x-auto pb-4 items-start custom-scrollbar h-[500px] lg:h-auto shrink-0 lg:shrink">
+            <div className="flex-1 flex gap-[var(--space-sm)] overflow-x-auto min-h-[300px] lg:min-h-0">
               {COLUMNS.map(col => {
                 const columnItems = sprintItems.filter(i => i.status === col);
 
                 return (
-                  <div key={col} className="min-w-[280px] flex-1 flex flex-col bg-slate-50/50 rounded-3xl shadow-sm h-full max-h-full overflow-hidden">
-                    <div className="p-4 flex items-center justify-between bg-white/30">
+                  <div key={col} className="min-w-[var(--card-min)] flex-1 flex flex-col bg-slate-50/50 rounded-3xl shadow-sm max-h-full">
+                    <div className="p-[var(--space-sm)] flex items-center justify-between bg-white/30 shrink-0">
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${col === 'Todo' ? 'bg-slate-400' :
                           col === 'In Progress' ? 'bg-primary' :
@@ -452,7 +452,7 @@ export default function MediaBoard() {
                     <DroppableColumn
                       id={col}
                       items={columnItems.map(i => i.id)}
-                      className="flex-1 p-3 space-y-4 overflow-y-auto custom-scrollbar"
+                      className="internal-scroll p-[var(--space-sm)] space-y-[var(--space-sm)]"
                     >
                       {columnItems.map(item => (
                         <DraggableTaskCard

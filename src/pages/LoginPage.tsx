@@ -144,7 +144,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex overflow-hidden">
+    <div className="h-dvh w-full flex overflow-hidden">
       {/* Left Panel - Welcome Section */}
       <motion.div
         className="hidden lg:flex lg:w-1/2 xl:w-[55%] relative bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-12 flex-col justify-between overflow-hidden"

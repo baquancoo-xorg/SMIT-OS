@@ -44,6 +44,37 @@
   /* Semantic tokens */
   --radius-action: 9999px;    /* capsule - buttons, badges, chips */
   --radius-container: 3rem;   /* 48px - inputs, cards, modals */
+
+  /* Breakpoints - Tailwind v4 auto-generates */
+  --breakpoint-xs: 375px;
+  --breakpoint-sm: 390px;
+  --breakpoint-md: 430px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1180px;
+  --breakpoint-2xl: 1366px;
+  --breakpoint-3xl: 1920px;
+  --breakpoint-4xl: 2560px;
+
+  /* Dynamic Spacing */
+  --space-xs: clamp(0.25rem, 0.5vw, 0.5rem);
+  --space-sm: clamp(0.5rem, 1vw, 0.75rem);
+  --space-md: clamp(0.75rem, 1.5vw, 1rem);
+  --space-lg: clamp(1rem, 2vw, 1.5rem);
+  --space-xl: clamp(1.5rem, 3vw, 2rem);
+  --space-2xl: clamp(2rem, 4vw, 3rem);
+
+  /* Touch Targets */
+  --touch-min: 44px;
+  --touch-comfort: 48px;
+
+  /* Card Sizing */
+  --card-min: 280px;
+  --card-max: 360px;
+
+  /* Layout */
+  --header-h: 4rem;
+  --content-h: calc(100dvh - var(--header-h));
 }
 
 @layer base {
@@ -63,6 +94,40 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  .viewport-fit {
+    height: var(--content-h);
+    overflow: hidden;
+  }
+
+  .page-padding {
+    padding: var(--space-lg);
+  }
+
+  .touch-target {
+    min-height: var(--touch-min);
+    min-width: var(--touch-min);
+  }
+
+  .internal-scroll {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .transition-layout {
+    transition: all 0.2s ease-out;
+  }
+}
+
+/* Safari iOS fallback for dvh */
+@supports not (height: 100dvh) {
+  .viewport-fit {
+    height: calc(100vh - env(safe-area-inset-bottom));
+  }
+  .h-dvh {
+    height: 100vh;
   }
 }
 

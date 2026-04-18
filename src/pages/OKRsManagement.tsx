@@ -209,9 +209,9 @@ export default function OKRsManagement() {
   }
 
   return (
-    <div className="h-full flex flex-col py-6 md:py-10 space-y-8 w-full">
+    <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
       {/* Dashboard Header - C1: Responsive layout */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-end justify-between">
+      <div className="flex flex-col gap-[var(--space-md)] md:flex-row md:items-end justify-between shrink-0">
         <div className="min-w-0">
           <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
             <span className="hover:text-primary cursor-pointer">Planning</span>

@@ -251,9 +251,9 @@ export default function PMDashboard() {
   }
 
   return (
-    <div className="h-full flex flex-col py-6 md:py-10 space-y-8 w-full">
+    <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
       {/* Header */}
-      <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <section className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--space-md)] shrink-0">
         <div>
           <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
             <span className="hover:text-primary cursor-pointer">Analytics</span>

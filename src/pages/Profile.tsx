@@ -6,7 +6,7 @@ export default function Profile() {
   const [email, setEmail] = useState('hoang.nguyen@example.com');
 
   return (
-    <div className="h-full flex flex-col py-6 md:py-10 space-y-8 w-full">
+    <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
       <div>
         <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Edit Profile</h2>
         <p className="text-slate-500 mt-2">Update your personal information.</p>
