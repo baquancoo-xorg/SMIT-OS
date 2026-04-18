@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import React, { memo } from 'react';
 import { DollarSign, CreditCard, Users, TrendingUp } from 'lucide-react';
 import { formatCurrency } from '../../../lib/formatters';
 import type { SummaryMetrics, MetricWithTrend } from '../../../types/dashboard-overview';

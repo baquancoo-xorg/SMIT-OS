@@ -3,10 +3,14 @@ import { PrismaClient } from '@prisma/client';
 import { createOKRService } from '../services/okr.service';
 import { RBAC } from '../middleware/rbac.middleware';
 import { handleAsync } from '../utils/async-handler';
+import { validate } from '../middleware/validate.middleware';
+import { createWeeklyReportSchema, updateWeeklyReportSchema } from '../schemas/report.schema';
+import { createOwnershipMiddleware } from '../middleware/ownership.middleware';
 
 export function createReportRoutes(prisma: PrismaClient) {
   const router = Router();
   const okrService = createOKRService(prisma);
+  const checkOwnership = createOwnershipMiddleware(prisma);
 
   router.get('/', handleAsync(async (_req: any, res: any) => {
     const reports = await prisma.weeklyReport.findMany({
@@ -31,7 +35,7 @@ export function createReportRoutes(prisma: PrismaClient) {
     res.json(report);
   }));
 
-  router.post('/', handleAsync(async (req: any, res: any) => {
+  router.post('/', validate(createWeeklyReportSchema), handleAsync(async (req: any, res: any) => {
     const report = await prisma.weeklyReport.create({
       data: {
         ...req.body,
@@ -43,15 +47,26 @@ export function createReportRoutes(prisma: PrismaClient) {
     res.json(report);
   }));
 
-  router.put('/:id', handleAsync(async (req: any, res: any) => {
+  router.put('/:id', validate(updateWeeklyReportSchema), handleAsync(async (req: any, res: any) => {
     const { id } = req.params;
+    const user = req.user;
     const { currentUserId, currentUserRole, ...updateData } = req.body;
 
-    const report = await prisma.weeklyReport.findUnique({ where: { id } });
+    const report = await prisma.weeklyReport.findUnique({
+      where: { id },
+      include: { user: { select: { role: true } } }
+    });
     if (!report) return res.status(404).json({ error: 'Not found' });
 
     if (report.status === 'Approved') {
       return res.status(400).json({ error: 'Cannot edit approved report' });
+    }
+
+    // Authorization check
+    const isOwner = report.userId === user.userId;
+    const isLeaderOfUser = user.role?.includes('Leader') && report.user.role === 'Member';
+    if (!isOwner && !isLeaderOfUser && !user.isAdmin) {
+      return res.status(403).json({ error: 'Not authorized' });
     }
 
     const data: any = { ...updateData };
@@ -103,7 +118,7 @@ export function createReportRoutes(prisma: PrismaClient) {
     res.json(updated);
   }));
 
-  router.delete('/:id', handleAsync(async (req: any, res: any) => {
+  router.delete('/:id', checkOwnership('weeklyReport'), handleAsync(async (req: any, res: any) => {
     await prisma.weeklyReport.delete({ where: { id: req.params.id } });
     res.status(204).send();
   }));

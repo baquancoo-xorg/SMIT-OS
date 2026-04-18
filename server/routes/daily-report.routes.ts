@@ -2,21 +2,29 @@ import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { RBAC } from '../middleware/rbac.middleware';
 import { handleAsync } from '../utils/async-handler';
+import { validate } from '../middleware/validate.middleware';
+import { createDailyReportSchema } from '../schemas/report.schema';
+import { createOwnershipMiddleware } from '../middleware/ownership.middleware';
 
 export function createDailyReportRoutes(prisma: PrismaClient) {
   const router = Router();
+  const checkOwnership = createOwnershipMiddleware(prisma);
 
   router.get('/', handleAsync(async (req: any, res: any) => {
-    const { userId, userRole, userDepartment } = req.query;
-
+    const user = req.user;
     let where: any = {};
 
-    if (userRole === 'Member') {
-      where.userId = userId;
-    } else if (userRole?.includes('Leader') && userDepartment) {
-      // Leader can see own reports + reports from users in same department
-      where.OR = [{ userId }, { user: { departments: { has: userDepartment } } }];
+    if (user.role === 'Member') {
+      where.userId = user.userId;
+    } else if (user.role?.includes('Leader')) {
+      // Get user's departments from req.user (populated by auth middleware)
+      const userDepts = user.departments || [];
+      where.OR = [
+        { userId: user.userId },
+        { user: { departments: { hasSome: userDepts } } }
+      ];
     }
+    // Admin sees all (no where filter)
 
     const reports = await prisma.dailyReport.findMany({
       where,
@@ -41,7 +49,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
     res.json(report);
   }));
 
-  router.post('/', handleAsync(async (req: any, res: any) => {
+  router.post('/', validate(createDailyReportSchema), handleAsync(async (req: any, res: any) => {
     const { userId, reportDate, tasksData, blockers, impactLevel, teamType, teamMetrics, adHocTasks } = req.body;
 
     const existing = await prisma.dailyReport.findFirst({
@@ -72,9 +80,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
   router.put('/:id', handleAsync(async (req: any, res: any) => {
     const { id } = req.params;
     const { currentUserId, tasksData, adHocTasks, ...updateData } = req.body;
-
-    const currentUser = await prisma.user.findUnique({ where: { id: currentUserId } });
-    if (!currentUser) return res.status(401).json({ error: 'Unauthorized' });
+    const currentUser = req.user;
 
     const report = await prisma.dailyReport.findUnique({
       where: { id },
@@ -87,7 +93,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
       return res.status(400).json({ error: 'Cannot edit approved report' });
     }
 
-    const isOwner = report.userId === currentUserId;
+    const isOwner = report.userId === currentUser.userId;
     const isLeaderOfUser = currentUser.role?.includes('Leader') && report.user.role === 'Member';
     const isAdmin = currentUser.isAdmin;
 
@@ -186,7 +192,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
     res.json({ period: { start, end }, stats: teamStats, totalReports: reports.length });
   }));
 
-  router.delete('/:id', handleAsync(async (req: any, res: any) => {
+  router.delete('/:id', checkOwnership('dailyReport'), handleAsync(async (req: any, res: any) => {
     await prisma.dailyReport.delete({ where: { id: req.params.id } });
     res.status(204).send();
   }));

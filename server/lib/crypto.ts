@@ -4,7 +4,10 @@ const ALGO = 'aes-256-gcm';
 const SECRET = process.env.APP_SECRET ?? process.env.JWT_SECRET ?? '';
 
 if (SECRET.length < 32) {
-  console.warn('[crypto] APP_SECRET/JWT_SECRET should be >= 32 chars');
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('FATAL: APP_SECRET/JWT_SECRET must be >= 32 chars in production');
+  }
+  console.warn('[crypto] APP_SECRET/JWT_SECRET should be >= 32 chars (DEV MODE)');
 }
 
 const key = crypto.createHash('sha256').update(SECRET).digest();

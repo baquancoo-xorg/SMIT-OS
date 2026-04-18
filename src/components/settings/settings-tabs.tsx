@@ -1,3 +1,4 @@
+import React from 'react';
 import { Users, Calendar, Target, Facebook } from 'lucide-react';
 
 export type SettingsTabId = 'users' | 'sprints' | 'okrs' | 'fb-config';

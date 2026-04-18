@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { handleAsync } from '../utils/async-handler';
+import { validate } from '../middleware/validate.middleware';
+import { createOkrCycleSchema, updateOkrCycleSchema } from '../schemas/okr-cycle.schema';
+import { RBAC } from '../middleware/rbac.middleware';
 
 export function createOkrCycleRoutes(prisma: PrismaClient) {
   const router = Router();
@@ -21,8 +24,8 @@ export function createOkrCycleRoutes(prisma: PrismaClient) {
     res.json(cycle);
   }));
 
-  // Create cycle
-  router.post('/', handleAsync(async (req: any, res: any) => {
+  // Create cycle (admin only)
+  router.post('/', RBAC.adminOnly, validate(createOkrCycleSchema), handleAsync(async (req: any, res: any) => {
     const cycle = await prisma.okrCycle.create({
       data: {
         name: req.body.name,
@@ -34,8 +37,8 @@ export function createOkrCycleRoutes(prisma: PrismaClient) {
     res.json(cycle);
   }));
 
-  // Update cycle
-  router.put('/:id', handleAsync(async (req: any, res: any) => {
+  // Update cycle (admin only)
+  router.put('/:id', RBAC.adminOnly, validate(updateOkrCycleSchema), handleAsync(async (req: any, res: any) => {
     const data: any = { ...req.body };
     if (data.startDate) data.startDate = new Date(data.startDate);
     if (data.endDate) data.endDate = new Date(data.endDate);
@@ -55,8 +58,8 @@ export function createOkrCycleRoutes(prisma: PrismaClient) {
     res.json(cycle);
   }));
 
-  // Delete cycle
-  router.delete('/:id', handleAsync(async (req: any, res: any) => {
+  // Delete cycle (admin only)
+  router.delete('/:id', RBAC.adminOnly, handleAsync(async (req: any, res: any) => {
     await prisma.okrCycle.delete({ where: { id: req.params.id } });
     res.status(204).send();
   }));

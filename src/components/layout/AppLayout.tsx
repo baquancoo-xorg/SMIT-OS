@@ -2,6 +2,7 @@ import React from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import { ViewType } from '../../App';
+import { ErrorBoundary } from '../ui';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -40,9 +41,11 @@ export default function AppLayout({ children, currentView, onViewChange, onLogou
       <div className="flex-1 flex flex-col overflow-hidden w-full">
         <Header onMenuClick={() => setIsSidebarOpen(true)} onViewChange={onViewChange} />
         <main className="flex-1 overflow-y-auto pt-20">
-          <div className="p-4 sm:p-5 md:p-6 lg:p-8 xl:px-10 min-h-full w-full">
-            {children}
-          </div>
+          <ErrorBoundary>
+            <div className="p-4 sm:p-5 md:p-6 lg:p-8 xl:px-10 min-h-full w-full">
+              {children}
+            </div>
+          </ErrorBoundary>
         </main>
       </div>
     </div>

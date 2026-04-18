@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { handleAsync } from '../utils/async-handler';
 import { createWorkItemSchema, updateWorkItemSchema, workItemKrLinkSchema } from '../schemas/work-item.schema';
+import { createOwnershipMiddleware } from '../middleware/ownership.middleware';
 
 // Validate parentId to prevent circular references
 async function validateParentId(
@@ -30,6 +31,7 @@ async function validateParentId(
 
 export function createWorkItemRoutes(prisma: PrismaClient) {
   const router = Router();
+  const checkOwnership = createOwnershipMiddleware(prisma);
 
   // Include relations for all queries
   const workItemIncludes = {
@@ -114,7 +116,7 @@ export function createWorkItemRoutes(prisma: PrismaClient) {
     res.json(item);
   }));
 
-  router.delete('/:id', handleAsync(async (req: any, res: any) => {
+  router.delete('/:id', checkOwnership('workItem'), handleAsync(async (req: any, res: any) => {
     await prisma.workItem.delete({ where: { id: req.params.id } });
     res.status(204).send();
   }));

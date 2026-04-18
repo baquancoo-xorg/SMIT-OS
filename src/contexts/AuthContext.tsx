@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { User } from '../types';
 
 interface AuthContextType {
@@ -19,37 +19,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Check existing session on mount
-  const checkSession = async () => {
+  const checkSession = useCallback(async () => {
     try {
-      const res = await fetch('/api/auth/me', {
-        credentials: 'include',
-      });
-
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
       if (res.ok) {
         const user = await res.json();
         setCurrentUser(user);
       }
-      // If 401, user is not logged in - that's fine
     } catch (error) {
       console.error('Session check failed:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
-      const res = await fetch('/api/users', {
-        credentials: 'include',
-      });
-
+      const res = await fetch('/api/users', { credentials: 'include' });
       if (res.status === 401) {
-        // Session expired
         setCurrentUser(null);
         return;
       }
-
       if (res.ok) {
         const data = await res.json();
         setUsers(data);
@@ -57,9 +47,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Failed to fetch users:', error);
     }
-  };
+  }, []);
 
-  const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const login = useCallback(async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
@@ -67,12 +57,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ username, password }),
         credentials: 'include',
       });
-
       if (!res.ok) {
         const error = await res.json();
         return { success: false, error: error.error || 'Invalid credentials' };
       }
-
       const user = await res.json();
       setCurrentUser(user);
       return { success: true };
@@ -80,43 +68,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Login failed:', error);
       return { success: false, error: 'Login failed. Please try again.' };
     }
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
       setCurrentUser(null);
     }
-  };
+  }, []);
 
   useEffect(() => {
     checkSession();
   }, []);
 
-  // Fetch users after authentication
   useEffect(() => {
     if (currentUser) {
       fetchUsers();
     }
-  }, [currentUser]);
+  }, [currentUser, fetchUsers]);
+
+  const contextValue = useMemo(() => ({
+    currentUser,
+    setCurrentUser,
+    users,
+    loading,
+    isAdmin: currentUser?.isAdmin || false,
+    login,
+    logout,
+    refreshUsers: fetchUsers,
+  }), [currentUser, users, loading, login, logout, fetchUsers]);
 
   return (
-    <AuthContext.Provider value={{
-      currentUser,
-      setCurrentUser,
-      users,
-      loading,
-      isAdmin: currentUser?.isAdmin || false,
-      login,
-      logout,
-      refreshUsers: fetchUsers
-    }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

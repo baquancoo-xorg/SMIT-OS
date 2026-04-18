@@ -4,6 +4,8 @@ import path from "path";
 import { PrismaClient } from "@prisma/client";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 
 // Middleware
 import { createAuthMiddleware } from "./server/middleware/auth.middleware";
@@ -28,9 +30,30 @@ const app = express();
 const PORT = Number(process.env.PORT ?? 3000);
 
 // Global middleware
-app.use(cors({ credentials: true, origin: true }));
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
+app.use(cors({
+  credentials: true,
+  origin: (origin, callback) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed'));
+    }
+  }
+}));
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json());
 app.use(cookieParser());
+
+// Rate limiting for auth routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many login attempts, try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/auth/login', authLimiter);
 
 // Public routes
 app.use("/api/auth", createAuthRoutes(prisma));
@@ -60,7 +83,11 @@ app.post("/api/okrs/recalculate", async (_req, res) => {
 // Error handler
 app.use((err: any, _req: any, res: any, _next: any) => {
   console.error(err);
-  res.status(500).json({ error: "Internal server error", message: err.message });
+  const isDev = process.env.NODE_ENV !== 'production';
+  res.status(500).json({
+    error: "Internal server error",
+    ...(isDev && { message: err.message, stack: err.stack })
+  });
 });
 
 // Vite middleware & start

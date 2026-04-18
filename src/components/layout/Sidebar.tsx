@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { LayoutDashboard, Target, KanbanSquare, Trello, Filter, CalendarSync, Settings, LogOut, Inbox } from 'lucide-react';
 import { ViewType } from '../../App';
 import { useAuth } from '../../contexts/AuthContext';
@@ -132,7 +132,7 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
   );
 }
 
-function NavItem({ icon, label, active, onClick }: { icon: string | React.ReactNode; label: string; active?: boolean; onClick?: () => void }) {
+const NavItem = memo(function NavItem({ icon, label, active, onClick }: { icon: string | React.ReactNode; label: string; active?: boolean; onClick?: () => void }) {
   return (
     <button
       type="button"
@@ -151,4 +151,4 @@ function NavItem({ icon, label, active, onClick }: { icon: string | React.ReactN
       <span className="font-medium">{label}</span>
     </button>
   );
-}
+});

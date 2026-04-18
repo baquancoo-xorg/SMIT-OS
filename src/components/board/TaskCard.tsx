@@ -1,8 +1,9 @@
-import { useState, ChangeEvent, MouseEvent } from 'react';
+import { useState, ChangeEvent, MouseEvent, memo, useCallback, useMemo } from 'react';
 import { WorkItem, Priority } from '../../types';
 import { Clock, CheckCircle2, ChevronDown, ChevronUp, AlignLeft, ListTodo, CheckSquare, Square, Timer, AlertCircle, Link2, Target, MoreHorizontal, Edit2, Trash2, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
+import { TYPE_COLORS, PRIORITY_COLORS } from '../../utils/color-mappings';
 
 interface TaskCardProps {
   item: WorkItem;
@@ -13,25 +14,21 @@ interface TaskCardProps {
   key?: string | number;
 }
 
-export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetails }: TaskCardProps) {
+export default memo(function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetails }: TaskCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { users } = useAuth();
   const assignee = users.find(u => u.id === item.assigneeId);
 
-  // Get first linked Key Result from krLinks (already included from API)
-  const linkedKr = item.krLinks?.[0]?.keyResult;
+  const linkedKr = useMemo(() => item.krLinks?.[0]?.keyResult, [item.krLinks]);
 
-  const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (onUpdate) {
-      onUpdate({ ...item, dueDate: e.target.value });
-    }
-  };
+  const handleDateChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    onUpdate?.({ ...item, dueDate: e.target.value });
+  }, [item, onUpdate]);
 
-  const handleMarkAsDone = (e: MouseEvent) => {
+  const handleMarkAsDone = useCallback((e: MouseEvent) => {
     e.stopPropagation();
     if (!onUpdate) return;
-
     if (item.subtasks && item.subtasks.length > 0) {
       const updatedSubtasks = [...item.subtasks];
       updatedSubtasks[0] = { ...updatedSubtasks[0], completed: !updatedSubtasks[0].completed };
@@ -40,36 +37,21 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
       const doneStatus = item.type === 'Deal' ? 'Won' : 'Done';
       onUpdate({ ...item, status: doneStatus });
     }
-  };
+  }, [item, onUpdate]);
 
-  const toggleSubtask = (e: MouseEvent, subtaskId: string) => {
+  const toggleSubtask = useCallback((e: MouseEvent, subtaskId: string) => {
     e.stopPropagation();
     if (!onUpdate || !item.subtasks) return;
-
     const updatedSubtasks = item.subtasks.map(st =>
       st.id === subtaskId ? { ...st, completed: !st.completed } : st
     );
     onUpdate({ ...item, subtasks: updatedSubtasks });
-  };
+  }, [item, onUpdate]);
 
-  const typeColors: Record<string, string> = {
-    Epic: 'bg-purple-100 text-purple-700 border-purple-200',
-    UserStory: 'bg-blue-100 text-blue-700 border-blue-200',
-    TechTask: 'bg-slate-100 text-slate-700 border-slate-200',
-    Campaign: 'bg-orange-100 text-orange-700 border-orange-200',
-    MktTask: 'bg-amber-100 text-amber-700 border-amber-200',
-    MediaTask: 'bg-pink-100 text-pink-700 border-pink-200',
-    SaleTask: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    Deal: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    DealLost: 'bg-rose-100 text-rose-700 border-rose-200',
-  };
-
-  const priorityColors: Record<Priority, string> = {
-    Low: 'bg-slate-100 text-slate-500',
-    Medium: 'bg-primary/10 text-primary',
-    High: 'bg-secondary/10 text-secondary',
-    Urgent: 'bg-error/10 text-error',
-  };
+  const toggleMenu = useCallback((e: MouseEvent) => {
+    e.stopPropagation();
+    setIsMenuOpen(prev => !prev);
+  }, []);
 
   const completedSubtasks = item.subtasks?.filter(st => st.completed).length || 0;
   const totalSubtasks = item.subtasks?.length || 0;
@@ -81,18 +63,18 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
     >
       <div className="flex items-start justify-between mb-6">
         <div className="flex flex-wrap gap-2">
-          <span className={`px-4 py-1 text-[10px] font-black rounded-full uppercase tracking-[0.15em] border ${typeColors[item.type] || 'bg-slate-50 text-slate-500 border-slate-100'}`}>
+          <span className={`px-4 py-1 text-[10px] font-black rounded-full uppercase tracking-[0.15em] border ${TYPE_COLORS[item.type] || 'bg-slate-50 text-slate-500 border-slate-100'}`}>
             {item.type}
           </span>
           {item.priority && (
-            <span className={`px-4 py-1 text-[10px] font-black rounded-full uppercase tracking-[0.15em] border ${priorityColors[item.priority]}`}>
+            <span className={`px-4 py-1 text-[10px] font-black rounded-full uppercase tracking-[0.15em] border ${PRIORITY_COLORS[item.priority]}`}>
               {item.priority}
             </span>
           )}
         </div>
         <div className="flex items-center gap-2 relative">
           <button
-            onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }}
+            onClick={toggleMenu}
             className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-primary/50"
             aria-label="Task actions menu"
             aria-expanded={isMenuOpen}
@@ -281,4 +263,4 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
       </AnimatePresence>
     </motion.div>
   );
-}
+});

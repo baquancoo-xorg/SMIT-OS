@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { handleAsync } from '../utils/async-handler';
+import { validate } from '../middleware/validate.middleware';
+import { createSprintSchema, updateSprintSchema } from '../schemas/sprint.schema';
+import { RBAC } from '../middleware/rbac.middleware';
 
 export function createSprintRoutes(prisma: PrismaClient) {
   const router = Router();
@@ -43,7 +46,7 @@ export function createSprintRoutes(prisma: PrismaClient) {
     res.json(sprints);
   }));
 
-  router.post('/', handleAsync(async (req: any, res: any) => {
+  router.post('/', RBAC.adminOnly, validate(createSprintSchema), handleAsync(async (req: any, res: any) => {
     const sprint = await prisma.sprint.create({
       data: {
         ...req.body,
@@ -54,7 +57,7 @@ export function createSprintRoutes(prisma: PrismaClient) {
     res.json(sprint);
   }));
 
-  router.put('/:id', handleAsync(async (req: any, res: any) => {
+  router.put('/:id', RBAC.adminOnly, validate(updateSprintSchema), handleAsync(async (req: any, res: any) => {
     const data: any = { ...req.body };
     if (data.startDate) data.startDate = new Date(data.startDate);
     if (data.endDate) data.endDate = new Date(data.endDate);
@@ -66,7 +69,7 @@ export function createSprintRoutes(prisma: PrismaClient) {
     res.json(sprint);
   }));
 
-  router.delete('/:id', handleAsync(async (req: any, res: any) => {
+  router.delete('/:id', RBAC.adminOnly, handleAsync(async (req: any, res: any) => {
     await prisma.sprint.delete({ where: { id: req.params.id } });
     res.status(204).send();
   }));

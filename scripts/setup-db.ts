@@ -15,7 +15,12 @@ async function main() {
   }
 
   // Hash password for admin user
-  const hashedPassword = await bcrypt.hash('change-me-local-only', 10);
+  const ADMIN_PASSWORD = process.env.ADMIN_INITIAL_PASSWORD;
+  if (!ADMIN_PASSWORD) {
+    console.error('Error: ADMIN_INITIAL_PASSWORD env var required');
+    process.exit(1);
+  }
+  const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 10);
 
   // Create Admin User
   const admin = await prisma.user.create({
@@ -34,7 +39,7 @@ async function main() {
   console.log('✅ Database setup complete!');
   console.log('\nLogin credentials:');
   console.log('  Username: dominium');
-  console.log('  Password: change-me-local-only');
+  console.log('  Password: <from ADMIN_INITIAL_PASSWORD env var>');
 }
 
 main()

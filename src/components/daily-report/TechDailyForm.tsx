@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Plus, Bug, CheckCheck, Monitor, FlaskConical, Rocket, Sparkles, Clock, Wrench, Link2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { WorkItem } from '../../types';
-import { TechMetrics, BlockerEntry, TodayPlanEntry, TaskEntry, BLOCKER_TAGS, AdHocTask } from '../../types/daily-report-metrics';
+import { TechMetrics, TaskEntry, BLOCKER_TAGS } from '../../types/daily-report-metrics';
+import { useDailyReportForm } from '../../hooks/use-daily-report-form';
 import DailyReportBase from './DailyReportBase';
 import TaskStatusCard from './components/TaskStatusCard';
 import BlockerCard from './components/BlockerCard';
@@ -30,101 +31,22 @@ interface TechDailyFormProps {
   onSuccess: () => void;
 }
 
+const DEFAULT_TECH_METRICS: TechMetrics = { taskType: 'feature', testStatus: 'local' };
+
 export default function TechDailyForm({ tasks, onClose, onSuccess }: TechDailyFormProps) {
   const { currentUser } = useAuth();
   const [reportDate, setReportDate] = useState(new Date().toISOString().split('T')[0]);
   const [submitting, setSubmitting] = useState(false);
 
-  // Task status tracking
-  const [taskStatuses, setTaskStatuses] = useState<Record<string, 'done' | 'doing'>>({});
-  const [taskMetrics, setTaskMetrics] = useState<Record<string, TechMetrics>>({});
-
-  // Blockers
-  const [blockers, setBlockers] = useState<BlockerEntry[]>([]);
-
-  // Today plans
-  const [todayPlans, setTodayPlans] = useState<TodayPlanEntry[]>([]);
-
-  // Ad-hoc tasks
-  const [adHocTasks, setAdHocTasks] = useState<AdHocTask[]>([]);
+  const {
+    taskStatuses, taskMetrics, blockers, todayPlans, adHocTasks, setAdHocTasks,
+    handleTaskStatusChange, updateTaskMetric,
+    addBlocker, updateBlocker, removeBlocker, appendBlockerTag,
+    addTodayPlan, updateTodayPlan, removeTodayPlan, togglePlanPriority,
+  } = useDailyReportForm<TechMetrics>({ defaultMetrics: DEFAULT_TECH_METRICS });
 
   const userTasks = tasks.filter((t) => t.assigneeId === currentUser?.id);
   const taskOptions = userTasks.map((t) => ({ value: t.id, label: t.title }));
-
-  const handleTaskStatusChange = (taskId: string, status: 'done' | 'doing') => {
-    setTaskStatuses((prev) => {
-      if (prev[taskId] === status) {
-        const newState = { ...prev };
-        delete newState[taskId];
-        return newState;
-      }
-      return { ...prev, [taskId]: status };
-    });
-    // Initialize metrics if not exists
-    if (!taskMetrics[taskId]) {
-      setTaskMetrics((prev) => ({
-        ...prev,
-        [taskId]: { taskType: 'feature', testStatus: 'local' },
-      }));
-    }
-  };
-
-  const updateTaskMetric = (taskId: string, field: keyof TechMetrics, value: string | boolean) => {
-    setTaskMetrics((prev) => ({
-      ...prev,
-      [taskId]: { ...prev[taskId], [field]: value },
-    }));
-  };
-
-  const addBlocker = () => {
-    setBlockers((prev) => [
-      ...prev,
-      { id: `b${Date.now()}`, description: '', impact: 'none', tags: [] },
-    ]);
-  };
-
-  const updateBlocker = (id: string, field: keyof BlockerEntry, value: string) => {
-    setBlockers((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, [field]: value } : b))
-    );
-  };
-
-  const removeBlocker = (id: string) => {
-    setBlockers((prev) => prev.filter((b) => b.id !== id));
-  };
-
-  const appendBlockerTag = (id: string, tag: string) => {
-    setBlockers((prev) =>
-      prev.map((b) =>
-        b.id === id
-          ? { ...b, description: b.description ? `${b.description} ${tag}` : tag }
-          : b
-      )
-    );
-  };
-
-  const addTodayPlan = () => {
-    setTodayPlans((prev) => [
-      ...prev,
-      { id: `p${Date.now()}`, output: '', progress: 0, isPriority: false },
-    ]);
-  };
-
-  const updateTodayPlan = (id: string, field: keyof TodayPlanEntry, value: string | number | boolean) => {
-    setTodayPlans((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, [field]: value } : p))
-    );
-  };
-
-  const removeTodayPlan = (id: string) => {
-    setTodayPlans((prev) => prev.filter((p) => p.id !== id));
-  };
-
-  const togglePlanPriority = (id: string) => {
-    setTodayPlans((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, isPriority: !p.isPriority } : p))
-    );
-  };
 
   const handleSubmit = async () => {
     if (submitting) return;

@@ -3,6 +3,7 @@ import { WorkItem } from '../../types';
 import { X, Calendar, Clock, Target, User as UserIcon, AlignLeft, CheckSquare, Link2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
+import { TYPE_COLORS, PRIORITY_COLORS, STATUS_COLORS } from '../../utils/color-mappings';
 
 interface TaskDetailsModalProps {
   isOpen: boolean;
@@ -17,49 +18,30 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
 
   const assignee = users.find(u => u.id === task.assigneeId);
 
-  // Get first linked Key Result from krLinks (already included from API)
   const linkedKr = task.krLinks?.[0]?.keyResult;
-
-  const typeColors: Record<string, string> = {
-    Epic: 'bg-primary/10 text-primary',
-    UserStory: 'bg-secondary/10 text-secondary',
-    TechTask: 'bg-tertiary/10 text-tertiary',
-    Campaign: 'bg-orange-100 text-orange-700',
-    MktTask: 'bg-amber-100 text-amber-700',
-    MediaTask: 'bg-pink-100 text-pink-700',
-    SaleTask: 'bg-emerald-100 text-emerald-700',
-    Deal: 'bg-emerald-100 text-emerald-700',
-    DealLost: 'bg-rose-100 text-rose-700',
-  };
-
-  const priorityColors: Record<string, string> = {
-    Low: 'bg-slate-100 text-slate-500',
-    Medium: 'bg-primary/10 text-primary',
-    High: 'bg-secondary/10 text-secondary',
-    Urgent: 'bg-error/10 text-error',
-  };
-
   const completedSubtasks = task.subtasks?.filter(st => st.completed).length || 0;
   const totalSubtasks = task.subtasks?.length || 0;
 
   return (
     <AnimatePresence>
-      {/* M7: Mobile optimized modal */}
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4">
+      <div
+        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
+        onClick={onClose}
+      >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-2xl lg:max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh]"
+          onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
           <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100">
             <div className="flex items-center gap-3">
-              <span className={`px-4 py-1.5 text-[10px] font-black rounded-full uppercase tracking-[0.15em] border ${typeColors[task.type] || 'bg-slate-50 text-slate-500 border-slate-100'}`}>
+              <span className={`px-4 py-1.5 text-[10px] font-black rounded-full uppercase tracking-[0.15em] border ${TYPE_COLORS[task.type] || 'bg-slate-50 text-slate-500 border-slate-100'}`}>
                 {task.type}
               </span>
               {task.priority && (
-                <span className={`px-4 py-1.5 text-[10px] font-black rounded-full uppercase tracking-[0.15em] border ${priorityColors[task.priority]}`}>
+                <span className={`px-4 py-1.5 text-[10px] font-black rounded-full uppercase tracking-[0.15em] border ${PRIORITY_COLORS[task.priority]}`}>
                   {task.priority}
                 </span>
               )}
@@ -89,10 +71,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
                   </div>
                 )}
                 <div className="flex items-center gap-2">
-                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${task.status === 'Done' || task.status === 'Won' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                      task.status === 'In Progress' || task.status === 'Doing' ? 'bg-primary/5 text-primary border-primary/10' :
-                        'bg-slate-50 text-slate-500 border-slate-100'
-                    }`}>
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${STATUS_COLORS[task.status] || 'bg-slate-50 text-slate-500 border-slate-100'}`}>
                     {task.status}
                   </span>
                 </div>
