@@ -6,7 +6,7 @@ export const createUserSchema = z.object({
     .string()
     .min(3, 'Username min 3 chars')
     .max(50)
-    .regex(/^[a-zA-Z0-9_]+$/, 'Username: letters, numbers, underscores only'),
+    .regex(/^[a-zA-Z0-9_.]+$/, 'Username: letters, numbers, underscores, dots only'),
   password: z.string().min(6, 'Password min 6 chars').optional(),
   departments: z.array(z.string().max(50)).min(1, 'At least one department required'),
   role: z.string().min(1, 'Role required').max(50),

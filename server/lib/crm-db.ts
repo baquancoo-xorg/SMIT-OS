@@ -1,6 +1,11 @@
 // CRM Database Connection (External read-only)
 // Only initialize if CRM_DATABASE_URL is configured and client exists
 
+import path from 'path';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+
 let crmPrisma: any = null;
 
 function initCrmClient() {
@@ -10,8 +15,9 @@ function initCrmClient() {
     return null;
   }
   try {
-    // @ts-ignore - generated to custom path
-    const { PrismaClient } = require('../../node_modules/.prisma/crm-client');
+    // Resolve from project root to handle different execution contexts
+    const clientPath = path.resolve(process.cwd(), 'node_modules/.prisma/crm-client');
+    const { PrismaClient } = require(clientPath);
     crmPrisma = new PrismaClient({
       log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
     });

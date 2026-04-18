@@ -23,7 +23,7 @@ npm run db:setup
 npm run dev
 ```
 
-Open http://localhost:3005
+Open http://localhost:3000
 
 ### 4. Login
 - **Username:** `dominium`

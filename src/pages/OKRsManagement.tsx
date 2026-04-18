@@ -209,7 +209,7 @@ export default function OKRsManagement() {
   }
 
   return (
-    <div className="h-full flex flex-col p-6 md:p-10 space-y-10 w-full">
+    <div className="h-full flex flex-col py-6 md:py-10 space-y-8 w-full">
       {/* Dashboard Header - C1: Responsive layout */}
       <div className="flex flex-col gap-4 md:flex-row md:items-end justify-between">
         <div className="min-w-0">
@@ -225,15 +225,15 @@ export default function OKRsManagement() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-          <div className="flex p-1 bg-surface-container-high rounded-full border border-outline-variant/10 self-start">
+          <div className="flex p-1 bg-surface-container-high rounded-full shadow-sm self-start">
             <button
-              className={`px-3 sm:px-6 py-2 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all min-h-[44px] ${activeTab === 'L1' ? 'text-primary bg-white shadow-md' : 'text-slate-500 hover:text-primary'}`}
+              className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'L1' ? 'text-primary bg-white shadow-sm' : 'text-slate-500 hover:text-primary'}`}
               onClick={() => setActiveTab('L1')}
             >
               <span className="hidden sm:inline">Company (</span>L1<span className="hidden sm:inline">)</span>
             </button>
             <button
-              className={`px-3 sm:px-6 py-2 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all min-h-[44px] ${activeTab === 'L2' ? 'text-primary bg-white shadow-md' : 'text-slate-500 hover:text-primary'}`}
+              className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'L2' ? 'text-primary bg-white shadow-sm' : 'text-slate-500 hover:text-primary'}`}
               onClick={() => setActiveTab('L2')}
             >
               <span className="hidden sm:inline">Team (</span>L2<span className="hidden sm:inline">)</span>
@@ -241,11 +241,10 @@ export default function OKRsManagement() {
           </div>
           <button
             onClick={() => setIsAddObjModalOpen(true)}
-            className="flex items-center justify-center gap-2 bg-primary text-white px-4 sm:px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all min-h-[44px]"
+            className="flex items-center justify-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all min-w-[130px] whitespace-nowrap"
           >
-            <span className="material-symbols-outlined text-[20px]">add</span>
-            <span className="hidden sm:inline">New Objective</span>
-            <span className="sm:hidden">New</span>
+            <span className="material-symbols-outlined text-[14px]">add</span>
+            New Objective
           </button>
         </div>
       </div>
@@ -260,7 +259,7 @@ export default function OKRsManagement() {
 
       {/* Metric Grid - Bento Style */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
-        <div className="bg-white p-5 md:p-6 lg:p-8 rounded-3xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2 relative overflow-hidden group">
+        <div className="bg-white p-5 md:p-6 lg:p-8 rounded-3xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-primary/5 rounded-full -mr-12 -mt-12 md:-mr-16 md:-mt-16 group-hover:scale-150 transition-transform duration-700"></div>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10">Quarterly Progress</p>
           <div className="flex items-baseline gap-1 relative z-10">
@@ -275,7 +274,7 @@ export default function OKRsManagement() {
             ></div>
           </div>
         </div>
-        <div className="bg-white p-5 md:p-6 lg:p-8 rounded-3xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2 group">
+        <div className="bg-white p-5 md:p-6 lg:p-8 rounded-3xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2 group">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Objectives Active</p>
           <div className="flex items-baseline gap-2">
             <h4 className="text-2xl md:text-3xl lg:text-4xl font-black font-headline">{objectives.length}</h4>
@@ -283,7 +282,7 @@ export default function OKRsManagement() {
           </div>
           <p className="text-[10px] font-bold text-slate-400 mt-2">Across {new Set(objectives.map(o => o.department)).size} Departments</p>
         </div>
-        <div className="bg-white p-5 md:p-6 lg:p-8 rounded-3xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
+        <div className="bg-white p-5 md:p-6 lg:p-8 rounded-3xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Critical Path Health</p>
           <h4 className={`text-2xl md:text-3xl lg:text-4xl font-black font-headline ${healthInfo.color}`}>{healthInfo.status}</h4>
           <div className="flex items-center gap-1 mt-2">
@@ -400,7 +399,7 @@ function ObjectiveAccordionCard({
   const colors = getDeptColor(objective.department);
 
   return (
-    <div className="bg-white rounded-3xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden group">
+    <div className="bg-white rounded-3xl md:rounded-3xl lg:rounded-3xl shadow-sm shadow-xl shadow-slate-200/20 overflow-hidden group">
       {/* L1 Objective Header - Clickable to expand/collapse */}
       <div
         onClick={onToggleExpand}
@@ -685,7 +684,7 @@ function ObjectiveAccordionCardL2({
   };
 
   return (
-    <div className="bg-white rounded-3xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden group">
+    <div className="bg-white rounded-3xl md:rounded-3xl lg:rounded-3xl shadow-sm shadow-xl shadow-slate-200/20 overflow-hidden group">
       {/* Header - Clickable to expand/collapse */}
       <div
         onClick={() => setIsExpanded(!isExpanded)}
@@ -823,7 +822,7 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, objective
           </div>
           <div className="flex items-center gap-3 md:gap-4 mt-2 ml-0 md:ml-11 flex-wrap">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[8px] font-black text-slate-500 border border-outline-variant/10">
+              <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[8px] font-black text-slate-500 shadow-sm">
                 {owner ? owner.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'N/A'}
               </div>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{owner?.fullName || 'Unassigned'}</p>
@@ -879,7 +878,7 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, objective
       {linkedItems.length > 0 && (
         <div className="flex flex-wrap gap-2 ml-0 mt-1">
           {linkedItems.map(item => (
-            <div key={item.id} className="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant/10 px-2 py-1 rounded-lg shadow-sm">
+            <div key={item.id} className="flex items-center gap-2 bg-surface-container-lowest shadow-sm px-2 py-1 rounded-lg shadow-sm">
               <span className={`text-[8px] font-black uppercase px-1 rounded ${item.type === 'Epic' ? 'bg-purple-100 text-purple-700' :
                 item.type === 'Deal' ? 'bg-emerald-100 text-emerald-700' :
                   'bg-slate-100 text-slate-700'
@@ -977,7 +976,7 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, title, message }: Dele
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-[60] backdrop-blur-sm">
-      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-md p-8 relative border border-outline-variant/20">
+      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-md p-8 relative">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
@@ -1030,7 +1029,7 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-lg p-8 relative border border-outline-variant/20">
+      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-lg p-8 relative">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
@@ -1110,7 +1109,7 @@ function UpdateProgressModal({ isOpen, onClose, onSave, currentValue, targetValu
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-[70] backdrop-blur-sm">
-      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-sm p-8 relative border border-outline-variant/20">
+      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-sm p-8 relative">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
@@ -1143,7 +1142,7 @@ function UpdateProgressModal({ isOpen, onClose, onSave, currentValue, targetValu
             />
           </div>
 
-          <div className="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/10">
+          <div className="bg-surface-container-lowest p-4 rounded-xl shadow-sm">
             <div className="flex justify-between text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">
               <span>New Progress</span>
               <span>{Math.min(100, Math.round((val / targetValue) * 100))}%</span>
@@ -1207,7 +1206,7 @@ function LinkWorkItemModal({ isOpen, onClose, krId, onLink, workItems }: { isOpe
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-md p-8 relative border border-outline-variant/20">
+      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-md p-8 relative">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
@@ -1327,7 +1326,7 @@ function LinkObjectiveModal({
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-md p-8 relative border border-outline-variant/20">
+      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-md p-8 relative">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { overviewQuerySchema, kpiQuerySchema } from '../schemas/dashboard-overview.schema';
 import { getSummaryMetrics } from '../services/dashboard/overview-summary.service';
 import { getKpiMetrics } from '../services/dashboard/overview-kpi.service';
+import { getCohortKpiMetrics } from '../services/dashboard/overview-cohort.service';
 import { previousPeriod, parseFromTo } from '../lib/date-utils';
 
 export function createDashboardOverviewRoutes() {
@@ -59,7 +60,10 @@ export function createDashboardOverviewRoutes() {
       }
 
       const { from, to } = parseFromTo(parsed.data.from, parsed.data.to);
-      const data = await getKpiMetrics(from, to);
+      const viewMode = parsed.data.viewMode ?? 'realtime';
+      const data = viewMode === 'cohort'
+        ? await getCohortKpiMetrics(from, to)
+        : await getKpiMetrics(from, to);
       res.json({ success: true, data, timestamp: new Date().toISOString() });
     } catch (err) {
       console.error('[dashboard/kpi-metrics]', err);
@@ -98,9 +102,10 @@ export function createDashboardOverviewRoutes() {
         prevTo = prev.previousTo;
       }
 
+      const viewMode = q.viewMode ?? 'realtime';
       const [summary, kpiMetrics] = await Promise.all([
         getSummaryMetrics(from, to, prevFrom, prevTo),
-        getKpiMetrics(from, to),
+        viewMode === 'cohort' ? getCohortKpiMetrics(from, to) : getKpiMetrics(from, to),
       ]);
 
       res.json({

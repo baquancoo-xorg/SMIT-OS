@@ -173,7 +173,7 @@ export default function ProductBacklog() {
   }
 
   return (
-    <div className="h-full flex flex-col p-6 lg:p-10 space-y-6 w-full">
+    <div className="h-full flex flex-col py-6 lg:py-10 space-y-8 w-full">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -188,7 +188,7 @@ export default function ProductBacklog() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex p-1 bg-surface-container-high rounded-full border border-outline-variant/10">
+          <div className="flex p-1 bg-surface-container-high rounded-full shadow-sm">
             <button
               onClick={() => setView('board')}
               className={`flex items-center gap-2 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view === 'board' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'}`}
@@ -206,9 +206,9 @@ export default function ProductBacklog() {
           </div>
           <button
             onClick={() => { setEditingTask(null); setIsModalOpen(true); }}
-            className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg shadow-primary/20 hover:scale-95 transition-all"
+            className="flex items-center justify-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all min-w-[130px] whitespace-nowrap"
           >
-            <span className="material-symbols-outlined text-[18px]">add</span>
+            <span className="material-symbols-outlined text-[14px]">add</span>
             New Item
           </button>
         </div>
@@ -217,7 +217,7 @@ export default function ProductBacklog() {
       {/* Stats & Filters */}
       <div className="flex flex-col lg:flex-row gap-4">
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 bg-white/50 backdrop-blur-md p-4 rounded-3xl border border-outline-variant/10 shadow-sm">
+        <div className="grid grid-cols-3 gap-4 bg-white/50 backdrop-blur-md p-4 rounded-3xl shadow-sm">
           <div className="text-center">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total</p>
             <p className="text-2xl font-black font-headline text-on-surface">{filteredItems.length}</p>
@@ -233,7 +233,7 @@ export default function ProductBacklog() {
         </div>
 
         {/* Search & Filters */}
-        <div className="flex-1 flex items-center gap-3 bg-white/50 backdrop-blur-md p-4 rounded-3xl border border-outline-variant/10 shadow-sm">
+        <div className="flex-1 flex items-center gap-3 bg-white/50 backdrop-blur-md p-4 rounded-3xl shadow-sm">
           <div className="flex-1 relative">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -395,7 +395,7 @@ function BacklogGroupCard({
   const config = typeConfig[type] || { label: type, color: 'text-slate-700', bgColor: 'bg-slate-50', icon: 'task' };
 
   return (
-    <div className="bg-white rounded-3xl border border-outline-variant/10 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
       <div className="p-6 flex items-center justify-between border-b border-outline-variant/5">
         <div className="flex items-center gap-3">
           <span className={`material-symbols-outlined text-2xl ${config.color}`}>{config.icon}</span>
@@ -570,7 +570,7 @@ function BacklogTableView({
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-outline-variant/10 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
       <table className="w-full">
         <thead>
           <tr className="border-b border-outline-variant/10 bg-surface-container-low/30">

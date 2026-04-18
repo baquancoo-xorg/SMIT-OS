@@ -14,6 +14,7 @@ interface DailyReportBaseProps {
   onSubmit: () => void;
   submitting: boolean;
   yesterdaySection: React.ReactNode;
+  adHocSection?: React.ReactNode;
   blockersSection: React.ReactNode;
   todaySection: React.ReactNode;
 }
@@ -29,6 +30,7 @@ export default function DailyReportBase({
   onSubmit,
   submitting,
   yesterdaySection,
+  adHocSection,
   blockersSection,
   todaySection,
 }: DailyReportBaseProps) {
@@ -99,6 +101,7 @@ export default function DailyReportBase({
               1. Review công việc hôm qua
             </h2>
             <div className="space-y-3">{yesterdaySection}</div>
+            {adHocSection}
           </div>
 
           {/* Section 2: Blockers */}

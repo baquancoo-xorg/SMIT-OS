@@ -251,11 +251,13 @@ export default function PMDashboard() {
   }
 
   return (
-    <div className="h-full flex flex-col p-6 md:p-10 space-y-10 w-full">
+    <div className="h-full flex flex-col py-6 md:py-10 space-y-8 w-full">
       {/* Header */}
       <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
+            <span className="hover:text-primary cursor-pointer">Analytics</span>
+            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
             <span className="text-on-surface">Overview</span>
           </nav>
           <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">
@@ -271,7 +273,7 @@ export default function PMDashboard() {
       {/* ==================== Tier 1: Top Metrics (6 Cards) - C11: Smoother grid progression */}
       <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
         {/* 1. Company OKRs Progress */}
-        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
+        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Company OKRs</p>
           <div className="flex items-center justify-between">
             <h4 className="text-lg md:text-xl font-black font-headline text-on-surface">
@@ -285,7 +287,7 @@ export default function PMDashboard() {
         </div>
 
         {/* 2. Sprint Countdown */}
-        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
+        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sprint</p>
           {currentSprint ? (
             <>
@@ -307,7 +309,7 @@ export default function PMDashboard() {
         </div>
 
         {/* 3. Flow Efficiency */}
-        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
+        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Flow Efficiency</p>
           <div className="flex items-center justify-between">
             <h4 className="text-lg md:text-xl font-black font-headline text-on-surface">
@@ -321,7 +323,7 @@ export default function PMDashboard() {
         </div>
 
         {/* 4. Active Blockers */}
-        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
+        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Blockers</p>
           <div className="flex items-center justify-between">
             <h4 className={`text-lg md:text-xl font-black font-headline ${activeBlockers > 0 ? 'text-error' : 'text-on-surface'}`}>
@@ -335,7 +337,7 @@ export default function PMDashboard() {
         </div>
 
         {/* 5. This Week Activity */}
-        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
+        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">This Week</p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -349,7 +351,7 @@ export default function PMDashboard() {
         </div>
 
         {/* 6. Report Status */}
-        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
+        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reports</p>
           <div className="flex items-center justify-between">
             <h4 className="text-lg md:text-xl font-black font-headline text-on-surface">
@@ -364,7 +366,7 @@ export default function PMDashboard() {
       {/* ==================== Tier 2: Charts (50/50) ==================== */}
       <section className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
         {/* Left: Department Progress + Status Breakdown */}
-        <div className="bg-white rounded-2xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm p-5 md:p-6 lg:p-8">
+        <div className="bg-white rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm p-5 md:p-6 lg:p-8">
           <h3 className="text-base md:text-lg font-black font-headline text-on-surface mb-6">
             Department Progress
           </h3>
@@ -403,7 +405,7 @@ export default function PMDashboard() {
         </div>
 
         {/* Right: Weekly Velocity */}
-        <div className="bg-white rounded-2xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm p-5 md:p-6 lg:p-8">
+        <div className="bg-white rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm p-5 md:p-6 lg:p-8">
           <div className="flex items-center gap-2 mb-6">
             <h3 className="text-base md:text-lg font-black font-headline text-on-surface">
               Weekly Velocity
@@ -458,7 +460,7 @@ export default function PMDashboard() {
       {/* ==================== Tier 3: Action Panels (50/50) ==================== */}
       <section className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
         {/* Left: Needs PM Attention */}
-        <div className="bg-white rounded-2xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm p-5 md:p-6 lg:p-8">
+        <div className="bg-white rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm p-5 md:p-6 lg:p-8">
           <div className="flex items-center gap-2 mb-4 md:mb-6">
             <h3 className="text-base md:text-lg font-black font-headline text-on-surface">
               Needs PM Attention
@@ -509,7 +511,7 @@ export default function PMDashboard() {
         </div>
 
         {/* Right: Critical Deadlines */}
-        <div className="bg-white rounded-2xl md:rounded-3xl lg:rounded-3xl border border-outline-variant/10 shadow-sm p-5 md:p-6 lg:p-8">
+        <div className="bg-white rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm p-5 md:p-6 lg:p-8">
           <h3 className="text-base md:text-lg font-black font-headline text-on-surface mb-6">
             Critical Deadlines
           </h3>

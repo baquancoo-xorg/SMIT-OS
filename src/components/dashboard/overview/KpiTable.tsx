@@ -1,5 +1,5 @@
-import { memo, useMemo, useState, useCallback } from 'react';
-import { ArrowUp, ArrowDown, ArrowUpDown, HelpCircle } from 'lucide-react';
+import { memo, useMemo, useState, useCallback, useEffect } from 'react';
+import { ArrowUp, ArrowDown, ArrowUpDown, HelpCircle, Medal, Award, Trophy } from 'lucide-react';
 import { formatCurrency, formatNumber, formatPercent } from '../../../lib/formatters';
 import type { KpiMetricsResponse, KpiMetricsRow } from '../../../types/dashboard-overview';
 import { type SortConfig, type SortField, sortData, handleSortClick, formatDateVN } from './kpi-table-utils';
@@ -23,7 +23,7 @@ function SortableHeader({ field, title, sortConfig, onSort }: SortableHeaderProp
       type="button"
       onClick={() => onSort(field)}
       className={`inline-flex items-center gap-0.5 text-[11px] font-semibold transition-colors whitespace-nowrap ${
-        active ? 'text-primary' : 'text-slate-500 hover:text-slate-700'
+        active ? 'text-[#0059B6]' : 'text-slate-500 hover:text-slate-700'
       }`}
     >
       <span>{title}</span>
@@ -33,14 +33,84 @@ function SortableHeader({ field, title, sortConfig, onSort }: SortableHeaderProp
 }
 
 function RateBadge({ value, rate }: { value: number; rate: number }) {
-  const bgColor = rate >= 50 ? 'bg-emerald-500' : rate >= 20 ? 'bg-emerald-400' : rate > 0 ? 'bg-emerald-300' : 'bg-slate-200';
+  const style = rate >= 50
+    ? 'bg-[#0059B6] text-white'
+    : rate >= 20
+      ? 'bg-[#0059B6]/70 text-white'
+      : rate > 0
+        ? 'bg-[#0059B6]/20 text-[#0059B6]'
+        : 'bg-slate-100 text-slate-400';
   return (
-    <span className="inline-flex items-center gap-1">
-      <span className={`px-1.5 py-0.5 text-[10px] font-bold text-white rounded ${bgColor}`}>
+    <span className="inline-flex items-center gap-1.5">
+      <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded ${style}`}>
         {formatPercent(rate)}
       </span>
-      <span className="text-slate-600">{value}</span>
+      <span className="text-slate-700 tabular-nums">{value}</span>
     </span>
+  );
+}
+
+interface MqlTiers {
+  gold: number;
+  silver: number;
+  bronze: number;
+}
+
+function MqlBadgeWithTooltip({ value, rate, tiers, rowIndex }: { value: number; rate: number; tiers: MqlTiers; rowIndex?: number }) {
+  const style = rate >= 50
+    ? 'bg-[#0059B6] text-white'
+    : rate >= 20
+      ? 'bg-[#0059B6]/70 text-white'
+      : rate > 0
+        ? 'bg-[#0059B6]/20 text-[#0059B6]'
+        : 'bg-slate-100 text-slate-400';
+  const total = tiers.gold + tiers.silver + tiers.bronze;
+  const bronzePercent = total > 0 ? (tiers.bronze / total) * 100 : 0;
+  const silverPercent = total > 0 ? (tiers.silver / total) * 100 : 0;
+  const goldPercent = total > 0 ? (tiers.gold / total) * 100 : 0;
+
+  const showBelow = rowIndex !== undefined && rowIndex < 3;
+  const tooltipPosition = showBelow
+    ? 'top-full mt-2'
+    : 'bottom-full mb-2';
+  const arrowPosition = showBelow
+    ? 'bottom-full border-b-white'
+    : 'top-full border-t-white';
+
+  return (
+    <div className="relative group inline-flex items-center gap-1.5 cursor-pointer">
+      <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded ${style}`}>
+        {formatPercent(rate)}
+      </span>
+      <span className="text-slate-700 tabular-nums">{value}</span>
+
+      {/* Tooltip */}
+      <div className={`absolute ${tooltipPosition} right-0 p-3 bg-white shadow-sm text-slate-700 text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 whitespace-nowrap z-50 shadow-md pointer-events-none min-w-[180px]`}>
+        <div className="font-semibold text-slate-800 mb-2 text-[11px]">MQL Tier Breakdown</div>
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-2">
+            <Medal className="h-3.5 w-3.5 text-amber-600" />
+            <span className="text-slate-500">Bronze:</span>
+            <span className="ml-auto font-medium tabular-nums">{tiers.bronze} <span className="text-slate-400 font-normal">({bronzePercent.toFixed(1)}%)</span></span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Award className="h-3.5 w-3.5 text-slate-400" />
+            <span className="text-slate-500">Silver:</span>
+            <span className="ml-auto font-medium tabular-nums">{tiers.silver} <span className="text-slate-400 font-normal">({silverPercent.toFixed(1)}%)</span></span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Trophy className="h-3.5 w-3.5 text-amber-500" />
+            <span className="text-slate-500">Gold:</span>
+            <span className="ml-auto font-medium tabular-nums">{tiers.gold} <span className="text-slate-400 font-normal">({goldPercent.toFixed(1)}%)</span></span>
+          </div>
+        </div>
+        <div className="border-t border-slate-100 mt-2 pt-2 flex items-center justify-between">
+          <span className="font-semibold text-slate-700 text-[11px]">Total:</span>
+          <span className="font-semibold tabular-nums">{total} <span className="text-slate-400 font-normal">({rate.toFixed(1)}%)</span></span>
+        </div>
+        <div className={`absolute ${arrowPosition} right-4 border-4 border-transparent`}></div>
+      </div>
+    </div>
   );
 }
 
@@ -48,51 +118,69 @@ interface KpiTableRowProps {
   row: KpiMetricsRow;
   isTotal?: boolean;
   rateMode: RateMode;
+  index?: number;
 }
 
-function KpiTableRow({ row, isTotal, rateMode }: KpiTableRowProps) {
-  const cellBase = 'px-3 py-2.5 text-xs whitespace-nowrap';
-  const cellStyle = isTotal ? `${cellBase} font-semibold bg-slate-50` : `${cellBase} text-slate-600`;
+function safeDivide(n: number, d: number): number {
+  return d === 0 ? 0 : (n / d) * 100;
+}
+
+function KpiTableRow({ row, isTotal, rateMode, index = 0 }: KpiTableRowProps) {
+  const isEven = index % 2 === 0;
+  const cellBase = 'px-3 py-2 text-xs whitespace-nowrap';
+  const rowBg = isTotal ? 'bg-slate-50' : isEven ? 'bg-white' : 'bg-slate-50/50';
+  const cellStyle = isTotal ? `${cellBase} font-semibold` : `${cellBase} text-slate-600`;
   const rightAlign = 'text-right';
 
+  const signupRate = safeDivide(row.signups, row.sessions);
+  const oppsRate = safeDivide(row.opportunities, row.signups);
+  const orderRate = rateMode === 'top'
+    ? safeDivide(row.orders, row.signups)
+    : safeDivide(row.orders, row.opportunities);
+  const mqlRate = safeDivide(row.mql, row.signups);
+  const prePqlRate = safeDivide(row.prePql, row.signups);
+  const pqlRate = safeDivide(row.pql, row.signups);
+  const sqlRate = safeDivide(row.sql, row.signups);
+
   return (
-    <tr className={isTotal ? 'border-t-2 border-slate-300' : 'border-b border-slate-100 hover:bg-slate-50/50'}>
-      <td className={`${cellStyle} text-left font-medium text-on-surface sticky left-0 bg-white z-10`}>
+    <tr className={`${isTotal ? 'border-t-2 border-slate-200' : 'border-b border-slate-100'} ${rowBg} hover:bg-[#0059B6]/5 transition-colors`}>
+      <td className={`${cellStyle} text-left font-medium text-slate-800 sticky left-0 ${rowBg} z-10`}>
         {isTotal ? 'TOTAL' : formatDateVN(row.date)}
       </td>
       <td className={`${cellStyle} ${rightAlign}`}>{formatCurrency(row.adSpend)}</td>
       <td className={`${cellStyle} ${rightAlign}`}>{formatNumber(row.sessions)}</td>
       <td className={`${cellStyle} ${rightAlign}`}>{formatCurrency(row.costPerSession)}</td>
       <td className={`${cellStyle} ${rightAlign}`}>
-        <RateBadge value={row.signups} rate={rateMode === 'top' ? (row.signups / Math.max(row.sessions, 1)) * 100 : row.signups} />
+        <RateBadge value={row.signups} rate={signupRate} />
       </td>
       <td className={`${cellStyle} ${rightAlign}`}>{formatCurrency(row.costPerSignup)}</td>
       <td className={`${cellStyle} ${rightAlign}`}>
-        <RateBadge value={row.trials} rate={row.trialRate} />
-      </td>
-      <td className={`${cellStyle} ${rightAlign}`}>{formatCurrency(row.costPerTrial)}</td>
-      <td className={`${cellStyle} ${rightAlign}`}>
-        <RateBadge value={row.opportunities} rate={row.opportunityRate} />
+        <RateBadge value={row.opportunities} rate={oppsRate} />
       </td>
       <td className={`${cellStyle} ${rightAlign}`}>{formatCurrency(row.costPerOpportunity)}</td>
       <td className={`${cellStyle} ${rightAlign}`}>
-        <RateBadge value={row.orders} rate={row.orderRate} />
+        <RateBadge value={row.orders} rate={orderRate} />
       </td>
       <td className={`${cellStyle} ${rightAlign}`}>{formatCurrency(row.costPerOrder)}</td>
       <td className={`${cellStyle} ${rightAlign}`}>
-        <RateBadge value={row.mql} rate={row.mqlRate} />
+        <MqlBadgeWithTooltip
+          value={row.mql}
+          rate={mqlRate}
+          tiers={{ gold: row.mqlGold, silver: row.mqlSilver, bronze: row.mqlBronze }}
+          rowIndex={index}
+        />
       </td>
       <td className={`${cellStyle} ${rightAlign}`}>
-        <RateBadge value={row.prePql} rate={row.prePqlRate} />
+        <RateBadge value={row.prePql} rate={prePqlRate} />
       </td>
       <td className={`${cellStyle} ${rightAlign}`}>
-        <RateBadge value={row.pql} rate={row.pqlRate} />
+        <RateBadge value={row.pql} rate={pqlRate} />
       </td>
       <td className={`${cellStyle} ${rightAlign}`}>
-        <RateBadge value={row.sql} rate={row.sqlRate} />
+        <RateBadge value={row.sql} rate={sqlRate} />
       </td>
-      <td className={`${cellStyle} ${rightAlign} font-medium`}>{formatCurrency(row.revenue)}</td>
-      <td className={`${cellStyle} ${rightAlign} font-bold ${row.roas >= 1 ? 'text-emerald-600' : 'text-red-500'}`}>
+      <td className={`${cellStyle} ${rightAlign} font-medium tabular-nums`}>{formatCurrency(row.revenue)}</td>
+      <td className={`${cellStyle} ${rightAlign} font-bold tabular-nums ${row.roas >= 1 ? 'text-[#0059B6]' : 'text-red-600'}`}>
         {row.roas.toFixed(2)}x
       </td>
       <td className={`${cellStyle} ${rightAlign}`}>
@@ -104,16 +192,16 @@ function KpiTableRow({ row, isTotal, rateMode }: KpiTableRowProps) {
 
 function SkeletonTable() {
   return (
-    <div className="bg-white rounded-2xl md:rounded-3xl border border-outline-variant/10 animate-pulse overflow-hidden">
-      <div className="p-5 md:p-6">
-        <div className="h-5 w-24 bg-slate-200 rounded" />
+    <section>
+      <div className="h-5 w-24 bg-slate-200 rounded mb-3" />
+      <div className="bg-white rounded-2xl shadow-sm animate-pulse overflow-hidden">
+        <div className="p-4 space-y-2">
+          {[...Array(7)].map((_, i) => (
+            <div key={i} className="h-8 bg-slate-100 rounded" />
+          ))}
+        </div>
       </div>
-      <div className="p-4 space-y-3">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="h-10 bg-slate-100 rounded" />
-        ))}
-      </div>
-    </div>
+    </section>
   );
 }
 
@@ -121,13 +209,29 @@ interface KpiTableProps {
   data?: KpiMetricsResponse;
   isLoading: boolean;
   error?: Error | null;
+  viewMode: ViewMode;
+  onViewModeChange: (mode: ViewMode) => void;
 }
 
-export const KpiTable = memo(function KpiTable({ data, isLoading, error }: KpiTableProps) {
+export const KpiTable = memo(function KpiTable({
+  data,
+  isLoading,
+  error,
+  viewMode,
+  onViewModeChange,
+}: KpiTableProps) {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'date', direction: 'desc' });
-  const [viewMode, setViewMode] = useState<ViewMode>('realtime');
   const [rateMode, setRateMode] = useState<RateMode>('top');
   const handleSort = useCallback((f: SortField) => setSortConfig((p) => handleSortClick(f, p)), []);
+
+  // Cohort mode chỉ hỗ trợ Top mode
+  useEffect(() => {
+    if (viewMode === 'cohort' && rateMode === 'step') {
+      setRateMode('top');
+    }
+  }, [viewMode, rateMode]);
+
+  const isStepDisabled = viewMode === 'cohort';
 
   const sortedData = useMemo(() => (data ? sortData(data.data, sortConfig) : []), [data, sortConfig]);
 
@@ -135,131 +239,140 @@ export const KpiTable = memo(function KpiTable({ data, isLoading, error }: KpiTa
 
   if (error) {
     return (
-      <div className="bg-white rounded-2xl md:rounded-3xl border border-error/20 p-5 md:p-6">
-        <p className="text-center text-error font-medium">Lỗi: {error.message}</p>
-      </div>
+      <section>
+        <h2 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+          <span className="w-1 h-4 bg-[#0059B6] rounded-full" />
+          KPI Metrics
+        </h2>
+        <div className="bg-white rounded-2xl shadow-sm p-6">
+          <p className="text-center text-red-600 font-medium">Lỗi: {error.message}</p>
+        </div>
+      </section>
     );
   }
 
   if (!data) return null;
 
   return (
-    <div className="bg-white rounded-2xl md:rounded-3xl border border-outline-variant/10 shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between p-5 md:p-6">
-        <h3 className="font-bold text-on-surface">KPI Metrics</h3>
+    <section>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+          <span className="w-1 h-4 bg-[#0059B6] rounded-full" />
+          KPI Metrics
+        </h2>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-lg border border-slate-200 overflow-hidden">
+          <div className="flex rounded-md bg-slate-100 p-0.5">
             <button
               type="button"
-              onClick={() => setViewMode('realtime')}
-              className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                viewMode === 'realtime' ? 'bg-primary text-white' : 'bg-white text-slate-600 hover:bg-slate-50'
+              onClick={() => onViewModeChange('realtime')}
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-all ${
+                viewMode === 'realtime' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               Realtime
             </button>
             <button
               type="button"
-              onClick={() => setViewMode('cohort')}
-              className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                viewMode === 'cohort' ? 'bg-primary text-white' : 'bg-white text-slate-600 hover:bg-slate-50'
+              onClick={() => onViewModeChange('cohort')}
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-all ${
+                viewMode === 'cohort' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               Cohort
             </button>
           </div>
-          <div className="flex rounded-lg border border-slate-200 overflow-hidden">
+          <div className={`flex rounded-md bg-slate-100 p-0.5 ${isStepDisabled ? 'opacity-60' : ''}`} title={isStepDisabled ? 'Step mode không khả dụng trong Cohort view' : ''}>
             <button
               type="button"
               onClick={() => setRateMode('top')}
-              className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                rateMode === 'top' ? 'bg-primary text-white' : 'bg-white text-slate-600 hover:bg-slate-50'
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-all ${
+                rateMode === 'top' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               Top
             </button>
             <button
               type="button"
-              onClick={() => setRateMode('step')}
-              className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                rateMode === 'step' ? 'bg-primary text-white' : 'bg-white text-slate-600 hover:bg-slate-50'
+              onClick={() => !isStepDisabled && setRateMode('step')}
+              disabled={isStepDisabled}
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-all ${
+                isStepDisabled
+                  ? 'text-slate-300 cursor-not-allowed'
+                  : rateMode === 'step'
+                    ? 'bg-white text-slate-800 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               Step
             </button>
           </div>
-          <button type="button" className="p-1.5 text-slate-400 hover:text-slate-600">
+          <button type="button" className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors" title="Hướng dẫn">
             <HelpCircle className="h-4 w-4" />
           </button>
         </div>
       </div>
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 border-b border-slate-200">
+          <thead className="bg-slate-100/80 border-b border-slate-200">
             <tr>
-              <th className="px-3 py-3 text-left sticky left-0 bg-slate-50 z-10">
+              <th className="px-3 py-2.5 text-left sticky left-0 bg-slate-100/80 z-10">
                 <SortableHeader field="date" title="Date" sortConfig={sortConfig} onSort={handleSort} />
               </th>
-              <th className="px-3 py-3 text-right">
+              <th className="px-3 py-2.5 text-right">
                 <SortableHeader field="adSpend" title="Ad Spend" sortConfig={sortConfig} onSort={handleSort} />
               </th>
-              <th className="px-3 py-3 text-right">
+              <th className="px-3 py-2.5 text-right">
                 <SortableHeader field="sessions" title="Sessions" sortConfig={sortConfig} onSort={handleSort} />
               </th>
-              <th className="px-3 py-3 text-right">
+              <th className="px-3 py-2.5 text-right">
                 <span className="text-[11px] font-semibold text-slate-500">CPSe</span>
               </th>
-              <th className="px-3 py-3 text-right">
+              <th className="px-3 py-2.5 text-right">
                 <SortableHeader field="signups" title="Signups" sortConfig={sortConfig} onSort={handleSort} />
               </th>
-              <th className="px-3 py-3 text-right">
-                <span className="text-[11px] font-semibold text-slate-500">CPSI</span>
+              <th className="px-3 py-2.5 text-right">
+                <span className="text-[11px] font-semibold text-slate-500">CPSi</span>
               </th>
-              <th className="px-3 py-3 text-right">
-                <SortableHeader field="trials" title="Trial" sortConfig={sortConfig} onSort={handleSort} />
-              </th>
-              <th className="px-3 py-3 text-right">
-                <span className="text-[11px] font-semibold text-slate-500">CPTr</span>
-              </th>
-              <th className="px-3 py-3 text-right">
+              <th className="px-3 py-2.5 text-right">
                 <SortableHeader field="opportunities" title="Opps" sortConfig={sortConfig} onSort={handleSort} />
               </th>
-              <th className="px-3 py-3 text-right">
+              <th className="px-3 py-2.5 text-right">
                 <span className="text-[11px] font-semibold text-slate-500">CPOpp</span>
               </th>
-              <th className="px-3 py-3 text-right">
+              <th className="px-3 py-2.5 text-right">
                 <SortableHeader field="orders" title="Order" sortConfig={sortConfig} onSort={handleSort} />
               </th>
-              <th className="px-3 py-3 text-right">
+              <th className="px-3 py-2.5 text-right">
                 <span className="text-[11px] font-semibold text-slate-500">CPOr</span>
               </th>
-              <th className="px-3 py-3 text-right">
+              <th className="px-3 py-2.5 text-right">
                 <span className="text-[11px] font-semibold text-slate-500">MQL (3 tiers)</span>
               </th>
-              <th className="px-3 py-3 text-right">
+              <th className="px-3 py-2.5 text-right">
                 <span className="text-[11px] font-semibold text-slate-500">Pre-PQL</span>
               </th>
-              <th className="px-3 py-3 text-right">
+              <th className="px-3 py-2.5 text-right">
                 <span className="text-[11px] font-semibold text-slate-500">PQL</span>
               </th>
-              <th className="px-3 py-3 text-right">
+              <th className="px-3 py-2.5 text-right">
                 <span className="text-[11px] font-semibold text-slate-500">SQL</span>
               </th>
-              <th className="px-3 py-3 text-right">
+              <th className="px-3 py-2.5 text-right">
                 <SortableHeader field="revenue" title="Revenue" sortConfig={sortConfig} onSort={handleSort} />
               </th>
-              <th className="px-3 py-3 text-right">
+              <th className="px-3 py-2.5 text-right">
                 <SortableHeader field="roas" title="ROAS" sortConfig={sortConfig} onSort={handleSort} />
               </th>
-              <th className="px-3 py-3 text-right">
+              <th className="px-3 py-2.5 text-right">
                 <span className="text-[11px] font-semibold text-slate-500">ME/RE</span>
               </th>
             </tr>
           </thead>
           <tbody>
-            {sortedData.map((row) => (
-              <KpiTableRow key={row.date} row={row} rateMode={rateMode} />
+            {sortedData.map((row, idx) => (
+              <KpiTableRow key={row.date} row={row} rateMode={rateMode} index={idx} />
             ))}
           </tbody>
           <tfoot>
@@ -267,6 +380,7 @@ export const KpiTable = memo(function KpiTable({ data, isLoading, error }: KpiTa
           </tfoot>
         </table>
       </div>
-    </div>
+      </div>
+    </section>
   );
 });

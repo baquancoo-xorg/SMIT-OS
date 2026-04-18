@@ -126,7 +126,7 @@ export default function SaturdaySync() {
   const nextSyncTime = getNextSaturday();
 
   return (
-    <div className="h-full flex flex-col p-6 md:p-10 space-y-8 w-full">
+    <div className="h-full flex flex-col py-6 md:py-10 space-y-8 w-full">
       {/* Weekly Sync Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
@@ -141,9 +141,9 @@ export default function SaturdaySync() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all"
+            className="flex items-center gap-2 bg-primary text-white px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all"
           >
-            <span className="material-symbols-outlined text-[20px]">add</span>
+            <span className="material-symbols-outlined text-[14px]">add</span>
             New Report
           </button>
         </div>
@@ -151,7 +151,7 @@ export default function SaturdaySync() {
 
       {/* Team Confidence Metrics - M9: 2x2 grid on small screens */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-        <div className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
+        <div className="bg-white p-6 rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Average Confidence</p>
           <div className="flex items-baseline gap-1">
             <h4 className="text-3xl font-black font-headline">{averageConfidence}</h4>
@@ -161,21 +161,21 @@ export default function SaturdaySync() {
             <div className="h-full bg-tertiary transition-all duration-1000" style={{ width: `${Number(averageConfidence) * 10}%` }}></div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
+        <div className="bg-white p-6 rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Approved</p>
           <h4 className="text-3xl font-black font-headline text-emerald-600">{approvedReports}</h4>
           <p className="text-[10px] font-bold mt-1 text-emerald-500">
             {reports.length > 0 ? Math.round((approvedReports / reports.length) * 100) : 0}% of total
           </p>
         </div>
-        <div className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
+        <div className="bg-white p-6 rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Review</p>
           <h4 className={`text-3xl font-black font-headline ${pendingReports > 0 ? 'text-amber-600' : 'text-slate-400'}`}>{pendingReports}</h4>
           <p className={`text-[10px] font-bold mt-1 ${pendingReports > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>
             {pendingReports > 0 ? 'Need attention' : 'All clear'}
           </p>
         </div>
-        <div className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col gap-2">
+        <div className="bg-white p-6 rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Next Sync</p>
           <h4 className="text-xl font-black font-headline">{nextSyncTime}</h4>
           <p className="text-[10px] font-bold text-slate-400 mt-1">Office Meeting Room</p>

@@ -47,7 +47,7 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
   });
 
   return (
-    <div className="bg-white rounded-3xl border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden">
+    <div className="bg-white rounded-3xl shadow-sm shadow-xl shadow-slate-200/20 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -87,7 +87,7 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
                   {/* Reporter */}
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center font-black text-on-surface text-xs border border-outline-variant/10 shadow-sm group-hover:scale-110 transition-transform">
+                      <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center font-black text-on-surface text-xs shadow-sm group-hover:scale-110 transition-transform">
                         {user?.fullName.split(' ').map(n => n[0]).join('') || '?'}
                       </div>
                       <div className="flex flex-col">

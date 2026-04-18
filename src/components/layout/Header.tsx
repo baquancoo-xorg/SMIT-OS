@@ -62,7 +62,7 @@ export default function Header({ onMenuClick, onViewChange }: {
 
   return (
     <header className="fixed top-0 left-0 right-0 h-20 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant/5">
-      <div className="w-full h-full px-4 md:px-8 xl:pl-80 xl:pr-10 flex items-center justify-between">
+      <div className="w-full h-full px-4 md:px-8 xl:pl-72 xl:pr-10 flex items-center justify-between">
         <div className="flex items-center gap-4 flex-1">
           <button
             onClick={onMenuClick}
@@ -76,7 +76,7 @@ export default function Header({ onMenuClick, onViewChange }: {
             <div className="relative group">
               <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
               <input
-                className="w-full bg-white border border-slate-200 rounded-2xl py-2.5 pl-14 pr-6 text-sm text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary/30 transition-all placeholder:text-slate-400 font-medium"
+                className="w-full bg-white shadow-sm rounded-2xl py-2.5 pl-14 pr-6 text-sm text-on-surface focus:ring-4 focus:ring-primary/10 focus:shadow-md transition-all placeholder:text-slate-400 font-medium"
                 placeholder="Search..."
                 type="text"
                 value={searchQuery}
@@ -92,7 +92,7 @@ export default function Header({ onMenuClick, onViewChange }: {
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute top-full left-0 right-0 mt-2 sm:mt-4 bg-white rounded-2xl sm:rounded-3xl border border-outline-variant/10 shadow-2xl shadow-slate-200/40 overflow-hidden max-h-[70vh] sm:max-h-[500px] flex flex-col"
+                  className="absolute top-full left-0 right-0 mt-2 sm:mt-4 bg-white rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden max-h-[70vh] sm:max-h-[500px] flex flex-col"
                 >
                   <div className="p-4 sm:p-6 border-b border-outline-variant/5 bg-slate-50/50">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Search Results ({searchResults.length})</p>

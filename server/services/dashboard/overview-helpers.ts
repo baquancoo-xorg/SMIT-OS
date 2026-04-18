@@ -1,12 +1,32 @@
 import type { MetricWithTrend } from '../../types/dashboard-overview.types';
 
-export const MQL_TIERS = {
-  BRONZE: { budget: 5_000_000, accounts: 1 },
-  SILVER: { budget: 500_000_000, accounts: 20 },
-  GOLD: { budget: 10_000_000_000, accounts: 100 },
+// MQL Qualification: budget >= 5 tỷ AND accounts >= 100
+export const MQL_THRESHOLD = {
+  budgetMin: 5_000_000_000,  // 5 tỷ VND
+  accountsMin: 100,
 } as const;
 
-export const MQL_VALID_ROLES = ['manager', 'accountant', 'owner', 'ceo', 'director'];
+// MQL Tier scoring thresholds (weighted score system)
+// Budget levels: 5-20 tỷ = 1, 20-100 tỷ = 2, >100 tỷ = 3
+// Account levels: 100-1000 = 1, 1000-4000 = 2, >=4000 = 3
+// Total score (2-6): Bronze = 2, Silver = 3-4, Gold = 5-6
+export const MQL_SCORING = {
+  budget: [
+    { min: 100_000_000_000, score: 3 },  // > 100 tỷ
+    { min: 20_000_000_000, score: 2 },   // 20-100 tỷ
+    { min: 5_000_000_000, score: 1 },    // 5-20 tỷ
+  ],
+  accounts: [
+    { min: 4000, score: 3 },   // >= 4000 TKQC
+    { min: 1000, score: 2 },   // 1000-4000 TKQC
+    { min: 100, score: 1 },    // 100-1000 TKQC
+  ],
+  tiers: {
+    gold: 5,    // score >= 5
+    silver: 3,  // score >= 3
+    bronze: 2,  // score >= 2 (minimum for MQL)
+  },
+} as const;
 
 export function calculateTrend(current: number, previous: number): MetricWithTrend {
   const trend = previous === 0 ? 0 : ((current - previous) / previous) * 100;

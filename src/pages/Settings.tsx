@@ -56,7 +56,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="h-full flex flex-col p-6 md:p-10 space-y-8 overflow-y-auto">
+    <div className="h-full flex flex-col py-6 md:py-10 space-y-8 overflow-y-auto">
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Workspace Settings</h2>

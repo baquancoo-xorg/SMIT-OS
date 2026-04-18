@@ -125,7 +125,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
                   <AlignLeft size={16} />
                   <span>Description</span>
                 </div>
-                <div className="bg-slate-50 rounded-3xl p-5 text-sm text-slate-600 leading-relaxed border border-slate-100">
+                <div className="bg-slate-50 rounded-3xl p-5 text-sm text-slate-600 leading-relaxed shadow-sm">
                   {task.description}
                 </div>
               </div>
@@ -150,7 +150,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsM
 
                 <div className="space-y-2 mt-4">
                   {task.subtasks.map(st => (
-                    <div key={st.id} className="flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl">
+                    <div key={st.id} className="flex items-center gap-3 p-4 bg-white shadow-sm rounded-xl">
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${st.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300'
                         }`}>
                         {st.completed && <CheckSquare size={12} />}

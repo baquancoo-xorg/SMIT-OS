@@ -21,10 +21,11 @@ import { createOkrCycleRoutes } from "./server/routes/okr-cycle.routes";
 import { createDashboardOverviewRoutes } from "./server/routes/dashboard-overview.routes";
 import { createFbSyncRoutes } from "./server/routes/fb-sync.routes";
 import { createAdminFbConfigRoutes } from "./server/routes/admin-fb-config.routes";
+import { startFbSyncScheduler } from "./server/services/facebook/fb-sync-scheduler.service";
 
 const prisma = new PrismaClient();
 const app = express();
-const PORT = 3005;
+const PORT = Number(process.env.PORT ?? 3000);
 
 // Global middleware
 app.use(cors({ credentials: true, origin: true }));
@@ -76,7 +77,10 @@ async function startServer() {
     app.get("*all", (_req, res) => res.sendFile(path.join(distPath, "index.html")));
   }
 
-  app.listen(PORT, "0.0.0.0", () => console.log(`Server: http://localhost:${PORT}`));
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server: http://localhost:${PORT}`);
+    startFbSyncScheduler();
+  });
 }
 
 startServer();

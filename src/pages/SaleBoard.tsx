@@ -23,7 +23,9 @@ import TaskTableView from '../components/board/TaskTableView';
 import TaskModal from '../components/board/TaskModal';
 import TaskDetailsModal from '../components/board/TaskDetailsModal';
 import { WorkItem, Sprint } from '../types';
-import { LayoutGrid, List, ChevronDown, Filter, Database } from 'lucide-react';
+import { ChevronDown, Filter, Database } from 'lucide-react';
+import ViewToggle from '../components/ui/ViewToggle';
+import PrimaryActionButton from '../components/ui/PrimaryActionButton';
 import { useAuth } from '../contexts/AuthContext';
 import CustomFilter from '../components/ui/CustomFilter';
 
@@ -296,7 +298,7 @@ export default function SaleBoard() {
     : items.filter(i => i.sprintId);
 
   return (
-    <div className="h-full flex flex-col p-6 lg:p-10 space-y-6 w-full">
+    <div className="h-full flex flex-col py-6 lg:py-10 space-y-8 w-full">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -311,34 +313,15 @@ export default function SaleBoard() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex p-1 bg-surface-container-high rounded-full border border-outline-variant/10">
-            <button
-              onClick={() => setView('board')}
-              className={`flex items-center gap-2 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view === 'board' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'}`}
-            >
-              <LayoutGrid size={12} />
-              Board
-            </button>
-            <button
-              onClick={() => setView('table')}
-              className={`flex items-center gap-2 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view === 'table' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'}`}
-            >
-              <List size={12} />
-              Table
-            </button>
-          </div>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg shadow-primary/20 hover:scale-95 transition-all"
-          >
-            <span className="material-symbols-outlined text-[18px]">add</span>
+          <ViewToggle value={view} onChange={(v) => setView(v as 'board' | 'table')} />
+          <PrimaryActionButton onClick={() => setIsModalOpen(true)}>
             New Task
-          </button>
+          </PrimaryActionButton>
         </div>
       </div>
 
       {/* Sprint Filter Bar */}
-      <div className="flex items-center justify-between bg-white/50 backdrop-blur-md p-4 rounded-3xl border border-outline-variant/10 shadow-sm">
+      <div className="flex items-center justify-between bg-white/50 backdrop-blur-md p-4 rounded-3xl shadow-sm">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest">
             <Filter size={14} />
@@ -408,7 +391,7 @@ export default function SaleBoard() {
         >
           <div className="flex-1 flex flex-col lg:flex-row gap-6 overflow-hidden min-h-0">
             {/* Backlog (25%) */}
-            <div className="w-full lg:w-1/4 h-[400px] lg:h-auto flex flex-col bg-surface-container-low/30 rounded-3xl border border-outline-variant/10 overflow-hidden shrink-0 lg:shrink">
+            <div className="w-full lg:w-1/4 h-[400px] lg:h-auto flex flex-col bg-surface-container-low/30 rounded-3xl shadow-sm overflow-hidden shrink-0 lg:shrink">
               <div className="p-5 flex items-center justify-between border-b border-outline-variant/5 bg-white/40">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">inventory_2</span>
@@ -451,7 +434,7 @@ export default function SaleBoard() {
                 const columnItems = sprintItems.filter(i => i.status === col);
 
                 return (
-                  <div key={col} className="min-w-[280px] flex-1 flex flex-col bg-slate-50/50 rounded-3xl border border-slate-200/50 h-full max-h-full overflow-hidden">
+                  <div key={col} className="min-w-[280px] flex-1 flex flex-col bg-slate-50/50 rounded-3xl shadow-sm h-full max-h-full overflow-hidden">
                     <div className="p-4 flex items-center justify-between bg-white/30">
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${col === 'Todo' ? 'bg-slate-400' :

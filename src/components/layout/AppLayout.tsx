@@ -40,7 +40,7 @@ export default function AppLayout({ children, currentView, onViewChange, onLogou
       <div className="flex-1 flex flex-col overflow-hidden w-full">
         <Header onMenuClick={() => setIsSidebarOpen(true)} onViewChange={onViewChange} />
         <main className="flex-1 overflow-y-auto pt-20">
-          <div className="p-4 sm:p-5 md:p-6 lg:p-8 min-h-full w-full">
+          <div className="p-4 sm:p-5 md:p-6 lg:p-8 xl:px-10 min-h-full w-full">
             {children}
           </div>
         </main>

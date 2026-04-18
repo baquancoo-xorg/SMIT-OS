@@ -1,7 +1,7 @@
 import { ButtonHTMLAttributes, forwardRef } from 'react';
 import { motion } from 'framer-motion';
 
-type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
+type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -11,10 +11,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<ButtonVariant, string> = {
-  primary: 'bg-primary text-white hover:bg-primary/90',
+  primary: 'bg-gradient-to-r from-primary via-blue-600 to-indigo-600 text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30',
   secondary: 'bg-secondary text-on-secondary hover:bg-secondary/90',
   outline: 'border border-outline text-on-surface hover:bg-surface-container',
-  ghost: 'text-on-surface hover:bg-surface-container'
+  ghost: 'text-on-surface hover:bg-surface-container',
+  danger: 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/30',
 };
 
 const sizes: Record<ButtonSize, string> = {
@@ -24,23 +25,48 @@ const sizes: Record<ButtonSize, string> = {
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'primary', size = 'md', isLoading, children, className = '', ...props }, ref) => (
-    <motion.button
-      ref={ref}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className={`font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${className}`}
-      disabled={isLoading || props.disabled}
-      {...props}
-    >
-      {isLoading ? (
-        <span className="flex items-center gap-2">
-          <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
-          Loading...
+  ({ variant = 'primary', size = 'md', isLoading, children, className = '', ...props }, ref) => {
+    const isPrimary = variant === 'primary' || variant === 'danger';
+
+    return (
+      <motion.button
+        ref={ref}
+        whileHover={{ scale: 1.02, boxShadow: isPrimary ? "0 20px 40px -10px rgba(37, 99, 235, 0.35)" : undefined }}
+        whileTap={{ scale: 0.98 }}
+        className={`relative overflow-hidden font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
+        disabled={isLoading || props.disabled}
+        {...props}
+      >
+        {/* Shine effect for primary/danger buttons */}
+        {isPrimary && !isLoading && !props.disabled && (
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+            initial={{ x: '-100%' }}
+            animate={{ x: '200%' }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              repeatDelay: 4,
+              ease: "easeInOut",
+            }}
+          />
+        )}
+
+        <span className="relative flex items-center justify-center gap-2">
+          {isLoading ? (
+            <>
+              <motion.span
+                className="h-4 w-4 border-2 border-current/30 border-t-current rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+              Loading...
+            </>
+          ) : children}
         </span>
-      ) : children}
-    </motion.button>
-  )
+      </motion.button>
+    );
+  }
 );
 
 Button.displayName = 'Button';

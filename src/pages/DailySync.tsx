@@ -100,7 +100,7 @@ export default function DailySync() {
   const pendingCount = reports.filter(r => r.status === 'Review').length;
 
   return (
-    <div className="h-full flex flex-col p-6 md:p-10 space-y-8 w-full">
+    <div className="h-full flex flex-col py-6 md:py-10 space-y-8 w-full">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
@@ -116,32 +116,32 @@ export default function DailySync() {
 
         <div className="flex items-center gap-3">
           {canViewDashboard && (
-            <div className="flex bg-slate-100 rounded-full p-1">
+            <div className="flex bg-surface-container-high rounded-full p-1 shadow-sm">
               <button
                 onClick={() => setActiveTab('reports')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all ${
-                  activeTab === 'reports' ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700'
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                  activeTab === 'reports' ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-primary'
                 }`}
               >
-                <FileText size={16} />
+                <FileText size={12} />
                 Reports
               </button>
               <button
                 onClick={() => setActiveTab('dashboard')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all ${
-                  activeTab === 'dashboard' ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700'
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                  activeTab === 'dashboard' ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-primary'
                 }`}
               >
-                <BarChart3 size={16} />
+                <BarChart3 size={12} />
                 Dashboard
               </button>
             </div>
           )}
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/20 hover:scale-95 transition-all"
+            className="flex items-center justify-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all min-w-[130px] whitespace-nowrap"
           >
-            <Plus size={18} />
+            <Plus size={14} />
             New Report
           </button>
         </div>
@@ -159,19 +159,19 @@ export default function DailySync() {
         <>
       {/* Stats - 2x2 grid on mobile */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-        <div className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm">
+        <div className="bg-white p-6 rounded-3xl shadow-sm">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Today's Reports</p>
           <h4 className="text-3xl font-black font-headline mt-2">{todayReports.length}</h4>
         </div>
-        <div className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm">
+        <div className="bg-white p-6 rounded-3xl shadow-sm">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Approved</p>
           <h4 className="text-3xl font-black font-headline text-emerald-600 mt-2">{approvedCount}</h4>
         </div>
-        <div className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm">
+        <div className="bg-white p-6 rounded-3xl shadow-sm">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Review</p>
           <h4 className="text-3xl font-black font-headline text-amber-600 mt-2">{pendingCount}</h4>
         </div>
-        <div className="bg-white p-6 rounded-3xl border border-outline-variant/10 shadow-sm">
+        <div className="bg-white p-6 rounded-3xl shadow-sm">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Reports</p>
           <h4 className="text-3xl font-black font-headline mt-2">{reports.length}</h4>
         </div>
@@ -179,7 +179,7 @@ export default function DailySync() {
 
       {/* Reports Table - C4: Scroll wrapper for mobile */}
       <div className="flex-1 overflow-y-auto">
-        <div className="bg-white rounded-3xl border border-outline-variant/10 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
             <div className="min-w-[700px]">
           <table className="w-full">

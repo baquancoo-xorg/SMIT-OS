@@ -1,6 +1,19 @@
 // Team types
 export type TeamType = 'tech' | 'marketing' | 'media' | 'sale';
 
+// Ad-hoc task (công việc phát sinh ngoài OKRs)
+export interface AdHocTask {
+  id: number;
+  name: string;
+  requester: string;
+  impact: 'low' | 'medium' | 'high';
+  status: 'done' | 'in-progress';
+  hoursSpent: number;
+}
+
+export type AdHocTaskImpact = AdHocTask['impact'];
+export type AdHocTaskStatus = AdHocTask['status'];
+
 // Tech team metrics
 export interface TechMetrics {
   prLink?: string;

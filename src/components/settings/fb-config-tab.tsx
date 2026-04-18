@@ -19,6 +19,7 @@ export function FbConfigTab() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [syncingId, setSyncingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({ accountId: '', accountName: '', accessToken: '', currency: 'USD' });
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAccounts();
@@ -48,22 +49,28 @@ export function FbConfigTab() {
   };
 
   const handleAddAccount = async () => {
+    setFormError(null);
     try {
       const res = await fetch('/api/admin/fb-accounts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (res.ok && data.success) {
         await fetchAccounts();
         resetForm();
+      } else {
+        setFormError(data.error || 'Failed to add account');
       }
     } catch (err) {
+      setFormError('Network error');
       console.error('Failed to add account:', err);
     }
   };
 
   const handleUpdateAccount = async (id: number) => {
+    setFormError(null);
     try {
       const body: Record<string, string> = {};
       if (formData.accountName) body.accountName = formData.accountName;
@@ -75,11 +82,15 @@ export function FbConfigTab() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (res.ok && data.success) {
         await fetchAccounts();
         resetForm();
+      } else {
+        setFormError(data.error || 'Failed to update account');
       }
     } catch (err) {
+      setFormError('Network error');
       console.error('Failed to update account:', err);
     }
   };
@@ -115,14 +126,27 @@ export function FbConfigTab() {
     }
   };
 
+  const [rateError, setRateError] = useState<string | null>(null);
+  const [rateSaved, setRateSaved] = useState(false);
+
   const handleUpdateExchangeRate = async () => {
+    setRateError(null);
+    setRateSaved(false);
     try {
-      await fetch('/api/admin/exchange-rates', {
+      const res = await fetch('/api/admin/exchange-rates', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ exchangeRate }),
+        body: JSON.stringify({ exchangeRate: Number(exchangeRate) }),
       });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setRateSaved(true);
+        setTimeout(() => setRateSaved(false), 2000);
+      } else {
+        setRateError(data.error || 'Failed to save');
+      }
     } catch (err) {
+      setRateError('Network error');
       console.error('Failed to update exchange rate:', err);
     }
   };
@@ -131,6 +155,7 @@ export function FbConfigTab() {
     setIsAdding(false);
     setEditingId(null);
     setFormData({ accountId: '', accountName: '', accessToken: '', currency: 'USD' });
+    setFormError(null);
   };
 
   const openEdit = (acc: FbAccount) => {
@@ -173,12 +198,15 @@ export function FbConfigTab() {
               <h4 className="text-sm font-bold text-on-surface">{isAdding ? 'Add Account' : 'Edit Account'}</h4>
               <button onClick={resetForm} className="text-slate-400 hover:text-on-surface"><X size={18} /></button>
             </div>
+            {formError && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-xl text-sm">{formError}</div>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Account ID</label>
                 <input
                   type="text"
-                  placeholder="act_123456789"
+                  placeholder="act_XXXXXXXXX (dùng dấu _ không phải =)"
                   value={formData.accountId}
                   onChange={e => setFormData({ ...formData, accountId: e.target.value })}
                   disabled={!!editingId}
@@ -233,7 +261,7 @@ export function FbConfigTab() {
           </div>
         )}
 
-        <div className="bg-white rounded-3xl border border-outline-variant/10 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-slate-50 border-b border-outline-variant/10">
               <tr>
@@ -301,6 +329,12 @@ export function FbConfigTab() {
               <span className="text-sm font-medium text-slate-500">VND</span>
             </div>
           </div>
+          {rateError && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-xl text-sm">{rateError}</div>
+          )}
+          {rateSaved && (
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-600 px-4 py-2 rounded-xl text-sm">Saved successfully!</div>
+          )}
           <button
             onClick={handleUpdateExchangeRate}
             className="w-full bg-secondary text-white py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-secondary/20 hover:scale-95 transition-all"
@@ -310,7 +344,7 @@ export function FbConfigTab() {
           </button>
         </div>
 
-        <div className="bg-white rounded-3xl border border-outline-variant/10 shadow-sm p-6">
+        <div className="bg-white rounded-3xl shadow-sm p-6">
           <h4 className="text-sm font-bold text-on-surface mb-4">Quick Reference</h4>
           <div className="space-y-2 text-sm text-slate-500">
             <div className="flex justify-between">

@@ -102,7 +102,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
           <div
             key={item.id}
             onClick={() => onViewDetails?.(item)}
-            className="bg-white p-4 rounded-2xl border border-outline-variant/10 shadow-sm active:scale-[0.98] transition-transform"
+            className="bg-white p-4 rounded-2xl shadow-sm active:scale-[0.98] transition-transform"
           >
             <div className="flex items-start justify-between gap-3 mb-3">
               <h4 className="text-sm font-bold text-on-surface line-clamp-2">{item.title}</h4>
@@ -151,7 +151,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
         );
       })}
       {items.length === 0 && (
-        <div className="p-12 text-center bg-white rounded-2xl border border-outline-variant/10">
+        <div className="p-12 text-center bg-white rounded-2xl shadow-sm">
           <CheckCircle2 size={32} className="text-slate-300 mx-auto mb-4" />
           <p className="text-sm font-bold text-slate-900">No tasks found</p>
         </div>
@@ -215,7 +215,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
       {effectiveView === 'card' ? (
         <MobileCardView />
       ) : (
-      <div className="bg-white rounded-3xl border border-outline-variant/10 shadow-xl shadow-slate-200/20 overflow-hidden">
+      <div className="bg-white rounded-3xl shadow-sm shadow-xl shadow-slate-200/20 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -332,7 +332,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.95 }}
-                          className="absolute right-8 top-12 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 z-20 overflow-hidden"
+                          className="absolute right-8 top-12 w-48 bg-white rounded-2xl shadow-lg z-20 overflow-hidden"
                         >
                           <button 
                             onClick={() => { onViewDetails?.(item); setOpenMenuId(null); }}

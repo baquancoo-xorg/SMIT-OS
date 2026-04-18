@@ -60,7 +60,7 @@ export default function CustomFilter({
               >
               <ListboxOptions
                 static
-                className="absolute z-50 mt-2 min-w-[160px] bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden"
+                className="absolute z-50 mt-2 min-w-[160px] bg-white rounded-3xl shadow-lg overflow-hidden"
               >
                 {options.map((option) => (
                   <ListboxOption key={option.value} value={option.value} as={Fragment}>

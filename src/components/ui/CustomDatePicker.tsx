@@ -87,7 +87,7 @@ export default function CustomDatePicker({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-50 mt-2 bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden"
+            className="absolute z-50 mt-2 bg-white rounded-3xl shadow-lg overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">

@@ -121,7 +121,7 @@ export function SprintCyclesTab({ onDeleteConfirm }: SprintCyclesTabProps) {
         </div>
       )}
 
-      <div className="bg-white rounded-3xl border border-outline-variant/10 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
         <table className="w-full text-left">
           <thead className="bg-slate-50 border-b border-outline-variant/10">
             <tr>

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, AlertCircle, TrendingUp, Calendar, Target, CheckCircle2 } from 'lucide-react';
+import { X, Plus, Trash2, AlertCircle, TrendingUp, Calendar, Target, CheckCircle2, Briefcase } from 'lucide-react';
 import { Objective, KeyResult } from '../../types';
+import { AdHocTask } from '../../types/daily-report-metrics';
 import { motion } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
 import CustomSelect from '../ui/CustomSelect';
+import AdHocTasksSection from '../daily-report/components/AdHocTasksSection';
 
 interface WeeklyCheckinModalProps {
   isOpen: boolean;
@@ -29,6 +31,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
   const [selectedTeam, setSelectedTeam] = useState(currentUser?.departments?.[0] || 'Tech');
   const [confidenceScore, setConfidenceScore] = useState<number | ''>('');
   const [blockers, setBlockers] = useState('');
+  const [adHocTasks, setAdHocTasks] = useState<AdHocTask[]>([]);
   const [loading, setLoading] = useState(false);
   const [objectives, setObjectives] = useState<Objective[]>([]);
 
@@ -132,7 +135,8 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
         }))),
         blockers: blockers || '',
         score: Number(confidenceScore),
-        krProgress: JSON.stringify(krProgressData)
+        krProgress: JSON.stringify(krProgressData),
+        adHocTasks: adHocTasks.length > 0 ? JSON.stringify(adHocTasks) : null
       };
 
       const res = await fetch('/api/reports', {
@@ -164,7 +168,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-200"
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col"
       >
         {/* Header */}
         <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
@@ -308,6 +312,26 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                 </div>
               ))}
             </div>
+          </section>
+
+          {/* Section: Ad-hoc Tasks */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+              <Briefcase className="text-primary" size={20} />
+              <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">
+                Công việc phát sinh
+              </h3>
+              {adHocTasks.length > 0 && (
+                <span className="bg-primary/10 text-primary text-xs font-bold px-2 py-0.5 rounded-full">
+                  {adHocTasks.reduce((sum, t) => sum + (t.hoursSpent || 0), 0)}h
+                </span>
+              )}
+            </div>
+            <AdHocTasksSection
+              tasks={adHocTasks}
+              onTasksChange={setAdHocTasks}
+              teamColor="primary"
+            />
           </section>
 
           {/* Section 2: Next Week Plan */}

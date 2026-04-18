@@ -3,7 +3,7 @@
 ## Server & Development
 
 ### Ports
-- **App Server:** localhost:3005
+- **App Server:** localhost:3000 (default, override with `PORT` env var)
 - **Database:** localhost:5435 (PostgreSQL via Docker)
 
 ### Start Development

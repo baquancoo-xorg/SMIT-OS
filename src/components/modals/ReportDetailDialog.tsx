@@ -63,7 +63,7 @@ export default function ReportDetailDialog({ report, isOpen, onClose, onApprove 
 
       {/* Dialog */}
       <div
-        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-6xl max-h-[92vh] overflow-hidden flex flex-col border border-gray-100"
+        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-6xl max-h-[92vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

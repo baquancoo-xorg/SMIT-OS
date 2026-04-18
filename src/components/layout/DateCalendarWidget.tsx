@@ -45,7 +45,7 @@ export default function DateCalendarWidget({ workItems }: Props) {
       {/* Trigger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-full border border-slate-200 hover:bg-slate-100 hover:border-slate-300 transition-all"
+        className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-all"
       >
         <Calendar size={16} className="text-primary" />
         <span className="text-sm font-medium text-slate-700">
@@ -60,7 +60,7 @@ export default function DateCalendarWidget({ workItems }: Props) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute right-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50"
+            className="absolute right-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-xl overflow-hidden z-50"
           >
             {/* Mini Calendar */}
             <div className="p-4">

@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { Plus, Bug, CheckCheck, Monitor, FlaskConical, Rocket, Sparkles, Clock, Wrench, Link2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { WorkItem } from '../../types';
-import { TechMetrics, BlockerEntry, TodayPlanEntry, TaskEntry, BLOCKER_TAGS } from '../../types/daily-report-metrics';
+import { TechMetrics, BlockerEntry, TodayPlanEntry, TaskEntry, BLOCKER_TAGS, AdHocTask } from '../../types/daily-report-metrics';
 import DailyReportBase from './DailyReportBase';
 import TaskStatusCard from './components/TaskStatusCard';
 import BlockerCard from './components/BlockerCard';
 import TodayPlanCard from './components/TodayPlanCard';
+import AdHocTasksSection from './components/AdHocTasksSection';
 import CustomSelect, { SelectOption } from '../ui/CustomSelect';
 
 const TEST_STATUS_OPTIONS: SelectOption<string>[] = [
@@ -43,6 +44,9 @@ export default function TechDailyForm({ tasks, onClose, onSuccess }: TechDailyFo
 
   // Today plans
   const [todayPlans, setTodayPlans] = useState<TodayPlanEntry[]>([]);
+
+  // Ad-hoc tasks
+  const [adHocTasks, setAdHocTasks] = useState<AdHocTask[]>([]);
 
   const userTasks = tasks.filter((t) => t.assigneeId === currentUser?.id);
   const taskOptions = userTasks.map((t) => ({ value: t.id, label: t.title }));
@@ -155,10 +159,12 @@ export default function TechDailyForm({ tasks, onClose, onSuccess }: TechDailyFo
             : blockers.some((b) => b.impact === 'low')
             ? 'low'
             : 'none',
+          adHocTasks: adHocTasks.length > 0 ? JSON.stringify(adHocTasks) : null,
           teamMetrics: {
             yesterdayTasks,
             blockers,
             todayPlans,
+            adHocTasks,
           },
         }),
       });
@@ -348,6 +354,7 @@ export default function TechDailyForm({ tasks, onClose, onSuccess }: TechDailyFo
       onSubmit={handleSubmit}
       submitting={submitting}
       yesterdaySection={renderYesterdaySection()}
+      adHocSection={<AdHocTasksSection tasks={adHocTasks} onTasksChange={setAdHocTasks} teamColor="indigo" />}
       blockersSection={renderBlockersSection()}
       todaySection={renderTodaySection()}
     />

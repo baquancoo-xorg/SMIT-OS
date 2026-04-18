@@ -77,7 +77,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
   return (
     <motion.div
       onClick={() => setIsExpanded(!isExpanded)}
-      className={`bg-white/90 backdrop-blur-xl p-6 rounded-3xl border border-outline-variant/10 shadow-xl shadow-slate-200/20 transition-all duration-500 cursor-pointer group relative overflow-hidden ${isExpanded ? 'ring-2 ring-primary/20 border-primary/30' : ''}`}
+      className={`bg-white/90 backdrop-blur-xl p-6 rounded-3xl shadow-sm shadow-xl shadow-slate-200/20 transition-all duration-500 cursor-pointer group relative overflow-hidden ${isExpanded ? 'ring-2 ring-primary/20 border-primary/30' : ''}`}
     >
       <div className="flex items-start justify-between mb-6">
         <div className="flex flex-wrap gap-2">
@@ -106,7 +106,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="absolute right-0 top-12 w-48 bg-white rounded-3xl shadow-xl border border-slate-100 z-20 overflow-hidden"
+                className="absolute right-0 top-12 w-48 bg-white rounded-3xl shadow-lg z-20 overflow-hidden"
               >
                 <button
                   onClick={(e) => { e.stopPropagation(); onViewDetails?.(item); setIsMenuOpen(false); }}
@@ -230,7 +230,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
               {item.description && (
                 <div className="space-y-2">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</p>
-                  <p className="text-xs text-on-surface-variant leading-relaxed bg-surface-container-low p-4 rounded-3xl border border-outline-variant/10">
+                  <p className="text-xs text-on-surface-variant leading-relaxed bg-surface-container-low p-4 rounded-3xl shadow-sm">
                     {item.description}
                   </p>
                 </div>
@@ -243,7 +243,7 @@ export default function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetai
                     {item.subtasks.map(st => (
                       <div
                         key={st.id}
-                        className="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-xl border border-outline-variant/10 hover:border-primary/20 transition-all cursor-pointer group/st"
+                        className="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-xl shadow-sm hover:border-primary/20 transition-all cursor-pointer group/st"
                         onClick={(e) => toggleSubtask(e, st.id)}
                       >
                         <motion.div

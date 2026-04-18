@@ -1,6 +1,3 @@
-// CRM External Database Schema (Read-only)
-// This schema connects to external CRM database synced via PeerDB
-
 generator client {
   provider = "prisma-client-js"
   output   = "../node_modules/.prisma/crm-client"
@@ -11,79 +8,422 @@ datasource db {
   url      = env("CRM_DATABASE_URL")
 }
 
-// Models will be introspected from CRM database using:
-// npx prisma db pull --schema=prisma/crm-schema.prisma
-
-// After introspection, keep only these 6 models:
-// - crm_subscribers
-// - crm_businesses
-// - crm_opportunities
-// - business_transaction
-// - crm_business_pql_status
-// - crm_gate_business_creation
-
-// Placeholder models (will be replaced by db pull)
 model CrmSubscriber {
-  id              Int       @id @default(autoincrement())
-  email           String?
-  phone           String?
-  fullName        String?   @map("full_name")
-  companyRole     String?   @map("company_role")
-  adBudgetMonth   String?   @map("ad_budget_month")
-  adAccountQty    String?   @map("ad_account_quantity")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime? @updatedAt @map("updated_at")
-  PEERDB_IS_DELETED Boolean @default(false) @map("_PEERDB_IS_DELETED")
+  id                   BigInt    @id
+  gate_utm_key         String?
+  email                String?
+  phone                String?
+  fullName             String?   @map("full_name")
+  company_name         String?
+  companyRole          String?   @map("company_role")
+  company_model        String?
+  company_industry     String?
+  source               String?
+  adBudgetMonth        String?   @map("ad_budget_month")
+  adAccountQty         String?   @map("ad_account_quantity")
+  ref_code             String?
+  gate_interest        Json?
+  company_subtype      String?
+  verify_info          String?
+  preliminary_needs    String?
+  bant_budget          String?
+  bant_authority       String?
+  bant_need            String?
+  bant_timeline        String?
+  potential_assessment String?
+  priority_level       String?
+  rate_score           Int?
+  merge_status         String?
+  mql_date             DateTime? @db.Timestamptz(6)
+  status               String?
+  duplicate_id         String?
+  is_archived          Boolean?
+  employee_id_modified Int?
+  json_ldp             Json?
+  createdAt            DateTime  @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  PEERDB_IS_DELETED    Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT     DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
 
   @@map("crm_subscribers")
 }
 
 model CrmBusiness {
-  id        Int       @id @default(autoincrement())
-  name      String?
-  isTrial   Boolean   @default(false) @map("is_trial")
-  createdAt DateTime  @default(now()) @map("created_at")
-  PEERDB_IS_DELETED Boolean @default(false) @map("_PEERDB_IS_DELETED")
+  id                        Int       @id
+  bid                       String?
+  name                      String?
+  timezone_id               Decimal?  @db.Decimal(8, 2)
+  created_by                Int?
+  business_type             String?
+  business_status           String?
+  isTrial                   Boolean?  @map("is_trial")
+  duration_trial_day        Int?
+  plan_package_name         String?
+  plan_package_amount       Decimal?  @db.Decimal(16, 2)
+  plan_limit_spend_month    Decimal?  @db.Decimal(16, 2)
+  plan_limit_adaccount      Int?
+  plan_limit_employee       Int?
+  plan_expired_at           DateTime? @db.Timestamptz(6)
+  plan_active_at            DateTime? @db.Timestamptz(6)
+  plan_duration             String?
+  plan_is_enterprise        Boolean?
+  plan_is_limited           Boolean?
+  business_industry         String?
+  business_subtype          String?
+  business_health           String?
+  last_checkin_date         DateTime? @db.Timestamptz(6)
+  next_checkin_date         DateTime? @db.Timestamptz(6)
+  last_business_review_date DateTime? @db.Timestamptz(6)
+  contract_start_date       DateTime? @db.Timestamptz(6)
+  contract_end_date         DateTime? @db.Timestamptz(6)
+  renewal_status            String?
+  churn_reason              String?
+  churn_reason_note         String?
+  createdAt                 DateTime  @map("created_at") @db.Timestamptz(6)
+  updated_at                DateTime  @db.Timestamptz(6)
+  PEERDB_IS_DELETED         Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT          DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
 
   @@map("crm_businesses")
 }
 
 model CrmOpportunity {
-  id        Int       @id @default(autoincrement())
-  name      String?
-  createdAt DateTime  @default(now()) @map("created_at")
-  PEERDB_IS_DELETED Boolean @default(false) @map("_PEERDB_IS_DELETED")
+  id                        BigInt    @id
+  created_by                Int?
+  contact_id                Int?
+  subscriber_id             Int?
+  opportunity_name          String?
+  opportunity_type          String?
+  status                    String?
+  primary_contact           String?
+  package_type              String?
+  limit_spend_month         Decimal?  @db.Decimal(16, 2)
+  limit_adaccount           Int?
+  limit_employee            Int?
+  payment_method            String?
+  opportunity_value         Decimal?  @db.Decimal(16, 2)
+  upcoming_topic            String?
+  meddic_metric             String?
+  meddic_economic_buyer     String?
+  meddic_decision_criteria  String?
+  meddic_decision_process   String?
+  meddic_identify_pain      String?
+  meddic_champion           String?
+  win_factor_or_loss_reason String?
+  detailed_win_loss_notes   String?
+  next_plan_time            DateTime? @db.Timestamptz(6)
+  expected_close_time       DateTime? @db.Timestamptz(6)
+  opportunity_end_time      DateTime? @db.Timestamptz(6)
+  employee_id_modified      Int?
+  createdAt                 DateTime  @map("created_at") @db.Timestamptz(6)
+  updated_at                DateTime  @db.Timestamptz(6)
+  PEERDB_IS_DELETED         Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT          DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
 
   @@map("crm_opportunities")
 }
 
 model BusinessTransaction {
-  id        Int       @id @default(autoincrement())
-  userPaid  Decimal?  @map("user_paid") @db.Decimal(16, 2)
-  isTrial   Boolean   @default(false) @map("is_trial")
-  status    String?
-  createdAt DateTime  @default(now()) @map("created_at")
-  PEERDB_IS_DELETED Boolean @default(false) @map("_PEERDB_IS_DELETED")
+  id                        Int       @id
+  business_id               Int?
+  status                    String?
+  user_confirm              Int?
+  total_amount              Decimal?  @db.Decimal(16, 2)
+  total_discount            Decimal?  @db.Decimal(16, 2)
+  amount_after_discount     Decimal?  @db.Decimal(16, 2)
+  userPaid                  Decimal?  @map("user_paid") @db.Decimal(16, 2)
+  export_invoice            Boolean?
+  exported_invoice          Boolean?
+  is_created_bus            Boolean?
+  isTrial                   Boolean?  @map("is_trial")
+  duration_trial            Int?
+  user_account_holder       String?
+  bank_content              String?
+  company_name              String?
+  company_address           String?
+  company_legal_name        String?
+  company_invoice_number    String?
+  company_recipient_name    String?
+  company_recipient_address String?
+  company_recipient_phone   String?
+  company_recipient_email   String?
+  limit_spend_month         Decimal?  @db.Decimal(16, 2)
+  limit_adaccount           Int?
+  limit_employee            Int?
+  duration_month            Int?
+  staff_id                  Int?
+  actived_at                DateTime? @db.Timestamptz(6)
+  expired_at                DateTime? @db.Timestamptz(6)
+  createdAt                 DateTime  @map("created_at") @db.Timestamptz(6)
+  updated_at                DateTime  @db.Timestamptz(6)
+  package_name              String?
+  type                      String?
+  package_amount            Float?
+  discount_id               Int?
+  business_type             Int?
+  is_enterprise             Boolean?
+  amount_remaining          Float?
+  payment_method            String?
+  rating                    Json?
+  PEERDB_IS_DELETED         Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT          DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
 
   @@map("business_transaction")
 }
 
 model CrmBusinessPqlStatus {
-  id         Int       @id @default(autoincrement())
-  businessId Int?      @map("business_id")
-  status     String?
-  createdAt  DateTime  @default(now()) @map("created_at")
-  PEERDB_IS_DELETED Boolean @default(false) @map("_PEERDB_IS_DELETED")
+  businessId             Int       @id @map("business_id")
+  has_first_sync         Boolean?
+  first_sync_at          DateTime? @db.Timestamptz(6)
+  has_feature_activated  Boolean?
+  feature_activated_at   DateTime? @db.Timestamptz(6)
+  feature_activated_type String?
+  has_feature_used       Boolean?
+  feature_used_at        DateTime? @db.Timestamptz(6)
+  feature_used_type      String?
+  has_additional_sync    Boolean?
+  additional_sync_at     DateTime? @db.Timestamptz(6)
+  is_pql                 Boolean?
+  pql_achieved_at        DateTime? @db.Timestamptz(6)
+  createdAt              DateTime  @map("created_at") @db.Timestamptz(6)
+  updated_at             DateTime  @db.Timestamptz(6)
+  PEERDB_IS_DELETED      Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT       DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
 
   @@map("crm_business_pql_status")
 }
 
 model CrmGateBusinessCreation {
-  id         Int       @id @default(autoincrement())
-  businessId Int?      @map("business_id")
-  gateName   String?   @map("gate_name")
-  createdAt  DateTime  @default(now()) @map("created_at")
-  PEERDB_IS_DELETED Boolean @default(false) @map("_PEERDB_IS_DELETED")
+  id                BigInt    @id
+  created_by        Int?
+  subscriber_id     Int?
+  businessId        Int?      @map("business_id")
+  business_type     String?
+  is_trial          Boolean?
+  trial_days        Int?
+  email             String?
+  email_code        String?
+  status            String?
+  confirmed_at      DateTime? @db.Timestamptz(6)
+  createdAt         DateTime  @map("created_at") @db.Timestamptz(6)
+  updated_at        DateTime  @db.Timestamptz(6)
+  PEERDB_IS_DELETED Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT  DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
 
   @@map("crm_gate_business_creation")
+}
+
+model crm_activities {
+  id                BigInt    @id
+  business_id       Int?
+  subscriber_id     Int?
+  employee_user_id  Int?
+  action            String?
+  title             String?
+  details           String?
+  data_from         Json?
+  data_to           Json?
+  created_at        DateTime  @db.Timestamptz(6)
+  updated_at        DateTime  @db.Timestamptz(6)
+  image_url         String?
+  call_start_time   DateTime? @db.Timestamptz(6)
+  call_end_time     DateTime? @db.Timestamptz(6)
+  PEERDB_IS_DELETED Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT  DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
+}
+
+model crm_business_contacts {
+  id                BigInt    @id
+  business_id       Int?
+  full_name         String?
+  position          String?
+  phone_number      String?
+  created_at        DateTime  @db.Timestamptz(6)
+  updated_at        DateTime  @db.Timestamptz(6)
+  PEERDB_IS_DELETED Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT  DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
+}
+
+model crm_business_issues {
+  id                BigInt    @id
+  business_id       Int?
+  user_id           BigInt?
+  status            String?
+  issue_type        String?
+  issue_screen      String?
+  description       String?
+  attachments       Json?
+  created_at        DateTime  @db.Timestamptz(6)
+  updated_at        DateTime  @db.Timestamptz(6)
+  PEERDB_IS_DELETED Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT  DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
+}
+
+model crm_call_history {
+  id                Int       @id
+  business_id       Int?
+  subscriber_id     Int?
+  employee_user_id  Int?
+  call_id           String?
+  call_type         String?
+  total_duration    Int?
+  answer_duration   Int?
+  voice_url         String?
+  call_result       String?
+  call_details      String?
+  call_ai_summary   String?
+  created_at        DateTime  @db.Timestamptz(6)
+  updated_at        DateTime  @db.Timestamptz(6)
+  chat_id           String?
+  call_start_time   DateTime? @db.Timestamptz(6)
+  call_end_time     DateTime? @db.Timestamptz(6)
+  PEERDB_IS_DELETED Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT  DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
+}
+
+model crm_contacts {
+  id                   BigInt    @id
+  created_by           Int?
+  subscriber_id        Int?
+  status               String?
+  sql_date             DateTime? @db.Timestamptz(6)
+  employee_id_modified Int?
+  created_at           DateTime  @db.Timestamptz(6)
+  updated_at           DateTime  @db.Timestamptz(6)
+  PEERDB_IS_DELETED    Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT     DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
+}
+
+model crm_employee_supervisor {
+  id                BigInt    @id
+  employee_user_id  Int?
+  asset_id          Int?
+  asset_type        String?
+  created_at        DateTime? @default(now()) @db.Timestamptz(6)
+  platform          String?
+  PEERDB_IS_DELETED Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT  DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
+}
+
+model crm_requested {
+  id                Int       @id
+  business_id       Int?
+  subscriber_id     Int?
+  employee_user_id  Int?
+  action            String?
+  data_from         Json?
+  data_to           Json?
+  rejected_reason   String?
+  status            String?
+  approved_at       DateTime? @db.Timestamptz(6)
+  rejected_at       DateTime? @db.Timestamptz(6)
+  created_at        DateTime  @db.Timestamptz(6)
+  updated_at        DateTime  @db.Timestamptz(6)
+  opportunity_id    BigInt?
+  PEERDB_IS_DELETED Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT  DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
+}
+
+model crm_subs_appointment {
+  id                   BigInt    @id
+  business_id          Int?
+  subscriber_id        Int?
+  employee_user_id     Int?
+  title                String?
+  description          String?
+  reminder             String?
+  color                Int?
+  invitees             Json?
+  appointment_start_at DateTime? @db.Timestamptz(6)
+  appointment_end_at   DateTime? @db.Timestamptz(6)
+  created_at           DateTime  @db.Timestamptz(6)
+  updated_at           DateTime  @db.Timestamptz(6)
+  PEERDB_IS_DELETED    Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT     DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
+}
+
+model crm_subscribers_utm {
+  id                BigInt    @id
+  subscriber_id     Int?
+  gate_utm_key      String?
+  utm_source        String?
+  utm_campaign      String?
+  utm_medium        String?
+  utm_content       String?
+  session_key       String?
+  session_count     Int?
+  ip_address        String?
+  user_agent        String?
+  referrer          String?
+  fbp               String?
+  fbc               String?
+  created_at        DateTime  @db.Timestamptz(6)
+  updated_at        DateTime  @db.Timestamptz(6)
+  PEERDB_IS_DELETED Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT  DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
+}
+
+model knex_migrations {
+  id                Int       @id
+  name              String?
+  batch             Int?
+  migration_time    DateTime? @db.Timestamptz(6)
+  PEERDB_IS_DELETED Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT  DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
+}
+
+model knex_migrations_lock {
+  index             Int       @id
+  is_locked         Int?
+  PEERDB_IS_DELETED Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT  DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_events {
+  id                BigInt   @id @default(autoincrement())
+  subscriber_id     Int
+  business_id       Int?
+  event_type        String   @db.VarChar(100)
+  event_category    String   @db.VarChar(50)
+  event_data        Json?    @default("{}")
+  session_id        String?  @db.VarChar(50)
+  created_at        DateTime @default(now()) @db.Timestamptz(6)
+  PEERDB_IS_DELETED Boolean? @default(false) @map("_PEERDB_IS_DELETED")
+
+  @@index([event_category, created_at(sort: Desc)], map: "idx_pe_category_created")
+  @@index([event_data], map: "idx_pe_data_gin", type: Gin)
+  @@index([subscriber_id, created_at(sort: Desc)], map: "idx_pe_subscriber_created")
+  @@index([event_type, created_at(sort: Desc)], map: "idx_pe_type_created")
+}
+
+model smit_ae_name_mapping {
+  id                Int       @id @default(autoincrement())
+  official_name     String
+  mapped_name       String
+  created_at        DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime  @default(now()) @db.Timestamptz(6)
+  PEERDB_IS_DELETED Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT  DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
+
+  @@index([mapped_name])
+  @@index([official_name])
+}
+
+model smit_employee {
+  user_id                    Int       @id
+  permissions                Json?
+  is_active                  Boolean?
+  zalo_pancake_id            String?
+  zalo_pancake_info          Json?
+  lark_open_id               String?
+  lark_info                  Json?
+  is_change                  Boolean?
+  created_at                 DateTime  @db.Timestamptz(6)
+  is_auto_receive            Int
+  last_assigned_at           DateTime  @db.Timestamptz(6)
+  shift_expires_at           DateTime? @db.Timestamp(6)
+  current_conversation_count Int?
+  PEERDB_IS_DELETED          Boolean?  @default(false) @map("_PEERDB_IS_DELETED")
+  PEERDB_SYNCED_AT           DateTime? @default(now()) @map("_PEERDB_SYNCED_AT") @db.Timestamp(6)
 }

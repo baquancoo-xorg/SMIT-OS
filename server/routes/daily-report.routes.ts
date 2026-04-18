@@ -42,7 +42,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
   }));
 
   router.post('/', handleAsync(async (req: any, res: any) => {
-    const { userId, reportDate, tasksData, blockers, impactLevel, teamType, teamMetrics } = req.body;
+    const { userId, reportDate, tasksData, blockers, impactLevel, teamType, teamMetrics, adHocTasks } = req.body;
 
     const existing = await prisma.dailyReport.findFirst({
       where: { userId, reportDate: new Date(reportDate) },
@@ -61,6 +61,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
         impactLevel,
         teamType: teamType || null,
         teamMetrics: teamMetrics || null,
+        adHocTasks: adHocTasks && typeof adHocTasks === 'string' ? adHocTasks : null,
         status: 'Review',
       },
       include: { user: true },
@@ -70,7 +71,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
 
   router.put('/:id', handleAsync(async (req: any, res: any) => {
     const { id } = req.params;
-    const { currentUserId, tasksData, ...updateData } = req.body;
+    const { currentUserId, tasksData, adHocTasks, ...updateData } = req.body;
 
     const currentUser = await prisma.user.findUnique({ where: { id: currentUserId } });
     if (!currentUser) return res.status(401).json({ error: 'Unauthorized' });
@@ -102,6 +103,9 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
           ? typeof tasksData === 'string'
             ? tasksData
             : JSON.stringify(tasksData)
+          : undefined,
+        adHocTasks: adHocTasks !== undefined
+          ? (adHocTasks && typeof adHocTasks === 'string' ? adHocTasks : null)
           : undefined,
         updatedAt: new Date(),
       },

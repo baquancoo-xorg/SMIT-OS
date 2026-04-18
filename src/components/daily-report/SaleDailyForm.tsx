@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { Plus, Flame, CheckCheck, Phone, Clock, Settings } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { WorkItem } from '../../types';
-import { SaleMetrics, BlockerEntry, TodayPlanEntry, TaskEntry, BLOCKER_TAGS } from '../../types/daily-report-metrics';
+import { SaleMetrics, BlockerEntry, TodayPlanEntry, TaskEntry, BLOCKER_TAGS, AdHocTask } from '../../types/daily-report-metrics';
 import DailyReportBase from './DailyReportBase';
 import TaskStatusCard from './components/TaskStatusCard';
 import BlockerCard from './components/BlockerCard';
 import TodayPlanCard from './components/TodayPlanCard';
+import AdHocTasksSection from './components/AdHocTasksSection';
 import CustomSelect, { SelectOption } from '../ui/CustomSelect';
 
 const FOLLOWUP_OPTIONS: SelectOption<string>[] = [
@@ -36,6 +37,7 @@ export default function SaleDailyForm({ tasks, onClose, onSuccess }: SaleDailyFo
   const [taskMetrics, setTaskMetrics] = useState<Record<string, SaleMetrics>>({});
   const [blockers, setBlockers] = useState<BlockerEntry[]>([]);
   const [todayPlans, setTodayPlans] = useState<TodayPlanEntry[]>([]);
+  const [adHocTasks, setAdHocTasks] = useState<AdHocTask[]>([]);
 
   const userTasks = tasks.filter((t) => t.assigneeId === currentUser?.id);
   const taskOptions = userTasks.map((t) => ({ value: t.id, label: t.title }));
@@ -87,7 +89,8 @@ export default function SaleDailyForm({ tasks, onClose, onSuccess }: SaleDailyFo
           }),
           blockers: blockers.length > 0 ? JSON.stringify(blockers) : null,
           impactLevel: blockers.some((b) => b.impact === 'high') ? 'high' : blockers.some((b) => b.impact === 'low') ? 'low' : 'none',
-          teamMetrics: { yesterdayTasks, blockers, todayPlans },
+          adHocTasks: adHocTasks.length > 0 ? JSON.stringify(adHocTasks) : null,
+          teamMetrics: { yesterdayTasks, blockers, todayPlans, adHocTasks },
         }),
       });
       if (res.ok) onSuccess();
@@ -165,7 +168,7 @@ export default function SaleDailyForm({ tasks, onClose, onSuccess }: SaleDailyFo
                           className="text-xs"
                         />
                       </div>
-                      <input type="number" placeholder="Số lượng giải quyết..." className="w-full p-2 text-sm focus:outline-none font-bold text-indigo-600 bg-slate-50 rounded-3xl border border-slate-100" value={taskMetrics[task.id]?.ticketsResolved || ''} onChange={(e) => updateTaskMetric(task.id, 'ticketsResolved', parseInt(e.target.value) || 0)} />
+                      <input type="number" placeholder="Số lượng giải quyết..." className="w-full p-2 text-sm focus:outline-none font-bold text-indigo-600 bg-slate-50 rounded-3xl shadow-sm" value={taskMetrics[task.id]?.ticketsResolved || ''} onChange={(e) => updateTaskMetric(task.id, 'ticketsResolved', parseInt(e.target.value) || 0)} />
                     </div>
                   </div>
                 </div>
@@ -212,6 +215,6 @@ export default function SaleDailyForm({ tasks, onClose, onSuccess }: SaleDailyFo
   );
 
   return (
-    <DailyReportBase teamType="sale" userName={currentUser?.fullName || ''} userRole={currentUser?.role || ''} userAvatar={currentUser?.fullName?.split(' ').map((n) => n[0]).join('') || '?'} reportDate={reportDate} onDateChange={setReportDate} onClose={onClose} onSubmit={handleSubmit} submitting={submitting} yesterdaySection={renderYesterdaySection()} blockersSection={renderBlockersSection()} todaySection={renderTodaySection()} />
+    <DailyReportBase teamType="sale" userName={currentUser?.fullName || ''} userRole={currentUser?.role || ''} userAvatar={currentUser?.fullName?.split(' ').map((n) => n[0]).join('') || '?'} reportDate={reportDate} onDateChange={setReportDate} onClose={onClose} onSubmit={handleSubmit} submitting={submitting} yesterdaySection={renderYesterdaySection()} adHocSection={<AdHocTasksSection tasks={adHocTasks} onTasksChange={setAdHocTasks} teamColor="emerald" />} blockersSection={renderBlockersSection()} todaySection={renderTodaySection()} />
   );
 }

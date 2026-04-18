@@ -119,6 +119,7 @@ model WeeklyReport {
   approver   User?     @relation("ApprovedReports", fields: [approvedBy], references: [id])
   approvedAt DateTime?
   krProgress String?   // JSON: [{krId, currentValue, progressPct}]
+  adHocTasks String?   // JSON: [{id, name, requester, impact, status, hoursSpent}]
   createdAt  DateTime  @default(now())
 }
 
@@ -133,6 +134,7 @@ model DailyReport {
   impactLevel String?   // none, low, high
   teamType    String?   // tech, marketing, media, sale
   teamMetrics Json?     // JSONB: team-specific metrics
+  adHocTasks  String?   // JSON: [{id, name, requester, impact, status, hoursSpent}]
   approvedBy  String?
   approver    User?     @relation("ApprovedDailyReports", fields: [approvedBy], references: [id])
   approvedAt  DateTime?
