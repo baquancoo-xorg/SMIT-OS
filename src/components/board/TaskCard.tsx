@@ -71,6 +71,11 @@ export default memo(function TaskCard({ item, onUpdate, onDelete, onEdit, onView
               {item.priority}
             </span>
           )}
+          {item.parent && (
+            <span className="px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-[0.1em] bg-purple-50 text-purple-700 border border-purple-100 truncate max-w-[160px]" title={item.parent.title}>
+              {item.parent.type === 'Epic' ? '⚡' : '📖'} {item.parent.title}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2 relative">
           <button

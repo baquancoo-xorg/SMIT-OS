@@ -45,7 +45,7 @@ export default function MarketingDailyForm({ tasks, onClose, onSuccess }: Market
     addTodayPlan, updateTodayPlan, removeTodayPlan, togglePlanPriority,
   } = useDailyReportForm<MarketingMetrics>({ defaultMetrics: DEFAULT_MARKETING_METRICS });
 
-  const userTasks = tasks.filter((t) => t.assigneeId === currentUser?.id);
+  const userTasks = tasks.filter((t) => currentUser?.id && t.assigneeId === currentUser?.id);
   const taskOptions = userTasks.map((t) => ({ value: t.id, label: t.title }));
 
   const calculateCPA = (taskId: string) => {

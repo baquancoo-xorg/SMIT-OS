@@ -62,8 +62,7 @@ export default function SaleBoard() {
 
       if (Array.isArray(data)) {
         const saleItems = data.filter((item: WorkItem) =>
-          item.assignee?.departments?.includes('Sale') ||
-          ['Deal', 'SaleTask'].includes(item.type)
+          item.assignee?.departments?.includes('Sale')
         );
         setItems(saleItems);
       }

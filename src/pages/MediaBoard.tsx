@@ -62,8 +62,7 @@ export default function MediaBoard() {
 
       if (Array.isArray(data)) {
         const mediaItems = data.filter((item: WorkItem) =>
-          item.assignee?.departments?.includes('Media') ||
-          ['MediaTask'].includes(item.type)
+          item.assignee?.departments?.includes('Media')
         );
         setItems(mediaItems);
       }

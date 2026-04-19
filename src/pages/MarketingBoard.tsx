@@ -62,8 +62,7 @@ export default function MarketingBoard() {
 
       if (Array.isArray(data)) {
         const mktItems = data.filter((item: WorkItem) =>
-          item.assignee?.departments?.includes('Marketing') ||
-          ['Campaign', 'MktTask'].includes(item.type)
+          item.assignee?.departments?.includes('Marketing')
         );
         setItems(mktItems);
       }

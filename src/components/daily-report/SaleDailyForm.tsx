@@ -43,7 +43,7 @@ export default function SaleDailyForm({ tasks, onClose, onSuccess }: SaleDailyFo
     addTodayPlan, updateTodayPlan, removeTodayPlan, togglePlanPriority,
   } = useDailyReportForm<SaleMetrics>({ defaultMetrics: DEFAULT_SALE_METRICS });
 
-  const userTasks = tasks.filter((t) => t.assigneeId === currentUser?.id);
+  const userTasks = tasks.filter((t) => currentUser?.id && t.assigneeId === currentUser?.id);
   const taskOptions = userTasks.map((t) => ({ value: t.id, label: t.title }));
 
   const handleSubmit = async () => {

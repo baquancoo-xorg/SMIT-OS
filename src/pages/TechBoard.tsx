@@ -62,8 +62,7 @@ export default function TechBoard() {
 
       if (Array.isArray(itemData)) {
         const techItems = itemData.filter((item: WorkItem) =>
-          item.assignee?.departments?.includes('Tech') ||
-          ['Epic', 'UserStory', 'TechTask'].includes(item.type)
+          item.assignee?.departments?.includes('Tech')
         );
         setItems(techItems);
       }

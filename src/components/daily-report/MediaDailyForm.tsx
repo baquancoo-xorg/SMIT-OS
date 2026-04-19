@@ -49,7 +49,7 @@ export default function MediaDailyForm({ tasks, onClose, onSuccess }: MediaDaily
     addTodayPlan, updateTodayPlan, removeTodayPlan, togglePlanPriority,
   } = useDailyReportForm<MediaMetrics>({ defaultMetrics: DEFAULT_MEDIA_METRICS });
 
-  const userTasks = tasks.filter((t) => t.assigneeId === currentUser?.id);
+  const userTasks = tasks.filter((t) => currentUser?.id && t.assigneeId === currentUser?.id);
   const taskOptions = userTasks.map((t) => ({ value: t.id, label: t.title }));
 
   const handleSubmit = async () => {
