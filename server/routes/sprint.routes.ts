@@ -11,6 +11,7 @@ export function createSprintRoutes(prisma: PrismaClient) {
   // Get active sprint with stats - MUST be before /:id
   router.get('/active', handleAsync(async (_req: any, res: any) => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     const sprint = await prisma.sprint.findFirst({
       where: {

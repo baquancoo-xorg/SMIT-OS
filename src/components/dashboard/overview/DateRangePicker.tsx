@@ -55,7 +55,7 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-full bg-white shadow-sm hover:shadow-md transition-all"
+        className="flex items-center gap-2 h-10 px-5 text-[10px] font-black uppercase tracking-widest rounded-full bg-white shadow-sm hover:shadow-md transition-all"
       >
         <Calendar className="h-3 w-3 text-primary" />
         <span className="text-slate-700 normal-case font-medium text-sm">

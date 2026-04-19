@@ -270,8 +270,10 @@ export default function PMDashboard() {
         </div>
       </section>
 
-      {/* ==================== Tier 1: Top Metrics (6 Cards) - C11: Smoother grid progression */}
-      <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+      {/* Scrollable content area */}
+      <div className="flex-1 overflow-y-auto pb-8 space-y-[var(--space-lg)]">
+      {/* ==================== Tier 1: Top Metrics (6 Cards) - Tablet optimized */}
+      <section className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {/* 1. Company OKRs Progress */}
         <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Company OKRs</p>
@@ -559,6 +561,7 @@ export default function PMDashboard() {
           </div>
         </div>
       </section>
+      </div>
     </div>
   );
 }

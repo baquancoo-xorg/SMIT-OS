@@ -51,7 +51,7 @@
   --breakpoint-md: 430px;
   --breakpoint-tablet: 768px;
   --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1180px;
+  --breakpoint-xl: 1440px;
   --breakpoint-2xl: 1366px;
   --breakpoint-3xl: 1920px;
   --breakpoint-4xl: 2560px;
@@ -75,6 +75,15 @@
   /* Layout */
   --header-h: 4rem;
   --content-h: calc(100dvh - var(--header-h));
+
+  /* Content Padding - synced with Header */
+  --content-px-mobile: 1rem;
+  --content-px-tablet: 2rem;
+  --content-px-desktop: 2.5rem;
+
+  /* Page Block Spacing */
+  --page-pt: 2rem;
+  --page-pb: 1.5rem;
 }
 
 @layer base {
@@ -102,7 +111,25 @@
   }
 
   .page-padding {
-    padding: var(--space-lg);
+    padding-inline: var(--content-px-mobile);
+    padding-block: var(--page-pt) var(--page-pb);
+  }
+
+  @media (min-width: 430px) {
+    .page-padding {
+      padding-inline: var(--content-px-tablet);
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .page-padding {
+      padding-inline: var(--content-px-desktop);
+    }
+  }
+
+  .page-scrollable {
+    min-height: var(--content-h);
+    overflow-y: auto;
   }
 
   .touch-target {
@@ -128,6 +155,26 @@
   }
   .h-dvh {
     height: 100vh;
+  }
+}
+
+/* Tablet-specific adjustments (768px - 1439px) */
+@media (min-width: 768px) and (max-width: 1439px) {
+  h1 { font-size: clamp(1.5rem, 4vw, 2rem); }
+  h2 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
+  h3 { font-size: clamp(1rem, 2.5vw, 1.25rem); }
+
+  .stat-card {
+    padding: 1rem;
+    min-height: 100px;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .stat-value {
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
   }
 }
 

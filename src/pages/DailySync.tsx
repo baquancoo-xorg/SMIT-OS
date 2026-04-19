@@ -116,10 +116,10 @@ export default function DailySync() {
 
         <div className="flex items-center gap-3">
           {canViewDashboard && (
-            <div className="flex bg-surface-container-high rounded-full p-1 shadow-sm">
+            <div className="flex h-10 bg-surface-container-high rounded-full shadow-sm">
               <button
                 onClick={() => setActiveTab('reports')}
-                className={`flex items-center gap-2 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                className={`flex items-center gap-2 px-5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
                   activeTab === 'reports' ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-primary'
                 }`}
               >
@@ -128,7 +128,7 @@ export default function DailySync() {
               </button>
               <button
                 onClick={() => setActiveTab('dashboard')}
-                className={`flex items-center gap-2 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                className={`flex items-center gap-2 px-5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
                   activeTab === 'dashboard' ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-primary'
                 }`}
               >
@@ -139,7 +139,7 @@ export default function DailySync() {
           )}
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center justify-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all min-w-[130px] whitespace-nowrap"
+            className="flex items-center justify-center gap-2 h-10 bg-primary text-white px-5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all min-w-[130px] whitespace-nowrap"
           >
             <Plus size={14} />
             New Report

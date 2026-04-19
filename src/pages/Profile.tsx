@@ -7,12 +7,15 @@ export default function Profile() {
 
   return (
     <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
-      <div>
+      {/* Header */}
+      <section className="shrink-0">
         <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Edit Profile</h2>
         <p className="text-slate-500 mt-2">Update your personal information.</p>
-      </div>
-      
-      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm max-w-2xl">
+      </section>
+
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto pb-8">
+        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm max-w-2xl">
         <div className="flex items-center gap-6 mb-8">
           <img 
             src="https://picsum.photos/seed/pm/100/100" 
@@ -61,6 +64,7 @@ export default function Profile() {
               Save Changes
             </button>
           </div>
+        </div>
         </div>
       </div>
     </div>

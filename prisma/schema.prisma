@@ -26,6 +26,26 @@ model User {
   approvedReports      WeeklyReport[] @relation("ApprovedReports")
   dailyReports         DailyReport[]
   approvedDailyReports DailyReport[]  @relation("ApprovedDailyReports")
+  notifications        Notification[]
+}
+
+model Notification {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String    // report_approved, deadline_warning, sprint_ending, okr_risk, mention, assignment
+  title       String
+  message     String
+  entityType  String?   // WeeklyReport, WorkItem, Sprint, Objective
+  entityId    String?
+  isRead      Boolean   @default(false)
+  readAt      DateTime?
+  priority    String    @default("normal") // low, normal, high, urgent
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
 }
 
 model Sprint {

@@ -175,7 +175,7 @@ export default function ProductBacklog() {
   return (
     <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-[var(--space-md)] shrink-0">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--space-md)] shrink-0">
         <div>
           <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
             <span className="hover:text-primary cursor-pointer">Planning</span>
@@ -188,17 +188,17 @@ export default function ProductBacklog() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex p-1 bg-surface-container-high rounded-full shadow-sm">
+          <div className="flex h-10 bg-surface-container-high rounded-full shadow-sm">
             <button
               onClick={() => setView('board')}
-              className={`flex items-center gap-2 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view === 'board' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'}`}
+              className={`flex items-center gap-2 px-5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view === 'board' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'}`}
             >
               <LayoutGrid size={12} />
               Grouped
             </button>
             <button
               onClick={() => setView('table')}
-              className={`flex items-center gap-2 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view === 'table' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'}`}
+              className={`flex items-center gap-2 px-5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view === 'table' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'}`}
             >
               <List size={12} />
               Table
@@ -206,7 +206,7 @@ export default function ProductBacklog() {
           </div>
           <button
             onClick={() => { setEditingTask(null); setIsModalOpen(true); }}
-            className="flex items-center justify-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all min-w-[130px] whitespace-nowrap"
+            className="flex items-center justify-center gap-2 h-10 bg-primary text-white px-5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all min-w-[130px] whitespace-nowrap"
           >
             <span className="material-symbols-outlined text-[14px]">add</span>
             New Item

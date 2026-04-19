@@ -19,7 +19,7 @@ export default function PrimaryActionButton({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`flex items-center justify-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all min-w-[130px] whitespace-nowrap disabled:opacity-50 disabled:hover:scale-100 ${className}`}
+      className={`flex items-center justify-center gap-2 h-10 bg-primary text-white px-5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all min-w-[130px] whitespace-nowrap disabled:opacity-50 disabled:hover:scale-100 ${className}`}
     >
       {icon ?? <span className="material-symbols-outlined text-[14px]">add</span>}
       {children}

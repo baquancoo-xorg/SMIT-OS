@@ -23,7 +23,10 @@ import { createOkrCycleRoutes } from "./server/routes/okr-cycle.routes";
 import { createDashboardOverviewRoutes } from "./server/routes/dashboard-overview.routes";
 import { createFbSyncRoutes } from "./server/routes/fb-sync.routes";
 import { createAdminFbConfigRoutes } from "./server/routes/admin-fb-config.routes";
+import { createNotificationRoutes } from "./server/routes/notification.routes";
 import { startFbSyncScheduler } from "./server/services/facebook/fb-sync-scheduler.service";
+import { createNotificationService } from "./server/services/notification.service";
+import { initAlertScheduler } from "./server/jobs/alert-scheduler";
 
 const prisma = new PrismaClient();
 const app = express();
@@ -68,6 +71,7 @@ app.use("/api/sprints", createSprintRoutes(prisma));
 app.use("/api/reports", createReportRoutes(prisma));
 app.use("/api/daily-reports", createDailyReportRoutes(prisma));
 app.use("/api/okr-cycles", createOkrCycleRoutes(prisma));
+app.use("/api/notifications", createNotificationRoutes(prisma));
 app.use("/api/dashboard/overview", createDashboardOverviewRoutes());
 app.use("/api/sync/facebook-ads", createFbSyncRoutes());
 app.use("/api/admin", createAdminFbConfigRoutes());
@@ -107,6 +111,9 @@ async function startServer() {
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server: http://localhost:${PORT}`);
     startFbSyncScheduler();
+
+    const notificationService = createNotificationService(prisma);
+    initAlertScheduler(prisma, notificationService);
   });
 }
 

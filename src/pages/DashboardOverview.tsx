@@ -35,7 +35,7 @@ function DashboardOverviewContent() {
   return (
     <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-[var(--space-md)] shrink-0">
+      <section className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--space-md)] shrink-0">
         <div>
           <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
             <span className="hover:text-primary cursor-pointer">Analytics</span>
@@ -47,24 +47,27 @@ function DashboardOverviewContent() {
           </h2>
         </div>
         <DateRangePicker value={range} onChange={setRange} />
+      </section>
+
+      {/* Scrollable content area */}
+      <div className="flex-1 overflow-y-auto pb-8 space-y-[var(--space-lg)]">
+        {/* Summary Cards */}
+        <SummaryCards
+          data={data?.summary}
+          isLoading={isLoading}
+          error={error as Error | null}
+          compareEnabled={true}
+        />
+
+        {/* KPI Table */}
+        <KpiTable
+          data={data?.kpiMetrics}
+          isLoading={isLoading}
+          error={error as Error | null}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+        />
       </div>
-
-      {/* Summary Cards */}
-      <SummaryCards
-        data={data?.summary}
-        isLoading={isLoading}
-        error={error as Error | null}
-        compareEnabled={true}
-      />
-
-      {/* KPI Table */}
-      <KpiTable
-        data={data?.kpiMetrics}
-        isLoading={isLoading}
-        error={error as Error | null}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-      />
     </div>
   );
 }

@@ -26,6 +26,8 @@ function AppContent() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const { currentUser, loading, logout } = useAuth();
 
+  const SCROLLABLE_VIEWS: ViewType[] = ['okrs', 'settings', 'profile', 'sync', 'daily-sync', 'ads-overview'];
+
   if (loading) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-slate-50">
@@ -39,7 +41,7 @@ function AppContent() {
   }
 
   return (
-    <AppLayout currentView={currentView} onViewChange={setCurrentView} onLogout={logout}>
+    <AppLayout currentView={currentView} onViewChange={setCurrentView} onLogout={logout} scrollable={SCROLLABLE_VIEWS.includes(currentView)}>
       {currentView === 'dashboard' && <PMDashboard key="dashboard" />}
       {currentView === 'okrs' && <OKRsManagement key="okrs" />}
       {currentView === 'tech' && <TechBoard key="tech" />}

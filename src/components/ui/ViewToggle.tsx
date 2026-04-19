@@ -24,12 +24,12 @@ export default function ViewToggle({
   options = defaultOptions,
 }: ViewToggleProps) {
   return (
-    <div className="flex p-1 bg-surface-container-high rounded-full shadow-sm">
+    <div className="flex h-10 bg-surface-container-high rounded-full shadow-sm">
       {options.map((option) => (
         <button
           key={option.value}
           onClick={() => onChange(option.value)}
-          className={`flex items-center gap-2 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+          className={`flex items-center gap-2 px-5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
             value === option.value
               ? 'bg-white text-primary shadow-sm'
               : 'text-slate-500 hover:text-primary'

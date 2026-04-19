@@ -128,7 +128,7 @@ export default function SaturdaySync() {
   return (
     <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
       {/* Weekly Sync Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <section className="flex flex-col md:flex-row md:items-end justify-between gap-6 shrink-0">
         <div>
           <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
             <span className="hover:text-primary cursor-pointer">Rituals</span>
@@ -141,16 +141,16 @@ export default function SaturdaySync() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 bg-primary text-white px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all"
+            className="flex items-center gap-2 h-10 bg-primary text-white px-5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all"
           >
             <span className="material-symbols-outlined text-[14px]">add</span>
             New Report
           </button>
         </div>
-      </div>
+      </section>
 
       {/* Team Confidence Metrics - M9: 2x2 grid on small screens */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 shrink-0">
         <div className="bg-white p-6 rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Average Confidence</p>
           <div className="flex items-baseline gap-1">

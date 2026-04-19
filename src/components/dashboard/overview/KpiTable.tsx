@@ -1,4 +1,4 @@
-import { memo, useMemo, useState, useCallback, useEffect } from 'react';
+import { memo, useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import { ArrowUp, ArrowDown, ArrowUpDown, HelpCircle, Medal, Award, Trophy } from 'lucide-react';
 import { formatCurrency, formatNumber, formatPercent } from '../../../lib/formatters';
 import type { KpiMetricsResponse, KpiMetricsRow } from '../../../types/dashboard-overview';
@@ -129,7 +129,8 @@ function KpiTableRow({ row, isTotal, rateMode, index = 0 }: KpiTableRowProps) {
   const isEven = index % 2 === 0;
   const cellBase = 'px-3 py-2 text-xs whitespace-nowrap';
   const rowBg = isTotal ? 'bg-slate-50' : isEven ? 'bg-white' : 'bg-slate-50/50';
-  const cellStyle = isTotal ? `${cellBase} font-semibold` : `${cellBase} text-slate-600`;
+  const cellBg = isTotal ? 'bg-slate-50' : '';
+  const cellStyle = isTotal ? `${cellBase} font-semibold ${cellBg}` : `${cellBase} text-slate-600`;
   const rightAlign = 'text-right';
 
   const signupRate = safeDivide(row.signups, row.sessions);
@@ -143,8 +144,8 @@ function KpiTableRow({ row, isTotal, rateMode, index = 0 }: KpiTableRowProps) {
   const sqlRate = safeDivide(row.sql, row.signups);
 
   return (
-    <tr className={`${isTotal ? 'border-t-2 border-slate-200' : 'border-b border-slate-100'} ${rowBg} hover:bg-[#0059B6]/5 transition-colors`}>
-      <td className={`${cellStyle} text-left font-medium text-slate-800 sticky left-0 ${rowBg} z-10`}>
+    <tr className={`${isTotal ? '' : 'border-b border-slate-100'} ${rowBg} hover:bg-[#0059B6]/5 transition-colors`}>
+      <td className={`${cellStyle} text-left font-medium text-slate-800 sticky left-0 ${isTotal ? 'bg-slate-50 z-30' : `${rowBg} z-10`}`}>
         {isTotal ? 'TOTAL' : formatDateVN(row.date)}
       </td>
       <td className={`${cellStyle} ${rightAlign}`}>{formatCurrency(row.adSpend)}</td>
@@ -235,6 +236,41 @@ export const KpiTable = memo(function KpiTable({
 
   const sortedData = useMemo(() => (data ? sortData(data.data, sortConfig) : []), [data, sortConfig]);
 
+  // Refs for syncing horizontal scroll between header, data table, and total row
+  const headerScrollRef = useRef<HTMLDivElement>(null);
+  const dataScrollRef = useRef<HTMLDivElement>(null);
+  const totalScrollRef = useRef<HTMLDivElement>(null);
+
+  const syncScroll = useCallback((scrollLeft: number, source: 'header' | 'data' | 'total') => {
+    if (source !== 'header' && headerScrollRef.current) {
+      headerScrollRef.current.scrollLeft = scrollLeft;
+    }
+    if (source !== 'data' && dataScrollRef.current) {
+      dataScrollRef.current.scrollLeft = scrollLeft;
+    }
+    if (source !== 'total' && totalScrollRef.current) {
+      totalScrollRef.current.scrollLeft = scrollLeft;
+    }
+  }, []);
+
+  const handleHeaderScroll = useCallback(() => {
+    if (headerScrollRef.current) {
+      syncScroll(headerScrollRef.current.scrollLeft, 'header');
+    }
+  }, [syncScroll]);
+
+  const handleDataScroll = useCallback(() => {
+    if (dataScrollRef.current) {
+      syncScroll(dataScrollRef.current.scrollLeft, 'data');
+    }
+  }, [syncScroll]);
+
+  const handleTotalScroll = useCallback(() => {
+    if (totalScrollRef.current) {
+      syncScroll(totalScrollRef.current.scrollLeft, 'total');
+    }
+  }, [syncScroll]);
+
   if (isLoading) return <SkeletonTable />;
 
   if (error) {
@@ -311,75 +347,142 @@ export const KpiTable = memo(function KpiTable({
           </button>
         </div>
       </div>
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-100/80 border-b border-slate-200">
-            <tr>
-              <th className="px-3 py-2.5 text-left sticky left-0 bg-slate-100/80 z-10">
-                <SortableHeader field="date" title="Date" sortConfig={sortConfig} onSort={handleSort} />
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <SortableHeader field="adSpend" title="Ad Spend" sortConfig={sortConfig} onSort={handleSort} />
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <SortableHeader field="sessions" title="Sessions" sortConfig={sortConfig} onSort={handleSort} />
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <span className="text-[11px] font-semibold text-slate-500">CPSe</span>
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <SortableHeader field="signups" title="Signups" sortConfig={sortConfig} onSort={handleSort} />
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <span className="text-[11px] font-semibold text-slate-500">CPSi</span>
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <SortableHeader field="opportunities" title="Opps" sortConfig={sortConfig} onSort={handleSort} />
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <span className="text-[11px] font-semibold text-slate-500">CPOpp</span>
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <SortableHeader field="orders" title="Order" sortConfig={sortConfig} onSort={handleSort} />
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <span className="text-[11px] font-semibold text-slate-500">CPOr</span>
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <span className="text-[11px] font-semibold text-slate-500">MQL (3 tiers)</span>
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <span className="text-[11px] font-semibold text-slate-500">Pre-PQL</span>
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <span className="text-[11px] font-semibold text-slate-500">PQL</span>
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <span className="text-[11px] font-semibold text-slate-500">SQL</span>
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <SortableHeader field="revenue" title="Revenue" sortConfig={sortConfig} onSort={handleSort} />
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <SortableHeader field="roas" title="ROAS" sortConfig={sortConfig} onSort={handleSort} />
-              </th>
-              <th className="px-3 py-2.5 text-right">
-                <span className="text-[11px] font-semibold text-slate-500">ME/RE</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedData.map((row, idx) => (
-              <KpiTableRow key={row.date} row={row} rateMode={rateMode} index={idx} />
-            ))}
-          </tbody>
-          <tfoot>
-            <KpiTableRow row={data.totals} isTotal rateMode={rateMode} />
-          </tfoot>
-        </table>
-      </div>
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col">
+        {/* Fixed header row */}
+        <div ref={headerScrollRef} onScroll={handleHeaderScroll} className="bg-slate-100 border-b border-slate-200 overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <table className="w-full text-sm table-fixed min-w-[1600px]">
+            <colgroup>
+              <col className="w-[100px]" />
+              <col className="w-[100px]" />
+              <col className="w-[80px]" />
+              <col className="w-[70px]" />
+              <col className="w-[90px]" />
+              <col className="w-[80px]" />
+              <col className="w-[70px]" />
+              <col className="w-[80px]" />
+              <col className="w-[70px]" />
+              <col className="w-[80px]" />
+              <col className="w-[100px]" />
+              <col className="w-[80px]" />
+              <col className="w-[70px]" />
+              <col className="w-[70px]" />
+              <col className="w-[100px]" />
+              <col className="w-[70px]" />
+              <col className="w-[70px]" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th className="px-3 py-2.5 text-left sticky left-0 bg-slate-100 z-10">
+                  <SortableHeader field="date" title="Date" sortConfig={sortConfig} onSort={handleSort} />
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <SortableHeader field="adSpend" title="Ad Spend" sortConfig={sortConfig} onSort={handleSort} />
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <SortableHeader field="sessions" title="Sessions" sortConfig={sortConfig} onSort={handleSort} />
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <span className="text-[11px] font-semibold text-slate-500">CPSe</span>
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <SortableHeader field="signups" title="Signups" sortConfig={sortConfig} onSort={handleSort} />
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <span className="text-[11px] font-semibold text-slate-500">CPSi</span>
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <SortableHeader field="opportunities" title="Opps" sortConfig={sortConfig} onSort={handleSort} />
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <span className="text-[11px] font-semibold text-slate-500">CPOpp</span>
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <SortableHeader field="orders" title="Order" sortConfig={sortConfig} onSort={handleSort} />
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <span className="text-[11px] font-semibold text-slate-500">CPOr</span>
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <span className="text-[11px] font-semibold text-slate-500">MQL (3 tiers)</span>
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <span className="text-[11px] font-semibold text-slate-500">Pre-PQL</span>
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <span className="text-[11px] font-semibold text-slate-500">PQL</span>
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <span className="text-[11px] font-semibold text-slate-500">SQL</span>
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <SortableHeader field="revenue" title="Revenue" sortConfig={sortConfig} onSort={handleSort} />
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <SortableHeader field="roas" title="ROAS" sortConfig={sortConfig} onSort={handleSort} />
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <span className="text-[11px] font-semibold text-slate-500">ME/RE</span>
+                </th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        {/* Scrollable data area */}
+        <div ref={dataScrollRef} onScroll={handleDataScroll} className="overflow-auto max-h-[500px] flex-1">
+          <table className="w-full text-sm table-fixed min-w-[1600px]">
+            <colgroup>
+              <col className="w-[100px]" />
+              <col className="w-[100px]" />
+              <col className="w-[80px]" />
+              <col className="w-[70px]" />
+              <col className="w-[90px]" />
+              <col className="w-[80px]" />
+              <col className="w-[70px]" />
+              <col className="w-[80px]" />
+              <col className="w-[70px]" />
+              <col className="w-[80px]" />
+              <col className="w-[100px]" />
+              <col className="w-[80px]" />
+              <col className="w-[70px]" />
+              <col className="w-[70px]" />
+              <col className="w-[100px]" />
+              <col className="w-[70px]" />
+              <col className="w-[70px]" />
+            </colgroup>
+            <tbody>
+              {sortedData.map((row, idx) => (
+                <KpiTableRow key={row.date} row={row} rateMode={rateMode} index={idx} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {/* Fixed total row */}
+        <div ref={totalScrollRef} onScroll={handleTotalScroll} className="border-t-2 border-slate-200 bg-slate-50 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <table className="w-full text-sm table-fixed min-w-[1600px]">
+            <colgroup>
+              <col className="w-[100px]" />
+              <col className="w-[100px]" />
+              <col className="w-[80px]" />
+              <col className="w-[70px]" />
+              <col className="w-[90px]" />
+              <col className="w-[80px]" />
+              <col className="w-[70px]" />
+              <col className="w-[80px]" />
+              <col className="w-[70px]" />
+              <col className="w-[80px]" />
+              <col className="w-[100px]" />
+              <col className="w-[80px]" />
+              <col className="w-[70px]" />
+              <col className="w-[70px]" />
+              <col className="w-[100px]" />
+              <col className="w-[70px]" />
+              <col className="w-[70px]" />
+            </colgroup>
+            <tbody>
+              <KpiTableRow row={data.totals} isTotal rateMode={rateMode} />
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );

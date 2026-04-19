@@ -56,17 +56,20 @@ export default function Settings() {
   };
 
   return (
-    <div className="h-full flex flex-col gap-[var(--space-lg)] overflow-y-auto">
-      <div className="flex items-start justify-between">
+    <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
+      {/* Header */}
+      <section className="shrink-0 flex items-start justify-between">
         <div>
           <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Workspace Settings</h2>
           <p className="text-slate-500 mt-2">Manage users, sprints, and system configurations.</p>
         </div>
+      </section>
+
+      <div className="shrink-0">
+        <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
 
-      <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-      <div className="flex-1">
+      <div className="flex-1 overflow-y-auto pb-8">
         {activeTab === 'users' && <UserManagementTab onDeleteConfirm={handleDeleteConfirm} />}
         {activeTab === 'sprints' && <SprintCyclesTab onDeleteConfirm={handleDeleteConfirm} />}
         {activeTab === 'okrs' && <OkrCyclesTab onDeleteConfirm={handleDeleteConfirm} />}

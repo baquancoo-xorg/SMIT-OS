@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { Calendar, Pin, AlertTriangle } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addDays } from 'date-fns';
+import { Bell, Pin, AlertTriangle } from 'lucide-react';
+import { format, isSameDay, addDays } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
 import { WorkItem } from '../../types';
 
@@ -13,7 +13,6 @@ export default function DateCalendarWidget({ workItems }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const today = new Date();
 
-  // Click outside to close
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -24,7 +23,6 @@ export default function DateCalendarWidget({ workItems }: Props) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Filter deadlines
   const todayDeadlines = workItems.filter(item =>
     item.dueDate && isSameDay(new Date(item.dueDate), today)
   );
@@ -35,25 +33,22 @@ export default function DateCalendarWidget({ workItems }: Props) {
     return due > today && due <= addDays(today, 3);
   });
 
-  // Calendar days
-  const monthStart = startOfMonth(today);
-  const monthEnd = endOfMonth(today);
-  const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  const totalNotifications = todayDeadlines.length + upcomingDeadlines.length;
 
   return (
     <div ref={ref} className="relative">
-      {/* Trigger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-all"
+        className="relative w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm hover:shadow-md transition-all"
       >
-        <Calendar size={16} className="text-primary" />
-        <span className="text-sm font-medium text-slate-700">
-          {format(today, 'EEE, MMM d')}
-        </span>
+        <Bell size={18} className="text-slate-600" />
+        {totalNotifications > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-error text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+            {totalNotifications > 9 ? '9+' : totalNotifications}
+          </span>
+        )}
       </button>
 
-      {/* Dropdown */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -62,64 +57,48 @@ export default function DateCalendarWidget({ workItems }: Props) {
             exit={{ opacity: 0, y: 10 }}
             className="absolute right-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-xl overflow-hidden z-50"
           >
-            {/* Mini Calendar */}
-            <div className="p-4">
-              <h3 className="text-sm font-bold text-slate-800 mb-3">
-                {format(today, 'MMMM yyyy')}
-              </h3>
-              <div className="grid grid-cols-7 gap-1 text-center text-xs">
-                {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
-                  <div key={d} className="text-slate-400 font-medium py-1">{d}</div>
-                ))}
-                {/* Padding for first week */}
-                {Array(monthStart.getDay()).fill(null).map((_, i) => (
-                  <div key={`pad-${i}`} />
-                ))}
-                {days.map(day => (
-                  <div
-                    key={day.toISOString()}
-                    className={`py-1 rounded-lg ${isToday(day)
-                      ? 'bg-primary text-white font-bold'
-                      : 'text-slate-600'
-                      }`}
-                  >
-                    {format(day, 'd')}
-                  </div>
-                ))}
-              </div>
+            <div className="px-4 py-3 border-b border-slate-100">
+              <h3 className="text-sm font-bold text-slate-800">Notifications</h3>
             </div>
 
-            {/* Today's Deadlines */}
-            {todayDeadlines.length > 0 && (
-              <div className="px-4 py-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-error uppercase mb-2 flex items-center gap-1.5">
-                  <Pin size={12} className="text-error" />
-                  Today's Deadlines
-                </h4>
-                {todayDeadlines.slice(0, 3).map(item => (
-                  <div key={item.id} className="text-sm text-slate-700 py-1">
-                    • {item.title}
-                  </div>
-                ))}
+            {totalNotifications === 0 ? (
+              <div className="px-4 py-6 text-center">
+                <Bell size={24} className="text-slate-300 mx-auto mb-2" />
+                <p className="text-sm text-slate-400">No notifications</p>
               </div>
-            )}
+            ) : (
+              <>
+                {todayDeadlines.length > 0 && (
+                  <div className="px-4 py-3">
+                    <h4 className="text-xs font-bold text-error uppercase mb-2 flex items-center gap-1.5">
+                      <Pin size={12} className="text-error" />
+                      Today's Deadlines
+                    </h4>
+                    {todayDeadlines.slice(0, 3).map(item => (
+                      <div key={item.id} className="text-sm text-slate-700 py-1">
+                        • {item.title}
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-            {/* Upcoming */}
-            {upcomingDeadlines.length > 0 && (
-              <div className="px-4 py-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-amber-600 uppercase mb-2 flex items-center gap-1.5">
-                  <AlertTriangle size={12} className="text-amber-500" />
-                  Upcoming (3 days)
-                </h4>
-                {upcomingDeadlines.slice(0, 3).map(item => (
-                  <div key={item.id} className="flex justify-between text-sm text-slate-700 py-1">
-                    <span>• {item.title}</span>
-                    <span className="text-slate-400">
-                      {format(new Date(item.dueDate!), 'MMM d')}
-                    </span>
+                {upcomingDeadlines.length > 0 && (
+                  <div className="px-4 py-3 border-t border-slate-100">
+                    <h4 className="text-xs font-bold text-amber-600 uppercase mb-2 flex items-center gap-1.5">
+                      <AlertTriangle size={12} className="text-amber-500" />
+                      Upcoming (3 days)
+                    </h4>
+                    {upcomingDeadlines.slice(0, 3).map(item => (
+                      <div key={item.id} className="flex justify-between text-sm text-slate-700 py-1">
+                        <span>• {item.title}</span>
+                        <span className="text-slate-400">
+                          {format(new Date(item.dueDate!), 'MMM d')}
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </motion.div>
         )}

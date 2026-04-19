@@ -9,9 +9,10 @@ interface AppLayoutProps {
   currentView: ViewType;
   onViewChange: (view: ViewType) => void;
   onLogout: () => void;
+  scrollable?: boolean;
 }
 
-export default function AppLayout({ children, currentView, onViewChange, onLogout }: AppLayoutProps) {
+export default function AppLayout({ children, currentView, onViewChange, onLogout, scrollable = false }: AppLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
   // Escape key handler for mobile sidebar
@@ -40,9 +41,9 @@ export default function AppLayout({ children, currentView, onViewChange, onLogou
 
       <div className="flex-1 flex flex-col overflow-hidden w-full">
         <Header onMenuClick={() => setIsSidebarOpen(true)} onViewChange={onViewChange} />
-        <main className="flex-1 overflow-hidden pt-16">
+        <main className="flex-1 flex flex-col overflow-hidden pt-16">
           <ErrorBoundary>
-            <div className="viewport-fit page-padding w-full">
+            <div className={`flex-1 min-h-0 ${scrollable ? 'overflow-y-auto' : 'overflow-hidden'} page-padding w-full overflow-x-hidden`}>
               {children}
             </div>
           </ErrorBoundary>

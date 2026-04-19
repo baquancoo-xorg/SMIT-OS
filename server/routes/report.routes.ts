@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { createOKRService } from '../services/okr.service';
+import { createNotificationService } from '../services/notification.service';
 import { RBAC } from '../middleware/rbac.middleware';
 import { handleAsync } from '../utils/async-handler';
 import { validate } from '../middleware/validate.middleware';
@@ -10,6 +11,7 @@ import { createOwnershipMiddleware } from '../middleware/ownership.middleware';
 export function createReportRoutes(prisma: PrismaClient) {
   const router = Router();
   const okrService = createOKRService(prisma);
+  const notificationService = createNotificationService(prisma);
   const checkOwnership = createOwnershipMiddleware(prisma);
 
   router.get('/', handleAsync(async (_req: any, res: any) => {
@@ -114,6 +116,8 @@ export function createReportRoutes(prisma: PrismaClient) {
     if (updated.krProgress) {
       await okrService.syncOKRProgress(updated);
     }
+
+    await notificationService.notifyReportApproved(updated, user.fullName);
 
     res.json(updated);
   }));
