@@ -151,7 +151,7 @@ export default function SaturdaySync() {
 
       {/* Team Confidence Metrics - M9: 2x2 grid on small screens */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 shrink-0">
-        <div className="bg-white p-6 rounded-3xl shadow-sm flex flex-col gap-2">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Average Confidence</p>
           <div className="flex items-baseline gap-1">
             <h4 className="text-3xl font-black font-headline">{averageConfidence}</h4>
@@ -161,21 +161,21 @@ export default function SaturdaySync() {
             <div className="h-full bg-tertiary transition-all duration-1000" style={{ width: `${Number(averageConfidence) * 10}%` }}></div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-3xl shadow-sm flex flex-col gap-2">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Approved</p>
           <h4 className="text-3xl font-black font-headline text-emerald-600">{approvedReports}</h4>
           <p className="text-[10px] font-bold mt-1 text-emerald-500">
             {reports.length > 0 ? Math.round((approvedReports / reports.length) * 100) : 0}% of total
           </p>
         </div>
-        <div className="bg-white p-6 rounded-3xl shadow-sm flex flex-col gap-2">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Review</p>
           <h4 className={`text-3xl font-black font-headline ${pendingReports > 0 ? 'text-amber-600' : 'text-slate-400'}`}>{pendingReports}</h4>
           <p className={`text-[10px] font-bold mt-1 ${pendingReports > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>
             {pendingReports > 0 ? 'Need attention' : 'All clear'}
           </p>
         </div>
-        <div className="bg-white p-6 rounded-3xl shadow-sm flex flex-col gap-2">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Next Sync</p>
           <h4 className="text-xl font-black font-headline">{nextSyncTime}</h4>
           <p className="text-[10px] font-bold text-slate-400 mt-1">Office Meeting Room</p>

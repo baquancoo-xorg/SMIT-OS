@@ -15,7 +15,7 @@ export default function Profile() {
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto pb-8">
-        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm max-w-2xl">
+        <div className="bg-white/50 backdrop-blur-md p-8 rounded-3xl border border-white/20 shadow-sm max-w-2xl">
         <div className="flex items-center gap-6 mb-8">
           <img 
             src="https://picsum.photos/seed/pm/100/100" 

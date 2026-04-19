@@ -275,7 +275,7 @@ export default function PMDashboard() {
       {/* ==================== Tier 1: Top Metrics (6 Cards) - Tablet optimized */}
       <section className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {/* 1. Company OKRs Progress */}
-        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Company OKRs</p>
           <div className="flex items-center justify-between">
             <h4 className="text-lg md:text-xl font-black font-headline text-on-surface">
@@ -289,7 +289,7 @@ export default function PMDashboard() {
         </div>
 
         {/* 2. Sprint Countdown */}
-        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sprint</p>
           {currentSprint ? (
             <>
@@ -311,7 +311,7 @@ export default function PMDashboard() {
         </div>
 
         {/* 3. Flow Efficiency */}
-        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Flow Efficiency</p>
           <div className="flex items-center justify-between">
             <h4 className="text-lg md:text-xl font-black font-headline text-on-surface">
@@ -325,7 +325,7 @@ export default function PMDashboard() {
         </div>
 
         {/* 4. Active Blockers */}
-        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Blockers</p>
           <div className="flex items-center justify-between">
             <h4 className={`text-lg md:text-xl font-black font-headline ${activeBlockers > 0 ? 'text-error' : 'text-on-surface'}`}>
@@ -339,7 +339,7 @@ export default function PMDashboard() {
         </div>
 
         {/* 5. This Week Activity */}
-        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">This Week</p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -353,7 +353,7 @@ export default function PMDashboard() {
         </div>
 
         {/* 6. Report Status */}
-        <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-5 md:p-6 rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reports</p>
           <div className="flex items-center justify-between">
             <h4 className="text-lg md:text-xl font-black font-headline text-on-surface">

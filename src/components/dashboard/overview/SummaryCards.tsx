@@ -19,7 +19,7 @@ function MetricCard({ label, value, icon: Icon, trend, trendDirection }: MetricC
       : 'text-slate-500';
 
   return (
-    <div className="group bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition-all duration-200">
+    <div className="group bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-5 hover:shadow-md transition-all duration-200">
       <div className="flex items-start justify-between mb-3">
         <div className="p-2 rounded-lg bg-[#0059B6]/10">
           <Icon className="h-5 w-5 text-[#0059B6]" />
@@ -44,7 +44,7 @@ function MetricCard({ label, value, icon: Icon, trend, trendDirection }: MetricC
 
 function SkeletonCard() {
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-5 animate-pulse">
+    <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-5 animate-pulse">
       <div className="flex items-start justify-between mb-3">
         <div className="w-9 h-9 bg-slate-100 rounded-lg" />
         <div className="w-14 h-6 bg-slate-100 rounded-md" />
@@ -78,7 +78,7 @@ export const SummaryCards = memo(function SummaryCards({
 
   if (error) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm p-5">
+      <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-5">
         <p className="text-center text-red-600 font-medium">Lỗi: {error.message}</p>
       </div>
     );

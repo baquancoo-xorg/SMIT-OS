@@ -159,19 +159,19 @@ export default function DailySync() {
         <>
       {/* Stats - 2x2 grid on mobile */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-        <div className="bg-white p-6 rounded-3xl shadow-sm">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Today's Reports</p>
           <h4 className="text-3xl font-black font-headline mt-2">{todayReports.length}</h4>
         </div>
-        <div className="bg-white p-6 rounded-3xl shadow-sm">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Approved</p>
           <h4 className="text-3xl font-black font-headline text-emerald-600 mt-2">{approvedCount}</h4>
         </div>
-        <div className="bg-white p-6 rounded-3xl shadow-sm">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Review</p>
           <h4 className="text-3xl font-black font-headline text-amber-600 mt-2">{pendingCount}</h4>
         </div>
-        <div className="bg-white p-6 rounded-3xl shadow-sm">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Reports</p>
           <h4 className="text-3xl font-black font-headline mt-2">{reports.length}</h4>
         </div>
@@ -179,7 +179,7 @@ export default function DailySync() {
 
       {/* Reports Table - C4: Scroll wrapper for mobile */}
       <div className="flex-1 overflow-y-auto">
-        <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
             <div className="min-w-[700px]">
           <table className="w-full">
@@ -332,7 +332,7 @@ function DailyReportDetailModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/30 backdrop-blur-md" />
       <div
-        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col"
+        className="relative bg-white/80 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">

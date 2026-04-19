@@ -259,7 +259,7 @@ export default function OKRsManagement() {
 
       {/* Metric Grid - Bento Style - Tablet optimized */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 shrink-0">
-        <div className="bg-white p-4 xl:p-6 rounded-3xl shadow-sm flex flex-col gap-2 relative overflow-hidden group">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-4 xl:p-6 rounded-3xl shadow-sm flex flex-col gap-2 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-20 h-20 xl:w-32 xl:h-32 bg-primary/5 rounded-full -mr-10 -mt-10 xl:-mr-16 xl:-mt-16 group-hover:scale-150 transition-transform duration-700"></div>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10">Quarterly Progress</p>
           <div className="flex items-baseline gap-1 relative z-10">
@@ -274,7 +274,7 @@ export default function OKRsManagement() {
             ></div>
           </div>
         </div>
-        <div className="bg-white p-4 xl:p-6 rounded-3xl shadow-sm flex flex-col gap-2 group">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-4 xl:p-6 rounded-3xl shadow-sm flex flex-col gap-2 group">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Objectives Active</p>
           <div className="flex items-baseline gap-2">
             <h4 className="text-2xl xl:text-4xl font-black font-headline">{objectives.length}</h4>
@@ -282,7 +282,7 @@ export default function OKRsManagement() {
           </div>
           <p className="text-[10px] font-bold text-slate-400 mt-1">Across {new Set(objectives.map(o => o.department)).size} Depts</p>
         </div>
-        <div className="bg-white p-4 xl:p-6 rounded-3xl shadow-sm flex flex-col gap-2">
+        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-4 xl:p-6 rounded-3xl shadow-sm flex flex-col gap-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Critical Path</p>
           <h4 className={`text-2xl xl:text-4xl font-black font-headline ${healthInfo.color}`}>{healthInfo.status}</h4>
           <div className="flex items-center gap-1 mt-1">
@@ -399,7 +399,7 @@ function ObjectiveAccordionCard({
   const colors = getDeptColor(objective.department);
 
   return (
-    <div className="bg-white rounded-3xl md:rounded-3xl lg:rounded-3xl shadow-sm shadow-xl shadow-slate-200/20 overflow-hidden group">
+    <div className="bg-white/50 backdrop-blur-md rounded-3xl shadow-sm border border-white/20 overflow-hidden group">
       {/* L1 Objective Header - Clickable to expand/collapse */}
       <div
         onClick={onToggleExpand}
@@ -684,7 +684,7 @@ function ObjectiveAccordionCardL2({
   };
 
   return (
-    <div className="bg-white rounded-3xl md:rounded-3xl lg:rounded-3xl shadow-sm shadow-xl shadow-slate-200/20 overflow-hidden group">
+    <div className="bg-white/50 backdrop-blur-md rounded-3xl shadow-sm border border-white/20 overflow-hidden group">
       {/* Header - Clickable to expand/collapse */}
       <div
         onClick={() => setIsExpanded(!isExpanded)}
@@ -1406,7 +1406,7 @@ function AddObjectiveModal({
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-200"
+        className="bg-white/80 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
       >
         <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <h2 className="text-2xl font-black font-headline text-slate-800">

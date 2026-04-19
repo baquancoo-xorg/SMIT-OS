@@ -395,7 +395,7 @@ function BacklogGroupCard({
   const config = typeConfig[type] || { label: type, color: 'text-slate-700', bgColor: 'bg-slate-50', icon: 'task' };
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
+    <div className="bg-white/50 backdrop-blur-md rounded-3xl shadow-sm border border-white/20 overflow-hidden">
       <div className="p-6 flex items-center justify-between border-b border-outline-variant/5">
         <div className="flex items-center gap-3">
           <span className={`material-symbols-outlined text-2xl ${config.color}`}>{config.icon}</span>
@@ -570,7 +570,7 @@ function BacklogTableView({
   };
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
+    <div className="bg-white/50 backdrop-blur-md rounded-3xl shadow-sm border border-white/20 overflow-hidden">
       <table className="w-full">
         <thead>
           <tr className="border-b border-outline-variant/10 bg-surface-container-low/30">

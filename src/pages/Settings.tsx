@@ -78,7 +78,7 @@ export default function Settings() {
 
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl">
+          <div className="bg-white/80 backdrop-blur-xl border border-white/20 rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl">
             <h3 className="text-xl font-bold text-on-surface mb-2">Confirm Delete</h3>
             <p className="text-slate-500 mb-6">
               Are you sure you want to delete this {deleteConfirm.type}? This action cannot be undone.
