@@ -801,11 +801,14 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, objective
   onRefresh: () => void; 
   key?: string | number 
 }) {
+  const { currentUser } = useAuth();
   const [krData, setKrData] = useState(kr);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const [isUpdateProgressOpen, setIsUpdateProgressOpen] = useState(false);
 
+  const isAdmin = currentUser?.isAdmin === true;
   const progress = Math.min(100, Math.round((krData.currentValue / krData.targetValue) * 100)) || 0;
   const linkedItems = workItems.filter(item => item.krLinks?.some(link => link.keyResultId === kr.id));
   const parentKR = krData.parentKrId ? objectives?.flatMap(o => o.keyResults).find(kr => kr.id === krData.parentKrId) : null;
@@ -859,6 +862,14 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, objective
               <LinkIcon size={18} />
             </button>
           )}
+          {isAdmin && (
+            <button
+              onClick={() => setIsUpdateProgressOpen(true)}
+              className="min-h-[44px] px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-500/20 hover:bg-emerald-600"
+            >
+              Check-in
+            </button>
+          )}
           <button
             onClick={() => setIsEditModalOpen(true)}
             className="min-h-[44px] px-4 py-2 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/20"
@@ -907,6 +918,33 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, objective
           </p>
         </div>
       )}
+
+      <UpdateProgressModal
+        isOpen={isUpdateProgressOpen}
+        onClose={() => setIsUpdateProgressOpen(false)}
+        currentValue={krData.currentValue}
+        targetValue={krData.targetValue}
+        unit={krData.unit}
+        onSave={async (newValue, note) => {
+          const progressPct = krData.targetValue > 0
+            ? Math.min(100, (newValue / krData.targetValue) * 100)
+            : 0;
+          const res = await fetch(`/api/key-results/${kr.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              currentValue: newValue,
+              progressPercentage: progressPct,
+              ...(note ? { lastNote: note } : {}),
+            }),
+          });
+          if (res.ok) {
+            setKrData(prev => ({ ...prev, currentValue: newValue, progressPercentage: progressPct, ...(note ? { lastNote: note } : {}) }));
+            onRefresh();
+          }
+          setIsUpdateProgressOpen(false);
+        }}
+      />
 
       <EditKRModal
         isOpen={isEditModalOpen}
@@ -1104,6 +1142,10 @@ interface UpdateProgressModalProps {
 function UpdateProgressModal({ isOpen, onClose, onSave, currentValue, targetValue, unit }: UpdateProgressModalProps) {
   const [val, setVal] = useState(currentValue);
   const [note, setNote] = useState('');
+
+  useEffect(() => {
+    if (isOpen) { setVal(currentValue); setNote(''); }
+  }, [isOpen, currentValue]);
 
   if (!isOpen) return null;
 

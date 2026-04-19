@@ -104,35 +104,51 @@ export function createOKRService(prisma: PrismaClient) {
         },
       });
 
-      const updates = objectives.map((obj) => {
-        let progress = 0;
+      // First pass: update L2 (children with parentId)
+      const l2Updates = objectives
+        .filter((obj) => obj.parentId)
+        .map((obj) => {
+          const progress =
+            obj.keyResults.length > 0
+              ? obj.keyResults.reduce((sum, kr) => sum + kr.progressPercentage, 0) /
+                obj.keyResults.length
+              : 0;
+          return prisma.objective.update({
+            where: { id: obj.id },
+            data: { progressPercentage: Math.round(progress * 100) / 100 },
+          });
+        });
 
-        if (obj.parentId) {
-          if (obj.keyResults.length > 0) {
+      await prisma.$transaction(l2Updates);
+
+      // Reload L2 progress after first pass, then compute L1
+      const l2Map = new Map(
+        (await prisma.objective.findMany({ where: { parentId: { not: null } }, select: { id: true, progressPercentage: true } }))
+          .map((o) => [o.id, o.progressPercentage])
+      );
+
+      // Second pass: update L1 (root objectives without parentId)
+      const l1Updates = objectives
+        .filter((obj) => !obj.parentId)
+        .map((obj) => {
+          let progress = 0;
+          if (obj.children.length > 0) {
+            // Roll up from L2 children's stored progressPercentage
+            const childProgressValues = obj.children.map((child) => l2Map.get(child.id) ?? 0);
+            progress = childProgressValues.reduce((a, b) => a + b, 0) / obj.children.length;
+          } else if (obj.keyResults.length > 0) {
+            // L1 with own KRs (no children)
             progress =
               obj.keyResults.reduce((sum, kr) => sum + kr.progressPercentage, 0) /
               obj.keyResults.length;
           }
-        } else {
-          if (obj.children.length > 0) {
-            const childProgress = obj.children.map((child) => {
-              if (child.keyResults.length === 0) return 0;
-              return (
-                child.keyResults.reduce((sum, kr) => sum + kr.progressPercentage, 0) /
-                child.keyResults.length
-              );
-            });
-            progress = childProgress.reduce((a, b) => a + b, 0) / obj.children.length;
-          }
-        }
-
-        return prisma.objective.update({
-          where: { id: obj.id },
-          data: { progressPercentage: Math.round(progress * 100) / 100 },
+          return prisma.objective.update({
+            where: { id: obj.id },
+            data: { progressPercentage: Math.round(progress * 100) / 100 },
+          });
         });
-      });
 
-      await prisma.$transaction(updates);
+      await prisma.$transaction(l1Updates);
     },
   };
 }

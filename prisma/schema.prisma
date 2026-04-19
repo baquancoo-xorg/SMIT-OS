@@ -76,6 +76,7 @@ model KeyResult {
   currentValue       Float     @default(0)
   targetValue        Float     @default(100)
   unit               String    @default("%")
+  lastNote           String?
   objectiveId        String
   parentKrId         String?   // For L2 KRs, references parent L1 KR for alignment
   parentKR           KeyResult? @relation("KRAlignment", fields: [parentKrId], references: [id])
