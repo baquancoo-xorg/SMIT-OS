@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, Pin, AlertTriangle } from 'lucide-react';
+import { Calendar, Pin, AlertTriangle } from 'lucide-react';
 import { format, isSameDay, addDays } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
 import { WorkItem } from '../../types';
@@ -41,7 +41,7 @@ export default function DateCalendarWidget({ workItems }: Props) {
         onClick={() => setIsOpen(!isOpen)}
         className="relative w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm hover:shadow-md transition-all"
       >
-        <Bell size={18} className="text-slate-600" />
+        <Calendar size={18} className="text-slate-600" />
         {totalNotifications > 0 && (
           <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-error text-white text-[10px] font-bold rounded-full flex items-center justify-center">
             {totalNotifications > 9 ? '9+' : totalNotifications}
@@ -63,7 +63,7 @@ export default function DateCalendarWidget({ workItems }: Props) {
 
             {totalNotifications === 0 ? (
               <div className="px-4 py-6 text-center">
-                <Bell size={24} className="text-slate-300 mx-auto mb-2" />
+                <Calendar size={24} className="text-slate-300 mx-auto mb-2" />
                 <p className="text-sm text-slate-400">No notifications</p>
               </div>
             ) : (

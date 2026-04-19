@@ -78,7 +78,7 @@ export default function SprintContextWidget({ onViewBacklog }: Props) {
       {/* Trigger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2.5 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-all"
+        className="flex items-center h-10 gap-2.5 px-4 bg-white rounded-full shadow-sm hover:shadow-md transition-all"
       >
         <BarChart3 size={16} className="text-primary" />
         <span className="text-sm font-medium text-slate-700">{sprint.name}</span>

@@ -84,7 +84,7 @@ export default function Header({ onMenuClick, onViewChange }: {
           </button>
 
           {/* Tablet+: Search input */}
-          <div className="hidden tablet:flex flex-1 max-w-[200px] lg:max-w-xs xl:max-w-md relative ml-4" ref={searchRef}>
+          <div className="hidden tablet:flex flex-1 max-w-[200px] lg:max-w-xs xl:max-w-md relative ml-4 xl:ml-[var(--content-px-desktop)]" ref={searchRef}>
             <div className="relative group w-full">
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors text-[20px]">search</span>
               <input

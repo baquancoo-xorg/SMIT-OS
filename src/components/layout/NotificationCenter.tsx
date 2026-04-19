@@ -33,7 +33,7 @@ export default function NotificationCenter() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
+        className="relative w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm hover:shadow-md transition-all"
       >
         <Bell size={20} className="text-slate-600" />
         {unreadCount > 0 && (
