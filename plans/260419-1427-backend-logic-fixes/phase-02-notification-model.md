@@ -2,7 +2,7 @@
 
 **Priority:** High
 **Estimated:** 1 hour
-**Status:** pending
+**Status:** completed
 **Depends on:** Phase 1
 
 ## Overview
@@ -74,7 +74,7 @@ npx prisma migrate dev --name add_notification_model
 
 ## Checklist
 
-- [ ] Add Notification model to schema
-- [ ] Add notifications relation to User
-- [ ] Run migration
-- [ ] Verify with `npx prisma studio`
+- [x] Add Notification model to schema
+- [x] Add notifications relation to User
+- [x] Run migration
+- [x] Verify with `npx prisma studio`

@@ -2,7 +2,7 @@
 
 **Priority:** Medium
 **Estimated:** 2 hours
-**Status:** pending
+**Status:** completed
 **Depends on:** Phase 4
 
 ## Overview
@@ -234,10 +234,10 @@ import NotificationCenter from './NotificationCenter';
 
 ## Checklist
 
-- [ ] Create useNotifications hook
-- [ ] Create NotificationCenter component
-- [ ] Add to Header
-- [ ] Test badge count
-- [ ] Test dropdown
-- [ ] Test mark as read
-- [ ] Test polling
+- [x] Create useNotifications hook
+- [x] Create NotificationCenter component
+- [x] Add to Header
+- [x] Test badge count
+- [x] Test dropdown
+- [x] Test mark as read
+- [x] Test polling

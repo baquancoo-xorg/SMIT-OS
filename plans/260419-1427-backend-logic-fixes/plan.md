@@ -1,8 +1,9 @@
 ---
 title: Backend Logic Fixes
-status: pending
+status: completed
 priority: critical
 created: 2026-04-19
+completed: 2026-04-19
 estimated: 8 hours
 blockedBy: []
 blocks: []
@@ -25,12 +26,12 @@ Fix critical backend bugs and implement notification system.
 
 | Phase | Name | Est | Priority | Status |
 |-------|------|-----|----------|--------|
-| 1 | [Fix Sprint Date Bug](phase-01-sprint-date-fix.md) | 30m | Critical | pending |
-| 2 | [Notification Model](phase-02-notification-model.md) | 1h | High | pending |
-| 3 | [Notification Service](phase-03-notification-service.md) | 2h | High | pending |
-| 4 | [Notification API](phase-04-notification-api.md) | 1h | High | pending |
-| 5 | [Frontend Notification](phase-05-frontend-notification.md) | 2h | Medium | pending |
-| 6 | [Automated Alerts](phase-06-automated-alerts.md) | 1.5h | Medium | pending |
+| 1 | [Fix Sprint Date Bug](phase-01-sprint-date-fix.md) | 30m | Critical | completed |
+| 2 | [Notification Model](phase-02-notification-model.md) | 1h | High | completed |
+| 3 | [Notification Service](phase-03-notification-service.md) | 2h | High | completed |
+| 4 | [Notification API](phase-04-notification-api.md) | 1h | High | completed |
+| 5 | [Frontend Notification](phase-05-frontend-notification.md) | 2h | Medium | completed |
+| 6 | [Automated Alerts](phase-06-automated-alerts.md) | 1.5h | Medium | completed |
 
 ## Key Files
 
@@ -45,11 +46,11 @@ server/jobs/                        # Phase 6: Scheduled jobs
 
 ## Success Criteria
 
-- [ ] Sprint hiển thị đúng vào ngày cuối của sprint
-- [ ] Notification model với CRUD operations
-- [ ] Realtime notifications via polling (MVP)
-- [ ] UI notification center trong Header
-- [ ] Automated alerts cho deadlines & OKR risks
+- [x] Sprint hiển thị đúng vào ngày cuối của sprint
+- [x] Notification model với CRUD operations
+- [x] Realtime notifications via polling (MVP)
+- [x] UI notification center trong Header
+- [x] Automated alerts cho deadlines & OKR risks
 
 ## Dependencies
 

@@ -40,7 +40,8 @@ export function useNotifications() {
   }, []);
 
   const markAsRead = async (id: string) => {
-    await fetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
+    const res = await fetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
+    if (!res.ok) return;
     setNotifications(prev =>
       prev.map(n => n.id === id ? { ...n, isRead: true } : n)
     );
@@ -48,7 +49,8 @@ export function useNotifications() {
   };
 
   const markAllAsRead = async () => {
-    await fetch('/api/notifications/mark-all-read', { method: 'POST' });
+    const res = await fetch('/api/notifications/mark-all-read', { method: 'POST' });
+    if (!res.ok) return;
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     setUnreadCount(0);
   };

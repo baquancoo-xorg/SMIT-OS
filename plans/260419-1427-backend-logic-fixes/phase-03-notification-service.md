@@ -2,7 +2,7 @@
 
 **Priority:** High
 **Estimated:** 2 hours
-**Status:** pending
+**Status:** completed
 **Depends on:** Phase 2
 
 ## Overview
@@ -179,9 +179,9 @@ await notificationService.notifyReportApproved(updated, user.fullName);
 
 ## Checklist
 
-- [ ] Create notification.service.ts
-- [ ] Add create, getByUser, markAsRead methods
-- [ ] Add trigger helpers for common events
-- [ ] Register in server.ts
-- [ ] Integrate with report approval flow
-- [ ] Test notification creation
+- [x] Create notification.service.ts
+- [x] Add create, getByUser, markAsRead methods
+- [x] Add trigger helpers for common events
+- [x] Register in server.ts
+- [x] Integrate with report approval flow
+- [x] Test notification creation

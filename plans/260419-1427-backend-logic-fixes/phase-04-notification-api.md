@@ -2,7 +2,7 @@
 
 **Priority:** High
 **Estimated:** 1 hour
-**Status:** pending
+**Status:** completed
 **Depends on:** Phase 3
 
 ## Overview
@@ -118,11 +118,11 @@ curl -X PATCH -H "Authorization: Bearer TOKEN" http://localhost:3000/api/notific
 
 ## Checklist
 
-- [ ] Create notification.routes.ts
-- [ ] Add GET / endpoint
-- [ ] Add GET /unread-count endpoint
-- [ ] Add PATCH /:id/read endpoint
-- [ ] Add POST /mark-all-read endpoint
-- [ ] Add DELETE /:id endpoint
-- [ ] Register in server.ts
-- [ ] Test all endpoints
+- [x] Create notification.routes.ts
+- [x] Add GET / endpoint
+- [x] Add GET /unread-count endpoint
+- [x] Add PATCH /:id/read endpoint
+- [x] Add POST /mark-all-read endpoint
+- [x] Add DELETE /:id endpoint
+- [x] Register in server.ts
+- [x] Test all endpoints

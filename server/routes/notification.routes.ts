@@ -10,7 +10,7 @@ export function createNotificationRoutes(prisma: PrismaClient) {
   router.get('/', handleAsync(async (req: any, res: any) => {
     const userId = req.user.userId;
     const unreadOnly = req.query.unreadOnly === 'true';
-    const limit = parseInt(req.query.limit) || 50;
+    const limit = Math.min(Math.max(1, parseInt(req.query.limit) || 50), 100);
 
     const notifications = await service.getByUser(userId, { unreadOnly, limit });
     res.json(notifications);

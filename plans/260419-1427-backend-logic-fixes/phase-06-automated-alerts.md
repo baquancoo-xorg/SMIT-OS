@@ -2,7 +2,7 @@
 
 **Priority:** Medium
 **Estimated:** 1.5 hours
-**Status:** pending
+**Status:** completed
 **Depends on:** Phase 3
 
 ## Overview
@@ -199,11 +199,11 @@ npm run dev # Watch for "[AlertScheduler]" messages
 
 ## Checklist
 
-- [ ] Install node-cron
-- [ ] Create alert-scheduler.ts
-- [ ] Add checkDeadlines function
-- [ ] Add checkSprintEndings function
-- [ ] Add checkOKRRisks function
-- [ ] Initialize in server.ts
-- [ ] Test manually
-- [ ] Verify cron timing
+- [x] Install node-cron
+- [x] Create alert-scheduler.ts
+- [x] Add checkDeadlines function
+- [x] Add checkSprintEndings function
+- [x] Add checkOKRRisks function
+- [x] Initialize in server.ts
+- [x] Test manually
+- [x] Verify cron timing

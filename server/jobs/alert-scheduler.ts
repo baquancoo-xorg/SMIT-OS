@@ -18,11 +18,23 @@ async function checkDeadlines(prisma: PrismaClient, notificationService: Notific
     },
   });
 
-  for (const item of dueTomorrow) {
-    await notificationService.notifyDeadlineWarning(item);
+  const deadlineNotifications = dueTomorrow
+    .filter(item => item.assigneeId)
+    .map(item => ({
+      userId: item.assigneeId!,
+      type: 'deadline_warning',
+      title: 'Deadline Approaching',
+      message: `"${item.title}" is due tomorrow`,
+      entityType: 'WorkItem',
+      entityId: item.id,
+      priority: 'high' as const,
+    }));
+
+  if (deadlineNotifications.length > 0) {
+    await prisma.notification.createMany({ data: deadlineNotifications });
   }
 
-  console.log(`[AlertScheduler] Sent ${dueTomorrow.length} deadline warnings`);
+  console.log(`[AlertScheduler] Sent ${deadlineNotifications.length} deadline warnings`);
 }
 
 async function checkSprintEndings(prisma: PrismaClient, notificationService: NotificationService) {

@@ -2,7 +2,7 @@
 
 **Priority:** Critical
 **Estimated:** 30 minutes
-**Status:** pending
+**Status:** completed
 
 ## Problem
 
@@ -69,6 +69,6 @@ curl http://localhost:3000/api/sprints/active | jq
 
 ## Checklist
 
-- [ ] Add `today.setHours(0, 0, 0, 0)` in sprint.routes.ts
-- [ ] Test on UI: SprintContextWidget shows Sprint 2
-- [ ] Verify stats calculation still works
+- [x] Add `today.setHours(0, 0, 0, 0)` in sprint.routes.ts
+- [x] Test on UI: SprintContextWidget shows Sprint 2
+- [x] Verify stats calculation still works
