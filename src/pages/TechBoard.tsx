@@ -13,8 +13,6 @@ import {
   defaultDropAnimationSideEffects
 } from '@dnd-kit/core';
 import {
-  SortableContext,
-  verticalListSortingStrategy,
   arrayMove
 } from '@dnd-kit/sortable';
 import { DroppableColumn } from '../components/board/droppable-column';
@@ -23,7 +21,7 @@ import TaskTableView from '../components/board/TaskTableView';
 import TaskModal from '../components/board/TaskModal';
 import TaskDetailsModal from '../components/board/TaskDetailsModal';
 import { WorkItem, Sprint } from '../types';
-import { ChevronDown, Filter, Search, Database } from 'lucide-react';
+import { Filter, Search } from 'lucide-react';
 import ViewToggle from '../components/ui/ViewToggle';
 import PrimaryActionButton from '../components/ui/PrimaryActionButton';
 import { useAuth } from '../contexts/AuthContext';
@@ -120,7 +118,6 @@ export default function TechBoard() {
 
     const overItem = items.find(i => i.id === overId);
     const isOverAColumn = COLUMNS.includes(overId as string);
-    const isOverBacklog = overId === 'backlog';
 
     setItems(prev => {
       const activeIndex = prev.findIndex(i => i.id === activeId);
@@ -129,10 +126,7 @@ export default function TechBoard() {
       let newStatus = activeItem.status;
       let newSprintId = activeItem.sprintId;
 
-      if (isOverBacklog) {
-        newSprintId = undefined;
-        // Keep status or reset to To Do? Let's keep it but it's in backlog now
-      } else if (isOverAColumn) {
+      if (isOverAColumn) {
         newStatus = overId as string;
         newSprintId = selectedSprintId;
       } else if (overItem) {
@@ -169,9 +163,7 @@ export default function TechBoard() {
     let newStatus = activeItem.status;
     let newSprintId = activeItem.sprintId;
 
-    if (overId === 'backlog') {
-      newSprintId = null;
-    } else if (COLUMNS.includes(overId as string)) {
+    if (COLUMNS.includes(overId as string)) {
       newStatus = overId as string;
       newSprintId = selectedSprintId;
     }
@@ -228,7 +220,6 @@ export default function TechBoard() {
           body: JSON.stringify({
             ...newTask,
             id: undefined,
-            assigneeId: currentUser?.id,
             sprintId: selectedSprintId || null
           })
         });
@@ -289,7 +280,6 @@ export default function TechBoard() {
     );
   }
 
-  const backlogItems = items.filter(i => !i.sprintId);
   const sprintItems = selectedSprintId
     ? items.filter(i => i.sprintId === selectedSprintId)
     : items.filter(i => i.sprintId);
@@ -390,48 +380,8 @@ export default function TechBoard() {
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex-1 flex flex-col lg:flex-row gap-[var(--space-md)] min-h-0">
-            {/* Backlog (25%) */}
-            <div className="w-full lg:w-1/4 flex flex-col bg-surface-container-low/30 rounded-3xl shadow-sm min-h-[200px] lg:min-h-0 lg:h-full shrink-0 lg:shrink">
-              <div className="p-[var(--space-md)] flex items-center justify-between border-b border-outline-variant/5 bg-white/40 shrink-0">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">inventory_2</span>
-                  <h3 className="font-black text-on-surface text-xs uppercase tracking-widest">Backlog</h3>
-                </div>
-                <span className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black">
-                  {backlogItems.length}
-                </span>
-              </div>
-
-              <SortableContext
-                id="backlog"
-                items={backlogItems.map(i => i.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <div className="internal-scroll p-[var(--space-sm)] space-y-[var(--space-sm)]">
-                  {backlogItems.map(item => (
-                    <DraggableTaskCard
-                      key={item.id}
-                      item={item}
-                      onUpdate={handleUpdateTask}
-                      onDelete={handleDeleteTask}
-                      onEdit={handleEditTask}
-                      onViewDetails={handleViewDetails}
-                    />
-                  ))}
-                  {backlogItems.length === 0 && (
-                    <div className="h-40 border-2 border-dashed border-outline-variant/20 rounded-3xl flex flex-col items-center justify-center text-slate-400 gap-2">
-                      <span className="material-symbols-outlined text-4xl opacity-20">inbox</span>
-                      <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Backlog is empty</span>
-                    </div>
-                  )}
-                </div>
-              </SortableContext>
-            </div>
-
-            {/* Active Sprint Board (75%) */}
-            <div className="flex-1 flex gap-[var(--space-sm)] overflow-x-auto min-h-[300px] lg:min-h-0">
-              {COLUMNS.map(col => {
+          <div className="flex-1 flex gap-[var(--space-sm)] overflow-x-auto min-h-[300px] lg:min-h-0">
+            {COLUMNS.map(col => {
                 const columnItems = sprintItems.filter(i => i.status === col);
 
                 return (
@@ -470,7 +420,6 @@ export default function TechBoard() {
                 );
               })}
             </div>
-          </div>
 
           <DragOverlay dropAnimation={{
             sideEffects: defaultDropAnimationSideEffects({

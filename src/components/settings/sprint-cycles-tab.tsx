@@ -1,3 +1,4 @@
+import DatePicker from '../ui/date-picker';
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Calendar, Save, Edit2, X } from 'lucide-react';
 import { Sprint } from '../../types';
@@ -80,11 +81,11 @@ export function SprintCyclesTab({ onDeleteConfirm }: SprintCyclesTabProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Start Date</label>
-              <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={newSprint.startDate} onChange={e => setNewSprint({ ...newSprint, startDate: e.target.value })} />
+              <DatePicker value={newSprint.startDate} onChange={(v) => setNewSprint({ ...newSprint, startDate: v })} />
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">End Date</label>
-              <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={newSprint.endDate} onChange={e => setNewSprint({ ...newSprint, endDate: e.target.value })} />
+              <DatePicker value={newSprint.endDate} onChange={(v) => setNewSprint({ ...newSprint, endDate: v })} />
             </div>
           </div>
           <div className="flex gap-2">
@@ -107,11 +108,11 @@ export function SprintCyclesTab({ onDeleteConfirm }: SprintCyclesTabProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Start Date</label>
-              <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={editingSprint.startDate.split('T')[0]} onChange={e => setEditingSprint({ ...editingSprint, startDate: e.target.value })} />
+              <DatePicker className="w-full" value={editingSprint.startDate.split('T')[0]} onChange={(v) => setEditingSprint({ ...editingSprint, startDate: v })} />
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">End Date</label>
-              <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={editingSprint.endDate.split('T')[0]} onChange={e => setEditingSprint({ ...editingSprint, endDate: e.target.value })} />
+              <DatePicker className="w-full" value={editingSprint.endDate.split('T')[0]} onChange={(v) => setEditingSprint({ ...editingSprint, endDate: v })} />
             </div>
           </div>
           <div className="flex gap-2">

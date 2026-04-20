@@ -5,6 +5,7 @@ import { DateRangePicker } from '../components/dashboard/overview/DateRangePicke
 import { SummaryCards } from '../components/dashboard/overview/SummaryCards';
 import { KpiTable } from '../components/dashboard/overview/KpiTable';
 import { useOverviewAll } from '../hooks/use-overview-data';
+import DashboardTab from '../components/lead-tracker/dashboard-tab';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -67,6 +68,15 @@ function DashboardOverviewContent() {
           viewMode={viewMode}
           onViewModeChange={setViewMode}
         />
+
+        {/* CRM Performance */}
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+            <span className="w-1 h-4 bg-[#0059B6] rounded-full" />
+            CRM Performance
+          </h2>
+          <DashboardTab dateFrom={range.from} dateTo={range.to} />
+        </section>
       </div>
     </div>
   );

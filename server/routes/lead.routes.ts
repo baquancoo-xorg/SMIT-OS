@@ -42,15 +42,16 @@ export function createLeadRoutes(prisma: PrismaClient) {
     const aeSet = new Set<string>(leads.map((l) => l.ae));
     if (ae) { aeSet.clear(); aeSet.add(ae as string); }
 
-    // Build date list (YYYY-MM-DD)
+    // Build date list (YYYY-MM-DD) — use UTC noon to avoid timezone offset shifting the date
+    const fromStr = (dateFrom as string) ?? new Date(fromDate).toISOString().slice(0, 10);
+    const toStr = (dateTo as string) ?? new Date(toDate).toISOString().slice(0, 10);
     const dateList: string[] = [];
-    const cur = new Date(fromDate);
-    cur.setHours(0, 0, 0, 0);
-    const end = new Date(toDate);
-    end.setHours(0, 0, 0, 0);
-    while (cur <= end) {
-      dateList.push(cur.toISOString().slice(0, 10));
-      cur.setDate(cur.getDate() + 1);
+    let cur = fromStr;
+    while (cur <= toStr) {
+      dateList.push(cur);
+      const next = new Date(cur + 'T12:00:00Z');
+      next.setUTCDate(next.getUTCDate() + 1);
+      cur = next.toISOString().slice(0, 10);
     }
 
     const toDateStr = (d: Date) => d.toISOString().slice(0, 10);

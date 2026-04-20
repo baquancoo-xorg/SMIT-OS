@@ -1,3 +1,4 @@
+import DatePicker from '../ui/date-picker';
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, AlertCircle, TrendingUp, Calendar, Target, CheckCircle2, Briefcase } from 'lucide-react';
 import { Objective, KeyResult } from '../../types';
@@ -393,15 +394,14 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                         />
                       </td>
                       <td className="px-4 py-3">
-                        <input 
-                          type="date"
+                        <DatePicker
                           value={plan.deadline}
-                          onChange={(e) => {
+                          onChange={(v) => {
                             const newPlans = [...nextWeekPlans];
-                            newPlans[idx].deadline = e.target.value;
+                            newPlans[idx].deadline = v;
                             setNextWeekPlans(newPlans);
                           }}
-                          className="w-full bg-transparent border-none focus:ring-0 text-sm font-medium outline-none text-slate-600"
+                          className="w-full"
                         />
                       </td>
                       <td className="px-4 py-3 text-right">

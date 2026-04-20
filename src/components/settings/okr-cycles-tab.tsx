@@ -1,3 +1,4 @@
+import DatePicker from '../ui/date-picker';
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Target, Save, Edit2, X } from 'lucide-react';
 import { OkrCycle } from '../../types';
@@ -93,11 +94,11 @@ export function OkrCyclesTab({ onDeleteConfirm }: OkrCyclesTabProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Start Date</label>
-              <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newCycle.startDate} onChange={e => setNewCycle({ ...newCycle, startDate: e.target.value })} />
+              <DatePicker value={newCycle.startDate} onChange={(v) => setNewCycle({ ...newCycle, startDate: v })} />
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">End Date</label>
-              <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newCycle.endDate} onChange={e => setNewCycle({ ...newCycle, endDate: e.target.value })} />
+              <DatePicker value={newCycle.endDate} onChange={(v) => setNewCycle({ ...newCycle, endDate: v })} />
             </div>
           </div>
           <div className="flex gap-2">
@@ -120,11 +121,11 @@ export function OkrCyclesTab({ onDeleteConfirm }: OkrCyclesTabProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Start Date</label>
-              <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editingCycle.startDate.split('T')[0]} onChange={e => setEditingCycle({ ...editingCycle, startDate: e.target.value })} />
+              <DatePicker className="w-full" value={editingCycle.startDate.split('T')[0]} onChange={(v) => setEditingCycle({ ...editingCycle, startDate: v })} />
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">End Date</label>
-              <input type="date" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editingCycle.endDate.split('T')[0]} onChange={e => setEditingCycle({ ...editingCycle, endDate: e.target.value })} />
+              <DatePicker className="w-full" value={editingCycle.endDate.split('T')[0]} onChange={(v) => setEditingCycle({ ...editingCycle, endDate: v })} />
             </div>
           </div>
           <div className="flex gap-2">

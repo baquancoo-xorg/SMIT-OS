@@ -1,13 +1,11 @@
 # Session State
-<!-- Generated: 2026-04-20T06:44:20.285Z -->
+<!-- Generated: 2026-04-20T19:33:54.847Z -->
 <!-- Branch: unknown -->
 <!-- Plan: none -->
 
 ## What Worked (Verified)
-- Phase 01: Add Lead model to Prisma schema & run db:push
-- Phase 02: Create lead.schema.ts & lead.routes.ts, register in server.ts
-- Phase 03: Add types, API methods, create 4 frontend components
-- Phase 04: Create LeadTracker page, update App.tsx & Sidebar.tsx
+- Add extraControls prop to LeadLogsTab filter bar
+- Refactor LeadTracker.tsx: move toggle into stat bars, add CRM stats filter bar
 
 ## What's Left
 - (All tasks completed)
@@ -322,13 +320,32 @@
 ## Agent Result: scout (19:36:50)
 - Completed at 19:36:50
 
+
+## Agent Result: Explore (16:25:48)
+- Completed at 16:25:48
+
+
+## Agent Result: unknown (18:39:21)
+- Completed at 18:39:21
+
 ## Key Files Modified
-- .claude/session-state/archive/20260420-1237.md
-- .claude/session-state/archive/20260420-1241.md
+- .claude/session-state/archive/20260420-1246.md
+- .claude/session-state/archive/20260420-1248.md
+- .claude/session-state/archive/20260420-1331.md
+- .claude/session-state/archive/20260420-1343.md
+- .claude/session-state/archive/20260420-1344.md
 - .claude/session-state/latest.md
-- prisma/schema.prisma
-- server.ts
+- "docs/B\341\272\242NG THEO D\303\225I HI\341\273\206U SU\341\272\244T X\341\273\254 L\303\235 LEAD H\303\200NG NG\303\200Y.xlsx"
+- server/routes/lead.routes.ts
+- server/schemas/lead.schema.ts
 - src/App.tsx
+- src/components/board/ReportTableView.tsx
+- src/components/board/TaskModal.tsx
+- src/components/board/TaskTableView.tsx
+- src/components/daily-report/DailyReportBase.tsx
+- src/components/dashboard/overview/DateRangePicker.tsx
 - src/components/layout/Sidebar.tsx
-- src/lib/api.ts
-- src/types/index.ts
+- src/components/lead-tracker/daily-stats-tab.tsx
+- src/components/lead-tracker/dashboard-tab.tsx
+- src/components/lead-tracker/lead-form-modal.tsx
+- src/components/lead-tracker/lead-logs-tab.tsx

@@ -106,7 +106,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
           >
             <div className="flex items-start justify-between gap-3 mb-3">
               <h4 className="text-sm font-bold text-on-surface line-clamp-2">{item.title}</h4>
-              <span className={`text-[10px] font-black px-2 py-1 rounded-full flex-shrink-0 ${
+              <span className={`text-xs font-black px-2 py-1 rounded-full flex-shrink-0 ${
                 item.priority === 'Urgent' ? 'bg-error/10 text-error' :
                 item.priority === 'High' ? 'bg-orange-50 text-orange-600' :
                 item.priority === 'Medium' ? 'bg-amber-50 text-amber-600' :
@@ -116,9 +116,9 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
               </span>
             </div>
 
-            <div className="flex items-center gap-4 text-[10px] text-slate-500 mb-3">
+            <div className="flex items-center gap-4 text-xs text-slate-500 mb-3">
               <span className="flex items-center gap-1">
-                <span className="material-symbols-outlined text-[14px]">person</span>
+                <span className="material-symbols-outlined text-sm">person</span>
                 {assignee?.fullName || 'Unassigned'}
               </span>
               <span className={`font-bold ${
@@ -138,12 +138,12 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
-              <span className="text-[10px] font-bold text-slate-400">{progress}%</span>
+              <span className="text-xs font-bold text-slate-400">{progress}%</span>
             </div>
 
             {item.dueDate && (
-              <div className="mt-2 text-[10px] text-error flex items-center gap-1">
-                <span className="material-symbols-outlined text-[12px]">calendar_today</span>
+              <div className="mt-2 text-xs text-error flex items-center gap-1">
+                <span className="material-symbols-outlined text-xs">calendar_today</span>
                 {new Date(item.dueDate).toLocaleDateString('vi-VN')}
               </div>
             )}
@@ -230,17 +230,17 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
                   }`}
                 >
                   {selectedIds.size === items.length && items.length > 0 && (
-                    <span className="material-symbols-outlined text-white text-[14px]">check</span>
+                    <span className="material-symbols-outlined text-white text-sm">check</span>
                   )}
                 </button>
               </th>
-              <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Task Details</th>
-              <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Assignee</th>
-              <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Status</th>
-              <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Priority</th>
-              <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Deadline</th>
-              <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Completion</th>
-              <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400"></th>
+              <th className="px-4 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400">Task Details</th>
+              <th className="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400">Assignee</th>
+              <th className="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400">Status</th>
+              <th className="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400">Priority</th>
+              <th className="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400">Deadline</th>
+              <th className="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400">Completion</th>
+              <th className="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100/50">
@@ -263,7 +263,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
                       }`}
                     >
                       {isSelected && (
-                        <span className="material-symbols-outlined text-white text-[14px]">check</span>
+                        <span className="material-symbols-outlined text-white text-sm">check</span>
                       )}
                     </button>
                   </td>
@@ -275,14 +275,14 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
                       >
                         {item.title}
                       </span>
-                      <span className="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-widest">{item.type}</span>
+                      <span className="text-xs font-black text-slate-400 mt-1 uppercase tracking-widest">{item.type}</span>
                     </div>
                   </td>
                   <td className="px-8 py-5">
                     <span className="text-xs font-bold text-on-surface-variant">{assignee?.fullName || 'Unassigned'}</span>
                   </td>
                   <td className="px-8 py-5">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                    <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border ${
                       item.status === 'Done' || item.status === 'Won' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                       item.status === 'In Progress' || item.status === 'Doing' ? 'bg-primary/5 text-primary border-primary/10' :
                       'bg-slate-50 text-slate-500 border-slate-100'
@@ -292,7 +292,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
                   </td>
                   <td className="px-8 py-5">
                     {item.priority && (
-                      <span className={`flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest w-fit border ${
+                      <span className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest w-fit border ${
                         item.priority === 'Urgent' ? 'bg-error/5 text-error border-error/10' :
                         item.priority === 'High' ? 'bg-orange-50 text-orange-600 border-orange-100' :
                         'bg-slate-50 text-slate-500 border-slate-100'
@@ -304,7 +304,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
                   </td>
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-2 text-xs font-bold text-on-surface-variant">
-                      <span className="material-symbols-outlined text-[16px] text-slate-400">event</span>
+                      <span className="material-symbols-outlined text-base text-slate-400">event</span>
                       {item.dueDate ? new Date(item.dueDate).toLocaleDateString('vi-VN') : '-'}
                     </div>
                   </td>
@@ -316,7 +316,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
                           style={{ width: `${progress}%` }}
                         ></div>
                       </div>
-                      <span className="text-[10px] font-black text-on-surface-variant w-8">{progress}%</span>
+                      <span className="text-xs font-black text-on-surface-variant w-8">{progress}%</span>
                     </div>
                   </td>
                   <td className="px-8 py-5 text-right relative">
@@ -324,7 +324,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
                       onClick={() => setOpenMenuId(openMenuId === item.id ? null : item.id)}
                       className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
                     >
-                      <span className="material-symbols-outlined text-[20px]">more_horiz</span>
+                      <span className="material-symbols-outlined text-lg">more_horiz</span>
                     </button>
                     <AnimatePresence>
                       {openMenuId === item.id && (

@@ -87,6 +87,36 @@
 }
 
 @layer base {
+  /* Fluid typography scaling for responsive layouts (REM scales uniformly) */
+  html {
+    font-size: 13px; /* Mobile / Smallest devices */
+  }
+  @media (min-width: 768px) {
+    html {
+      font-size: 13px; /* Tablet */
+    }
+  }
+  @media (min-width: 1024px) {
+    html {
+      font-size: 14px; /* Small laptops (1280x800, 1366x768) */
+    }
+  }
+  @media (min-width: 1440px) {
+    html {
+      font-size: 15px; /* Medium laptops (Macbook Pro 14", 1440px logic res) */
+    }
+  }
+  @media (min-width: 1600px) {
+    html {
+      font-size: 16px; /* Standard 1080p, smaller 2K */
+    }
+  }
+  @media (min-width: 1920px) {
+    html {
+      font-size: 17px; /* 2K and 4K Screens */
+    }
+  }
+
   body {
     @apply bg-surface text-on-surface font-sans antialiased;
   }

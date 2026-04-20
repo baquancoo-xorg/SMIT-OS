@@ -32,12 +32,12 @@ export default function CustomFilter({
           <ListboxButton
             className={`
               flex items-center gap-2
-              px-4 py-2 rounded-full
+              h-10 px-4 rounded-full
               bg-slate-50 border border-slate-200
               hover:bg-slate-100 hover:border-slate-300
               focus:border-primary focus:ring-2 focus:ring-primary/20
               outline-none transition-all cursor-pointer
-              text-xs font-bold uppercase tracking-widest
+              text-[10px] font-bold uppercase tracking-widest
             `}
           >
             {icon && <span className="text-slate-400">{icon}</span>}
@@ -60,7 +60,8 @@ export default function CustomFilter({
               >
               <ListboxOptions
                 static
-                className="absolute z-50 mt-2 min-w-[160px] bg-white rounded-3xl shadow-lg overflow-hidden"
+                anchor={{ to: 'bottom start', gap: 8 }}
+                className="z-[200] min-w-[160px] bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden focus:outline-none"
               >
                 {options.map((option) => (
                   <ListboxOption key={option.value} value={option.value} as={Fragment}>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Calendar, ChevronDown } from 'lucide-react';
 import { format, subDays, startOfMonth } from 'date-fns';
+import DatePicker from '../../ui/date-picker';
 
 export interface DateRangeValue {
   from: string;
@@ -58,7 +59,7 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
         className="flex items-center gap-2 h-10 px-5 text-[10px] font-black uppercase tracking-widest rounded-full bg-white shadow-sm hover:shadow-md transition-all"
       >
         <Calendar className="h-3 w-3 text-primary" />
-        <span className="text-slate-700 normal-case font-medium text-sm">
+        <span className="text-slate-700 font-black text-[10px]">
           {value.from} → {value.to}
         </span>
         <ChevronDown className={`h-3 w-3 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
@@ -67,49 +68,39 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
       {isOpen && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => { setIsOpen(false); setShowCustom(false); }} />
-          <div className="absolute right-0 top-full mt-2 z-20 bg-white rounded-xl shadow-lg p-2 min-w-[220px]">
+          <div className="absolute right-0 top-full mt-2 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden min-w-[200px]">
             {!showCustom ? (
-              <>
+              <div className="py-1.5">
                 {PRESETS.map((p) => (
                   <button
                     key={p.label}
                     type="button"
                     onClick={() => handlePresetClick(p)}
-                    className="w-full text-left px-3 py-2 text-sm text-slate-600 hover:bg-[#0059B6]/5 hover:text-slate-900 rounded-md transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-sm text-slate-600 hover:bg-primary/5 hover:text-slate-900 transition-colors"
                   >
                     {p.label}
                   </button>
                 ))}
-                <hr className="my-2 border-slate-100" />
+                <div className="mx-3 my-1 border-t border-slate-100" />
                 <button
                   type="button"
                   onClick={handleCustomClick}
-                  className="w-full text-left px-3 py-2 text-sm text-[#0059B6] font-medium hover:bg-[#0059B6]/5 rounded-md transition-colors"
+                  className="w-full text-left px-4 py-2.5 text-sm text-primary font-semibold hover:bg-primary/5 transition-colors"
                 >
                   Custom...
                 </button>
-              </>
+              </div>
             ) : (
               <div className="p-2 space-y-4">
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Chọn khoảng thời gian</p>
                 <div className="space-y-3">
                   <div>
                     <label className="text-xs font-medium text-slate-600 mb-1.5 block">Từ ngày</label>
-                    <input
-                      type="date"
-                      value={customFrom}
-                      onChange={(e) => setCustomFrom(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#0059B6]/30 focus:border-[#0059B6] transition-all [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:hover:opacity-100"
-                    />
+                    <DatePicker value={customFrom} onChange={setCustomFrom} className="w-full" />
                   </div>
                   <div>
                     <label className="text-xs font-medium text-slate-600 mb-1.5 block">Đến ngày</label>
-                    <input
-                      type="date"
-                      value={customTo}
-                      onChange={(e) => setCustomTo(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#0059B6]/30 focus:border-[#0059B6] transition-all [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:hover:opacity-100"
-                    />
+                    <DatePicker value={customTo} onChange={setCustomTo} className="w-full" />
                   </div>
                 </div>
                 <div className="flex gap-2 pt-1">

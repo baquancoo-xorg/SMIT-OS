@@ -53,12 +53,12 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
           <thead>
             {/* Column order: Created at → Reporter → Status → Department → Week → Sprint */}
             <tr className="bg-slate-50/50 border-b border-outline-variant/10">
-              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Created at</th>
-              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[150px]">Reporter</th>
-              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[90px]">Status</th>
-              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Department</th>
-              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[180px]">Week</th>
-              <th className="px-4 md:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Sprint</th>
+              <th className="px-4 md:px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Created at</th>
+              <th className="px-4 md:px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 min-w-[150px]">Reporter</th>
+              <th className="px-4 md:px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 min-w-[90px]">Status</th>
+              <th className="px-4 md:px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Department</th>
+              <th className="px-4 md:px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 min-w-[180px]">Week</th>
+              <th className="px-4 md:px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Sprint</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100/50">
@@ -79,7 +79,7 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
                   {/* Created at */}
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-2 text-sm text-on-surface-variant">
-                      <span className="material-symbols-outlined text-[16px] text-slate-400">calendar_today</span>
+                      <span className="material-symbols-outlined text-base text-slate-400">calendar_today</span>
                       {formatDate(report.createdAt)}
                     </div>
                   </td>
@@ -94,7 +94,7 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
                         <span className="text-sm font-black text-on-surface group-hover:text-primary transition-colors">
                           {user?.fullName || 'Unknown'}
                         </span>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
                           {user?.role || 'N/A'}
                         </span>
                       </div>
@@ -103,7 +103,7 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
 
                   {/* Status */}
                   <td className="px-8 py-5">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                    <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${
                       report.status === 'Approved'
                         ? 'bg-emerald-100 text-emerald-700'
                         : 'bg-amber-100 text-amber-700'
@@ -116,7 +116,7 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
                   <td className="px-8 py-5">
                     <div className="flex flex-wrap gap-1">
                       {user?.departments?.map(dept => (
-                        <span key={dept} className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                        <span key={dept} className={`px-2 py-0.5 rounded-full text-xs font-black uppercase tracking-widest border ${
                           dept === 'Tech' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                           dept === 'Marketing' ? 'bg-orange-50 text-orange-600 border-orange-100' :
                           dept === 'Media' ? 'bg-pink-50 text-pink-600 border-pink-100' :
@@ -125,14 +125,14 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
                         }`}>
                           {dept}
                         </span>
-                      )) || <span className="text-slate-400 text-[10px]">N/A</span>}
+                      )) || <span className="text-slate-400 text-xs">N/A</span>}
                     </div>
                   </td>
 
                   {/* Week - Format: DD/MM/YYYY - DD/MM/YYYY (W15) */}
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-2 text-sm text-on-surface-variant">
-                      <span className="material-symbols-outlined text-[16px] text-slate-400">date_range</span>
+                      <span className="material-symbols-outlined text-base text-slate-400">date_range</span>
                       <span>
                         {weekStart.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })} - {weekEnding.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                       </span>
@@ -145,7 +145,7 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
                   {/* Sprint */}
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[16px] text-primary">track_changes</span>
+                      <span className="material-symbols-outlined text-base text-primary">track_changes</span>
                       <span className="text-sm font-bold text-on-surface">
                         {sprint ? sprint.name : 'N/A'}
                       </span>

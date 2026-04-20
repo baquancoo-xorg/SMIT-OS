@@ -102,7 +102,7 @@ export default function SprintBoard() {
       fetch('/api/work-items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...task, id: undefined, assigneeId: currentUser?.id, sprintId: selectedSprintId || null }),
+        body: JSON.stringify({ ...task, id: undefined, sprintId: selectedSprintId || null }),
       }).then(r => r.json()).then(data => setItems(prev => [data, ...prev]))
         .catch(err => console.error('Failed to create task:', err));
     }

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import WeeklyCheckinModal from '../components/modals/WeeklyCheckinModal';
 import ReportTableView from '../components/board/ReportTableView';
 import ReportDetailDialog from '../components/modals/ReportDetailDialog';
-import { Plus } from 'lucide-react';
+import PrimaryActionButton from '../components/ui/PrimaryActionButton';
 import { useAuth } from '../contexts/AuthContext';
 import { WeeklyReport, Sprint } from '../types';
 
@@ -132,27 +132,23 @@ export default function SaturdaySync() {
         <div>
           <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
             <span className="hover:text-primary cursor-pointer">Rituals</span>
-            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+            <span className="material-symbols-outlined text-sm">chevron_right</span>
             <span className="text-on-surface">Weekly Report</span>
           </nav>
           <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Saturday <span className="text-tertiary italic">Sync</span></h2>
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 h-10 bg-primary text-white px-5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all"
-          >
-            <span className="material-symbols-outlined text-[14px]">add</span>
+          <PrimaryActionButton onClick={() => setIsModalOpen(true)}>
             New Report
-          </button>
+          </PrimaryActionButton>
         </div>
       </section>
 
       {/* Team Confidence Metrics - M9: 2x2 grid on small screens */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 shrink-0">
         <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm flex flex-col gap-2">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Average Confidence</p>
+          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Average Confidence</p>
           <div className="flex items-baseline gap-1">
             <h4 className="text-3xl font-black font-headline">{averageConfidence}</h4>
             <span className="text-xs font-bold text-slate-400">/10</span>
@@ -162,23 +158,23 @@ export default function SaturdaySync() {
           </div>
         </div>
         <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm flex flex-col gap-2">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Approved</p>
+          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Approved</p>
           <h4 className="text-3xl font-black font-headline text-emerald-600">{approvedReports}</h4>
-          <p className="text-[10px] font-bold mt-1 text-emerald-500">
+          <p className="text-xs font-bold mt-1 text-emerald-500">
             {reports.length > 0 ? Math.round((approvedReports / reports.length) * 100) : 0}% of total
           </p>
         </div>
         <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm flex flex-col gap-2">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Review</p>
+          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Pending Review</p>
           <h4 className={`text-3xl font-black font-headline ${pendingReports > 0 ? 'text-amber-600' : 'text-slate-400'}`}>{pendingReports}</h4>
-          <p className={`text-[10px] font-bold mt-1 ${pendingReports > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>
+          <p className={`text-xs font-bold mt-1 ${pendingReports > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>
             {pendingReports > 0 ? 'Need attention' : 'All clear'}
           </p>
         </div>
         <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm flex flex-col gap-2">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Next Sync</p>
+          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Next Sync</p>
           <h4 className="text-xl font-black font-headline">{nextSyncTime}</h4>
-          <p className="text-[10px] font-bold text-slate-400 mt-1">Office Meeting Room</p>
+          <p className="text-xs font-bold text-slate-400 mt-1">Office Meeting Room</p>
         </div>
       </div>
 

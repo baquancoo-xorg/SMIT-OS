@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const LEAD_STATUSES = [
+  'Mới',
   'Đang liên hệ',
   'Đang nuôi dưỡng',
   'Qualified',

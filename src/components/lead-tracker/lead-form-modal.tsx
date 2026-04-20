@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import type { Lead } from '../../types';
 
-const LEAD_STATUSES = ['Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'] as const;
+const LEAD_STATUSES = ['Mới', 'Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'] as const;
 const LEAD_TYPES = ['Việt Nam', 'Quốc Tế'] as const;
 
 interface Props {

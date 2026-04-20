@@ -11,6 +11,7 @@ interface TaskModalProps {
   onSave: (task: WorkItem) => void;
   defaultType?: WorkItemType;
   defaultStatus?: string;
+  defaultParentId?: string;
   initialData?: WorkItem | null;
   allowedTypes?: WorkItemType[];
 }
@@ -35,6 +36,7 @@ export default function TaskModal({
   onSave,
   defaultType = 'TechTask',
   defaultStatus = 'Todo',
+  defaultParentId,
   initialData,
   allowedTypes,
 }: TaskModalProps) {
@@ -56,9 +58,9 @@ export default function TaskModal({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const typeOptions = allowedTypes || ALL_TYPES;
 
-  // Fetch available parents (Epic/UserStory) for edit mode
+  // Fetch available parents (Epic/UserStory) for both create and edit mode
   useEffect(() => {
-    if (!isOpen || !initialData) return;
+    if (!isOpen) return;
 
     const fetchParents = async () => {
       setLoadingParents(true);
@@ -79,7 +81,7 @@ export default function TaskModal({
     };
 
     fetchParents();
-  }, [isOpen, initialData]);
+  }, [isOpen, initialData?.id]);
 
   // Update state when initialData changes
   useEffect(() => {
@@ -102,10 +104,10 @@ export default function TaskModal({
       setStatus(defaultStatus);
       setDueDate('');
       setStartDate('');
-      setParentId(undefined);
+      setParentId(defaultParentId);
     }
     setErrors({});
-  }, [initialData, defaultType, defaultStatus, isOpen, users]);
+  }, [initialData, defaultType, defaultStatus, defaultParentId, isOpen]);
 
   if (!isOpen) return null;
 
@@ -140,7 +142,7 @@ export default function TaskModal({
     onClose();
   };
 
-  const showParentSelect = initialData && type !== 'Epic';
+  const showParentSelect = type !== 'Epic';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">

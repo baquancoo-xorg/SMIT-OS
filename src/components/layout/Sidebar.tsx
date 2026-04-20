@@ -14,16 +14,16 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
   const { currentUser } = useAuth();
 
   return (
-    <aside className="h-full flex flex-col p-4 md:p-6 xl:p-6 bg-white/70 backdrop-blur-xl rounded-r-3xl w-64 xl:w-72 shadow-2xl z-50">
-      <div className="flex flex-col items-start mb-10 px-4">
-        <h1 className="text-2xl font-bold tracking-tight text-primary font-headline leading-none">SMIT OS</h1>
+    <aside className="h-full flex flex-col p-4 md:p-5 xl:p-5 bg-white/70 backdrop-blur-xl rounded-r-3xl w-60 xl:w-64 shadow-2xl z-50">
+      <div className="flex flex-col items-start mb-5 px-3">
+        <h1 className="text-xl font-bold tracking-tight text-primary font-headline leading-none">SMIT OS</h1>
         <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest mt-1">The Kinetic Workspace</p>
       </div>
 
-      <nav className="flex-1 space-y-8 overflow-y-auto overflow-x-visible custom-scrollbar px-1">
+      <nav className="flex-1 space-y-4 overflow-y-auto overflow-x-visible custom-scrollbar px-1">
         {/* Analytics */}
         <div className="space-y-2">
-          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Analytics</p>
+          <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Analytics</p>
           <NavItem
             icon="grid_view"
             label="Overview"
@@ -40,7 +40,7 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
 
         {/* Workspaces */}
         <div className="space-y-2">
-          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Workspaces</p>
+          <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Workspaces</p>
           <NavItem
             icon="terminal"
             label="Tech & Product"
@@ -69,7 +69,7 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
 
         {/* Planning */}
         <div className="space-y-2">
-          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Planning</p>
+          <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Planning</p>
           <NavItem
             icon="track_changes"
             label="OKRs"
@@ -83,6 +83,12 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
             onClick={() => onViewChange('backlog')}
           />
           <NavItem
+            icon="flag"
+            label="Epic Board"
+            active={currentView === 'epics'}
+            onClick={() => onViewChange('epics')}
+          />
+          <NavItem
             icon="sprint"
             label="Sprint Board"
             active={currentView === 'sprint'}
@@ -92,7 +98,7 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
 
         {/* Rituals */}
         <div className="space-y-2">
-          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Rituals</p>
+          <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Rituals</p>
           <NavItem
             icon="event_note"
             label="Daily Sync"
@@ -108,7 +114,7 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
         </div>
         {/* CRM */}
         <div className="space-y-2">
-          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">CRM</p>
+          <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">CRM</p>
           <NavItem
             icon="person_search"
             label="Lead Tracker"
@@ -153,18 +159,18 @@ const NavItem = memo(function NavItem({ icon, label, active, onClick }: { icon: 
     <button
       type="button"
       onClick={onClick}
-      className={`w-full text-left flex items-center gap-4 px-4 py-3 min-h-[48px] rounded-full cursor-pointer transition-all duration-200 ease-in-out group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${active
+      className={`w-full text-left flex items-center gap-2.5 px-3 py-1.5 min-h-[34px] rounded-full cursor-pointer transition-all duration-200 ease-in-out group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${active
         ? 'text-primary font-bold bg-primary/10 border border-primary/20'
         : 'text-slate-500 hover:text-primary hover:bg-slate-50 border border-transparent'
         }`}
       aria-current={active ? 'page' : undefined}
     >
       {typeof icon === 'string' ? (
-        <span className="material-symbols-outlined" style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>{icon}</span>
+        <span className="material-symbols-outlined" style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0", fontSize: '20px' }}>{icon}</span>
       ) : (
         icon
       )}
-      <span className="font-medium">{label}</span>
+      <span className="font-medium text-sm">{label}</span>
     </button>
   );
 });

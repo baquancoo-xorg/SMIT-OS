@@ -1,5 +1,6 @@
 import React from 'react';
-import { X, Send, History, AlertOctagon, Target, CalendarClock } from 'lucide-react';
+import { X, Send, History, AlertOctagon, Target } from 'lucide-react';
+import DatePicker from '../ui/date-picker';
 import { TeamType } from '../../types/daily-report-metrics';
 import { getTeamColors, getTeamDisplayName } from '../../utils/team-detection';
 
@@ -69,19 +70,16 @@ export default function DailyReportBase({
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center bg-black/20 p-2.5 rounded-3xl border border-white/20">
-              <CalendarClock size={18} className="text-white/70 mr-2" />
-              <div className="flex flex-col">
-                <label className="text-[10px] text-white/70 font-bold uppercase tracking-wider leading-none mb-1">
-                  Ngày báo cáo
-                </label>
-                <input
-                  type="date"
-                  value={reportDate}
-                  onChange={(e) => onDateChange(e.target.value)}
-                  className="bg-transparent text-white text-sm font-bold focus:outline-none cursor-pointer [color-scheme:dark] p-0 border-0 leading-none"
-                />
-              </div>
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider">
+                Ngày báo cáo
+              </span>
+              <DatePicker
+                value={reportDate}
+                onChange={onDateChange}
+                placeholder="Chọn ngày"
+                variant="dark"
+              />
             </div>
             <button
               onClick={onClose}

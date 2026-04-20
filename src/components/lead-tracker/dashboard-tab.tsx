@@ -1,29 +1,25 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { CheckCircle2, XCircle, Clock, ArrowUpRight, TrendingUp } from 'lucide-react';
 import { api } from '../../lib/api';
 import type { Lead } from '../../types';
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 
-function getMonthRange() {
-  const now = new Date();
-  const from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-  const to = now.toISOString().slice(0, 10);
-  return { from, to };
-}
-
 function getWeekKey(dateStr: string) {
   const d = new Date(dateStr);
   const week = Math.ceil(d.getDate() / 7);
-  return `T${d.getMonth() + 1}/W${week}`;
+  return `M${d.getMonth() + 1}/W${week}`;
 }
 
-export default function DashboardTab() {
+interface Props {
+  dateFrom: string;
+  dateTo: string;
+}
+
+export default function DashboardTab({ dateFrom, dateTo }: Props) {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
-  const def = getMonthRange();
-  const [dateFrom, setDateFrom] = useState(def.from);
-  const [dateTo, setDateTo] = useState(def.to);
 
   const fetchLeads = useCallback(async () => {
     setLoading(true);
@@ -44,7 +40,6 @@ export default function DashboardTab() {
   const unqualified = leads.filter((l) => l.status === 'Unqualified').length;
   const pending = leads.filter((l) => l.status !== 'Qualified' && l.status !== 'Unqualified').length;
 
-  // Weekly bar chart: added vs processed per week, per AE
   const weekMap = new Map<string, { week: string; added: number; processed: number }>();
   leads.forEach((l) => {
     const wk = getWeekKey(l.receivedDate.slice(0, 10));
@@ -58,7 +53,6 @@ export default function DashboardTab() {
   });
   const weekData = [...weekMap.values()].sort((a, b) => a.week.localeCompare(b.week));
 
-  // Remaining trend (cumulative by date)
   const dateMap = new Map<string, number>();
   let remaining = 0;
   const sortedByDate = [...leads].sort((a, b) => a.receivedDate.localeCompare(b.receivedDate));
@@ -79,65 +73,122 @@ export default function DashboardTab() {
     .map(([date, rem]) => ({ date, remaining: rem }));
 
   return (
-    <div className="space-y-6">
-      <div className="flex gap-3 items-center">
-        <label className="text-sm text-slate-500">Từ</label>
-        <input type="date" className="border border-slate-200 rounded-xl px-3 py-2 text-sm" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
-        <label className="text-sm text-slate-500">đến</label>
-        <input type="date" className="border border-slate-200 rounded-xl px-3 py-2 text-sm" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
-      </div>
-
+    <div className="space-y-4">
       {loading ? (
-        <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary" /></div>
+        <div className="flex items-center justify-center py-16">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" />
+        </div>
       ) : (
-        <>
-          {/* KPI Cards */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="bg-white rounded-2xl shadow-sm p-5">
-              <p className="text-xs font-medium text-slate-500 mb-1">Qualified</p>
-              <p className="text-3xl font-bold text-emerald-600">{qualified}</p>
-            </div>
-            <div className="bg-white rounded-2xl shadow-sm p-5">
-              <p className="text-xs font-medium text-slate-500 mb-1">Unqualified</p>
-              <p className="text-3xl font-bold text-red-500">{unqualified}</p>
-            </div>
-            <div className="bg-white rounded-2xl shadow-sm p-5">
-              <p className="text-xs font-medium text-slate-500 mb-1">Đang xử lý</p>
-              <p className="text-3xl font-bold text-amber-500">{pending}</p>
-            </div>
+        <div className="space-y-4">
+          {/* KPI cards — horizontal row */}
+          <div className="grid grid-cols-3 gap-3">
+            <KPICard
+              label="Qualified"
+              value={qualified}
+              icon={<CheckCircle2 size={18} className="text-emerald-500" />}
+              color="emerald"
+              desc="Leads validated"
+            />
+            <KPICard
+              label="Unqualified"
+              value={unqualified}
+              icon={<XCircle size={18} className="text-rose-500" />}
+              color="rose"
+              desc="Leads rejected"
+            />
+            <KPICard
+              label="In Progress"
+              value={pending}
+              icon={<Clock size={18} className="text-amber-500" />}
+              color="amber"
+              desc="Awaiting resolution"
+            />
           </div>
 
-          {/* Bar chart: added vs processed by week */}
-          <div className="bg-white rounded-2xl shadow-sm p-5">
-            <h3 className="text-sm font-semibold text-slate-700 mb-4">Thêm mới vs Xử lý theo tuần</h3>
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={weekData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="week" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="added" name="Thêm mới" fill="#6366f1" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="processed" name="Xử lý" fill="#10b981" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {/* Charts — side by side */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Weekly Performance</h3>
+                  <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">New vs Processed</p>
+                </div>
+                <div className="size-7 bg-slate-50 text-slate-400 rounded-lg flex items-center justify-center">
+                  <ArrowUpRight size={14} />
+                </div>
+              </div>
+              <div className="h-[180px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={weekData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="week" tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} axisLine={false} tickLine={false} dy={8} />
+                    <YAxis tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(12px)', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
+                      itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
+                    />
+                    <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', paddingTop: '10px' }} />
+                    <Bar dataKey="added" name="New" fill="#0059b6" radius={[4, 4, 0, 0]} barSize={16} />
+                    <Bar dataKey="processed" name="Processed" fill="#10b981" radius={[4, 4, 0, 0]} barSize={16} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
 
-          {/* Line chart: remaining trend */}
-          <div className="bg-white rounded-2xl shadow-sm p-5">
-            <h3 className="text-sm font-semibold text-slate-700 mb-4">Tồn cuối ngày</h3>
-            <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={trendData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Line type="monotone" dataKey="remaining" name="Tồn" stroke="#f59e0b" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
+            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Backlog Trend</h3>
+                  <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">Unresolved leads end-of-day</p>
+                </div>
+                <div className="size-7 bg-slate-50 text-slate-400 rounded-lg flex items-center justify-center">
+                  <TrendingUp size={14} />
+                </div>
+              </div>
+              <div className="h-[180px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={trendData} margin={{ top: 0, right: 16, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="date" tick={{ fontSize: 9, fontWeight: 700, fill: '#94a3b8' }} axisLine={false} tickLine={false} dy={8} />
+                    <YAxis tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(12px)', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
+                      itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
+                    />
+                    <Line type="monotone" dataKey="remaining" name="Backlog" stroke="#f59e0b" strokeWidth={2.5} dot={{ r: 3, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 5, strokeWidth: 0 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
-        </>
+        </div>
       )}
+    </div>
+  );
+}
+
+function KPICard({ label, value, icon, color, desc }: { label: string; value: number; icon: React.ReactNode; color: string; desc: string }) {
+  const colorBg: Record<string, string> = {
+    emerald: 'bg-emerald-50 border-emerald-100',
+    rose: 'bg-rose-50 border-rose-100',
+    amber: 'bg-amber-50 border-amber-100',
+  };
+
+  return (
+    <div className={`p-4 rounded-2xl border ${colorBg[color]} flex items-center justify-between`}>
+      <div className="flex items-center gap-3">
+        <div className="size-8 bg-white rounded-xl shadow-sm flex items-center justify-center">
+          {icon}
+        </div>
+        <div>
+          <p className="text-xs font-black uppercase tracking-widest text-slate-700">{label}</p>
+          <p className="text-[10px] font-medium text-slate-400 mt-0.5">{desc}</p>
+        </div>
+      </div>
+      <div className="text-right">
+        <span className="text-2xl font-black text-slate-900 tracking-tighter">{value}</span>
+        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">leads</p>
+      </div>
     </div>
   );
 }
