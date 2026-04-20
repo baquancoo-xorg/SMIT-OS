@@ -19,15 +19,16 @@ import Profile from './pages/Profile';
 import LoginPage from './pages/LoginPage';
 import DashboardOverview from './pages/DashboardOverview';
 import SprintBoard from './pages/SprintBoard';
+import LeadTracker from './pages/LeadTracker';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'backlog' | 'mkt' | 'media' | 'sale' | 'sync' | 'daily-sync' | 'settings' | 'profile' | 'ads-overview' | 'sprint';
+export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'backlog' | 'mkt' | 'media' | 'sale' | 'sync' | 'daily-sync' | 'settings' | 'profile' | 'ads-overview' | 'sprint' | 'lead-tracker';
 
 function AppContent() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const { currentUser, loading, logout } = useAuth();
 
-  const SCROLLABLE_VIEWS: ViewType[] = ['okrs', 'settings', 'profile', 'sync', 'daily-sync', 'ads-overview'];
+  const SCROLLABLE_VIEWS: ViewType[] = ['okrs', 'settings', 'profile', 'sync', 'daily-sync', 'ads-overview', 'lead-tracker'];
 
   if (loading) {
     return (
@@ -56,6 +57,7 @@ function AppContent() {
       {currentView === 'profile' && <Profile key="profile" />}
       {currentView === 'ads-overview' && <DashboardOverview key="ads-overview" />}
       {currentView === 'sprint' && <SprintBoard key="sprint" />}
+      {currentView === 'lead-tracker' && <LeadTracker key="lead-tracker" />}
     </AppLayout>
   );
 }

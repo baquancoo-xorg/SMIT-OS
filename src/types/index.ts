@@ -145,6 +145,30 @@ export interface DailyReport {
   updatedAt: string;
 }
 
+export interface Lead {
+  id: string;
+  customerName: string;
+  ae: string;
+  receivedDate: string;
+  resolvedDate?: string | null;
+  status: string;
+  leadType?: string | null;
+  unqualifiedType?: string | null;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LeadDailyStat {
+  date: string;
+  ae: string;
+  added: number;
+  processed: number;
+  remaining: number;
+  dailyRate: number | null;
+  totalRate: number | null;
+}
+
 export interface DailyReportTasksData {
   completedYesterday: string[];
   doingYesterday: string[];

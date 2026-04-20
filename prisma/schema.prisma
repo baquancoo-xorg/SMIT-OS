@@ -163,6 +163,25 @@ model DailyReport {
   updatedAt   DateTime  @updatedAt
 }
 
+model Lead {
+  id              String    @id @default(uuid())
+  customerName    String
+  ae              String    // User.fullName where department=Sale
+  receivedDate    DateTime
+  resolvedDate    DateTime?
+  status          String    // "Dang lien he" | "Dang nuoi duong" | "Qualified" | "Unqualified"
+  leadType        String?   // "Viet Nam" | "Quoc Te"
+  unqualifiedType String?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([ae, receivedDate])
+  @@index([ae, resolvedDate])
+  @@index([status])
+  @@index([receivedDate])
+}
+
 model OkrCycle {
   id        String   @id @default(uuid())
   name      String   // e.g., "Q2/2026"

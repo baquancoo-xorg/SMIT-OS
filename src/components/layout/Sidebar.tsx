@@ -106,6 +106,16 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
             onClick={() => onViewChange('sync')}
           />
         </div>
+        {/* CRM */}
+        <div className="space-y-2">
+          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">CRM</p>
+          <NavItem
+            icon="person_search"
+            label="Lead Tracker"
+            active={currentView === 'lead-tracker'}
+            onClick={() => onViewChange('lead-tracker')}
+          />
+        </div>
       </nav>
 
       <div className="mt-auto pt-6 border-t border-slate-100">

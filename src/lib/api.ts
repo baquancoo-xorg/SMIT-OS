@@ -55,6 +55,24 @@ class ApiClient {
   delete(endpoint: string) {
     return this.fetch(endpoint, { method: 'DELETE' });
   }
+
+  getLeads(params?: Record<string, string>) {
+    const qs = params ? `?${new URLSearchParams(params)}` : '';
+    return this.get<import('../types').Lead[]>(`/leads${qs}`);
+  }
+
+  createLead(data: unknown) { return this.post<import('../types').Lead>('/leads', data); }
+
+  updateLead(id: string, data: unknown) { return this.put<import('../types').Lead>(`/leads/${id}`, data); }
+
+  deleteLead(id: string) { return this.delete(`/leads/${id}`); }
+
+  getLeadDailyStats(params?: Record<string, string>) {
+    const qs = params ? `?${new URLSearchParams(params)}` : '';
+    return this.get<import('../types').LeadDailyStat[]>(`/leads/daily-stats${qs}`);
+  }
+
+  getLeadAeList() { return this.get<{ id: string; fullName: string }[]>('/leads/ae-list'); }
 }
 
 export const api = new ApiClient();

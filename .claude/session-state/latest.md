@@ -1,13 +1,13 @@
 # Session State
-<!-- Generated: 2026-04-20T05:48:57.101Z -->
+<!-- Generated: 2026-04-20T06:44:20.285Z -->
 <!-- Branch: unknown -->
 <!-- Plan: none -->
 
 ## What Worked (Verified)
-- Tạo src/pages/SprintBoard.tsx
-- Cập nhật App.tsx: thêm 'sprint' ViewType
-- Cập nhật Sidebar.tsx: thêm NavItem Sprint Board
-- Cập nhật Header.tsx + SprintContextWidget.tsx: đổi navigation
+- Phase 01: Add Lead model to Prisma schema & run db:push
+- Phase 02: Create lead.schema.ts & lead.routes.ts, register in server.ts
+- Phase 03: Add types, API methods, create 4 frontend components
+- Phase 04: Create LeadTracker page, update App.tsx & Sidebar.tsx
 
 ## What's Left
 - (All tasks completed)
@@ -323,23 +323,12 @@
 - Completed at 19:36:50
 
 ## Key Files Modified
-- .claude/session-state/archive/20260419-2239.md
-- .claude/session-state/archive/20260420-0221.md
-- .claude/session-state/archive/20260420-0231.md
-- .claude/session-state/archive/20260420-0237.md
-- .claude/session-state/archive/20260420-0245.md
+- .claude/session-state/archive/20260420-1237.md
+- .claude/session-state/archive/20260420-1241.md
 - .claude/session-state/latest.md
-- server/routes/sprint.routes.ts
-- server/services/dashboard/overview-cohort.service.ts
-- server/services/dashboard/overview-helpers.ts
-- server/services/dashboard/overview-kpi.service.ts
-- server/types/dashboard-overview.types.ts
+- prisma/schema.prisma
+- server.ts
 - src/App.tsx
-- src/components/board/TaskModal.tsx
-- src/components/dashboard/overview/KpiTable.tsx
-- src/components/layout/Header.tsx
 - src/components/layout/Sidebar.tsx
-- src/components/layout/SprintContextWidget.tsx
-- src/pages/DailySync.tsx
-- src/pages/PMDashboard.tsx
-- src/types/dashboard-overview.ts
+- src/lib/api.ts
+- src/types/index.ts
