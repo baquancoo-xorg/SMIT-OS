@@ -42,6 +42,8 @@ export interface KpiMetricsRow {
   prePqlRate: number;
   pql: number;
   pqlRate: number;
+  preSql: number;
+  preSqlRate: number;
   sql: number;
   sqlRate: number;
 }

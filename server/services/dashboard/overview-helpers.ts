@@ -71,6 +71,7 @@ export function createEmptyKpiRow(date: string) {
     mqlGold: 0, mqlGoldRate: 0,
     prePql: 0, prePqlRate: 0,
     pql: 0, pqlRate: 0,
+    preSql: 0, preSqlRate: 0,
     sql: 0, sqlRate: 0,
   };
 }

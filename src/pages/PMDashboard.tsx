@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Objective, WorkItem, User, Sprint, WeeklyReport } from '../types';
 import {
-  CheckCircle2,
   Zap,
   Users,
   Calendar,
@@ -202,29 +201,6 @@ export default function PMDashboard() {
     }));
   }, [workItems]);
 
-  // ==================== Tier 3: Mission Control ====================
-
-  // Needs PM Attention
-  const urgentItems = workItems
-    .filter(item => item.priority === 'Urgent' && item.status !== 'Done')
-    .slice(0, 5)
-    .map(item => {
-      const assignee = users.find(u => u.id === item.assigneeId);
-      return {
-        ...item,
-        assigneeName: assignee?.fullName || 'Unassigned'
-      };
-    });
-
-  // Critical Objectives (progress < 30%)
-  const criticalObjectives = objectives
-    .filter(obj => obj.progressPercentage < 30)
-    .sort((a, b) => a.progressPercentage - b.progressPercentage)
-    .slice(0, 5);
-
-  const handlePingUser = async (workItemId: string) => {
-    alert(`Reminder sent for work item: ${workItemId}`);
-  };
 
   if (loading || !currentUser) {
     return (
@@ -456,109 +432,6 @@ export default function PMDashboard() {
               <p>Insufficient data for velocity chart</p>
             </div>
           )}
-        </div>
-      </section>
-
-      {/* ==================== Tier 3: Action Panels (50/50) ==================== */}
-      <section className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
-        {/* Left: Needs PM Attention */}
-        <div className="bg-white rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm p-5 md:p-6 lg:p-8">
-          <div className="flex items-center gap-2 mb-4 md:mb-6">
-            <h3 className="text-base md:text-lg font-black font-headline text-on-surface">
-              Needs PM Attention
-            </h3>
-            {urgentItems.length > 0 && (
-              <span className="ml-auto px-3 py-1 bg-error/10 text-error text-xs font-bold rounded-full">
-                {urgentItems.length}
-              </span>
-            )}
-          </div>
-          {urgentItems.length > 0 ? (
-            <div className="space-y-3 max-h-[280px] overflow-y-auto scrollbar-hide">
-              {urgentItems.map(item => (
-                <div
-                  key={item.id}
-                  className="flex items-start gap-4 p-4 bg-slate-50/50 rounded-2xl hover:bg-slate-50 transition-colors border border-outline-variant/10"
-                >
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-on-surface truncate text-sm">{item.title}</h4>
-                    <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
-                      <div className="flex items-center gap-1">
-                        <Users size={14} />
-                        <span>{item.assigneeName}</span>
-                      </div>
-                      <span className="px-2 py-0.5 bg-error/10 text-error rounded-full font-medium">
-                        {item.status}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handlePingUser(item.id)}
-                    className="px-4 py-2 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-full hover:scale-95 transition-transform"
-                  >
-                    Ping
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="h-[280px] flex items-center justify-center">
-              <div className="text-center">
-                <CheckCircle2 size={48} className="mx-auto mb-3 text-tertiary" />
-                <p className="font-bold text-on-surface">All clear!</p>
-                <p className="text-sm text-slate-400 mt-1">No urgent items need attention</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Right: Critical Deadlines */}
-        <div className="bg-white rounded-2xl md:rounded-3xl lg:rounded-3xl shadow-sm p-5 md:p-6 lg:p-8">
-          <h3 className="text-base md:text-lg font-black font-headline text-on-surface mb-6">
-            Critical Deadlines
-          </h3>
-
-          <div className="space-y-6">
-            {/* OKRs at Risk */}
-            <div>
-              <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">OKRs at Risk</h4>
-              {criticalObjectives.length > 0 ? (
-                <div className="space-y-3 max-h-[280px] overflow-y-auto scrollbar-hide">
-                  {criticalObjectives.map(obj => (
-                    <div
-                      key={obj.id}
-                      className={`p-3 rounded-2xl border ${
-                        obj.progressPercentage < 15
-                          ? 'bg-error/5 border-error/20'
-                          : 'bg-yellow-50 border-yellow-200'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-on-surface truncate">{obj.title}</p>
-                          <span className="text-xs text-slate-400">{obj.department}</span>
-                        </div>
-                        <span className={`ml-2 px-2 py-1 text-xs font-black rounded-full ${
-                          obj.progressPercentage < 15
-                            ? 'bg-error/10 text-error'
-                            : 'bg-yellow-100 text-yellow-700'
-                        }`}>
-                          {obj.progressPercentage}%
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex items-center justify-center py-6">
-                  <div className="text-center">
-                    <CheckCircle2 size={32} className="mx-auto mb-2 text-tertiary" />
-                    <p className="font-bold text-on-surface text-sm">All on track!</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
       </section>
       </div>

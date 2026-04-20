@@ -11,7 +11,7 @@ export function createSprintRoutes(prisma: PrismaClient) {
   // Get active sprint with stats - MUST be before /:id
   router.get('/active', handleAsync(async (_req: any, res: any) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0);
 
     const sprint = await prisma.sprint.findFirst({
       where: {
@@ -40,6 +40,59 @@ export function createSprintRoutes(prisma: PrismaClient) {
     const daysLeft = Math.ceil((sprint.endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
     res.json({ sprint, stats, daysLeft });
+  }));
+
+  // Get incomplete items for a sprint (preview before ending) - MUST be before /:id
+  router.get('/:id/incomplete', handleAsync(async (req: any, res: any) => {
+    const { id } = req.params;
+
+    const incompleteItems = await prisma.workItem.findMany({
+      where: { sprintId: id, status: { not: 'Done' } },
+      include: { assignee: { select: { id: true, fullName: true, avatar: true } } }
+    });
+
+    const currentSprint = await prisma.sprint.findUnique({ where: { id } });
+    const nextSprint = currentSprint
+      ? await prisma.sprint.findFirst({
+          where: { startDate: { gt: currentSprint.endDate } },
+          orderBy: { startDate: 'asc' }
+        })
+      : null;
+
+    res.json({ incompleteItems, nextSprint });
+  }));
+
+  // Complete a sprint: move incomplete items to next sprint or unassigned
+  router.post('/:id/complete', RBAC.adminOnly, handleAsync(async (req: any, res: any) => {
+    const { id } = req.params;
+
+    const currentSprint = await prisma.sprint.findUnique({ where: { id } });
+    if (!currentSprint) return res.status(404).json({ error: 'Sprint not found' });
+
+    const nextSprint = await prisma.sprint.findFirst({
+      where: { startDate: { gt: currentSprint.endDate } },
+      orderBy: { startDate: 'asc' }
+    });
+
+    const updated = await prisma.workItem.updateMany({
+      where: { sprintId: id, status: { not: 'Done' } },
+      data: { sprintId: nextSprint?.id ?? null }
+    });
+
+    // Set endDate to yesterday UTC so active query no longer matches this sprint
+    const yesterday = new Date();
+    yesterday.setUTCHours(0, 0, 0, 0);
+    yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+
+    await prisma.sprint.update({
+      where: { id },
+      data: { endDate: yesterday }
+    });
+
+    res.json({
+      movedCount: updated.count,
+      movedTo: nextSprint ? nextSprint.name : null
+    });
   }));
 
   router.get('/', handleAsync(async (_req: any, res: any) => {

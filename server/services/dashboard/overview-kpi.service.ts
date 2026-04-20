@@ -32,6 +32,7 @@ export async function getKpiMetrics(from: Date, to: Date): Promise<KpiMetricsRes
     // Lead stage metrics
     row.prePql = crmData.prePql.get(date) ?? 0;
     row.pql = crmData.pql.get(date) ?? 0;
+    row.preSql = crmData.preSql.get(date) ?? 0;
     row.sql = crmData.sql.get(date) ?? 0;
 
     // Cost metrics
@@ -51,6 +52,7 @@ export async function getKpiMetrics(from: Date, to: Date): Promise<KpiMetricsRes
     row.mqlGoldRate = safeDivide(row.mqlGold * 100, row.signups);
     row.prePqlRate = safeDivide(row.prePql * 100, row.signups);
     row.pqlRate = safeDivide(row.pql * 100, row.signups);
+    row.preSqlRate = safeDivide(row.preSql * 100, row.signups);
     row.sqlRate = safeDivide(row.sql * 100, row.signups);
     row.roas = safeDivide(row.revenue, row.adSpend);
 
@@ -73,14 +75,15 @@ async function fetchCrmData(from: Date, to: Date) {
   const mqlGold = new Map<string, number>();
   const prePql = new Map<string, number>();
   const pql = new Map<string, number>();
+  const preSql = new Map<string, number>();
   const sql = new Map<string, number>();
 
   const crm = getCrmClient();
   if (!crm) {
-    return { signups, trials, opportunities, orders, revenue, mql, mqlBronze, mqlSilver, mqlGold, prePql, pql, sql };
+    return { signups, trials, opportunities, orders, revenue, mql, mqlBronze, mqlSilver, mqlGold, prePql, pql, preSql, sql };
   }
 
-  const [signupsData, trialsData, oppsData, ordersData, mqlData, prePqlData, pqlData, sqlData] = await Promise.all([
+  const [signupsData, trialsData, oppsData, ordersData, mqlData, prePqlData, pqlData, sqlData, preSqlData] = await Promise.all([
     // Signups: all subscribers created in range
     safeCrmQuery(
       () =>
@@ -173,6 +176,19 @@ async function fetchCrmData(from: Date, to: Date) {
         }),
       []
     ),
+    // Pre-SQL: distinct subscribers with at least 1 activity on each day
+    safeCrmQuery(
+      () =>
+        crm.crm_activities.findMany({
+          where: {
+            created_at: { gte: from, lte: to },
+            subscriber_id: { not: null },
+            PEERDB_IS_DELETED: false,
+          },
+          select: { created_at: true, subscriber_id: true },
+        }),
+      []
+    ),
   ]);
 
   (signupsData ?? []).forEach((r) => {
@@ -230,7 +246,17 @@ async function fetchCrmData(from: Date, to: Date) {
     sql.set(date, (sql.get(date) ?? 0) + 1);
   });
 
-  return { signups, trials, opportunities, orders, revenue, mql, mqlBronze, mqlSilver, mqlGold, prePql, pql, sql };
+  // Pre-SQL: distinct subscriber_id per day
+  const preSqlSets = new Map<string, Set<number>>();
+  (preSqlData ?? []).forEach((r) => {
+    if (!r.subscriber_id) return;
+    const date = formatDate(new Date(r.created_at));
+    if (!preSqlSets.has(date)) preSqlSets.set(date, new Set());
+    preSqlSets.get(date)!.add(r.subscriber_id);
+  });
+  preSqlSets.forEach((set, date) => preSql.set(date, set.size));
+
+  return { signups, trials, opportunities, orders, revenue, mql, mqlBronze, mqlSilver, mqlGold, prePql, pql, preSql, sql };
 }
 
 function classifyMqlTier(
@@ -312,6 +338,7 @@ function aggregateTotals(rows: KpiMetricsRow[]): KpiMetricsRow {
     totals.mqlGold += r.mqlGold;
     totals.prePql += r.prePql;
     totals.pql += r.pql;
+    totals.preSql += r.preSql;
     totals.sql += r.sql;
   });
 
@@ -329,6 +356,7 @@ function aggregateTotals(rows: KpiMetricsRow[]): KpiMetricsRow {
   totals.mqlGoldRate = safeDivide(totals.mqlGold * 100, totals.signups);
   totals.prePqlRate = safeDivide(totals.prePql * 100, totals.signups);
   totals.pqlRate = safeDivide(totals.pql * 100, totals.signups);
+  totals.preSqlRate = safeDivide(totals.preSql * 100, totals.signups);
   totals.sqlRate = safeDivide(totals.sql * 100, totals.signups);
   totals.roas = safeDivide(totals.revenue, totals.adSpend);
 

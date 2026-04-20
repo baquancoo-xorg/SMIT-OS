@@ -82,6 +82,12 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
             active={currentView === 'backlog'}
             onClick={() => onViewChange('backlog')}
           />
+          <NavItem
+            icon="sprint"
+            label="Sprint Board"
+            active={currentView === 'sprint'}
+            onClick={() => onViewChange('sprint')}
+          />
         </div>
 
         {/* Rituals */}

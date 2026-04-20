@@ -216,7 +216,7 @@ export default function Header({ onMenuClick, onViewChange }: {
         <div className="hidden md:flex items-center gap-2">
           <NotificationCenter />
           <DateCalendarWidget workItems={allWorkItems} />
-          <SprintContextWidget onViewBacklog={() => onViewChange?.('backlog')} />
+          <SprintContextWidget onViewSprint={() => onViewChange?.('sprint')} />
         </div>
       </div>
     </header>

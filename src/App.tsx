@@ -18,9 +18,10 @@ import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import LoginPage from './pages/LoginPage';
 import DashboardOverview from './pages/DashboardOverview';
+import SprintBoard from './pages/SprintBoard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'backlog' | 'mkt' | 'media' | 'sale' | 'sync' | 'daily-sync' | 'settings' | 'profile' | 'ads-overview';
+export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'backlog' | 'mkt' | 'media' | 'sale' | 'sync' | 'daily-sync' | 'settings' | 'profile' | 'ads-overview' | 'sprint';
 
 function AppContent() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -54,6 +55,7 @@ function AppContent() {
       {currentView === 'settings' && <Settings key="settings" />}
       {currentView === 'profile' && <Profile key="profile" />}
       {currentView === 'ads-overview' && <DashboardOverview key="ads-overview" />}
+      {currentView === 'sprint' && <SprintBoard key="sprint" />}
     </AppLayout>
   );
 }

@@ -53,6 +53,7 @@ export default function TaskModal({
   const [availableParents, setAvailableParents] = useState<WorkItem[]>([]);
   const [loadingParents, setLoadingParents] = useState(false);
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const typeOptions = allowedTypes || ALL_TYPES;
 
   // Fetch available parents (Epic/UserStory) for edit mode
@@ -97,18 +98,29 @@ export default function TaskModal({
       setDescription('');
       setType(defaultType);
       setPriority('Medium');
-      setAssigneeId(users.length > 0 ? users[0].id : '');
+      setAssigneeId('');
       setStatus(defaultStatus);
       setDueDate('');
       setStartDate('');
       setParentId(undefined);
     }
+    setErrors({});
   }, [initialData, defaultType, defaultStatus, isOpen, users]);
 
   if (!isOpen) return null;
 
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!title.trim()) newErrors.title = 'Bắt buộc';
+    if (!assigneeId) newErrors.assigneeId = 'Bắt buộc';
+    if (!startDate) newErrors.startDate = 'Bắt buộc';
+    if (!dueDate) newErrors.dueDate = 'Bắt buộc';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = () => {
-    if (!title.trim()) return;
+    if (!validate()) return;
 
     const newTask: WorkItem = {
       ...initialData,
@@ -142,12 +154,17 @@ export default function TaskModal({
 
         <div className="space-y-6">
           <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Title</label>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+              Title <span className="text-red-500">*</span>
+              {errors.title && <span className="ml-2 text-red-500 normal-case tracking-normal font-medium">{errors.title}</span>}
+            </label>
             <input
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 rounded-3xl border border-outline-variant/20 bg-white text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+              onChange={(e) => { setTitle(e.target.value); setErrors(prev => ({ ...prev, title: '' })); }}
+              className={`w-full px-4 py-3 rounded-3xl border bg-white text-on-surface focus:ring-2 outline-none transition-all ${
+                errors.title ? 'border-red-400 focus:border-red-400 focus:ring-red-200' : 'border-outline-variant/20 focus:border-primary focus:ring-primary/20'
+              }`}
               placeholder="Enter title..."
             />
           </div>
@@ -187,11 +204,14 @@ export default function TaskModal({
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Assignee</label>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                Assignee <span className="text-red-500">*</span>
+                {errors.assigneeId && <span className="ml-2 text-red-500 normal-case tracking-normal font-medium">{errors.assigneeId}</span>}
+              </label>
               <CustomSelect
                 value={assigneeId}
-                onChange={setAssigneeId}
-                options={users.map(user => ({ value: user.id, label: user.fullName }))}
+                onChange={(val) => { setAssigneeId(val); setErrors(prev => ({ ...prev, assigneeId: '' })); }}
+                options={[{ value: '', label: 'Chọn assignee...' }, ...users.map(user => ({ value: user.id, label: user.fullName }))]}
               />
             </div>
 
@@ -210,19 +230,25 @@ export default function TaskModal({
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Start Date</label>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                Start Date <span className="text-red-500">*</span>
+                {errors.startDate && <span className="ml-2 text-red-500 normal-case tracking-normal font-medium">{errors.startDate}</span>}
+              </label>
               <CustomDatePicker
                 value={startDate}
-                onChange={setStartDate}
+                onChange={(val) => { setStartDate(val); setErrors(prev => ({ ...prev, startDate: '' })); }}
                 placeholder="Select start date..."
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Due Date</label>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                Due Date <span className="text-red-500">*</span>
+                {errors.dueDate && <span className="ml-2 text-red-500 normal-case tracking-normal font-medium">{errors.dueDate}</span>}
+              </label>
               <CustomDatePicker
                 value={dueDate}
-                onChange={setDueDate}
+                onChange={(val) => { setDueDate(val); setErrors(prev => ({ ...prev, dueDate: '' })); }}
                 placeholder="Select due date..."
               />
             </div>
@@ -263,8 +289,7 @@ export default function TaskModal({
           </button>
           <button
             onClick={handleSave}
-            disabled={!title.trim()}
-            className="px-6 py-3 rounded-full font-bold text-sm bg-primary text-white shadow-lg shadow-primary/20 hover:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
+            className="px-6 py-3 rounded-full font-bold text-sm bg-primary text-white shadow-lg shadow-primary/20 hover:scale-95 transition-all"
           >
             {initialData ? 'Save Changes' : 'Create'}
           </button>

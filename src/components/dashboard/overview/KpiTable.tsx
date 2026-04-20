@@ -141,6 +141,7 @@ function KpiTableRow({ row, isTotal, rateMode, index = 0 }: KpiTableRowProps) {
   const mqlRate = safeDivide(row.mql, row.signups);
   const prePqlRate = safeDivide(row.prePql, row.signups);
   const pqlRate = safeDivide(row.pql, row.signups);
+  const preSqlRate = safeDivide(row.preSql, row.signups);
   const sqlRate = safeDivide(row.sql, row.signups);
 
   return (
@@ -176,6 +177,9 @@ function KpiTableRow({ row, isTotal, rateMode, index = 0 }: KpiTableRowProps) {
       </td>
       <td className={`${cellStyle} ${rightAlign}`}>
         <RateBadge value={row.pql} rate={pqlRate} />
+      </td>
+      <td className={`${cellStyle} ${rightAlign}`}>
+        <RateBadge value={row.preSql} rate={preSqlRate} />
       </td>
       <td className={`${cellStyle} ${rightAlign}`}>
         <RateBadge value={row.sql} rate={sqlRate} />
@@ -350,7 +354,7 @@ export const KpiTable = memo(function KpiTable({
       <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden flex flex-col">
         {/* Fixed header row */}
         <div ref={headerScrollRef} onScroll={handleHeaderScroll} className="bg-slate-100 border-b border-slate-200 overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          <table className="w-full text-sm table-fixed min-w-[1600px]">
+          <table className="w-full text-sm table-fixed min-w-[1680px]">
             <colgroup>
               <col className="w-[100px]" />
               <col className="w-[100px]" />
@@ -365,6 +369,7 @@ export const KpiTable = memo(function KpiTable({
               <col className="w-[100px]" />
               <col className="w-[80px]" />
               <col className="w-[70px]" />
+              <col className="w-[80px]" />
               <col className="w-[70px]" />
               <col className="w-[100px]" />
               <col className="w-[70px]" />
@@ -412,6 +417,9 @@ export const KpiTable = memo(function KpiTable({
                   <span className="text-[11px] font-semibold text-slate-500">PQL</span>
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
+                  <span className="text-[11px] font-semibold text-slate-500">Pre-SQL</span>
+                </th>
+                <th className="px-3 py-2.5 text-right bg-slate-100">
                   <span className="text-[11px] font-semibold text-slate-500">SQL</span>
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
@@ -429,7 +437,7 @@ export const KpiTable = memo(function KpiTable({
         </div>
         {/* Scrollable data area */}
         <div ref={dataScrollRef} onScroll={handleDataScroll} className="overflow-auto max-h-[500px] flex-1">
-          <table className="w-full text-sm table-fixed min-w-[1600px]">
+          <table className="w-full text-sm table-fixed min-w-[1680px]">
             <colgroup>
               <col className="w-[100px]" />
               <col className="w-[100px]" />
@@ -444,6 +452,7 @@ export const KpiTable = memo(function KpiTable({
               <col className="w-[100px]" />
               <col className="w-[80px]" />
               <col className="w-[70px]" />
+              <col className="w-[80px]" />
               <col className="w-[70px]" />
               <col className="w-[100px]" />
               <col className="w-[70px]" />
@@ -458,7 +467,7 @@ export const KpiTable = memo(function KpiTable({
         </div>
         {/* Fixed total row */}
         <div ref={totalScrollRef} onScroll={handleTotalScroll} className="border-t-2 border-slate-200 bg-slate-50 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          <table className="w-full text-sm table-fixed min-w-[1600px]">
+          <table className="w-full text-sm table-fixed min-w-[1680px]">
             <colgroup>
               <col className="w-[100px]" />
               <col className="w-[100px]" />
@@ -473,6 +482,7 @@ export const KpiTable = memo(function KpiTable({
               <col className="w-[100px]" />
               <col className="w-[80px]" />
               <col className="w-[70px]" />
+              <col className="w-[80px]" />
               <col className="w-[70px]" />
               <col className="w-[100px]" />
               <col className="w-[70px]" />

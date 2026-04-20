@@ -27,6 +27,7 @@ export async function getCohortKpiMetrics(from: Date, to: Date): Promise<KpiMetr
     row.mqlGold = cohortData.mqlGold.get(date) ?? 0;
     row.prePql = cohortData.prePql.get(date) ?? 0;
     row.pql = cohortData.pql.get(date) ?? 0;
+    row.preSql = cohortData.preSql.get(date) ?? 0;
     row.sql = cohortData.sql.get(date) ?? 0;
 
     row.costPerSession = safeDivide(row.adSpend, row.sessions);
@@ -38,6 +39,7 @@ export async function getCohortKpiMetrics(from: Date, to: Date): Promise<KpiMetr
     row.mqlRate = safeDivide(row.mql * 100, row.signups);
     row.prePqlRate = safeDivide(row.prePql * 100, row.signups);
     row.pqlRate = safeDivide(row.pql * 100, row.signups);
+    row.preSqlRate = safeDivide(row.preSql * 100, row.signups);
     row.sqlRate = safeDivide(row.sql * 100, row.signups);
     row.roas = safeDivide(row.revenue, row.adSpend);
 
@@ -59,11 +61,12 @@ async function fetchCohortData(from: Date, to: Date) {
   const mqlGold = new Map<string, number>();
   const prePql = new Map<string, number>();
   const pql = new Map<string, number>();
+  const preSql = new Map<string, number>();
   const sql = new Map<string, number>();
 
   const crm = getCrmClient();
   if (!crm) {
-    return { signups, opportunities, orders, revenue, mql, mqlBronze, mqlSilver, mqlGold, prePql, pql, sql };
+    return { signups, opportunities, orders, revenue, mql, mqlBronze, mqlSilver, mqlGold, prePql, pql, preSql, sql };
   }
 
   // Get all signups in range with their data for MQL classification
@@ -107,7 +110,7 @@ async function fetchCohortData(from: Date, to: Date) {
 
   const subscriberIds = Array.from(subscriberSignupDate.keys()).map(Number);
   if (subscriberIds.length === 0) {
-    return { signups, opportunities, orders, revenue, mql, mqlBronze, mqlSilver, mqlGold, prePql, pql, sql };
+    return { signups, opportunities, orders, revenue, mql, mqlBronze, mqlSilver, mqlGold, prePql, pql, preSql, sql };
   }
 
   // Get business creations for these subscribers
@@ -133,11 +136,11 @@ async function fetchCohortData(from: Date, to: Date) {
   });
 
   if (businessIds.length === 0) {
-    return { signups, opportunities, orders, revenue, mql, mqlBronze, mqlSilver, mqlGold, prePql, pql, sql };
+    return { signups, opportunities, orders, revenue, mql, mqlBronze, mqlSilver, mqlGold, prePql, pql, preSql, sql };
   }
 
   // Fetch cohort metrics in parallel
-  const [oppsData, ordersData, pqlStatusData] = await Promise.all([
+  const [oppsData, ordersData, pqlStatusData, preSqlData] = await Promise.all([
     // Opportunities - attributed to signup date
     safeCrmQuery(
       () =>
@@ -167,6 +170,18 @@ async function fetchCohortData(from: Date, to: Date) {
         crm.crmBusinessPqlStatus.findMany({
           where: { businessId: { in: businessIds }, PEERDB_IS_DELETED: false },
           select: { businessId: true, has_first_sync: true, is_pql: true },
+        }),
+      []
+    ),
+    // Pre-SQL: distinct subscribers with any activity, attributed to signup date
+    safeCrmQuery(
+      () =>
+        crm.crm_activities.findMany({
+          where: {
+            subscriber_id: { in: subscriberIds },
+            PEERDB_IS_DELETED: false,
+          },
+          select: { subscriber_id: true },
         }),
       []
     ),
@@ -214,7 +229,18 @@ async function fetchCohortData(from: Date, to: Date) {
     }
   });
 
-  return { signups, opportunities, orders, revenue, mql, mqlBronze, mqlSilver, mqlGold, prePql, pql, sql };
+  // Pre-SQL: distinct subscriber_id attributed to signup date
+  const preSqlSubs = new Set<number>();
+  (preSqlData ?? []).forEach((r) => {
+    if (!r.subscriber_id) return;
+    preSqlSubs.add(r.subscriber_id);
+  });
+  preSqlSubs.forEach((subId) => {
+    const date = subscriberSignupDate.get(BigInt(subId));
+    if (date) preSql.set(date, (preSql.get(date) ?? 0) + 1);
+  });
+
+  return { signups, opportunities, orders, revenue, mql, mqlBronze, mqlSilver, mqlGold, prePql, pql, preSql, sql };
 }
 
 function classifyMqlTier(
@@ -277,6 +303,7 @@ function aggregateTotals(rows: KpiMetricsRow[]): KpiMetricsRow {
     totals.mqlGold += r.mqlGold;
     totals.prePql += r.prePql;
     totals.pql += r.pql;
+    totals.preSql += r.preSql;
     totals.sql += r.sql;
   });
 
@@ -289,6 +316,7 @@ function aggregateTotals(rows: KpiMetricsRow[]): KpiMetricsRow {
   totals.mqlRate = safeDivide(totals.mql * 100, totals.signups);
   totals.prePqlRate = safeDivide(totals.prePql * 100, totals.signups);
   totals.pqlRate = safeDivide(totals.pql * 100, totals.signups);
+  totals.preSqlRate = safeDivide(totals.preSql * 100, totals.signups);
   totals.sqlRate = safeDivide(totals.sql * 100, totals.signups);
   totals.roas = safeDivide(totals.revenue, totals.adSpend);
 
