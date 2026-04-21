@@ -1,11 +1,13 @@
 # Session State
-<!-- Generated: 2026-04-21T18:48:02.046Z -->
+<!-- Generated: 2026-04-21T19:00:13.342Z -->
 <!-- Branch: unknown -->
 <!-- Plan: none -->
 
 ## What Worked (Verified)
-- Fix critical + high priority issues
-- Finalize: project-manager, docs, commit
+- Fix QR code bo góc trong two-factor-auth-tab.tsx
+- Thêm tab Profile vào settings-tabs.tsx với role-based filtering
+- Tạo profile-tab.tsx component
+- Cập nhật Settings.tsx hỗ trợ non-admin
 
 ## What's Left
 - (All tasks completed)
@@ -353,19 +355,9 @@
 - Completed at 18:44:44
 
 ## Key Files Modified
-- .claude/session-state/archive/20260421-1746.md
-- .claude/session-state/archive/20260421-1816.md
-- .claude/session-state/archive/20260421-1830.md
+- .claude/session-state/archive/20260421-1956.md
 - .claude/session-state/latest.md
-- package-lock.json
-- package.json
-- prisma/schema.prisma
-- server.ts
-- server/routes/auth.routes.ts
-- server/schemas/auth.schema.ts
-- server/services/auth.service.ts
+- server/routes/user.routes.ts
 - src/components/settings/settings-tabs.tsx
-- src/contexts/AuthContext.tsx
-- src/pages/LoginPage.tsx
+- src/components/settings/two-factor-auth-tab.tsx
 - src/pages/Settings.tsx
-- src/types/index.ts

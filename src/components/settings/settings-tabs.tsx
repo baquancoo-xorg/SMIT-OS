@@ -1,7 +1,7 @@
 import React from 'react';
-import { Users, Calendar, Target, Facebook, ShieldCheck } from 'lucide-react';
+import { Users, Calendar, Target, Facebook, ShieldCheck, UserCircle } from 'lucide-react';
 
-export type SettingsTabId = 'users' | 'sprints' | 'okrs' | 'fb-config' | 'security';
+export type SettingsTabId = 'users' | 'sprints' | 'okrs' | 'fb-config' | 'security' | 'profile';
 
 interface Tab {
   id: SettingsTabId;
@@ -9,7 +9,7 @@ interface Tab {
   icon: React.ElementType;
 }
 
-export const SETTINGS_TABS: Tab[] = [
+const ADMIN_TABS: Tab[] = [
   { id: 'users', label: 'Users', icon: Users },
   { id: 'sprints', label: 'Sprints', icon: Calendar },
   { id: 'okrs', label: 'OKRs', icon: Target },
@@ -17,15 +17,23 @@ export const SETTINGS_TABS: Tab[] = [
   { id: 'security', label: 'Security', icon: ShieldCheck },
 ];
 
+const MEMBER_TABS: Tab[] = [
+  { id: 'profile', label: 'Profile', icon: UserCircle },
+  { id: 'security', label: 'Security', icon: ShieldCheck },
+];
+
 interface SettingsTabsProps {
   activeTab: SettingsTabId;
   onTabChange: (tab: SettingsTabId) => void;
+  isAdmin: boolean;
 }
 
-export function SettingsTabs({ activeTab, onTabChange }: SettingsTabsProps) {
+export function SettingsTabs({ activeTab, onTabChange, isAdmin }: SettingsTabsProps) {
+  const tabs = isAdmin ? ADMIN_TABS : MEMBER_TABS;
+
   return (
     <div className="flex gap-1 bg-slate-100 p-1 rounded-2xl">
-      {SETTINGS_TABS.map((tab) => {
+      {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.id;
         return (

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Shield } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { SettingsTabs, SettingsTabId } from '../components/settings/settings-tabs';
 import { UserManagementTab } from '../components/settings/user-management-tab';
@@ -7,25 +6,14 @@ import { SprintCyclesTab } from '../components/settings/sprint-cycles-tab';
 import { OkrCyclesTab } from '../components/settings/okr-cycles-tab';
 import { FbConfigTab } from '../components/settings/fb-config-tab';
 import { TwoFactorAuthTab } from '../components/settings/two-factor-auth-tab';
+import { ProfileTab } from '../components/settings/profile-tab';
 
 type DeleteConfirmType = { type: 'user' | 'sprint' | 'cycle'; id: string } | null;
 
 export default function Settings() {
   const { isAdmin, refreshUsers } = useAuth();
-  const [activeTab, setActiveTab] = useState<SettingsTabId>('users');
+  const [activeTab, setActiveTab] = useState<SettingsTabId>(isAdmin ? 'users' : 'profile');
   const [deleteConfirm, setDeleteConfirm] = useState<DeleteConfirmType>(null);
-
-  if (!isAdmin) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <Shield className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-on-surface mb-2">Access Denied</h2>
-          <p className="text-slate-500">Only administrators can access this page.</p>
-        </div>
-      </div>
-    );
-  }
 
   const handleDelete = async () => {
     if (!deleteConfirm) return;
@@ -56,25 +44,30 @@ export default function Settings() {
     setDeleteConfirm({ type, id });
   };
 
+  const pageTitle = isAdmin ? 'Workspace Settings' : 'Settings';
+  const pageDesc = isAdmin
+    ? 'Manage users, sprints, and system configurations.'
+    : 'Manage your profile and security settings.';
+
   return (
     <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
-      {/* Header */}
       <section className="shrink-0 flex items-start justify-between">
         <div>
-          <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Workspace Settings</h2>
-          <p className="text-slate-500 mt-2">Manage users, sprints, and system configurations.</p>
+          <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">{pageTitle}</h2>
+          <p className="text-slate-500 mt-2">{pageDesc}</p>
         </div>
       </section>
 
       <div className="shrink-0">
-        <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} isAdmin={isAdmin} />
       </div>
 
       <div className="flex-1 overflow-y-auto pb-8">
-        {activeTab === 'users' && <UserManagementTab onDeleteConfirm={handleDeleteConfirm} />}
-        {activeTab === 'sprints' && <SprintCyclesTab onDeleteConfirm={handleDeleteConfirm} />}
-        {activeTab === 'okrs' && <OkrCyclesTab onDeleteConfirm={handleDeleteConfirm} />}
-        {activeTab === 'fb-config' && <FbConfigTab />}
+        {activeTab === 'profile' && <ProfileTab />}
+        {activeTab === 'users' && isAdmin && <UserManagementTab onDeleteConfirm={handleDeleteConfirm} />}
+        {activeTab === 'sprints' && isAdmin && <SprintCyclesTab onDeleteConfirm={handleDeleteConfirm} />}
+        {activeTab === 'okrs' && isAdmin && <OkrCyclesTab onDeleteConfirm={handleDeleteConfirm} />}
+        {activeTab === 'fb-config' && isAdmin && <FbConfigTab />}
         {activeTab === 'security' && <TwoFactorAuthTab />}
       </div>
 

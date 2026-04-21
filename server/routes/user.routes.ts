@@ -10,6 +10,33 @@ export function createUserRoutes(prisma: PrismaClient) {
   const router = Router();
   const userService = createUserService(prisma);
 
+  // Update own profile (fullName)
+  router.patch('/me', RBAC.authenticated, handleAsync(async (req: any, res: any) => {
+    const userId = req.user!.userId;
+    const { fullName } = req.body;
+    if (!fullName || typeof fullName !== 'string') {
+      return res.status(400).json({ error: 'fullName is required' });
+    }
+    const user = await userService.update(userId, { fullName });
+    res.json(user);
+  }));
+
+  // Change own password
+  router.patch('/me/password', RBAC.authenticated, handleAsync(async (req: any, res: any) => {
+    const userId = req.user!.userId;
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'currentPassword and newPassword are required' });
+    }
+    const dbUser = await prisma.user.findUnique({ where: { id: userId }, select: { password: true } });
+    if (!dbUser) return res.status(404).json({ error: 'User not found' });
+    const bcrypt = await import('bcryptjs');
+    const valid = await bcrypt.compare(currentPassword, dbUser.password);
+    if (!valid) return res.status(400).json({ error: 'Mật khẩu hiện tại không đúng' });
+    await userService.update(userId, { password: newPassword });
+    res.json({ success: true });
+  }));
+
   router.get('/', handleAsync(async (_req: any, res: any) => {
     const users = await userService.getAll();
     res.json(users);

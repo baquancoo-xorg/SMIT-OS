@@ -134,7 +134,7 @@ export function TwoFactorAuthTab() {
           Quét QR code bằng <strong>Google Authenticator</strong> hoặc <strong>Microsoft Authenticator</strong>:
         </p>
         <div className="flex justify-center">
-          <img src={qrUrl} alt="2FA QR Code" className="rounded-xl border border-slate-200" width={200} height={200} />
+          <img src={qrUrl} alt="2FA QR Code" className="border border-slate-200" width={200} height={200} />
         </div>
         <p className="text-xs text-slate-400 text-center">
           Hoặc nhập thủ công: <code className="font-mono bg-slate-100 px-1 rounded">{secret}</code>
