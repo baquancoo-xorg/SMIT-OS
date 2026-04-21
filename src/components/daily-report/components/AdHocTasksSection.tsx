@@ -51,7 +51,7 @@ export default function AdHocTasksSection({ tasks, onTasksChange, teamColor = 'i
   };
 
   return (
-    <div className={`${colors.bg} border ${colors.border} rounded-3xl p-4 mt-4`}>
+    <div className={`${colors.bg} border ${colors.border} rounded-xl p-4 mt-4`}>
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
           <Briefcase size={16} className={colors.text} />
@@ -65,7 +65,7 @@ export default function AdHocTasksSection({ tasks, onTasksChange, teamColor = 'i
         </h3>
         <button
           onClick={addTask}
-          className={`${colors.text} text-xs font-bold px-2.5 py-1 rounded-full hover:bg-white/50 transition-colors flex items-center gap-1`}
+          className={`${colors.text} text-xs font-bold px-2.5 py-1 rounded-xl hover:bg-white/50 transition-colors flex items-center gap-1`}
         >
           <Plus size={14} /> Thêm
         </button>

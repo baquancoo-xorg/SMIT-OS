@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Facebook, Plus, RefreshCw, Edit2, Trash2, DollarSign, Save, X } from 'lucide-react';
+import { Input, Button, Card, Badge, SectionHeader } from '../ui';
 
 interface FbAccount {
   id: number;
@@ -175,131 +176,122 @@ export function FbConfigTab() {
   if (loading) return <div className="text-center py-8 text-slate-400">Loading...</div>;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* FB Ad Accounts Section */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-bold flex items-center gap-2">
-            <Facebook className="text-primary" />
-            FB Ad Accounts
-          </h3>
-          <button
-            onClick={() => setIsAdding(true)}
-            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-95 transition-all"
-          >
-            <Plus size={16} />
-            Add Account
-          </button>
-        </div>
+      <div className="lg:col-span-2 space-y-8">
+        <SectionHeader
+          icon={<Facebook size={20} />}
+          title="FB Ad Accounts"
+          subtitle="Ads Integration"
+          iconBg="bg-[#1877F2]/10"
+          iconColor="text-[#1877F2]"
+          action={!isAdding && !editingId ? (
+            <Button onClick={() => setIsAdding(true)} size="sm" className="gap-2">
+              <Plus size={16} /> Add Account
+            </Button>
+          ) : undefined}
+        />
 
         {(isAdding || editingId) && (
-          <div className="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/20 space-y-4">
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-bold text-on-surface">{isAdding ? 'Add Account' : 'Edit Account'}</h4>
-              <button onClick={resetForm} className="text-slate-400 hover:text-on-surface"><X size={18} /></button>
+          <Card variant="flat" className="p-6 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-black text-on-surface uppercase tracking-wider">{isAdding ? 'New Ad Account' : 'Edit Ad Account'}</h4>
+              <button onClick={resetForm} className="p-2 hover:bg-slate-100 rounded-xl transition-colors"><X size={18} /></button>
             </div>
             {formError && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-xl text-sm">{formError}</div>
+              <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-2 rounded-xl text-xs font-bold">{formError}</div>
             )}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Account ID</label>
-                <input
-                  type="text"
-                  placeholder="act_XXXXXXXXX (dùng dấu _ không phải =)"
-                  value={formData.accountId}
-                  onChange={e => setFormData({ ...formData, accountId: e.target.value })}
-                  disabled={!!editingId}
-                  className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20 disabled:bg-slate-100"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Account Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g., Main Account"
-                  value={formData.accountName}
-                  onChange={e => setFormData({ ...formData, accountName: e.target.value })}
-                  className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-                Access Token {editingId && <span className="text-slate-400 font-normal">(leave blank to keep)</span>}
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={formData.accessToken}
-                onChange={e => setFormData({ ...formData, accessToken: e.target.value })}
-                className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Account ID"
+                placeholder="act_XXXXXXXXX"
+                value={formData.accountId}
+                onChange={e => setFormData({ ...formData, accountId: e.target.value })}
+                disabled={!!editingId}
+                helperText="Dùng dấu _ không phải ="
+              />
+              <Input
+                label="Account Name"
+                placeholder="e.g., Main Account"
+                value={formData.accountName}
+                onChange={e => setFormData({ ...formData, accountName: e.target.value })}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Currency</label>
-                <select
-                  value={formData.currency}
-                  onChange={e => setFormData({ ...formData, currency: e.target.value })}
-                  className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20"
-                >
-                  <option value="USD">USD</option>
-                  <option value="VND">VND</option>
-                </select>
+            <Input
+              type="password"
+              label="Access Token"
+              placeholder="••••••••"
+              value={formData.accessToken}
+              onChange={e => setFormData({ ...formData, accessToken: e.target.value })}
+              helperText={editingId ? 'Để trống nếu không muốn đổi' : undefined}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 px-1">Currency</label>
+                <div className="w-full bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-2.5 text-sm">
+                  <select
+                    value={formData.currency}
+                    onChange={e => setFormData({ ...formData, currency: e.target.value })}
+                    className="w-full bg-transparent outline-none text-on-surface"
+                  >
+                    <option value="USD">USD</option>
+                    <option value="VND">VND</option>
+                  </select>
+                </div>
               </div>
               <div className="flex items-end">
-                <button
+                <Button
                   onClick={() => editingId ? handleUpdateAccount(editingId) : handleAddAccount()}
-                  className="flex-1 bg-primary text-white py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2"
+                  className="w-full gap-2"
                 >
-                  <Save size={14} />
+                  <Save size={16} />
                   {editingId ? 'Save Changes' : 'Add Account'}
-                </button>
+                </Button>
               </div>
             </div>
-          </div>
+          </Card>
         )}
 
-        <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-slate-50 border-b border-outline-variant/10">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-separate border-spacing-y-2">
+            <thead>
               <tr>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Account</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Currency</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Last Sync</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-outline-variant/5">
+            <tbody>
               {accounts.map(acc => (
-                <tr key={acc.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4">
+                <tr key={acc.id} className="group">
+                  <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 first:rounded-l-2xl border-y border-l border-white/20 transition-colors">
                     <div>
                       <span className="text-sm font-bold text-on-surface block">{acc.accountName || acc.accountId}</span>
                       <span className="text-[10px] text-slate-400 font-medium">{acc.accountId}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold">{acc.currency}</span>
+                  <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 border-y border-white/20 transition-colors">
+                    <Badge variant="neutral">{acc.currency}</Badge>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 border-y border-white/20 transition-colors">
                     <div className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${acc.lastSyncStatus === 'success' ? 'bg-emerald-500' : acc.lastSyncStatus === 'failed' ? 'bg-red-500' : 'bg-slate-300'}`} />
-                      <span className="text-xs font-medium text-slate-500">{formatSyncTime(acc.lastSyncAt)}</span>
+                      <Badge variant={acc.lastSyncStatus === 'success' ? 'success' : acc.lastSyncStatus === 'failed' ? 'error' : 'neutral'}>
+                        {formatSyncTime(acc.lastSyncAt)}
+                      </Badge>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => handleSync(acc.id)} disabled={syncingId === acc.id} className="p-2 text-slate-400 hover:text-primary transition-colors disabled:animate-spin" title="Sync Now"><RefreshCw size={16} /></button>
-                      <button onClick={() => openEdit(acc)} className="p-2 text-slate-400 hover:text-primary transition-colors" title="Edit Account"><Edit2 size={16} /></button>
-                      <button onClick={() => handleDeleteAccount(acc.id)} className="p-2 text-slate-400 hover:text-error transition-colors" title="Delete Account"><Trash2 size={16} /></button>
+                  <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 last:rounded-r-2xl border-y border-r border-white/20 transition-colors text-right">
+                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => handleSync(acc.id)} disabled={syncingId === acc.id} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all disabled:animate-spin" title="Sync Now"><RefreshCw size={16} /></button>
+                      <button onClick={() => openEdit(acc)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all" title="Edit Account"><Edit2 size={16} /></button>
+                      <button onClick={() => handleDeleteAccount(acc.id)} className="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-xl transition-all" title="Delete Account"><Trash2 size={16} /></button>
                     </div>
                   </td>
                 </tr>
               ))}
               {accounts.length === 0 && (
-                <tr><td colSpan={4} className="px-6 py-8 text-center text-slate-400 text-sm">No accounts configured yet. Add one to start syncing Facebook Ads data.</td></tr>
+                <tr><td colSpan={4} className="px-6 py-12 text-center text-slate-400 text-sm font-medium italic">No accounts configured yet.</td></tr>
               )}
             </tbody>
           </table>
@@ -307,60 +299,59 @@ export function FbConfigTab() {
       </div>
 
       {/* Exchange Rate Section */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-bold flex items-center gap-2">
-            <DollarSign className="text-secondary" />
-            Exchange Rate
-          </h3>
-        </div>
+      <div className="space-y-8">
+        <SectionHeader
+          icon={<DollarSign size={20} />}
+          title="Exchange Rate"
+          subtitle="Financial Settings"
+          iconBg="bg-amber-500/10"
+          iconColor="text-amber-500"
+        />
 
-        <div className="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/20 space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">USD to VND Rate</label>
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-slate-500">1 USD =</span>
-              <input
-                type="number"
-                value={exchangeRate}
-                onChange={e => setExchangeRate(Number(e.target.value))}
-                className="w-40 bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-lg font-bold text-on-surface text-right outline-none focus:ring-2 focus:ring-secondary/20"
-              />
-              <span className="text-sm font-medium text-slate-500">VND</span>
+        <Card variant="flat" className="p-6 space-y-6">
+          <div className="space-y-2">
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">USD to VND Rate</label>
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-bold text-slate-400 shrink-0">1 USD =</span>
+              <div className="relative flex-1">
+                <input
+                  type="number"
+                  value={exchangeRate}
+                  onChange={e => setExchangeRate(Number(e.target.value))}
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-lg font-black text-on-surface text-right outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                />
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary font-black text-xs opacity-20">VND</span>
+              </div>
             </div>
           </div>
-          {rateError && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-xl text-sm">{rateError}</div>
-          )}
-          {rateSaved && (
-            <div className="bg-emerald-50 border border-emerald-200 text-emerald-600 px-4 py-2 rounded-xl text-sm">Saved successfully!</div>
-          )}
-          <button
+          
+          <Button
             onClick={handleUpdateExchangeRate}
-            className="w-full bg-secondary text-white py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-secondary/20 hover:scale-95 transition-all"
+            variant="secondary"
+            className="w-full gap-2"
           >
-            <Save size={14} />
-            Save Exchange Rate
-          </button>
-        </div>
+            <Save size={16} />
+            Save Rate
+          </Button>
 
-        <div className="bg-white rounded-3xl shadow-sm p-6">
-          <h4 className="text-sm font-bold text-on-surface mb-4">Quick Reference</h4>
-          <div className="space-y-2 text-sm text-slate-500">
-            <div className="flex justify-between">
-              <span>$100 USD</span>
-              <span className="font-bold text-on-surface">{(100 * exchangeRate).toLocaleString()} VND</span>
+          {(rateError || rateSaved) && (
+            <div className={`p-3 rounded-xl border text-xs font-bold text-center ${rateError ? 'bg-error/10 border-error/20 text-error' : 'bg-tertiary/10 border-tertiary/20 text-tertiary'}`}>
+              {rateError || 'Rate updated successfully!'}
             </div>
-            <div className="flex justify-between">
-              <span>$1,000 USD</span>
-              <span className="font-bold text-on-surface">{(1000 * exchangeRate).toLocaleString()} VND</span>
-            </div>
-            <div className="flex justify-between">
-              <span>$10,000 USD</span>
-              <span className="font-bold text-on-surface">{(10000 * exchangeRate).toLocaleString()} VND</span>
-            </div>
+          )}
+        </Card>
+
+        <Card variant="glass" className="p-6">
+          <h4 className="text-xs font-black text-on-surface uppercase tracking-widest mb-4 opacity-50">Quick Reference</h4>
+          <div className="space-y-3">
+            {[100, 1000, 10000].map(val => (
+              <div key={val} className="flex justify-between items-end border-b border-white/10 pb-2 last:border-0 last:pb-0">
+                <span className="text-xs font-bold text-slate-400">${val.toLocaleString()} USD</span>
+                <span className="text-sm font-black text-on-surface">{(val * exchangeRate).toLocaleString()} <span className="text-[10px] opacity-40">VND</span></span>
+              </div>
+            ))}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

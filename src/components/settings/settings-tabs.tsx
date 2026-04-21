@@ -33,7 +33,7 @@ export function SettingsTabs({ activeTab, onTabChange, isAdmin }: SettingsTabsPr
   const tabs = isAdmin ? ADMIN_TABS : MEMBER_TABS;
 
   return (
-    <div className="flex gap-1 bg-slate-100 p-1 rounded-2xl">
+    <div className="flex gap-1 bg-surface-container-low p-1 rounded-2xl">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.id;
@@ -43,8 +43,8 @@ export function SettingsTabs({ activeTab, onTabChange, isAdmin }: SettingsTabsPr
             onClick={() => onTabChange(tab.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
               isActive
-                ? 'bg-white text-primary shadow-sm'
-                : 'text-slate-500 hover:text-slate-700'
+                ? 'bg-surface-container-lowest text-primary shadow-sm'
+                : 'text-slate-500 hover:text-on-surface'
             }`}
           >
             <Icon size={16} />

@@ -100,7 +100,7 @@ export default function MediaDailyForm({ tasks, onClose, onSuccess }: MediaDaily
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-xs font-bold text-slate-500 mb-1">Link File / Link Bài Đăng</label>
-                  <input type="text" placeholder="Dán link ấn phẩm..." className="w-full border border-slate-300 rounded-3xl p-2 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-medium text-slate-700" value={taskMetrics[task.id]?.link || ''} onChange={(e) => updateTaskMetric(task.id, 'link', e.target.value)} />
+                  <input type="text" placeholder="Dán link ấn phẩm..." className="w-full border border-slate-300 rounded-xl p-2 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-medium text-slate-700" value={taskMetrics[task.id]?.link || ''} onChange={(e) => updateTaskMetric(task.id, 'link', e.target.value)} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1">Loại ấn phẩm</label>
@@ -112,24 +112,24 @@ export default function MediaDailyForm({ tasks, onClose, onSuccess }: MediaDaily
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-pink-50/50 p-4 rounded-3xl border border-pink-100">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-pink-50/50 p-4 rounded-xl border border-pink-100">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Số ấn phẩm</label>
-                  <input type="number" placeholder="0" className="w-full border border-pink-200 rounded-3xl p-2.5 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-pink-700 bg-white" value={taskMetrics[task.id]?.publicationsCount || ''} onChange={(e) => updateTaskMetric(task.id, 'publicationsCount', parseInt(e.target.value) || 0)} />
+                  <input type="number" placeholder="0" className="w-full border border-pink-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-pink-700 bg-white" value={taskMetrics[task.id]?.publicationsCount || ''} onChange={(e) => updateTaskMetric(task.id, 'publicationsCount', parseInt(e.target.value) || 0)} />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Lượt xem</label>
-                  <input type="text" placeholder="VD: 15.5K" className="w-full border border-pink-200 rounded-3xl p-2.5 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-slate-700 bg-white" value={taskMetrics[task.id]?.views || ''} onChange={(e) => updateTaskMetric(task.id, 'views', e.target.value)} />
+                  <input type="text" placeholder="VD: 15.5K" className="w-full border border-pink-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-slate-700 bg-white" value={taskMetrics[task.id]?.views || ''} onChange={(e) => updateTaskMetric(task.id, 'views', e.target.value)} />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tương tác</label>
-                  <input type="text" placeholder="VD: 1.2K" className="w-full border border-pink-200 rounded-3xl p-2.5 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-slate-700 bg-white" value={taskMetrics[task.id]?.engagement || ''} onChange={(e) => updateTaskMetric(task.id, 'engagement', e.target.value)} />
+                  <input type="text" placeholder="VD: 1.2K" className="w-full border border-pink-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-slate-700 bg-white" value={taskMetrics[task.id]?.engagement || ''} onChange={(e) => updateTaskMetric(task.id, 'engagement', e.target.value)} />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Follower mới</label>
                   <div className="relative">
                     <span className="absolute left-2 top-2 text-slate-400 font-bold">+</span>
-                    <input type="number" placeholder="0" className="w-full border border-pink-200 rounded-3xl p-2.5 pl-6 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-pink-600 bg-white" value={taskMetrics[task.id]?.followers || ''} onChange={(e) => updateTaskMetric(task.id, 'followers', parseInt(e.target.value) || 0)} />
+                    <input type="number" placeholder="0" className="w-full border border-pink-200 rounded-xl p-2.5 pl-6 text-sm focus:ring-2 focus:ring-pink-500 outline-none font-bold text-pink-600 bg-white" value={taskMetrics[task.id]?.followers || ''} onChange={(e) => updateTaskMetric(task.id, 'followers', parseInt(e.target.value) || 0)} />
                   </div>
                 </div>
               </div>
@@ -161,7 +161,7 @@ export default function MediaDailyForm({ tasks, onClose, onSuccess }: MediaDaily
           )}
         </TaskStatusCard>
       ))}
-      {userTasks.length === 0 && <div className="text-center py-8 bg-white rounded-3xl border border-dashed border-slate-200"><p className="text-slate-400 font-medium">Không có task nào được assign</p></div>}
+      {userTasks.length === 0 && <div className="text-center py-8 bg-white rounded-xl border border-dashed border-slate-200"><p className="text-slate-400 font-medium">Không có task nào được assign</p></div>}
     </>
   );
 
@@ -169,7 +169,7 @@ export default function MediaDailyForm({ tasks, onClose, onSuccess }: MediaDaily
     <>
       <button onClick={addBlocker} className="mb-4 text-sm font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-full hover:bg-red-100 transition-colors flex items-center"><Plus size={16} className="mr-1" /> Thêm Vấn đề</button>
       {blockers.length === 0 ? (
-        <div className="text-center py-8 bg-slate-50 border border-dashed border-slate-200 rounded-3xl"><div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-100 text-emerald-500 rounded-full mb-3"><CheckCheck size={24} /></div><p className="text-sm font-bold text-slate-600">Xưởng sản xuất đang chạy mượt!</p></div>
+        <div className="text-center py-8 bg-slate-50 border border-dashed border-slate-200 rounded-xl"><div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-100 text-emerald-500 rounded-full mb-3"><CheckCheck size={24} /></div><p className="text-sm font-bold text-slate-600">Xưởng sản xuất đang chạy mượt!</p></div>
       ) : (
         <div className="space-y-4">{blockers.map((blocker) => <BlockerCard key={blocker.id} blocker={blocker} onUpdate={(field, value) => updateBlocker(blocker.id, field, value)} onRemove={() => removeBlocker(blocker.id)} onAppendTag={(tag) => appendBlockerTag(blocker.id, tag)} tags={BLOCKER_TAGS.media} taskOptions={taskOptions} />)}</div>
       )}
@@ -180,7 +180,7 @@ export default function MediaDailyForm({ tasks, onClose, onSuccess }: MediaDaily
     <>
       <button onClick={addTodayPlan} className="mb-4 text-sm font-bold text-pink-600 bg-pink-50 px-3 py-1.5 rounded-full hover:bg-pink-100 transition-colors flex items-center"><Plus size={16} className="mr-1" /> Thêm Công việc</button>
       {todayPlans.length === 0 ? (
-        <div className="text-center py-8 bg-slate-50 border border-dashed border-slate-200 rounded-3xl"><p className="text-sm font-bold text-slate-600">Chưa có mục tiêu nào!</p></div>
+        <div className="text-center py-8 bg-slate-50 border border-dashed border-slate-200 rounded-xl"><p className="text-sm font-bold text-slate-600">Chưa có mục tiêu nào!</p></div>
       ) : (
         <div className="space-y-4">{todayPlans.map((plan, index) => <TodayPlanCard key={plan.id} plan={plan} index={index} onUpdate={(field, value) => updateTodayPlan(plan.id, field, value)} onRemove={() => removeTodayPlan(plan.id)} onTogglePriority={() => togglePlanPriority(plan.id)} taskOptions={taskOptions} teamType="media" priorityLabel="Ấn phẩm Nóng (SLA Đỏ)" priorityIcon={<Siren size={12} />} />)}</div>
       )}

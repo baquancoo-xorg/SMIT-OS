@@ -12,6 +12,7 @@ import {
   getSprintWeek,
   ExportFilters,
 } from '../utils/export-daily-report';
+import { Card } from '../components/ui';
 
 interface Sprint {
   id: string;
@@ -246,23 +247,23 @@ export default function DailySync() {
       <DailySyncStatsBar dateRange={dateRange} onDateRangeChange={setDateRange} />
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 shrink-0">
-        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[var(--space-md)] shrink-0">
+        <Card className="p-6">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Today's Reports</p>
           <h4 className="text-3xl font-black font-headline mt-2">{todayReports.length}</h4>
-        </div>
-        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm">
+        </Card>
+        <Card className="p-6">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Approved</p>
           <h4 className="text-3xl font-black font-headline text-emerald-600 mt-2">{approvedCount}</h4>
-        </div>
-        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm">
+        </Card>
+        <Card className="p-6">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Review</p>
           <h4 className="text-3xl font-black font-headline text-amber-600 mt-2">{pendingCount}</h4>
-        </div>
-        <div className="bg-white/50 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-sm">
+        </Card>
+        <Card className="p-6">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Reports</p>
           <h4 className="text-3xl font-black font-headline mt-2">{reports.length}</h4>
-        </div>
+        </Card>
       </div>
 
       {/* Export Filter Panel */}
@@ -338,7 +339,7 @@ export default function DailySync() {
       {/* Reports Table */}
       <div className="flex-1 overflow-y-auto">
         <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+          <div className="overflow-x-auto">
             <div className="min-w-[700px]">
               <table className="w-full">
                 <thead>
@@ -453,7 +454,7 @@ export default function DailySync() {
               </table>
             </div>
           </div>
-          <p className="text-[10px] text-slate-400 text-center py-2 md:hidden">← Scroll horizontally →</p>
+          <p className="text-[10px] text-slate-400 text-center py-2 tablet:hidden">← Scroll horizontally →</p>
         </div>
       </div>
 
@@ -604,7 +605,7 @@ function DailyReportDetailModal({
               </h4>
               <div className="space-y-2">
                 {parsedBlockers.map((b, i) => (
-                  <div key={i} className="p-3 bg-red-50 border border-red-100 rounded-xl">
+                  <div key={i} className="p-4 bg-red-50 border border-red-100 rounded-lg">
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-sm font-semibold text-red-700 flex-1">{b.description}</p>
                       {b.impact !== 'none' && (
@@ -819,7 +820,7 @@ function DetailTaskSection({
           const entry = yesterdayTasks?.find(e => e.taskId === id);
           const metrics = entry?.metrics as Record<string, unknown> | undefined;
           return (
-            <div key={i} className={`p-3 ${style.bg} border ${style.border} rounded-xl`}>
+            <div key={i} className={`p-4 ${style.bg} border ${style.border} rounded-lg`}>
               <p className={`text-sm font-semibold ${style.text}`}>
                 {task?.title || `Task: ${id.slice(0, 8)}...`}
               </p>

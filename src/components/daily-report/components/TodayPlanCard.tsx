@@ -28,26 +28,18 @@ export default function TodayPlanCard({
 }: TodayPlanCardProps) {
   const isPriority = plan.isPriority;
 
-  const colorClasses = {
-    tech: { border: 'border-indigo-300', bg: 'bg-indigo-50/30', text: 'text-indigo-600', focus: 'focus:border-indigo-500 focus:ring-indigo-500' },
-    marketing: { border: 'border-orange-300', bg: 'bg-orange-50/30', text: 'text-orange-600', focus: 'focus:border-orange-500 focus:ring-orange-500' },
-    media: { border: 'border-pink-300', bg: 'bg-pink-50/30', text: 'text-pink-600', focus: 'focus:border-pink-500 focus:ring-pink-500' },
-    sale: { border: 'border-emerald-300', bg: 'bg-emerald-50/30', text: 'text-emerald-600', focus: 'focus:border-emerald-500 focus:ring-emerald-500' },
-  };
-
-  const colors = colorClasses[teamType];
 
   return (
     <div
-      className={`p-4 rounded-3xl relative group transition-all ${
+      className={`p-4 rounded-xl relative group transition-all ${
         isPriority
           ? 'border-2 border-red-300 bg-red-50/30 shadow-md'
-          : `border border-slate-200 bg-slate-50/50`
+          : 'border border-slate-200 bg-slate-50/50'
       }`}
     >
       <button
         onClick={onRemove}
-        className="absolute top-3 right-3 text-slate-400 hover:text-red-500 transition-colors bg-white rounded-full p-1 shadow-sm opacity-0 group-hover:opacity-100 z-10"
+        className="absolute top-3 right-3 text-slate-400 hover:text-red-500 transition-colors bg-white rounded-xl p-1 shadow-sm opacity-0 group-hover:opacity-100 z-10"
         title="Xóa công việc này"
       >
         <X size={16} />
@@ -102,10 +94,10 @@ export default function TodayPlanCard({
             type="text"
             value={plan.output}
             onChange={(e) => onUpdate('output', e.target.value)}
-            className={`w-full text-sm p-3 rounded-3xl border ${
+            className={`w-full text-sm p-3 rounded-xl border ${
               isPriority
                 ? 'border-red-200 focus:border-red-500 focus:ring-red-500'
-                : `border-slate-300 ${colors.focus}`
+                : 'border-slate-300 focus:border-primary focus:ring-primary'
             } focus:ring-1 outline-none bg-white placeholder-slate-400`}
             placeholder="Kết quả sẽ đạt được..."
           />
@@ -124,10 +116,10 @@ export default function TodayPlanCard({
               type="number"
               value={plan.progress || ''}
               onChange={(e) => onUpdate('progress', parseInt(e.target.value) || 0)}
-              className={`w-full text-sm p-3 pl-7 pr-8 rounded-3xl border ${
+              className={`w-full text-sm p-3 pl-7 pr-8 rounded-xl border ${
                 isPriority
                   ? 'border-red-200 focus:border-red-500 focus:ring-red-500 text-red-600'
-                  : `border-slate-300 ${colors.focus} ${colors.text}`
+                  : 'border-slate-300 focus:border-primary focus:ring-primary text-primary'
               } focus:ring-1 outline-none bg-white font-bold`}
               placeholder="0"
               min="0"

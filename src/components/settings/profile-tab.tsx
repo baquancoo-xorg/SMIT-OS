@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { User, Save, KeyRound, Check } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { Input, Button, SectionHeader } from '../ui';
 
 export function ProfileTab() {
   const { currentUser, refreshCurrentUser } = useAuth();
@@ -69,93 +70,91 @@ export function ProfileTab() {
   };
 
   return (
-    <div className="max-w-md space-y-8">
+    <div className="max-w-2xl space-y-12">
       {/* Profile info */}
-      <section className="space-y-4">
-        <h3 className="text-xl font-bold flex items-center gap-2">
-          <User size={22} className="text-primary" /> Thông tin cá nhân
-        </h3>
-        <div className="space-y-1">
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Tên hiển thị</label>
-          <input
-            type="text"
+      <section className="space-y-6">
+        <SectionHeader
+          icon={<User size={20} />}
+          title="Thông tin cá nhân"
+          subtitle="Public Profile"
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Input
+            label="Tên hiển thị"
             value={fullName}
             onChange={e => setFullName(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20"
           />
-        </div>
-        <div className="space-y-1">
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Username</label>
-          <input
-            type="text"
+          <Input
+            label="Username"
             value={currentUser?.username ?? ''}
             disabled
-            className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-400 cursor-not-allowed"
           />
-        </div>
-        <div className="space-y-1">
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Vai trò</label>
-          <input
-            type="text"
+          <Input
+            label="Vai trò"
             value={currentUser?.role ?? ''}
             disabled
-            className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-400 cursor-not-allowed"
           />
         </div>
-        <button
+        
+        <Button
           onClick={handleUpdateProfile}
-          disabled={loading || fullName === currentUser?.fullName}
-          className="flex items-center gap-2 px-5 py-2 bg-primary text-white rounded-xl text-sm font-bold disabled:opacity-50 hover:scale-95 transition-all"
+          isLoading={loading}
+          disabled={fullName === currentUser?.fullName}
+          className="gap-2"
         >
           <Save size={16} /> Lưu thay đổi
-        </button>
+        </Button>
       </section>
 
-      <hr className="border-slate-200" />
+      <hr className="border-slate-100" />
 
       {/* Change password */}
-      <section className="space-y-4">
-        <h3 className="text-xl font-bold flex items-center gap-2">
-          <KeyRound size={22} className="text-primary" /> Đổi mật khẩu
-        </h3>
-        <div className="space-y-1">
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Mật khẩu hiện tại</label>
-          <input
+      <section className="space-y-6">
+        <SectionHeader
+          icon={<KeyRound size={20} />}
+          title="Đổi mật khẩu"
+          subtitle="Security Settings"
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Input
             type="password"
+            label="Mật khẩu hiện tại"
             value={currentPassword}
             onChange={e => setCurrentPassword(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20"
           />
-        </div>
-        <div className="space-y-1">
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Mật khẩu mới</label>
-          <input
+          <div className="hidden md:block"></div>
+          <Input
             type="password"
+            label="Mật khẩu mới"
             value={newPassword}
             onChange={e => setNewPassword(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20"
           />
-        </div>
-        <div className="space-y-1">
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Xác nhận mật khẩu mới</label>
-          <input
+          <Input
             type="password"
+            label="Xác nhận mật khẩu mới"
             value={confirmPassword}
             onChange={e => setConfirmPassword(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>
-        <button
+
+        <Button
           onClick={handleChangePassword}
-          disabled={loading || !currentPassword || !newPassword || !confirmPassword}
-          className="flex items-center gap-2 px-5 py-2 bg-primary text-white rounded-xl text-sm font-bold disabled:opacity-50 hover:scale-95 transition-all"
+          isLoading={loading}
+          disabled={!currentPassword || !newPassword || !confirmPassword}
+          variant="secondary"
+          className="gap-2"
         >
           <Check size={16} /> Đổi mật khẩu
-        </button>
+        </Button>
       </section>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-      {success && <p className="text-emerald-600 text-sm font-medium">{success}</p>}
+      {(error || success) && (
+        <div className={`p-4 rounded-xl border text-sm font-medium ${error ? 'bg-error/10 border-error/20 text-error' : 'bg-tertiary/10 border-tertiary/20 text-tertiary'}`}>
+          {error || success}
+        </div>
+      )}
     </div>
   );
 }

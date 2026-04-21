@@ -37,13 +37,15 @@
   --color-error-container: #fb5151;
   --color-on-error-container: #570008;
 
-  --radius-DEFAULT: 1rem;
-  --radius-lg: 2rem;
-  --radius-xl: 3rem;
+  --radius-DEFAULT: 0.5rem;   /* 8px */
+  --radius-lg: 0.75rem;     /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.25rem;    /* 20px */
+  --radius-3xl: 1.5rem;     /* 24px */
 
   /* Semantic tokens */
-  --radius-action: 9999px;    /* capsule - buttons, badges, chips */
-  --radius-container: 3rem;   /* 48px - inputs, cards, modals */
+  --radius-action: 1rem;      /* 16px - buttons, badges, chips */
+  --radius-container: 1.25rem; /* 20px - cards, modals */
 
   /* Breakpoints - Tailwind v4 auto-generates */
   --breakpoint-xs: 375px;
@@ -215,7 +217,15 @@
   }
 
   .glass-panel {
-    @apply bg-white/70 backdrop-blur-xl;
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-sm;
+  }
+
+  .glass-card {
+    @apply bg-white/40 backdrop-blur-md border border-white/20 shadow-sm transition-all duration-300;
+  }
+
+  .glass-card:hover {
+    @apply bg-white/60 shadow-md;
   }
 
   .soft-gradient {

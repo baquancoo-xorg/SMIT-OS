@@ -51,7 +51,7 @@ export default function DailyReportBase({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/30 backdrop-blur-md" />
       <div
-        className="relative bg-slate-100 rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="relative bg-surface-container-low rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -105,7 +105,7 @@ export default function DailyReportBase({
           </div>
 
           {/* Section 2: Blockers */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm">
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-black text-slate-800 flex items-center">
                 <AlertOctagon size={20} className="mr-2 text-red-500" />
@@ -116,7 +116,7 @@ export default function DailyReportBase({
           </div>
 
           {/* Section 3: Today */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm">
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-black text-slate-800 flex items-center">
                 <Target size={20} className="mr-2 text-amber-500" />

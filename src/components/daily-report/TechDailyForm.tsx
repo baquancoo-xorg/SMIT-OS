@@ -10,6 +10,7 @@ import BlockerCard from './components/BlockerCard';
 import TodayPlanCard from './components/TodayPlanCard';
 import AdHocTasksSection from './components/AdHocTasksSection';
 import CustomSelect, { SelectOption } from '../ui/CustomSelect';
+import { Input } from '../ui';
 
 const TEST_STATUS_OPTIONS: SelectOption<string>[] = [
   { value: 'local', label: 'Pass Local', icon: <Monitor size={14} />, iconColor: 'text-slate-600' },
@@ -120,14 +121,10 @@ export default function TechDailyForm({ tasks, onClose, onSuccess }: TechDailyFo
           {taskStatuses[task.id] === 'done' && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-bold text-slate-500 mb-1">
-                    Link PR / Branch
-                  </label>
-                  <input
-                    type="text"
+                  <Input
+                    label="Link PR / Branch"
                     placeholder="VD: feature/smit-chat-auth"
-                    className="w-full border border-slate-300 rounded-3xl p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none font-semibold text-slate-700"
+                    className="font-semibold text-slate-700"
                     value={taskMetrics[task.id]?.prLink || ''}
                     onChange={(e) => updateTaskMetric(task.id, 'prLink', e.target.value)}
                   />
@@ -143,8 +140,7 @@ export default function TechDailyForm({ tasks, onClose, onSuccess }: TechDailyFo
                     placeholder="Chọn trạng thái..."
                   />
                 </div>
-              </div>
-              <div className="p-3 bg-slate-50 rounded-3xl border border-slate-200">
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">
                   Loại công việc
                 </label>
@@ -195,7 +191,7 @@ export default function TechDailyForm({ tasks, onClose, onSuccess }: TechDailyFo
         </TaskStatusCard>
       ))}
       {userTasks.length === 0 && (
-        <div className="text-center py-8 bg-white rounded-3xl border border-dashed border-slate-200">
+        <div className="text-center py-8 bg-white rounded-xl border border-dashed border-slate-200">
           <p className="text-slate-400 font-medium">Không có task nào được assign</p>
         </div>
       )}
@@ -211,7 +207,7 @@ export default function TechDailyForm({ tasks, onClose, onSuccess }: TechDailyFo
         <Plus size={16} className="mr-1" /> Thêm Vấn đề
       </button>
       {blockers.length === 0 ? (
-        <div className="text-center py-8 bg-slate-50 border border-dashed border-slate-200 rounded-3xl">
+        <div className="text-center py-8 bg-slate-50 border border-dashed border-slate-200 rounded-xl">
           <div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-100 text-emerald-500 rounded-full mb-3">
             <CheckCheck size={24} />
           </div>
@@ -245,7 +241,7 @@ export default function TechDailyForm({ tasks, onClose, onSuccess }: TechDailyFo
         <Plus size={16} className="mr-1" /> Thêm Công việc
       </button>
       {todayPlans.length === 0 ? (
-        <div className="text-center py-8 bg-slate-50 border border-dashed border-slate-200 rounded-3xl">
+        <div className="text-center py-8 bg-slate-50 border border-dashed border-slate-200 rounded-xl">
           <p className="text-sm font-bold text-slate-600">Chưa có mục tiêu nào!</p>
           <p className="text-xs text-slate-400 mt-1">Thêm công việc focus hôm nay.</p>
         </div>

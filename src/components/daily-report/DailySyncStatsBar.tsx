@@ -74,7 +74,7 @@ export default function DailySyncStatsBar({ dateRange, onDateRangeChange }: Dail
   };
 
   return (
-    <div className="flex items-center justify-between bg-white/50 backdrop-blur-md p-4 rounded-3xl shadow-sm shrink-0">
+    <div className="flex items-center justify-between bg-white/50 backdrop-blur-md p-4 rounded-xl shadow-sm shrink-0">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest">
           <Calendar size={14} />

@@ -126,7 +126,7 @@ export default function PMDashboard({ dateRange, onDateRangeChange, onRefresh }:
   return (
     <div className="space-y-6">
       {/* Sprint Filter Bar Style */}
-      <div className="flex items-center justify-between bg-white/50 backdrop-blur-md p-4 rounded-3xl shadow-sm">
+      <div className="flex items-center justify-between bg-white/50 backdrop-blur-md p-4 rounded-xl shadow-sm">
         {/* Left: Date Range Filter */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest">
@@ -183,7 +183,7 @@ export default function PMDashboard({ dateRange, onDateRangeChange, onRefresh }:
           const metricKeys = Object.keys(metrics).filter((k) => metrics[k] > 0);
 
           return (
-            <div key={team} className="bg-white rounded-3xl shadow-sm shadow-sm overflow-hidden">
+            <div key={team} className="bg-white rounded-xl shadow-sm shadow-sm overflow-hidden">
               <div className={`${theme.bg} px-5 py-3 flex items-center justify-between`}>
                 <h4 className="text-white font-bold">{getTeamDisplayName(team)}</h4>
                 <span className="text-white/80 text-sm font-medium">{stats?.count || 0} reports</span>

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Plus, Trash2, Users, Save, Edit2, X, UserCog } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import CustomSelect from '../ui/CustomSelect';
 import { User } from '../../types';
+import { Input, Button, Card, Badge, SectionHeader } from '../ui';
+import CustomSelect from '../ui/CustomSelect';
 
 const ALL_DEPARTMENTS = ['BOD', 'Tech', 'Marketing', 'Media', 'Sale'];
 const ROLE_OPTIONS = [
@@ -10,10 +11,10 @@ const ROLE_OPTIONS = [
   { value: 'Leader', label: 'Leader' },
   { value: 'Member', label: 'Member' }
 ];
-const ROLE_COLORS: Record<string, string> = {
-  Admin: 'bg-primary/10 text-primary',
-  Leader: 'bg-secondary/10 text-secondary',
-  Member: 'bg-slate-100 text-slate-600',
+const ROLE_BADGE_VARIANT: Record<string, 'info' | 'warning' | 'neutral'> = {
+  Admin: 'info',
+  Leader: 'warning',
+  Member: 'neutral',
 };
 
 interface UserManagementTabProps {
@@ -102,151 +103,188 @@ export function UserManagementTab({ onDeleteConfirm }: UserManagementTabProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-bold flex items-center gap-2">
-          <Users className="text-primary" />
-          User Management
-        </h3>
-        <button onClick={() => setIsAddingUser(true)} className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-95 transition-all">
-          <Plus size={16} /> Add User
-        </button>
-      </div>
+    <div className="space-y-8">
+      <SectionHeader
+        icon={<Users size={20} />}
+        title="User Management"
+        subtitle="Workspace Personnel"
+        action={!isAddingUser ? (
+          <Button onClick={() => setIsAddingUser(true)} size="sm" className="flex items-center gap-2">
+            <Plus size={16} /> Add User
+          </Button>
+        ) : undefined}
+      />
 
       {isAddingUser && (
-        <div className="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/20 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Full Name</label>
-              <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newUser.fullName} onChange={e => setNewUser({ ...newUser, fullName: e.target.value })} />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Username</label>
-              <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} />
-            </div>
+        <Card variant="flat" className="p-6 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input label="Full Name" placeholder="Nguyen Van A" value={newUser.fullName} onChange={e => setNewUser({ ...newUser, fullName: e.target.value })} />
+            <Input label="Username" placeholder="nva_smit" value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} />
           </div>
+          <Input type="password" label="Password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
+          
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Password</label>
-            <input type="password" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Departments</label>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Departments</label>
             <div className="flex flex-wrap gap-2">
               {ALL_DEPARTMENTS.map(dept => (
                 <button key={dept} type="button" onClick={() => toggleDepartment(dept, false)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${newUser.departments.includes(dept) ? 'bg-primary text-white shadow-md' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>{dept}</button>
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${newUser.departments.includes(dept) ? 'bg-primary text-white shadow-md' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>{dept}</button>
               ))}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Role</label>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 px-1">Role</label>
               <CustomSelect value={newUser.role} onChange={val => setNewUser({ ...newUser, role: val })} options={ROLE_OPTIONS} />
             </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Scope (Position)</label>
-              <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g., Backend Developer" value={newUser.scope} onChange={e => setNewUser({ ...newUser, scope: e.target.value })} />
-            </div>
+            <Input label="Scope (Position)" placeholder="e.g., Backend Developer" value={newUser.scope} onChange={e => setNewUser({ ...newUser, scope: e.target.value })} />
           </div>
-          <div className="flex items-center gap-2">
-            <input type="checkbox" id="isNewAdmin" checked={newUser.isAdmin} onChange={e => setNewUser({ ...newUser, isAdmin: e.target.checked })} className="w-4 h-4" />
-            <label htmlFor="isNewAdmin" className="text-xs font-bold text-slate-500 uppercase">Admin Access</label>
+
+          <div className="flex items-center gap-3 px-1">
+            <input type="checkbox" id="isNewAdmin" checked={newUser.isAdmin} onChange={e => setNewUser({ ...newUser, isAdmin: e.target.checked })} className="w-4 h-4 rounded accent-primary" />
+            <label htmlFor="isNewAdmin" className="text-xs font-bold text-slate-500 uppercase cursor-pointer">Admin Access</label>
           </div>
-          <div className="flex items-end gap-2">
-            <button onClick={handleAddUser} className="flex-1 bg-primary text-white py-2 rounded-xl text-sm font-bold">Save User</button>
-            <button onClick={() => { setIsAddingUser(false); setNewUser({ fullName: '', username: '', password: '', departments: ['Tech'], role: 'Member', scope: '', avatar: 'https://picsum.photos/seed/user/200', isAdmin: false }); }} className="px-4 py-2 bg-slate-100 text-slate-500 rounded-xl text-sm font-bold">Cancel</button>
+
+          <div className="flex gap-3 pt-2">
+            <Button onClick={handleAddUser} className="flex-1">Save User</Button>
+            <Button onClick={() => setIsAddingUser(false)} variant="ghost">Cancel</Button>
           </div>
-        </div>
+        </Card>
       )}
 
       {editingUser && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setEditingUser(null)}>
-          <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-on-surface flex items-center gap-2"><UserCog className="text-primary" size={24} /> Edit User</h3>
-              <button onClick={() => setEditingUser(null)} className="text-slate-400 hover:text-on-surface"><X size={24} /></button>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center p-4" onClick={() => setEditingUser(null)}>
+          <Card className="p-8 max-w-lg w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  <UserCog size={24} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-on-surface">Edit User</h3>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{editingUser.fullName}</p>
+                </div>
+              </div>
+              <button onClick={() => setEditingUser(null)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors"><X size={20} /></button>
             </div>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Full Name</label>
-                  <input type="text" className="w-full bg-slate-50 border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editFormData.fullName} onChange={e => setEditFormData({ ...editFormData, fullName: e.target.value })} />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Username</label>
-                  <input type="text" className="w-full bg-slate-50 border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" value={editFormData.username} onChange={e => setEditFormData({ ...editFormData, username: e.target.value })} />
-                </div>
+
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input label="Full Name" value={editFormData.fullName} onChange={e => setEditFormData({ ...editFormData, fullName: e.target.value })} />
+                <Input label="Username" value={editFormData.username} onChange={e => setEditFormData({ ...editFormData, username: e.target.value })} />
               </div>
+              <Input type="password" label="New Password" placeholder="••••••••" value={editFormData.password} onChange={e => setEditFormData({ ...editFormData, password: e.target.value })} />
+              
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">New Password <span className="text-slate-400 font-normal">(leave blank to keep)</span></label>
-                <input type="password" className="w-full bg-slate-50 border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="••••••••" value={editFormData.password} onChange={e => setEditFormData({ ...editFormData, password: e.target.value })} />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Departments</label>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Departments</label>
                 <div className="flex flex-wrap gap-2">
                   {ALL_DEPARTMENTS.map(dept => (
                     <button key={dept} type="button" onClick={() => toggleDepartment(dept, true)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${editFormData.departments.includes(dept) ? 'bg-primary text-white shadow-md' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>{dept}</button>
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${editFormData.departments.includes(dept) ? 'bg-primary text-white shadow-md' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>{dept}</button>
                   ))}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Role</label>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 px-1">Role</label>
                   <CustomSelect value={editFormData.role} onChange={val => setEditFormData({ ...editFormData, role: val })} options={ROLE_OPTIONS} />
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Scope (Position)</label>
-                  <input type="text" className="w-full bg-slate-50 border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g., Backend Developer" value={editFormData.scope} onChange={e => setEditFormData({ ...editFormData, scope: e.target.value })} />
-                </div>
+                <Input label="Scope (Position)" value={editFormData.scope} onChange={e => setEditFormData({ ...editFormData, scope: e.target.value })} />
               </div>
-              <div className="flex items-center gap-2">
-                <input type="checkbox" id="editIsAdmin" checked={editFormData.isAdmin} onChange={e => setEditFormData({ ...editFormData, isAdmin: e.target.checked })} className="w-4 h-4" />
-                <label htmlFor="editIsAdmin" className="text-xs font-bold text-slate-500 uppercase">Admin Access</label>
+
+              <div className="flex items-center gap-3 px-1">
+                <input type="checkbox" id="editIsAdmin" checked={editFormData.isAdmin} onChange={e => setEditFormData({ ...editFormData, isAdmin: e.target.checked })} className="w-4 h-4 rounded accent-primary" />
+                <label htmlFor="editIsAdmin" className="text-xs font-bold text-slate-500 uppercase cursor-pointer">Admin Access</label>
               </div>
-              <div className="flex gap-3 pt-2">
-                <button onClick={handleUpdateUser} className="flex-1 bg-primary text-white py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><Save size={16} />Save Changes</button>
-                <button onClick={() => setEditingUser(null)} className="px-6 py-3 bg-slate-100 text-slate-500 rounded-xl text-sm font-bold">Cancel</button>
+
+              <div className="flex gap-3 pt-4">
+                <Button onClick={handleUpdateUser} className="flex-1 gap-2"><Save size={16} /> Save Changes</Button>
+                <Button onClick={() => setEditingUser(null)} variant="outline">Cancel</Button>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
-      <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-slate-50 border-b border-outline-variant/10">
+      {/* Desktop: table */}
+      <div className="hidden lg:block overflow-x-auto">
+        <table className="w-full text-left border-separate border-spacing-y-2">
+          <thead>
             <tr>
               <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
               <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Dept</th>
               <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Role</th>
               <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Scope</th>
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-outline-variant/5">
+          <tbody>
             {users.map(user => (
-              <tr key={user.id} className="hover:bg-slate-50/50 transition-colors">
-                <td className="px-6 py-4">
-                  <div><span className="text-sm font-bold text-on-surface block">{user.fullName}</span><span className="text-[10px] text-slate-400 font-medium">{user.username}</span></div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex flex-wrap gap-1">
-                    {user.departments?.map(dept => (<span key={dept} className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold">{dept}</span>))}
+              <tr key={user.id} className="group">
+                <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 first:rounded-l-2xl border-y border-l border-white/20 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs font-black text-slate-400">
+                      {user.avatar ? <img src={user.avatar} className="w-full h-full rounded-full object-cover" /> : user.fullName[0]}
+                    </div>
+                    <div>
+                      <span className="text-sm font-bold text-on-surface block">{user.fullName}</span>
+                      <span className="text-[10px] text-slate-400 font-medium">{user.username}</span>
+                    </div>
                   </div>
                 </td>
-                <td className="px-6 py-4"><span className={`px-2 py-1 rounded-full text-[10px] font-bold ${ROLE_COLORS[user.role] || 'bg-slate-100 text-slate-600'}`}>{user.role}</span></td>
-                <td className="px-6 py-4"><span className="text-xs font-medium text-slate-500">{user.scope || '-'}</span></td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => openEditUser(user)} className="p-2 text-slate-400 hover:text-primary transition-colors" title="Edit User"><Edit2 size={16} /></button>
-                    <button onClick={() => onDeleteConfirm('user', user.id)} disabled={user.id === currentUser?.id} className="p-2 text-slate-400 hover:text-error transition-colors disabled:opacity-30 disabled:cursor-not-allowed" title="Delete User"><Trash2 size={16} /></button>
+                <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 border-y border-white/20 transition-colors">
+                  <div className="flex flex-wrap gap-1">
+                    {user.departments?.map(dept => (<span key={dept} className="px-2 py-0.5 bg-primary/5 text-primary rounded-lg text-[9px] font-black uppercase tracking-wider">{dept}</span>))}
+                  </div>
+                </td>
+                <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 border-y border-white/20 transition-colors">
+                  <Badge variant={ROLE_BADGE_VARIANT[user.role] || 'neutral'}>{user.role}</Badge>
+                </td>
+                <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 border-y border-white/20 transition-colors">
+                  <span className="text-xs font-bold text-slate-500">{user.scope || '-'}</span>
+                </td>
+                <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 last:rounded-r-2xl border-y border-r border-white/20 transition-colors text-right">
+                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => openEditUser(user)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all" title="Edit User"><Edit2 size={16} /></button>
+                    <button onClick={() => onDeleteConfirm('user', user.id)} disabled={user.id === currentUser?.id} className="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-xl transition-all disabled:opacity-10" title="Delete User"><Trash2 size={16} /></button>
                   </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Tablet/Mobile: card list */}
+      <div className="lg:hidden space-y-3">
+        {users.map(user => (
+          <Card key={user.id} variant="flat" className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs font-black text-slate-400 shrink-0">
+                  {user.avatar ? <img src={user.avatar} className="w-full h-full rounded-full object-cover" /> : user.fullName[0]}
+                </div>
+                <div>
+                  <span className="text-sm font-bold text-on-surface block">{user.fullName}</span>
+                  <span className="text-[10px] text-slate-400 font-medium">{user.username}</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant={ROLE_BADGE_VARIANT[user.role] || 'neutral'}>{user.role}</Badge>
+                <button onClick={() => openEditUser(user)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all" title="Edit User"><Edit2 size={16} /></button>
+                <button onClick={() => onDeleteConfirm('user', user.id)} disabled={user.id === currentUser?.id} className="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-xl transition-all disabled:opacity-10" title="Delete User"><Trash2 size={16} /></button>
+              </div>
+            </div>
+            {(user.departments?.length > 0 || user.scope) && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {user.departments?.map(dept => (<span key={dept} className="px-2 py-0.5 bg-primary/5 text-primary rounded-lg text-[9px] font-black uppercase tracking-wider">{dept}</span>))}
+                {user.scope && <span className="text-[10px] text-slate-400 ml-1">{user.scope}</span>}
+              </div>
+            )}
+          </Card>
+        ))}
       </div>
     </div>
   );

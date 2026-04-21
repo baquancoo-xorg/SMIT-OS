@@ -119,19 +119,19 @@ export default function MarketingDailyForm({ tasks, onClose, onSuccess }: Market
                 <input
                   type="text"
                   placeholder="VD: Đã duyệt xong kịch bản / Link Docs..."
-                  className="w-full border border-slate-300 rounded-3xl p-2.5 text-sm focus:ring-2 focus:ring-orange-500 outline-none font-medium text-slate-700"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-orange-500 outline-none font-medium text-slate-700"
                   value={taskMetrics[task.id]?.link || ''}
                   onChange={(e) => updateTaskMetric(task.id, 'link', e.target.value)}
                 />
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-orange-50/50 p-4 rounded-3xl border border-orange-100">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-orange-50/50 p-4 rounded-xl border border-orange-100">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Ngân sách (Spend)</label>
                   <div className="relative">
                     <input
                       type="number"
                       placeholder="0"
-                      className="w-full border border-orange-200 rounded-3xl p-2.5 pr-6 text-sm focus:ring-2 focus:ring-orange-500 outline-none font-bold text-slate-700 bg-white"
+                      className="w-full border border-orange-200 rounded-xl p-2.5 pr-6 text-sm focus:ring-2 focus:ring-orange-500 outline-none font-bold text-slate-700 bg-white"
                       value={taskMetrics[task.id]?.spend || ''}
                       onChange={(e) => { updateTaskMetric(task.id, 'spend', parseInt(e.target.value) || 0); calculateCPA(task.id); }}
                     />
@@ -143,7 +143,7 @@ export default function MarketingDailyForm({ tasks, onClose, onSuccess }: Market
                   <input
                     type="number"
                     placeholder="0"
-                    className="w-full border border-orange-200 rounded-3xl p-2.5 text-sm focus:ring-2 focus:ring-orange-500 outline-none font-bold text-slate-700 bg-white"
+                    className="w-full border border-orange-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-orange-500 outline-none font-bold text-slate-700 bg-white"
                     value={taskMetrics[task.id]?.mqls || ''}
                     onChange={(e) => { updateTaskMetric(task.id, 'mqls', parseInt(e.target.value) || 0); calculateCPA(task.id); }}
                   />
@@ -153,7 +153,7 @@ export default function MarketingDailyForm({ tasks, onClose, onSuccess }: Market
                   <input
                     type="text"
                     readOnly
-                    className="w-full border border-orange-200 bg-orange-100/50 rounded-3xl p-2.5 text-sm outline-none font-bold text-orange-700"
+                    className="w-full border border-orange-200 bg-orange-100/50 rounded-xl p-2.5 text-sm outline-none font-bold text-orange-700"
                     value={taskMetrics[task.id]?.cpa ? formatCurrency(taskMetrics[task.id].cpa!) + '₫' : 'Auto'}
                   />
                 </div>
@@ -162,7 +162,7 @@ export default function MarketingDailyForm({ tasks, onClose, onSuccess }: Market
                   <input
                     type="number"
                     placeholder="0"
-                    className="w-full border border-purple-200 rounded-3xl p-2.5 text-sm focus:ring-2 focus:ring-purple-500 outline-none font-bold text-purple-700 bg-white"
+                    className="w-full border border-purple-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-purple-500 outline-none font-bold text-purple-700 bg-white"
                     value={taskMetrics[task.id]?.adsTested || ''}
                     onChange={(e) => updateTaskMetric(task.id, 'adsTested', parseInt(e.target.value) || 0)}
                   />
@@ -195,7 +195,7 @@ export default function MarketingDailyForm({ tasks, onClose, onSuccess }: Market
         </TaskStatusCard>
       ))}
       {userTasks.length === 0 && (
-        <div className="text-center py-8 bg-white rounded-3xl border border-dashed border-slate-200">
+        <div className="text-center py-8 bg-white rounded-xl border border-dashed border-slate-200">
           <p className="text-slate-400 font-medium">Không có task nào được assign</p>
         </div>
       )}
@@ -208,7 +208,7 @@ export default function MarketingDailyForm({ tasks, onClose, onSuccess }: Market
         <Plus size={16} className="mr-1" /> Thêm Vấn đề
       </button>
       {blockers.length === 0 ? (
-        <div className="text-center py-8 bg-slate-50 border border-dashed border-slate-200 rounded-3xl">
+        <div className="text-center py-8 bg-slate-50 border border-dashed border-slate-200 rounded-xl">
           <div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-100 text-emerald-500 rounded-full mb-3"><CheckCheck size={24} /></div>
           <p className="text-sm font-bold text-slate-600">Mọi việc đều suôn sẻ!</p>
         </div>
@@ -228,7 +228,7 @@ export default function MarketingDailyForm({ tasks, onClose, onSuccess }: Market
         <Plus size={16} className="mr-1" /> Thêm Công việc
       </button>
       {todayPlans.length === 0 ? (
-        <div className="text-center py-8 bg-slate-50 border border-dashed border-slate-200 rounded-3xl">
+        <div className="text-center py-8 bg-slate-50 border border-dashed border-slate-200 rounded-xl">
           <p className="text-sm font-bold text-slate-600">Chưa có mục tiêu nào!</p>
         </div>
       ) : (

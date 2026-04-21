@@ -8,6 +8,8 @@ import { FbConfigTab } from '../components/settings/fb-config-tab';
 import { TwoFactorAuthTab } from '../components/settings/two-factor-auth-tab';
 import { ProfileTab } from '../components/settings/profile-tab';
 
+import { Card, Button } from '../components/ui';
+
 type DeleteConfirmType = { type: 'user' | 'sprint' | 'cycle'; id: string } | null;
 
 export default function Settings() {
@@ -51,38 +53,47 @@ export default function Settings() {
 
   return (
     <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
-      <section className="shrink-0 flex items-start justify-between">
+      <section className="shrink-0 flex flex-col md:flex-row md:items-end justify-between gap-[var(--space-md)]">
         <div>
-          <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">{pageTitle}</h2>
+          <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
+            <span className="hover:text-primary cursor-pointer">System</span>
+            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+            <span className="text-on-surface">Settings</span>
+          </nav>
+          <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">
+            {isAdmin ? 'Workspace' : 'User'} <span className="text-primary italic">Settings</span>
+          </h2>
           <p className="text-slate-500 mt-2">{pageDesc}</p>
         </div>
       </section>
 
-      <div className="shrink-0">
+      <Card className="p-1 shrink-0 bg-white/30">
         <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} isAdmin={isAdmin} />
-      </div>
+      </Card>
 
       <div className="flex-1 overflow-y-auto pb-8">
-        {activeTab === 'profile' && <ProfileTab />}
-        {activeTab === 'users' && isAdmin && <UserManagementTab onDeleteConfirm={handleDeleteConfirm} />}
-        {activeTab === 'sprints' && isAdmin && <SprintCyclesTab onDeleteConfirm={handleDeleteConfirm} />}
-        {activeTab === 'okrs' && isAdmin && <OkrCyclesTab onDeleteConfirm={handleDeleteConfirm} />}
-        {activeTab === 'fb-config' && isAdmin && <FbConfigTab />}
-        {activeTab === 'security' && <TwoFactorAuthTab />}
+        <Card variant="panel" className="p-8 min-h-full">
+          {activeTab === 'profile' && <ProfileTab />}
+          {activeTab === 'users' && isAdmin && <UserManagementTab onDeleteConfirm={handleDeleteConfirm} />}
+          {activeTab === 'sprints' && isAdmin && <SprintCyclesTab onDeleteConfirm={handleDeleteConfirm} />}
+          {activeTab === 'okrs' && isAdmin && <OkrCyclesTab onDeleteConfirm={handleDeleteConfirm} />}
+          {activeTab === 'fb-config' && isAdmin && <FbConfigTab />}
+          {activeTab === 'security' && <TwoFactorAuthTab />}
+        </Card>
       </div>
 
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-white/80 backdrop-blur-xl border border-white/20 rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <Card className="p-8 max-w-md w-full shadow-2xl">
             <h3 className="text-xl font-bold text-on-surface mb-2">Confirm Delete</h3>
-            <p className="text-slate-500 mb-6">
+            <p className="text-slate-500 mb-6 text-sm">
               Are you sure you want to delete this {deleteConfirm.type}? This action cannot be undone.
             </p>
             <div className="flex gap-3">
-              <button onClick={() => setDeleteConfirm(null)} className="flex-1 bg-slate-100 text-slate-500 py-3 rounded-xl font-bold">Cancel</button>
-              <button onClick={handleDelete} className="flex-1 bg-error text-white py-3 rounded-xl font-bold">Delete</button>
+              <Button onClick={() => setDeleteConfirm(null)} variant="outline" className="flex-1">Cancel</Button>
+              <Button onClick={handleDelete} variant="danger" className="flex-1">Delete</Button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
     </div>
