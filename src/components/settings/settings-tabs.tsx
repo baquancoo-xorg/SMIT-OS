@@ -10,6 +10,7 @@ interface Tab {
 }
 
 const ADMIN_TABS: Tab[] = [
+  { id: 'profile', label: 'Profile', icon: UserCircle },
   { id: 'users', label: 'Users', icon: Users },
   { id: 'sprints', label: 'Sprints', icon: Calendar },
   { id: 'okrs', label: 'OKRs', icon: Target },
