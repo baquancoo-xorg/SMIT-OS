@@ -1,14 +1,10 @@
 # Session State
-<!-- Generated: 2026-04-21T04:31:35.888Z -->
+<!-- Generated: 2026-04-21T06:22:46.348Z -->
 <!-- Branch: unknown -->
 <!-- Plan: none -->
 
 ## What Worked (Verified)
-- Sửa Prisma schema: thêm rawData Json? vào DailyReport và WeeklyReport
-- Sửa Zod schema WeeklyReport cho khớp với form thực tế
-- Cập nhật validate middleware: lưu rawBody trước khi Zod strip
-- Cập nhật route handlers: lưu rawData vào DB
-- Chạy db:push và kiểm tra
+- (No completed tasks recorded)
 
 ## What's Left
 - (All tasks completed)
@@ -332,20 +328,8 @@
 - Completed at 18:39:21
 
 ## Key Files Modified
-- .claude/session-state/archive/20260421-0934.md
-- .claude/session-state/archive/20260421-0935.md
-- .claude/session-state/archive/20260421-0936.md
-- .claude/session-state/archive/20260421-0937.md
-- .claude/session-state/archive/20260421-0938.md
+- .claude/session-state/archive/20260421-1018.md
+- .claude/session-state/archive/20260421-1020.md
+- .claude/session-state/archive/20260421-1057.md
 - .claude/session-state/latest.md
-- prisma/schema.prisma
-- server/middleware/validate.middleware.ts
-- server/routes/daily-report.routes.ts
-- server/routes/report.routes.ts
-- server/schemas/report.schema.ts
-- src/components/daily-report/DailyReportBase.tsx
-- src/components/daily-report/MarketingDailyForm.tsx
-- src/components/daily-report/MediaDailyForm.tsx
-- src/components/daily-report/SaleDailyForm.tsx
-- src/components/daily-report/TechDailyForm.tsx
-- src/pages/DailySync.tsx
+- src/components/board/TaskCard.tsx

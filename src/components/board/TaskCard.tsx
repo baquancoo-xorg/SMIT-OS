@@ -187,7 +187,14 @@ export default memo(function TaskCard({ item, onUpdate, onDelete, onEdit, onView
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-slate-400">
                 <span className="material-symbols-outlined text-[16px]">timer</span>
-                <span className="text-[10px] font-black uppercase tracking-widest">{item.estimatedTime || '---'}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest">
+                  {item.startDate && item.dueDate
+                    ? (() => {
+                        const days = Math.round((new Date(item.dueDate).getTime() - new Date(item.startDate).getTime()) / 86400000);
+                        return days > 0 ? `${days} day${days > 1 ? 's' : ''}` : '1 day';
+                      })()
+                    : '---'}
+                </span>
               </div>
               <div className="flex items-center gap-2 text-slate-400">
                 <span className="material-symbols-outlined text-[16px]">calendar_today</span>
