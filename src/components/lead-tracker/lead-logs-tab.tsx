@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
-import { Search, Check, Trash2, Edit2, X } from 'lucide-react';
+import { Search, Check, Trash2, Edit2, X, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { api } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -7,6 +7,8 @@ import type { Lead } from '../../types';
 import CustomFilter from '../ui/CustomFilter';
 import DatePicker from '../ui/date-picker';
 import BulkActionBar, { type BulkEditFields } from './bulk-action-bar';
+import LeadDetailModal from './lead-detail-modal';
+import { exportAllLeadsToCsv } from './csv-export';
 
 const STATUSES = ['Mới', 'Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'];
 const LEAD_TYPES = ['Việt Nam', 'Quốc Tế'];
@@ -105,6 +107,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
   const [draft, setDraft] = useState<Partial<Lead>>({});
   const [saving, setSaving] = useState(false);
   const [aeOptions, setAeOptions] = useState<{ id: string; fullName: string }[]>([]);
+  const [exporting, setExporting] = useState(false);
   const today = new Date().toISOString().slice(0, 10);
   const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
   const [filters, setFilters] = useState({ ae: '', status: '', dateFrom: sevenDaysAgo.toISOString().slice(0, 10), dateTo: today });
@@ -114,6 +117,11 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
   const [bulkEditMode, setBulkEditMode] = useState(false);
   const [bulkEdit, setBulkEdit] = useState<BulkEditFields>({ status: '', ae: '', leadType: '' });
   const [bulkSaving, setBulkSaving] = useState(false);
+
+  // Inline edit & detail modal
+  const [inlineEdit, setInlineEdit] = useState<{ id: string; field: string } | null>(null);
+  const [inlineSaving, setInlineSaving] = useState<{ id: string; field: string } | null>(null);
+  const [detailLead, setDetailLead] = useState<Lead | null>(null);
 
   const sf = (k: string, v: string) => setFilters((f) => ({ ...f, [k]: v }));
 
@@ -224,11 +232,31 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
     await api.deleteLead(id); fetchLeads();
   };
 
+  // --- Per-cell inline edit save ---
+  const saveInlineField = async (id: string, field: string, value: string) => {
+    setInlineSaving({ id, field });
+    try {
+      await api.updateLead(id, { [field]: value || null });
+      await fetchLeads();
+    } finally {
+      setInlineSaving(null);
+      setInlineEdit((cur) => (cur?.id === id && cur.field === field ? null : cur));
+    }
+  };
+
+  const handleExportCsv = async () => {
+    setExporting(true);
+    try { await exportAllLeadsToCsv(); } finally { setExporting(false); }
+  };
+
   const setPR = (id: string, k: keyof PendingRow, v: string) =>
     setPending((prev) => prev.map((r) => r._id === id ? { ...r, [k]: v } : r));
 
   const inputCls = 'w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all';
   const cellCls = 'px-4 py-4 text-xs';
+  const inlineCls = 'w-full bg-white border border-primary/40 rounded-lg px-2 py-1 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/30';
+  const editableCellCls = (id: string, field: string) =>
+    `${cellCls} ${inlineSaving?.id === id && inlineSaving.field === field ? 'opacity-50' : 'hover:bg-slate-50 cursor-pointer'}`;
 
   return (
     <div className="h-full flex flex-col gap-4">
@@ -241,6 +269,14 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
         </div>
         <CustomFilter value={filters.ae} onChange={(v) => sf('ae', v)} options={[{ value: '', label: 'All AE' }, ...aeOptions.map((a) => ({ value: a.fullName, label: a.fullName }))]} buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case" />
         <CustomFilter value={filters.status} onChange={(v) => sf('status', v)} options={[{ value: '', label: 'All Status' }, ...STATUSES.map((s) => ({ value: s, label: s }))]} buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case" />
+        <button
+          onClick={handleExportCsv}
+          disabled={exporting}
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all disabled:opacity-50"
+        >
+          <Download size={14} />
+          {exporting ? 'Exporting...' : 'Export CSV'}
+        </button>
         <div className="ml-auto flex items-center gap-3">
           {/* Stat bars */}
           {!loading && (() => {
@@ -339,18 +375,75 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
                         </button>
                       </td>
                     )}
-                    <td className={`${cellCls} font-black text-on-surface group-hover:text-primary transition-colors`}>{lead.customerName}</td>
+                    {/* Customer — click to open detail modal */}
+                    <td className={`${cellCls} font-black text-on-surface`}>
+                      <span
+                        className="cursor-pointer hover:text-primary hover:underline transition-colors"
+                        onClick={() => setDetailLead(lead)}
+                      >{lead.customerName}</span>
+                    </td>
                     <td className={`${cellCls} font-bold text-slate-600`}>{lead.ae}</td>
                     <td className={`${cellCls} text-slate-500 font-medium`}>{lead.receivedDate.slice(0, 10)}</td>
-                    <td className={`${cellCls} text-slate-500 font-medium`}>{lead.resolvedDate ? lead.resolvedDate.slice(0, 10) : '-'}</td>
-                    <td className={cellCls}>
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${STATUS_BADGE[lead.status] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}>
-                        {lead.status}
-                      </span>
+                    {/* Resolved Date — per-cell inline edit */}
+                    <td className={editableCellCls(lead.id, 'resolvedDate')} onClick={() => setInlineEdit({ id: lead.id, field: 'resolvedDate' })}>
+                      {inlineEdit?.id === lead.id && inlineEdit.field === 'resolvedDate'
+                        ? <input type="date" autoFocus className={inlineCls} defaultValue={lead.resolvedDate?.slice(0, 10) ?? ''}
+                            onBlur={(e) => saveInlineField(lead.id, 'resolvedDate', e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Escape') setInlineEdit(null); }} />
+                        : lead.resolvedDate ? lead.resolvedDate.slice(0, 10) : '-'
+                      }
                     </td>
-                    <td className={`${cellCls} text-slate-500 font-medium`}>{lead.leadType ?? '-'}</td>
-                    <td className={`${cellCls} text-slate-500 font-medium`}>{lead.status === 'Unqualified' ? (lead.unqualifiedType ?? '-') : '-'}</td>
-                    <td className={`${cellCls} text-slate-400 font-medium italic max-w-[150px] truncate`}>{lead.notes || '—'}</td>
+                    {/* Status — per-cell inline edit */}
+                    <td className={editableCellCls(lead.id, 'status')} onClick={() => setInlineEdit({ id: lead.id, field: 'status' })}>
+                      {inlineEdit?.id === lead.id && inlineEdit.field === 'status'
+                        ? <select autoFocus className={inlineCls} defaultValue={lead.status}
+                            onChange={(e) => saveInlineField(lead.id, 'status', e.target.value)}
+                            onBlur={() => setInlineEdit(null)}>
+                            {STATUSES.map((s) => <option key={s}>{s}</option>)}
+                          </select>
+                        : <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${STATUS_BADGE[lead.status] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                            {lead.status}
+                          </span>
+                      }
+                    </td>
+                    {/* Lead Type — per-cell inline edit */}
+                    <td className={editableCellCls(lead.id, 'leadType')} onClick={() => setInlineEdit({ id: lead.id, field: 'leadType' })}>
+                      {inlineEdit?.id === lead.id && inlineEdit.field === 'leadType'
+                        ? <select autoFocus className={inlineCls} defaultValue={lead.leadType ?? ''}
+                            onChange={(e) => saveInlineField(lead.id, 'leadType', e.target.value)}
+                            onBlur={() => setInlineEdit(null)}>
+                            <option value="">-</option>
+                            {LEAD_TYPES.map((t) => <option key={t}>{t}</option>)}
+                          </select>
+                        : lead.leadType ?? '-'
+                      }
+                    </td>
+                    {/* UQ Reason — per-cell inline edit (only if Unqualified) */}
+                    <td
+                      className={`${cellCls} text-slate-500 font-medium ${lead.status === 'Unqualified' ? (inlineSaving?.id === lead.id && inlineSaving.field === 'unqualifiedType' ? 'opacity-50' : 'hover:bg-slate-50 cursor-pointer') : ''}`}
+                      onClick={() => lead.status === 'Unqualified' && setInlineEdit({ id: lead.id, field: 'unqualifiedType' })}
+                    >
+                      {lead.status !== 'Unqualified'
+                        ? '-'
+                        : inlineEdit?.id === lead.id && inlineEdit.field === 'unqualifiedType'
+                          ? <select autoFocus className={inlineCls} defaultValue={lead.unqualifiedType ?? ''}
+                              onChange={(e) => saveInlineField(lead.id, 'unqualifiedType', e.target.value)}
+                              onBlur={() => setInlineEdit(null)}>
+                              <option value="">-</option>
+                              {UNQUALIFIED_TYPES.map((t) => <option key={t}>{t}</option>)}
+                            </select>
+                          : lead.unqualifiedType ?? '-'
+                      }
+                    </td>
+                    {/* Notes — per-cell inline edit */}
+                    <td className={`${editableCellCls(lead.id, 'notes')} italic max-w-[150px]`} onClick={() => setInlineEdit({ id: lead.id, field: 'notes' })}>
+                      {inlineEdit?.id === lead.id && inlineEdit.field === 'notes'
+                        ? <input autoFocus className={inlineCls} defaultValue={lead.notes ?? ''}
+                            onBlur={(e) => saveInlineField(lead.id, 'notes', e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Escape') setInlineEdit(null); }} />
+                        : <span className="text-slate-400 truncate block">{lead.notes || '—'}</span>
+                      }
+                    </td>
                     <td className={cellCls}>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={() => { setEditId(lead.id); setDraft({ ...lead }); }} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all" title="Edit"><Edit2 size={16} /></button>
@@ -396,7 +489,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
         </div>
       </div>
 
-      {/* Pending bar - shrink-0 dưới bảng */}
+      {/* Pending bar */}
       <AnimatePresence>
         {pending.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="shrink-0 flex items-center justify-between p-6 bg-amber-50 border border-amber-200 rounded-[2rem] shadow-lg shadow-amber-200/20">
@@ -433,6 +526,9 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
           />
         )}
       </AnimatePresence>
+
+      {/* Lead detail modal */}
+      <LeadDetailModal lead={detailLead} onClose={() => setDetailLead(null)} />
     </div>
   );
 }
