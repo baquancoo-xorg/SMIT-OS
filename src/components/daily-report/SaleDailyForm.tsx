@@ -35,6 +35,7 @@ export default function SaleDailyForm({ tasks, onClose, onSuccess }: SaleDailyFo
   const { currentUser } = useAuth();
   const [reportDate, setReportDate] = useState(new Date().toISOString().split('T')[0]);
   const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const {
     taskStatuses, taskMetrics, blockers, todayPlans, adHocTasks, setAdHocTasks,
@@ -49,6 +50,7 @@ export default function SaleDailyForm({ tasks, onClose, onSuccess }: SaleDailyFo
   const handleSubmit = async () => {
     if (submitting) return;
     setSubmitting(true);
+    setErrorMessage(null);
     try {
       const yesterdayTasks: TaskEntry[] = Object.entries(taskStatuses).map(([taskId, status]) => ({ taskId, status: status as 'done' | 'doing', metrics: taskMetrics[taskId] }));
       const res = await fetch('/api/daily-reports', {
@@ -69,9 +71,15 @@ export default function SaleDailyForm({ tasks, onClose, onSuccess }: SaleDailyFo
           teamMetrics: { yesterdayTasks, blockers, todayPlans, adHocTasks },
         }),
       });
-      if (res.ok) onSuccess();
+      if (res.ok) {
+        onSuccess();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMessage(data.error || `Gửi thất bại (${res.status}). Vui lòng thử lại.`);
+      }
     } catch (error) {
       console.error('Failed to create report:', error);
+      setErrorMessage('Không thể kết nối server. Vui lòng thử lại.');
     } finally {
       setSubmitting(false);
     }
@@ -191,6 +199,6 @@ export default function SaleDailyForm({ tasks, onClose, onSuccess }: SaleDailyFo
   );
 
   return (
-    <DailyReportBase teamType="sale" userName={currentUser?.fullName || ''} userRole={currentUser?.role || ''} userAvatar={currentUser?.fullName?.split(' ').map((n) => n[0]).join('') || '?'} reportDate={reportDate} onDateChange={setReportDate} onClose={onClose} onSubmit={handleSubmit} submitting={submitting} yesterdaySection={renderYesterdaySection()} adHocSection={<AdHocTasksSection tasks={adHocTasks} onTasksChange={setAdHocTasks} teamColor="emerald" />} blockersSection={renderBlockersSection()} todaySection={renderTodaySection()} />
+    <DailyReportBase teamType="sale" userName={currentUser?.fullName || ''} userRole={currentUser?.role || ''} userAvatar={currentUser?.fullName?.split(' ').map((n) => n[0]).join('') || '?'} reportDate={reportDate} onDateChange={setReportDate} onClose={onClose} onSubmit={handleSubmit} submitting={submitting} errorMessage={errorMessage} yesterdaySection={renderYesterdaySection()} adHocSection={<AdHocTasksSection tasks={adHocTasks} onTasksChange={setAdHocTasks} teamColor="emerald" />} blockersSection={renderBlockersSection()} todaySection={renderTodaySection()} />
   );
 }

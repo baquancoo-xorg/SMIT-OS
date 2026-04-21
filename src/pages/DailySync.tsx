@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Plus, Calendar, CheckCircle, Eye, X, Download } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Plus, Calendar, CheckCircle, Eye, X, Download, AlertTriangle, Target, ListChecks, Zap, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { DailyReport, WorkItem, DailyReportTasksData } from '../types';
+import { BlockerEntry, TodayPlanEntry, TaskEntry, AdHocTask } from '../types/daily-report-metrics';
 import TeamFormSelector from '../components/daily-report/TeamFormSelector';
 import DailySyncStatsBar from '../components/daily-report/DailySyncStatsBar';
 import { getTeamDisplayName } from '../utils/team-detection';
@@ -41,9 +42,10 @@ export default function DailySync() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [dateRange, setDateRange] = useState(getWeekRange);
 
-  // Export state
+  // Bulk action state
   const [exportMode, setExportMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [deleting, setDeleting] = useState(false);
   const [exportFilters, setExportFilters] = useState<ExportFilters>({
     assignUserId: '',
     sprintId: '',
@@ -166,6 +168,24 @@ export default function DailySync() {
     exportReportsAsMarkdown(selectedIds, reports, tasks, sprints, exportFilters);
   };
 
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Xóa ${selectedIds.size} báo cáo đã chọn? Không thể hoàn tác.`)) return;
+    setDeleting(true);
+    try {
+      await Promise.all(
+        Array.from(selectedIds).map(id =>
+          fetch(`/api/daily-reports/${id}`, { method: 'DELETE' })
+        )
+      );
+      await fetchReports();
+      setSelectedIds(new Set());
+    } catch (error) {
+      console.error('Failed to delete reports:', error);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -208,8 +228,8 @@ export default function DailySync() {
                   : 'bg-surface-container-high text-slate-600 hover:bg-slate-200'
               }`}
             >
-              <Download size={13} />
-              {exportMode ? 'Hu\u1ef7 Export' : 'Export'}
+              <Zap size={13} />
+              {exportMode ? 'Hủy' : 'Quick Action'}
             </button>
           )}
           <button
@@ -294,6 +314,14 @@ export default function DailySync() {
               <span className="text-[10px] text-slate-400 font-medium">
                 {selectedIds.size} báo cáo đã chọn
               </span>
+              <button
+                onClick={handleBulkDelete}
+                disabled={selectedIds.size === 0 || deleting}
+                className="flex items-center gap-2 h-9 bg-red-500 text-white px-5 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none"
+              >
+                <Trash2 size={12} />
+                {deleting ? 'Đang xóa...' : `Xóa (${selectedIds.size})`}
+              </button>
               <button
                 onClick={handleExport}
                 disabled={selectedIds.size === 0}
@@ -471,9 +499,26 @@ function DailyReportDetailModal({
 }) {
   const [approving, setApproving] = useState(false);
 
-  const tasksData: DailyReportTasksData = report.tasksData
-    ? JSON.parse(report.tasksData)
-    : { completedYesterday: [], doingYesterday: [], doingToday: [] };
+  const tasksData: DailyReportTasksData = (() => {
+    try { return report.tasksData ? JSON.parse(report.tasksData) : {}; } catch { return {}; }
+  })();
+
+  const richMetrics = report.teamMetrics as {
+    yesterdayTasks?: TaskEntry[];
+    blockers?: BlockerEntry[];
+    todayPlans?: TodayPlanEntry[];
+    adHocTasks?: AdHocTask[];
+  } | null;
+
+  const parsedBlockers: BlockerEntry[] = (() => {
+    if (richMetrics?.blockers?.length) return richMetrics.blockers;
+    if (!report.blockers) return [];
+    try { return JSON.parse(report.blockers); } catch { return []; }
+  })();
+
+  const completedIds: string[] = tasksData.completedYesterday || [];
+  const doingIds: string[] = tasksData.doingYesterday || [];
+  const todayIds: string[] = tasksData.doingToday || [];
 
   const handleApprove = async () => {
     setApproving(true);
@@ -488,21 +533,28 @@ function DailyReportDetailModal({
         className="relative bg-white/80 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
+        {/* Header */}
         <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h3 className="text-xl font-black font-headline">{report.user?.fullName}</h3>
             <p className="text-sm text-slate-400">
-              {new Date(report.reportDate).toLocaleDateString('vi-VN', {
-                weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
+              {new Date(report.reportDate).toLocaleDateString("vi-VN", {
+                weekday: "long", day: "2-digit", month: "2-digit", year: "numeric",
               })}
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {report.teamType && (
+              <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${
+                report.teamType === 'tech' ? 'bg-indigo-100 text-indigo-700' :
+                report.teamType === 'marketing' ? 'bg-orange-100 text-orange-700' :
+                report.teamType === 'media' ? 'bg-pink-100 text-pink-700' :
+                'bg-emerald-100 text-emerald-700'
+              }`}>{report.teamType}</span>
+            )}
             <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase ${
               report.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-            }`}>
-              {report.status}
-            </span>
+            }`}>{report.status}</span>
             <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
               <X size={20} />
             </button>
@@ -510,41 +562,73 @@ function DailyReportDetailModal({
         </div>
 
         <div className="flex-1 overflow-y-auto p-8 space-y-6">
-          <TaskSection
-            label="Completed Yesterday"
+          {/* Hoàn thành hôm qua */}
+          <DetailTaskSection
+            label="Hoàn thành hôm qua"
+            icon={<ListChecks size={14} />}
             color="emerald"
-            ids={tasksData.completedYesterday}
+            ids={completedIds}
             tasks={tasks}
+            yesterdayTasks={richMetrics?.yesterdayTasks}
+            teamType={report.teamType || undefined}
           />
-          <TaskSection
-            label="Still Working On"
+
+          {/* Vẫn đang làm */}
+          <DetailTaskSection
+            label="Vẫn đang làm"
+            icon={<Zap size={14} />}
             color="amber"
-            ids={tasksData.doingYesterday}
+            ids={doingIds}
             tasks={tasks}
+            yesterdayTasks={richMetrics?.yesterdayTasks}
+            teamType={report.teamType || undefined}
           />
-          <TaskSection
-            label="Plan for Today"
-            color="primary"
-            ids={tasksData.doingToday}
+
+          {/* Mục tiêu hôm nay */}
+          <TodaySection
+            todayPlans={richMetrics?.todayPlans || []}
+            ids={todayIds}
             tasks={tasks}
           />
 
-          {report.blockers && (
+          {/* Công việc phát sinh */}
+          {richMetrics?.adHocTasks && richMetrics.adHocTasks.length > 0 && (
+            <AdHocSection adHocTasks={richMetrics.adHocTasks} />
+          )}
+
+          {/* Blockers */}
+          {parsedBlockers.length > 0 && (
             <div>
-              <h4 className="text-xs font-black uppercase text-red-500 tracking-widest mb-3">Blockers</h4>
-              <div className="p-4 bg-red-50 rounded-xl">
-                <p className="text-sm text-red-700">{report.blockers}</p>
+              <h4 className="text-xs font-black uppercase text-red-500 tracking-widest mb-3 flex items-center gap-1.5">
+                <AlertTriangle size={13} /> Khó khăn &amp; Rủi ro
+              </h4>
+              <div className="space-y-2">
+                {parsedBlockers.map((b, i) => (
+                  <div key={i} className="p-3 bg-red-50 border border-red-100 rounded-xl">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-semibold text-red-700 flex-1">{b.description}</p>
+                      {b.impact !== 'none' && (
+                        <span className={`shrink-0 px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                          b.impact === 'high' ? 'bg-red-200 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                        }`}>{b.impact}</span>
+                      )}
+                    </div>
+                    {b.taskTitle && (
+                      <p className="text-xs text-red-400 mt-1">Task: {b.taskTitle}</p>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           )}
 
           {report.impactLevel && report.impactLevel !== 'none' && (
             <div>
-              <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3">Impact Level</h4>
+              <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-2">Mức độ ảnh hưởng</h4>
               <span className={`px-4 py-2 rounded-xl font-bold text-sm ${
                 report.impactLevel === 'high' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
               }`}>
-                {report.impactLevel.charAt(0).toUpperCase() + report.impactLevel.slice(1)}
+                {report.impactLevel === 'high' ? 'Cao' : 'Thấp'}
               </span>
             </div>
           )}
@@ -567,37 +651,279 @@ function DailyReportDetailModal({
   );
 }
 
-const TASK_SECTION_STYLES: Record<string, { label: string; bg: string; text: string }> = {
-  emerald: { label: 'text-emerald-500', bg: 'bg-emerald-50', text: 'text-emerald-700' },
-  amber: { label: 'text-amber-500', bg: 'bg-amber-50', text: 'text-amber-700' },
-  primary: { label: 'text-primary', bg: 'bg-primary/5', text: 'text-primary' },
+// ─── Detail Task Section ──────────────────────────────────────────────────────
+const SECTION_STYLES: Record<string, { label: string; bg: string; text: string; border: string }> = {
+  emerald: { label: 'text-emerald-600', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100' },
+  amber: { label: 'text-amber-600', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
 };
 
-function TaskSection({
-  label, color, ids, tasks,
+const TEST_STATUS_LABEL: Record<string, string> = {
+  local: 'Pass Local', staging: 'Đã lên Staging', prod: 'Đã lên Production',
+};
+const BLOCKED_BY_LABEL: Record<string, string> = {
+  design: 'Chờ Design', qa: 'Chờ QA', devops: 'Chờ DevOps', external: 'Chờ External',
+};
+const CAMP_STATUS_LABEL: Record<string, string> = {
+  normal: 'Ổn định', testing: 'Đang Test mẫu mới', waiting_media: 'Chờ Media',
+  expensive: 'Camp bị đắt', banned: 'Chết TKQC',
+};
+const CHANNEL_LABEL: Record<string, string> = { fb: 'Facebook', google: 'Google', tiktok: 'TikTok' };
+const VERSION_LABEL: Record<string, string> = { demo: 'Bản Nháp', final: 'Bản Final', published: 'Đã Đăng tải' };
+const PROD_STATUS_LABEL: Record<string, string> = {
+  editing: 'Đang quay/dựng', rendering: 'Đang Render', feedback: 'Đang sửa Feedback',
+};
+const FOLLOWUP_LABEL: Record<string, string> = {
+  following: 'Đang bám sát / Gọi lại',
+  waiting_customer: 'Chờ khách phản hồi',
+  waiting_internal: 'Chờ Tech/Mkt hỗ trợ',
+};
+
+const formatVND = (v: number) => new Intl.NumberFormat('vi-VN').format(v) + '₫';
+
+function MetricTag({ label, value, color = 'slate' }: { label: string; value: React.ReactNode; color?: string }) {
+  const colorMap: Record<string, string> = {
+    slate: 'bg-white border-slate-200 text-slate-600',
+    indigo: 'bg-indigo-50 border-indigo-200 text-indigo-700',
+    orange: 'bg-orange-50 border-orange-200 text-orange-700',
+    amber: 'bg-amber-100 border-amber-200 text-amber-700',
+    emerald: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+    pink: 'bg-pink-50 border-pink-200 text-pink-700',
+    red: 'bg-red-50 border-red-200 text-red-700',
+  };
+  return (
+    <span className={`px-2 py-0.5 border rounded-full text-[10px] font-bold ${colorMap[color] || colorMap.slate}`}>
+      {label}: <strong>{value}</strong>
+    </span>
+  );
+}
+
+function renderTaskMetrics(metrics: Record<string, unknown>, teamType: string, status: 'done' | 'doing') {
+  const m = metrics;
+
+  if (teamType === 'tech') {
+    if (status === 'done') return (
+      <div className="flex flex-wrap gap-1.5 mt-2">
+        {m.taskType && <MetricTag label="Loại" value={m.taskType === 'bug' ? 'Bug Fix' : 'Feature mới'} color={m.taskType === 'bug' ? 'red' : 'indigo'} />}
+        {m.testStatus && <MetricTag label="Test" value={TEST_STATUS_LABEL[String(m.testStatus)] || String(m.testStatus)} color="indigo" />}
+        {m.prLink && (
+          <a href={String(m.prLink)} target="_blank" rel="noopener noreferrer"
+            className="px-2 py-0.5 bg-indigo-50 border border-indigo-200 rounded-full text-[10px] font-bold text-indigo-700 truncate max-w-[200px] hover:underline">
+            PR: {String(m.prLink)}
+          </a>
+        )}
+      </div>
+    );
+    if (status === 'doing') return m.blockedBy ? (
+      <div className="mt-2"><MetricTag label="Blocked by" value={BLOCKED_BY_LABEL[String(m.blockedBy)] || String(m.blockedBy)} color="amber" /></div>
+    ) : null;
+  }
+
+  if (teamType === 'marketing') {
+    if (status === 'done') return (
+      <div className="mt-2 space-y-2">
+        {m.link && (
+          <a href={String(m.link)} target="_blank" rel="noopener noreferrer"
+            className="block text-xs text-orange-600 font-medium hover:underline truncate">🔗 {String(m.link)}</a>
+        )}
+        {(m.spend != null || m.mqls != null || m.cpa != null || m.adsTested != null) && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-orange-50/60 p-3 rounded-xl border border-orange-100">
+            {m.spend != null && <div className="text-center"><p className="text-[9px] font-black text-slate-400 uppercase">Spend</p><p className="text-sm font-black text-orange-700">{formatVND(Number(m.spend))}</p></div>}
+            {m.mqls != null && <div className="text-center"><p className="text-[9px] font-black text-slate-400 uppercase">MQLs</p><p className="text-sm font-black text-orange-700">{String(m.mqls)}</p></div>}
+            {m.cpa != null && <div className="text-center"><p className="text-[9px] font-black text-slate-400 uppercase">CPA</p><p className="text-sm font-black text-orange-700">{formatVND(Number(m.cpa))}</p></div>}
+            {m.adsTested != null && <div className="text-center"><p className="text-[9px] font-black text-slate-400 uppercase">Ads Test</p><p className="text-sm font-black text-purple-700">{String(m.adsTested)}</p></div>}
+          </div>
+        )}
+      </div>
+    );
+    if (status === 'doing') return (
+      <div className="flex flex-wrap gap-1.5 mt-2">
+        {m.channel && <MetricTag label="Channel" value={CHANNEL_LABEL[String(m.channel)] || String(m.channel)} color="orange" />}
+        {m.campStatus && <MetricTag label="Camp" value={CAMP_STATUS_LABEL[String(m.campStatus)] || String(m.campStatus)} color="orange" />}
+      </div>
+    );
+  }
+
+  if (teamType === 'media') {
+    if (status === 'done') return (
+      <div className="mt-2 space-y-2">
+        {m.link && (
+          <a href={String(m.link)} target="_blank" rel="noopener noreferrer"
+            className="block text-xs text-pink-600 font-medium hover:underline truncate">🔗 {String(m.link)}</a>
+        )}
+        <div className="flex flex-wrap gap-1.5">
+          {m.version && <MetricTag label="Loại" value={VERSION_LABEL[String(m.version)] || String(m.version)} color="pink" />}
+          {m.publicationsCount != null && <MetricTag label="Số ấn phẩm" value={String(m.publicationsCount)} color="pink" />}
+          {m.views && <MetricTag label="Lượt xem" value={String(m.views)} color="slate" />}
+          {m.engagement && <MetricTag label="Tương tác" value={String(m.engagement)} color="slate" />}
+          {m.followers != null && Number(m.followers) > 0 && <MetricTag label="Follower mới" value={`+${m.followers}`} color="pink" />}
+        </div>
+      </div>
+    );
+    if (status === 'doing') return (
+      <div className="flex flex-wrap gap-1.5 mt-2">
+        {m.prodStatus && <MetricTag label="Tình trạng" value={PROD_STATUS_LABEL[String(m.prodStatus)] || String(m.prodStatus)} color="pink" />}
+        {m.revisionCount && <MetricTag label="Vòng sửa" value={String(m.revisionCount)} color="amber" />}
+      </div>
+    );
+  }
+
+  if (teamType === 'sale') {
+    if (status === 'done') return (
+      <div className="mt-2 space-y-2">
+        {m.note && <p className="text-xs text-emerald-700 font-medium bg-emerald-50 px-2 py-1.5 rounded-lg">📝 {String(m.note)}</p>}
+        {(m.leadsReceived != null || m.leadsAttempted != null || m.leadsQualified != null || m.demosBooked != null || m.leadsUnqualified != null) && (
+          <div className="grid grid-cols-3 md:grid-cols-5 gap-2 bg-emerald-50/60 p-3 rounded-xl border border-emerald-100">
+            {m.leadsReceived != null && <div className="text-center"><p className="text-[9px] font-black text-slate-400 uppercase">Lead nhận</p><p className="text-sm font-black text-slate-700">{String(m.leadsReceived)}</p></div>}
+            {m.leadsAttempted != null && <div className="text-center"><p className="text-[9px] font-black text-blue-400 uppercase">Đang xử lý</p><p className="text-sm font-black text-blue-600">{String(m.leadsAttempted)}</p></div>}
+            {m.leadsQualified != null && <div className="text-center"><p className="text-[9px] font-black text-emerald-500 uppercase">SQL</p><p className="text-sm font-black text-emerald-700">{String(m.leadsQualified)}</p></div>}
+            {m.demosBooked != null && <div className="text-center"><p className="text-[9px] font-black text-amber-500 uppercase">Demo</p><p className="text-sm font-black text-amber-700">{String(m.demosBooked)}</p></div>}
+            {m.leadsUnqualified != null && <div className="text-center"><p className="text-[9px] font-black text-red-400 uppercase">Hủy/Rác</p><p className="text-sm font-black text-red-600">{String(m.leadsUnqualified)}</p></div>}
+          </div>
+        )}
+        <div className="flex flex-wrap gap-1.5">
+          {m.oppValue != null && Number(m.oppValue) > 0 && <MetricTag label="Cơ hội mới" value={formatVND(Number(m.oppValue))} color="slate" />}
+          {m.revenue != null && Number(m.revenue) > 0 && <MetricTag label="Doanh thu WON" value={formatVND(Number(m.revenue))} color="emerald" />}
+          {m.ticketsResolved != null && <MetricTag label="Ticket đã giải q." value={String(m.ticketsResolved)} color="indigo" />}
+        </div>
+      </div>
+    );
+    if (status === 'doing') return m.followupStatus ? (
+      <div className="mt-2"><MetricTag label="Chăm sóc" value={FOLLOWUP_LABEL[String(m.followupStatus)] || String(m.followupStatus)} color="emerald" /></div>
+    ) : null;
+  }
+
+  return null;
+}
+
+function DetailTaskSection({
+  label, icon, color, ids, tasks, yesterdayTasks, teamType,
 }: {
   label: string;
-  color: string;
+  icon: React.ReactElement;
+  color: 'emerald' | 'amber';
+  ids: string[];
+  tasks: WorkItem[];
+  yesterdayTasks?: TaskEntry[];
+  teamType?: string;
+}) {
+  const style = SECTION_STYLES[color];
+  const sectionStatus: 'done' | 'doing' = color === 'emerald' ? 'done' : 'doing';
+  return (
+    <div>
+      <h4 className={`text-xs font-black uppercase ${style.label} tracking-widest mb-3 flex items-center gap-1.5`}>
+        {icon} {label}
+      </h4>
+      <div className="space-y-2">
+        {ids.length > 0 ? ids.map((id, i) => {
+          const task = tasks.find(t => t.id === id);
+          const entry = yesterdayTasks?.find(e => e.taskId === id);
+          const metrics = entry?.metrics as Record<string, unknown> | undefined;
+          return (
+            <div key={i} className={`p-3 ${style.bg} border ${style.border} rounded-xl`}>
+              <p className={`text-sm font-semibold ${style.text}`}>
+                {task?.title || `Task: ${id.slice(0, 8)}...`}
+              </p>
+              {metrics && teamType && renderTaskMetrics(metrics, teamType, sectionStatus)}
+            </div>
+          );
+        }) : (
+          <p className="text-slate-400 text-sm italic">Không có task</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Today Plan Section ─────────────────────────────────────────────────────
+function TodaySection({
+  todayPlans, ids, tasks,
+}: {
+  todayPlans: TodayPlanEntry[];
   ids: string[];
   tasks: WorkItem[];
 }) {
-  const style = TASK_SECTION_STYLES[color];
   return (
     <div>
-      <h4 className={`text-xs font-black uppercase ${style.label} tracking-widest mb-3`}>{label}</h4>
+      <h4 className="text-xs font-black uppercase text-primary tracking-widest mb-3 flex items-center gap-1.5">
+        <Target size={13} /> Mục tiêu hôm nay
+      </h4>
       <div className="space-y-2">
-        {ids.length > 0 ? (
+        {todayPlans.length > 0 ? (
+          todayPlans.map((plan, i) => {
+            const task = plan.taskId ? tasks.find(t => t.id === plan.taskId) : null;
+            return (
+              <div key={i} className="p-3 bg-primary/5 border border-primary/10 rounded-xl">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-primary">
+                      {task?.title || plan.output || `Kế hoạch ${i + 1}`}
+                    </p>
+                    {plan.output && task && plan.output !== task.title && (
+                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">{plan.output}</p>
+                    )}
+                    {plan.output && !task && (
+                      <p className="text-xs text-slate-500 mt-0.5">{plan.output}</p>
+                    )}
+                  </div>
+                  {plan.isPriority && (
+                    <span className="shrink-0 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-[10px] font-black uppercase">🔥 Priority</span>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        ) : ids.length > 0 ? (
           ids.map((id, i) => {
             const task = tasks.find(t => t.id === id);
             return (
-              <div key={i} className={`p-3 ${style.bg} rounded-xl text-sm font-medium ${style.text}`}>
-                {task?.title || `Task: ${id.slice(0, 8)}...`}
+              <div key={i} className="p-3 bg-primary/5 border border-primary/10 rounded-xl">
+                <p className="text-sm font-semibold text-primary">{task?.title || `Task: ${id.slice(0, 8)}...`}</p>
               </div>
             );
           })
         ) : (
-          <p className="text-slate-400 text-sm">No tasks</p>
+          <p className="text-slate-400 text-sm italic">Chưa có kế hoạch</p>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Ad-hoc Tasks Display ────────────────────────────────────────────────────
+function AdHocSection({ adHocTasks }: { adHocTasks: AdHocTask[] }) {
+  if (!adHocTasks?.length) return null;
+  const IMPACT_STYLE: Record<string, string> = {
+    high: 'bg-red-100 text-red-700 border-red-200',
+    medium: 'bg-amber-100 text-amber-700 border-amber-200',
+    low: 'bg-slate-100 text-slate-600 border-slate-200',
+  };
+  return (
+    <div>
+      <h4 className="text-xs font-black uppercase text-slate-500 tracking-widest mb-3 flex items-center gap-1.5">
+        <Zap size={13} /> Công việc Phát sinh
+      </h4>
+      <div className="space-y-2">
+        {adHocTasks.map((t, i) => (
+          <div key={i} className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-sm font-semibold text-slate-700 flex-1">{t.name}</p>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${IMPACT_STYLE[t.impact] || IMPACT_STYLE.low}`}>
+                  {t.impact === 'high' ? 'Cao' : t.impact === 'medium' ? 'Trung bình' : 'Thấp'}
+                </span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  t.status === 'done' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                }`}>
+                  {t.status === 'done' ? 'Xong' : 'Đang làm'}
+                </span>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-1.5 text-[10px] text-slate-400 font-medium">
+              {t.requester && <span>Yêu cầu bởi: <strong className="text-slate-600">{t.requester}</strong></span>}
+              {t.hoursSpent > 0 && <span>⏱ {t.hoursSpent}h</span>}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

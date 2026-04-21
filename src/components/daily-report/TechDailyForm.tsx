@@ -37,6 +37,7 @@ export default function TechDailyForm({ tasks, onClose, onSuccess }: TechDailyFo
   const { currentUser } = useAuth();
   const [reportDate, setReportDate] = useState(new Date().toISOString().split('T')[0]);
   const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const {
     taskStatuses, taskMetrics, blockers, todayPlans, adHocTasks, setAdHocTasks,
@@ -51,6 +52,7 @@ export default function TechDailyForm({ tasks, onClose, onSuccess }: TechDailyFo
   const handleSubmit = async () => {
     if (submitting) return;
     setSubmitting(true);
+    setErrorMessage(null);
 
     try {
       const yesterdayTasks: TaskEntry[] = Object.entries(taskStatuses).map(([taskId, status]) => ({
@@ -93,9 +95,13 @@ export default function TechDailyForm({ tasks, onClose, onSuccess }: TechDailyFo
 
       if (res.ok) {
         onSuccess();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMessage(data.error || `Gửi thất bại (${res.status}). Vui lòng thử lại.`);
       }
     } catch (error) {
       console.error('Failed to create report:', error);
+      setErrorMessage('Không thể kết nối server. Vui lòng thử lại.');
     } finally {
       setSubmitting(false);
     }
@@ -275,6 +281,7 @@ export default function TechDailyForm({ tasks, onClose, onSuccess }: TechDailyFo
       onClose={onClose}
       onSubmit={handleSubmit}
       submitting={submitting}
+      errorMessage={errorMessage}
       yesterdaySection={renderYesterdaySection()}
       adHocSection={<AdHocTasksSection tasks={adHocTasks} onTasksChange={setAdHocTasks} teamColor="indigo" />}
       blockersSection={renderBlockersSection()}

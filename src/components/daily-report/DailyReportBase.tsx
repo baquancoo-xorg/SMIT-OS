@@ -18,6 +18,7 @@ interface DailyReportBaseProps {
   adHocSection?: React.ReactNode;
   blockersSection: React.ReactNode;
   todaySection: React.ReactNode;
+  errorMessage?: string | null;
 }
 
 export default function DailyReportBase({
@@ -34,6 +35,7 @@ export default function DailyReportBase({
   adHocSection,
   blockersSection,
   todaySection,
+  errorMessage,
 }: DailyReportBaseProps) {
   const colors = getTeamColors(teamType);
   const teamName = getTeamDisplayName(teamType);
@@ -126,7 +128,12 @@ export default function DailyReportBase({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-slate-200 bg-white">
+        <div className="px-6 py-4 border-t border-slate-200 bg-white space-y-3">
+          {errorMessage && (
+            <div className="px-4 py-2.5 bg-red-50 border border-red-200 rounded-2xl text-sm font-semibold text-red-600">
+              {errorMessage}
+            </div>
+          )}
           <button
             onClick={onSubmit}
             disabled={submitting}

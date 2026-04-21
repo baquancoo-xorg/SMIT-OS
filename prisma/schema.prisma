@@ -141,6 +141,7 @@ model WeeklyReport {
   approvedAt DateTime?
   krProgress String?   // JSON: [{krId, currentValue, progressPct}]
   adHocTasks String?   // JSON: [{id, name, requester, impact, status, hoursSpent}]
+  rawData    Json?     // Full snapshot of submitted payload for recovery
   createdAt  DateTime  @default(now())
 }
 
@@ -156,6 +157,7 @@ model DailyReport {
   teamType    String?   // tech, marketing, media, sale
   teamMetrics Json?     // JSONB: team-specific metrics
   adHocTasks  String?   // JSON: [{id, name, requester, impact, status, hoursSpent}]
+  rawData     Json?     // Full snapshot of submitted payload for recovery
   approvedBy  String?
   approver    User?     @relation("ApprovedDailyReports", fields: [approvedBy], references: [id])
   approvedAt  DateTime?
