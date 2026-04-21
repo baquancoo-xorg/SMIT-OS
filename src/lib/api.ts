@@ -73,6 +73,8 @@ class ApiClient {
   }
 
   getLeadAeList() { return this.get<{ id: string; fullName: string }[]>('/leads/ae-list'); }
+
+  getLeadAuditLogs(id: string) { return this.get<import('../types').LeadAuditLog[]>(`/leads/${id}/audit`); }
 }
 
 export const api = new ApiClient();

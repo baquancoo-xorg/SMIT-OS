@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
-import { Search, Check, Trash2, Edit2, X, Download } from 'lucide-react';
+import { format } from 'date-fns';
+import { Search, Check, Trash2, Edit2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { api } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -8,7 +9,6 @@ import CustomFilter from '../ui/CustomFilter';
 import DatePicker from '../ui/date-picker';
 import BulkActionBar, { type BulkEditFields } from './bulk-action-bar';
 import LeadDetailModal from './lead-detail-modal';
-import { exportAllLeadsToCsv } from './csv-export';
 
 const STATUSES = ['Mới', 'Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'];
 const LEAD_TYPES = ['Việt Nam', 'Quốc Tế'];
@@ -89,6 +89,7 @@ const COLS = [
   { label: 'Lead Type', key: 'leadType' },
   { label: 'UQ Reason', key: 'unqualifiedType' },
   { label: 'Notes', key: 'notes' },
+  { label: 'Modified', key: 'updatedAt' },
 ];
 
 interface LeadLogsTabProps {
@@ -107,7 +108,6 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
   const [draft, setDraft] = useState<Partial<Lead>>({});
   const [saving, setSaving] = useState(false);
   const [aeOptions, setAeOptions] = useState<{ id: string; fullName: string }[]>([]);
-  const [exporting, setExporting] = useState(false);
   const today = new Date().toISOString().slice(0, 10);
   const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
   const [filters, setFilters] = useState({ ae: '', status: '', dateFrom: sevenDaysAgo.toISOString().slice(0, 10), dateTo: today });
@@ -244,11 +244,6 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
     }
   };
 
-  const handleExportCsv = async () => {
-    setExporting(true);
-    try { await exportAllLeadsToCsv(); } finally { setExporting(false); }
-  };
-
   const setPR = (id: string, k: keyof PendingRow, v: string) =>
     setPending((prev) => prev.map((r) => r._id === id ? { ...r, [k]: v } : r));
 
@@ -269,14 +264,6 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
         </div>
         <CustomFilter value={filters.ae} onChange={(v) => sf('ae', v)} options={[{ value: '', label: 'All AE' }, ...aeOptions.map((a) => ({ value: a.fullName, label: a.fullName }))]} buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case" />
         <CustomFilter value={filters.status} onChange={(v) => sf('status', v)} options={[{ value: '', label: 'All Status' }, ...STATUSES.map((s) => ({ value: s, label: s }))]} buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case" />
-        <button
-          onClick={handleExportCsv}
-          disabled={exporting}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all disabled:opacity-50"
-        >
-          <Download size={14} />
-          {exporting ? 'Exporting...' : 'Export CSV'}
-        </button>
         <div className="ml-auto flex items-center gap-3">
           {/* Stat bars */}
           {!loading && (() => {
@@ -312,7 +299,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
       {/* Table */}
       <div className="flex-1 min-h-0 bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/30 border border-slate-100 overflow-hidden">
         <div className="h-full overflow-y-auto overflow-x-auto custom-scrollbar">
-          <table className="w-full text-left border-collapse min-w-[1000px]">
+          <table className="w-full text-left border-collapse min-w-[1100px]">
             <thead className="sticky top-0 z-10">
               <tr className="bg-white border-b border-slate-100">
                 {isSale && (
@@ -337,7 +324,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
             </thead>
             <tbody className="divide-y divide-slate-50">
               {loading && (
-                <tr><td colSpan={isSale ? 10 : 9} className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest animate-pulse">Loading...</td></tr>
+                <tr><td colSpan={isSale ? 11 : 10} className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest animate-pulse">Loading...</td></tr>
               )}
 
               {/* Existing rows */}
@@ -358,6 +345,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
                         : <span className="text-slate-300">-</span>}
                     </td>
                     <td className={cellCls}><input className={inputCls} value={draft.notes ?? ''} onChange={(e) => setDraft((d) => ({ ...d, notes: e.target.value }))} /></td>
+                    <td className={cellCls} />
                     <td className={cellCls}>
                       <div className="flex gap-2">
                         <button onClick={saveEdit} className="p-2 bg-emerald-100 text-emerald-600 rounded-xl hover:bg-emerald-200 transition-colors"><Check size={16} /></button>
@@ -382,9 +370,27 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
                         onClick={() => setDetailLead(lead)}
                       >{lead.customerName}</span>
                     </td>
-                    <td className={`${cellCls} font-bold text-slate-600`}>{lead.ae}</td>
-                    <td className={`${cellCls} text-slate-500 font-medium`}>{lead.receivedDate.slice(0, 10)}</td>
-                    {/* Resolved Date — per-cell inline edit */}
+                    {/* AE — inline edit dropdown */}
+                    <td className={editableCellCls(lead.id, 'ae')} onClick={() => setInlineEdit({ id: lead.id, field: 'ae' })}>
+                      {inlineEdit?.id === lead.id && inlineEdit.field === 'ae'
+                        ? <select autoFocus className={inlineCls} defaultValue={lead.ae}
+                            onChange={(e) => saveInlineField(lead.id, 'ae', e.target.value)}
+                            onBlur={() => setInlineEdit(null)}>
+                            {aeOptions.map((a) => <option key={a.id} value={a.fullName}>{a.fullName}</option>)}
+                          </select>
+                        : <span className="font-bold text-slate-600">{lead.ae}</span>
+                      }
+                    </td>
+                    {/* Received Date — inline edit */}
+                    <td className={editableCellCls(lead.id, 'receivedDate')} onClick={() => setInlineEdit({ id: lead.id, field: 'receivedDate' })}>
+                      {inlineEdit?.id === lead.id && inlineEdit.field === 'receivedDate'
+                        ? <input type="date" autoFocus className={inlineCls} defaultValue={lead.receivedDate.slice(0, 10)}
+                            onBlur={(e) => saveInlineField(lead.id, 'receivedDate', e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Escape') setInlineEdit(null); }} />
+                        : <span className="text-slate-500 font-medium">{lead.receivedDate.slice(0, 10)}</span>
+                      }
+                    </td>
+                    {/* Resolved Date — inline edit */}
                     <td className={editableCellCls(lead.id, 'resolvedDate')} onClick={() => setInlineEdit({ id: lead.id, field: 'resolvedDate' })}>
                       {inlineEdit?.id === lead.id && inlineEdit.field === 'resolvedDate'
                         ? <input type="date" autoFocus className={inlineCls} defaultValue={lead.resolvedDate?.slice(0, 10) ?? ''}
@@ -393,7 +399,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
                         : lead.resolvedDate ? lead.resolvedDate.slice(0, 10) : '-'
                       }
                     </td>
-                    {/* Status — per-cell inline edit */}
+                    {/* Status — inline edit */}
                     <td className={editableCellCls(lead.id, 'status')} onClick={() => setInlineEdit({ id: lead.id, field: 'status' })}>
                       {inlineEdit?.id === lead.id && inlineEdit.field === 'status'
                         ? <select autoFocus className={inlineCls} defaultValue={lead.status}
@@ -406,7 +412,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
                           </span>
                       }
                     </td>
-                    {/* Lead Type — per-cell inline edit */}
+                    {/* Lead Type — inline edit */}
                     <td className={editableCellCls(lead.id, 'leadType')} onClick={() => setInlineEdit({ id: lead.id, field: 'leadType' })}>
                       {inlineEdit?.id === lead.id && inlineEdit.field === 'leadType'
                         ? <select autoFocus className={inlineCls} defaultValue={lead.leadType ?? ''}
@@ -418,7 +424,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
                         : lead.leadType ?? '-'
                       }
                     </td>
-                    {/* UQ Reason — per-cell inline edit (only if Unqualified) */}
+                    {/* UQ Reason — inline edit (only if Unqualified) */}
                     <td
                       className={`${cellCls} text-slate-500 font-medium ${lead.status === 'Unqualified' ? (inlineSaving?.id === lead.id && inlineSaving.field === 'unqualifiedType' ? 'opacity-50' : 'hover:bg-slate-50 cursor-pointer') : ''}`}
                       onClick={() => lead.status === 'Unqualified' && setInlineEdit({ id: lead.id, field: 'unqualifiedType' })}
@@ -435,14 +441,29 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
                           : lead.unqualifiedType ?? '-'
                       }
                     </td>
-                    {/* Notes — per-cell inline edit */}
+                    {/* Notes — textarea inline edit */}
                     <td className={`${editableCellCls(lead.id, 'notes')} italic max-w-[150px]`} onClick={() => setInlineEdit({ id: lead.id, field: 'notes' })}>
                       {inlineEdit?.id === lead.id && inlineEdit.field === 'notes'
-                        ? <input autoFocus className={inlineCls} defaultValue={lead.notes ?? ''}
+                        ? <textarea
+                            autoFocus
+                            rows={2}
+                            className={`${inlineCls} resize-none`}
+                            defaultValue={lead.notes ?? ''}
                             onBlur={(e) => saveInlineField(lead.id, 'notes', e.target.value)}
-                            onKeyDown={(e) => { if (e.key === 'Escape') setInlineEdit(null); }} />
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                (e.target as HTMLTextAreaElement).blur();
+                              }
+                              if (e.key === 'Escape') setInlineEdit(null);
+                            }}
+                          />
                         : <span className="text-slate-400 truncate block">{lead.notes || '—'}</span>
                       }
+                    </td>
+                    {/* Last Modified — read only */}
+                    <td className={`${cellCls} text-slate-400 text-[11px] font-medium whitespace-nowrap`}>
+                      {format(new Date(lead.updatedAt), 'dd/MM/yyyy - HH:mm')}
                     </td>
                     <td className={cellCls}>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -471,13 +492,14 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
                         : <span className="text-slate-300">-</span>}
                     </td>
                     <td className={cellCls}><input className={inputCls} placeholder="Notes" value={row.notes} onChange={(e) => setPR(row._id, 'notes', e.target.value)} /></td>
+                    <td className={cellCls} />
                     <td className={cellCls}><button onClick={() => setPending((prev) => prev.filter((_, i) => i !== idx))} className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-all"><Trash2 size={16} /></button></td>
                   </motion.tr>
                 ))}
               </AnimatePresence>
 
               {!loading && leads.length === 0 && pending.length === 0 && (
-                <tr><td colSpan={isSale ? 10 : 9} className="py-32 text-center">
+                <tr><td colSpan={isSale ? 11 : 10} className="py-32 text-center">
                   <div className="flex flex-col items-center opacity-30">
                     <Search className="size-12 mb-4" />
                     <p className="font-black uppercase tracking-[0.2em] text-sm">No leads found</p>

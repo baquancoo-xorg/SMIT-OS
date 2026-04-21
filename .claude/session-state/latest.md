@@ -1,12 +1,14 @@
 # Session State
-<!-- Generated: 2026-04-21T10:46:53.491Z -->
+<!-- Generated: 2026-04-21T12:56:38.984Z -->
 <!-- Branch: unknown -->
 <!-- Plan: none -->
 
 ## What Worked (Verified)
-- Phase 01: Tạo lead-detail-modal.tsx
-- Phase 02: Tạo csv-export.ts
-- Phase 02: Cập nhật lead-logs-tab.tsx (inline edit + modal + export button)
+- Phase 01: Tạo `src/hooks/use-group-board-filters.ts` hook
+- Phase 02: Cập nhật TechBoard.tsx — dùng hook, thêm 2 filter UI, fix table view
+- Phase 02: Cập nhật MarketingBoard.tsx — tương tự TechBoard, dept='Marketing'
+- Phase 02: Cập nhật MediaBoard.tsx — tương tự TechBoard, dept='Media'
+- Phase 02: Cập nhật SaleBoard.tsx — tương tự TechBoard, dept='Sale'
 
 ## What's Left
 - (All tasks completed)
@@ -333,9 +335,24 @@
 ## Agent Result: general-purpose (10:44:03)
 - Completed at 10:44:03
 
+
+## Agent Result: general-purpose (11:21:22)
+- Completed at 11:21:22
+
 ## Key Files Modified
-- .claude/session-state/archive/20260421-1304.md
-- .claude/session-state/archive/20260421-1322.md
-- .claude/session-state/archive/20260421-1327.md
+- .claude/session-state/archive/20260421-1414.md
+- .claude/session-state/archive/20260421-1417.md
+- .claude/session-state/archive/20260421-1418.md
 - .claude/session-state/latest.md
+- docs/journals/2026-04-21.md
+- prisma/schema.prisma
+- server/routes/lead.routes.ts
+- src/components/lead-tracker/lead-detail-modal.tsx
 - src/components/lead-tracker/lead-logs-tab.tsx
+- src/lib/api.ts
+- src/pages/LeadTracker.tsx
+- src/pages/MarketingBoard.tsx
+- src/pages/MediaBoard.tsx
+- src/pages/SaleBoard.tsx
+- src/pages/TechBoard.tsx
+- src/types/index.ts

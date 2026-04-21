@@ -159,6 +159,13 @@ export interface Lead {
   updatedAt: string;
 }
 
+export interface LeadAuditLog {
+  id: string;
+  leadId: string;
+  changes: Record<string, { from: string | null; to: string | null }>;
+  createdAt: string;
+}
+
 export interface LeadDailyStat {
   date: string;
   ae: string;

@@ -177,11 +177,22 @@ model Lead {
   notes           String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  auditLogs       LeadAuditLog[]
 
   @@index([ae, receivedDate])
   @@index([ae, resolvedDate])
   @@index([status])
   @@index([receivedDate])
+}
+
+model LeadAuditLog {
+  id        String   @id @default(uuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  changes   Json     // { field: { from: any, to: any } }
+  createdAt DateTime @default(now())
+
+  @@index([leadId, createdAt])
 }
 
 model OkrCycle {

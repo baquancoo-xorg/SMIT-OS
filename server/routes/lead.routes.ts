@@ -4,6 +4,16 @@ import { handleAsync } from '../utils/async-handler';
 import { validate } from '../middleware/validate.middleware';
 import { createLeadSchema, updateLeadSchema } from '../schemas/lead.schema';
 
+const TRACKED_FIELDS = ['status', 'ae', 'leadType', 'unqualifiedType', 'notes', 'resolvedDate', 'receivedDate'] as const;
+
+function normalizeVal(field: string, val: unknown): string | null {
+  if (val === null || val === undefined) return null;
+  if (field === 'resolvedDate' || field === 'receivedDate') {
+    return val instanceof Date ? val.toISOString().slice(0, 10) : String(val).slice(0, 10);
+  }
+  return String(val);
+}
+
 export function createLeadRoutes(prisma: PrismaClient) {
   const router = Router();
 
@@ -42,7 +52,7 @@ export function createLeadRoutes(prisma: PrismaClient) {
     const aeSet = new Set<string>(leads.map((l) => l.ae));
     if (ae) { aeSet.clear(); aeSet.add(ae as string); }
 
-    // Build date list (YYYY-MM-DD) — use UTC noon to avoid timezone offset shifting the date
+    // Build date list (YYYY-MM-DD) u2014 use UTC noon to avoid timezone offset shifting the date
     const fromStr = (dateFrom as string) ?? new Date(fromDate).toISOString().slice(0, 10);
     const toStr = (dateTo as string) ?? new Date(toDate).toISOString().slice(0, 10);
     const dateList: string[] = [];
@@ -94,6 +104,15 @@ export function createLeadRoutes(prisma: PrismaClient) {
     res.json(results);
   }));
 
+  // Audit log for a lead u2014 static route before /:id
+  router.get('/:id/audit', handleAsync(async (req: any, res: any) => {
+    const logs = await prisma.leadAuditLog.findMany({
+      where: { leadId: req.params.id },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json(logs);
+  }));
+
   router.get('/', handleAsync(async (req: any, res: any) => {
     const { ae, status, dateFrom, dateTo } = req.query;
     const where: any = {};
@@ -140,6 +159,18 @@ export function createLeadRoutes(prisma: PrismaClient) {
         ...(resolvedDate !== undefined && { resolvedDate: resolvedDate ? new Date(resolvedDate) : null }),
       },
     });
+
+    // Diff tracked fields and write audit log if anything changed
+    const changes: Record<string, { from: string | null; to: string | null }> = {};
+    for (const field of TRACKED_FIELDS) {
+      const from = normalizeVal(field, (existing as any)[field]);
+      const to = normalizeVal(field, (lead as any)[field]);
+      if (from !== to) changes[field] = { from, to };
+    }
+    if (Object.keys(changes).length > 0) {
+      await prisma.leadAuditLog.create({ data: { leadId: id, changes } });
+    }
+
     res.json(lead);
   }));
 

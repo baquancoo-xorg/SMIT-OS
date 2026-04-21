@@ -26,12 +26,12 @@ import ViewToggle from '../components/ui/ViewToggle';
 import PrimaryActionButton from '../components/ui/PrimaryActionButton';
 import { useAuth } from '../contexts/AuthContext';
 import CustomFilter from '../components/ui/CustomFilter';
+import { useGroupBoardFilters } from '../hooks/use-group-board-filters';
 
 const COLUMNS = ['Todo', 'In Progress', 'Review', 'Done'];
 
 export default function MarketingBoard() {
   const [view, setView] = useState<'board' | 'table'>('board');
-  const [selectedSprintId, setSelectedSprintId] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<WorkItem | null>(null);
@@ -41,7 +41,14 @@ export default function MarketingBoard() {
   const [activeItem, setActiveItem] = useState<WorkItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { currentUser } = useAuth();
+  const { currentUser, users } = useAuth();
+  const {
+    selectedSprintId, setSelectedSprintId,
+    statusFilter, setStatusFilter,
+    assigneeFilter, setAssigneeFilter,
+    sprintOptions, statusOptions, assigneeOptions,
+    filteredItems,
+  } = useGroupBoardFilters({ dept: 'Marketing', items, sprints, users });
 
   const fetchData = async () => {
     try {
@@ -281,14 +288,6 @@ export default function MarketingBoard() {
     );
   }
 
-  const sprintItems = selectedSprintId
-    ? items.filter(i => i.sprintId === selectedSprintId)
-    : items.filter(i => i.sprintId);
-  // Stats items: All sprints = all items with sprintId, specific sprint = items in that sprint
-  const statsItems = selectedSprintId
-    ? items.filter(i => i.sprintId === selectedSprintId)
-    : items.filter(i => i.sprintId);
-
   return (
     <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
       {/* Header Section */}
@@ -319,44 +318,39 @@ export default function MarketingBoard() {
             <Filter size={14} />
             <span>Active Sprint:</span>
           </div>
-          <CustomFilter
-            value={selectedSprintId}
-            onChange={setSelectedSprintId}
-            options={[
-              { value: '', label: 'All Sprints' },
-              ...sprints.map(s => ({ value: s.id, label: s.name }))
-            ]}
-          />
+          <CustomFilter value={selectedSprintId} onChange={setSelectedSprintId} options={sprintOptions} />
+          <CustomFilter value={assigneeFilter} onChange={setAssigneeFilter} options={assigneeOptions} />
+          <CustomFilter value={statusFilter} onChange={setStatusFilter} options={statusOptions} />
         </div>
 
         <div className="hidden lg:flex items-center gap-4">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100">
             <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
-              Total: {statsItems.length}
+              Total: {filteredItems.length}
             </span>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50">
             <div className="w-2 h-2 rounded-full bg-slate-400"></div>
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-              Todo: {statsItems.filter(i => i.status === 'Todo').length}
+              Todo: {filteredItems.filter(i => i.status === 'Todo').length}
             </span>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/5">
             <div className="w-2 h-2 rounded-full bg-primary"></div>
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-              In Progress: {statsItems.filter(i => i.status === 'In Progress').length}
+              In Progress: {filteredItems.filter(i => i.status === 'In Progress').length}
             </span>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/5">
             <div className="w-2 h-2 rounded-full bg-secondary"></div>
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-              Review: {statsItems.filter(i => i.status === 'Review').length}
+              Review: {filteredItems.filter(i => i.status === 'Review').length}
             </span>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-tertiary/5">
             <div className="w-2 h-2 rounded-full bg-tertiary"></div>
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-              Done: {statsItems.filter(i => i.status === 'Done').length}
+              Done: {filteredItems.filter(i => i.status === 'Done').length}
             </span>
           </div>
         </div>
@@ -365,7 +359,7 @@ export default function MarketingBoard() {
       {view === 'table' ? (
         <div className="flex-1 overflow-y-auto pb-8">
           <TaskTableView
-            items={items}
+            items={filteredItems}
             onUpdate={handleUpdateTask}
             onDelete={handleDeleteTask}
             onBulkDelete={handleBulkDelete}
@@ -383,7 +377,7 @@ export default function MarketingBoard() {
         >
           <div className="flex-1 flex gap-[var(--space-sm)] overflow-x-auto min-h-[300px] lg:min-h-0">
               {COLUMNS.map(col => {
-                const columnItems = sprintItems.filter(i => i.status === col);
+                const columnItems = filteredItems.filter(i => i.status === col);
 
                 return (
                   <div key={col} className="min-w-[var(--card-min)] flex-1 flex flex-col bg-slate-50/50 rounded-3xl shadow-sm max-h-full">
