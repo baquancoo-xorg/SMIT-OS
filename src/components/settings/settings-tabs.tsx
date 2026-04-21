@@ -1,7 +1,7 @@
 import React from 'react';
-import { Users, Calendar, Target, Facebook } from 'lucide-react';
+import { Users, Calendar, Target, Facebook, ShieldCheck } from 'lucide-react';
 
-export type SettingsTabId = 'users' | 'sprints' | 'okrs' | 'fb-config';
+export type SettingsTabId = 'users' | 'sprints' | 'okrs' | 'fb-config' | 'security';
 
 interface Tab {
   id: SettingsTabId;
@@ -14,6 +14,7 @@ export const SETTINGS_TABS: Tab[] = [
   { id: 'sprints', label: 'Sprints', icon: Calendar },
   { id: 'okrs', label: 'OKRs', icon: Target },
   { id: 'fb-config', label: 'FB Config', icon: Facebook },
+  { id: 'security', label: 'Security', icon: ShieldCheck },
 ];
 
 interface SettingsTabsProps {

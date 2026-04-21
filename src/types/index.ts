@@ -10,6 +10,7 @@ export interface User {
   scope?: string; // Vị trí công việc
   avatar: string;
   isAdmin: boolean;
+  totpEnabled?: boolean;
 }
 
 export interface Sprint {

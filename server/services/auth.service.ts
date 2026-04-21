@@ -16,6 +16,7 @@ export interface JWTPayload {
   userId: string;
   role: string;
   isAdmin: boolean;
+  purpose?: 'session' | 'totp-pending';
 }
 
 export const authService = {
@@ -26,6 +27,24 @@ export const authService = {
   verifyToken(token: string): JWTPayload | null {
     try {
       return jwt.verify(token, EFFECTIVE_SECRET) as JWTPayload;
+    } catch {
+      return null;
+    }
+  },
+
+  signTempToken(userId: string): string {
+    return jwt.sign(
+      { userId, role: '', isAdmin: false, purpose: 'totp-pending' },
+      EFFECTIVE_SECRET,
+      { expiresIn: '5m' }
+    );
+  },
+
+  verifyTempToken(token: string): { userId: string } | null {
+    try {
+      const payload = jwt.verify(token, EFFECTIVE_SECRET) as JWTPayload;
+      if (payload.purpose !== 'totp-pending') return null;
+      return { userId: payload.userId };
     } catch {
       return null;
     }

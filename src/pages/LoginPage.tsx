@@ -79,13 +79,16 @@ const FeatureItem = ({
 );
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, verifyTOTP } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const [step, setStep] = useState<'credentials' | 'totp'>('credentials');
+  const [tempToken, setTempToken] = useState('');
+  const [totpCode, setTotpCode] = useState('');
 
   useEffect(() => {
     setIsPageLoaded(true);
@@ -96,10 +99,19 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
 
-    const result = await login(username, password);
-
-    if (!result.success) {
-      setError(result.error || 'Login failed');
+    if (step === 'credentials') {
+      const result = await login(username, password);
+      if (result.requiresTOTP && result.tempToken) {
+        setTempToken(result.tempToken);
+        setStep('totp');
+      } else if (!result.success) {
+        setError(result.error || 'Login failed');
+      }
+    } else {
+      const result = await verifyTOTP(tempToken, totpCode);
+      if (!result.success) {
+        setError(result.error || 'Invalid code');
+      }
     }
 
     setLoading(false);
@@ -336,107 +348,154 @@ export default function LoginPage() {
             </AnimatePresence>
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 }}
-              >
-                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
-                  Username
-                </label>
-                <motion.input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter your username"
-                  className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 focus:bg-white transition-all duration-200"
-                  required
-                  autoComplete="username"
-                  whileFocus={{ scale: 1.01 }}
-                />
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7 }}
-              >
-                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <motion.input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3.5 pr-12 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 focus:bg-white transition-all duration-200"
-                    required
-                    autoComplete="current-password"
-                    whileFocus={{ scale: 1.01 }}
-                  />
-                  <motion.button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600 transition-colors rounded-lg hover:bg-slate-100"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </motion.button>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-                className="pt-2"
-              >
-                <motion.button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full relative overflow-hidden bg-gradient-to-r from-primary via-blue-600 to-indigo-600 text-white py-4 rounded-xl font-semibold text-sm shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed group"
-                  whileHover={{ scale: 1.02, boxShadow: "0 20px 40px -10px rgba(37, 99, 235, 0.4)" }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  {/* Shine effect on button */}
+              <AnimatePresence mode="wait">
+                {step === 'credentials' ? (
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                    initial={{ x: '-100%' }}
-                    animate={!loading ? { x: '200%' } : {}}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      repeatDelay: 3,
-                    }}
-                  />
+                    key="credentials"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-5"
+                  >
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
+                        Username
+                      </label>
+                      <motion.input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Enter your username"
+                        className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 focus:bg-white transition-all duration-200"
+                        required
+                        autoComplete="username"
+                        whileFocus={{ scale: 1.01 }}
+                      />
+                    </div>
 
-                  <span className="relative flex items-center justify-center gap-2">
-                    {loading ? (
-                      <>
-                        <motion.div
-                          className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
+                        Password
+                      </label>
+                      <div className="relative">
+                        <motion.input
+                          type={showPassword ? 'text' : 'password'}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Enter your password"
+                          className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3.5 pr-12 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 focus:bg-white transition-all duration-200"
+                          required
+                          autoComplete="current-password"
+                          whileFocus={{ scale: 1.01 }}
                         />
-                        Signing in...
-                      </>
-                    ) : (
-                      <>
-                        Sign In
-                        <motion.div
-                          initial={{ x: 0 }}
-                          animate={{ x: [0, 5, 0] }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
+                        <motion.button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600 transition-colors rounded-lg hover:bg-slate-100"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
                         >
-                          <ArrowRight size={18} />
-                        </motion.div>
-                      </>
-                    )}
-                  </span>
-                </motion.button>
-              </motion.div>
+                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </motion.button>
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <motion.button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full relative overflow-hidden bg-gradient-to-r from-primary via-blue-600 to-indigo-600 text-white py-4 rounded-xl font-semibold text-sm shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed group"
+                        whileHover={{ scale: 1.02, boxShadow: '0 20px 40px -10px rgba(37, 99, 235, 0.4)' }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                          initial={{ x: '-100%' }}
+                          animate={!loading ? { x: '200%' } : {}}
+                          transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 3 }}
+                        />
+                        <span className="relative flex items-center justify-center gap-2">
+                          {loading ? (
+                            <>
+                              <motion.div
+                                className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                              />
+                              Signing in...
+                            </>
+                          ) : (
+                            <>
+                              Sign In
+                              <motion.div
+                                initial={{ x: 0 }}
+                                animate={{ x: [0, 5, 0] }}
+                                transition={{ duration: 1.5, repeat: Infinity }}
+                              >
+                                <ArrowRight size={18} />
+                              </motion.div>
+                            </>
+                          )}
+                        </span>
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="totp"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    className="space-y-5"
+                  >
+                    <div className="text-center">
+                      <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 mb-3">
+                        <Shield className="w-7 h-7 text-primary" />
+                      </div>
+                      <p className="text-sm text-slate-600">
+                        Nhập mã 6 chữ số từ{' '}
+                        <span className="font-semibold">Google/Microsoft Authenticator</span>
+                      </p>
+                      <p className="text-xs text-slate-400 mt-1">Hoặc nhập backup code nếu mất điện thoại</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
+                        Mã xác thực
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9A-Z ]*"
+                        maxLength={8}
+                        value={totpCode}
+                        onChange={(e) => setTotpCode(e.target.value.replace(/[^0-9A-Za-z]/g, ''))}
+                        placeholder="000000"
+                        autoFocus
+                        className="w-full text-center text-2xl font-mono tracking-[0.5em] bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-4 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40"
+                      />
+                    </div>
+
+                    <motion.button
+                      type="submit"
+                      disabled={loading || totpCode.length < 6}
+                      className="w-full relative overflow-hidden bg-gradient-to-r from-primary via-blue-600 to-indigo-600 text-white py-4 rounded-xl font-semibold text-sm shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {loading ? 'Verifying...' : 'Verify'}
+                    </motion.button>
+
+                    <button
+                      type="button"
+                      onClick={() => { setStep('credentials'); setTotpCode(''); setError(''); }}
+                      className="w-full text-sm text-slate-400 hover:text-slate-600 transition-colors"
+                    >
+                      ← Quay lại
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </form>
           </motion.div>
 

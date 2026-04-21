@@ -6,6 +6,7 @@ import { UserManagementTab } from '../components/settings/user-management-tab';
 import { SprintCyclesTab } from '../components/settings/sprint-cycles-tab';
 import { OkrCyclesTab } from '../components/settings/okr-cycles-tab';
 import { FbConfigTab } from '../components/settings/fb-config-tab';
+import { TwoFactorAuthTab } from '../components/settings/two-factor-auth-tab';
 
 type DeleteConfirmType = { type: 'user' | 'sprint' | 'cycle'; id: string } | null;
 
@@ -74,6 +75,7 @@ export default function Settings() {
         {activeTab === 'sprints' && <SprintCyclesTab onDeleteConfirm={handleDeleteConfirm} />}
         {activeTab === 'okrs' && <OkrCyclesTab onDeleteConfirm={handleDeleteConfirm} />}
         {activeTab === 'fb-config' && <FbConfigTab />}
+        {activeTab === 'security' && <TwoFactorAuthTab />}
       </div>
 
       {deleteConfirm && (

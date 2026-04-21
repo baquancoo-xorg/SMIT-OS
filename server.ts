@@ -58,6 +58,7 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/login/totp', authLimiter);
 
 // Public routes
 app.use("/api/auth", createAuthRoutes(prisma));

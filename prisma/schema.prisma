@@ -27,6 +27,11 @@ model User {
   dailyReports         DailyReport[]
   approvedDailyReports DailyReport[]  @relation("ApprovedDailyReports")
   notifications        Notification[]
+
+  // 2FA fields (opt-in, nullable by default)
+  totpSecret      String?   // AES-256-GCM encrypted TOTP secret
+  totpEnabled     Boolean   @default(false)
+  totpBackupCodes String[]  // bcrypt-hashed backup codes, empty array by default
 }
 
 model Notification {

@@ -1,0 +1,104 @@
+# System Architecture
+
+> Last updated: 2026-04-22
+
+## Overview
+
+SMIT-OS is a full-stack monorepo. The frontend (React SPA) and backend (Express API) share the same repo and are served from the same Node process in development.
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 19, TypeScript, TailwindCSS v4, Tanstack Query v5 |
+| Backend | Express 5, TypeScript, Prisma ORM |
+| Database | PostgreSQL 15 (Docker) |
+| Auth | HTTP-only cookie JWT (7d expiry) |
+| Build | Vite, tsx watch (dev) |
+
+## Directory Structure
+
+```
+smit-os/
+├── server/
+│   ├── routes/         # Express route handlers
+│   ├── services/       # Business logic
+│   ├── middleware/     # Auth, RBAC, validation
+│   ├── schemas/        # Zod validation schemas
+│   ├── lib/            # Shared utilities (crypto, db, date, etc.)
+│   ├── jobs/           # Background jobs
+│   ├── controllers/    # (thin controllers where used)
+│   └── types/          # Shared TypeScript types
+├── src/                # React frontend
+├── prisma/
+│   ├── schema.prisma   # Primary schema (smitos_db)
+│   └── crm-schema.prisma
+├── server.ts           # Express app entry point
+└── package.json
+```
+
+## Authentication
+
+### JWT Cookie Strategy
+
+- Token stored as `jwt` HTTP-only cookie (`sameSite: strict`, `secure` in production)
+- Standard session token expires in **7 days**
+- Token payload: `{ userId, role, isAdmin, purpose? }`
+- On every authenticated request, `auth.middleware.ts` fetches fresh user data from DB (role changes take effect immediately)
+
+### Two-Factor Authentication (TOTP)
+
+Opt-in per user. Login uses a two-step flow when 2FA is enabled.
+
+**Login flow:**
+
+```
+POST /api/auth/login
+  ├─ 2FA disabled → issue full JWT (7d) → done
+  └─ 2FA enabled  → issue totp-pending JWT (5 min)
+                        ↓
+               POST /api/auth/login/totp
+                 ├─ valid TOTP code   → issue full JWT (7d)
+                 └─ valid backup code → consume code, issue full JWT (7d)
+```
+
+The `totp-pending` JWT has `purpose: 'totp-pending'` in its payload. `requireAuth` middleware rejects these tokens; they are only accepted by `POST /api/auth/login/totp`.
+
+**2FA management endpoints** (all require full session JWT):
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/auth/2fa/setup` | Generate encrypted secret + `otpauthUrl` for QR scan |
+| `POST` | `/api/auth/2fa/enable` | Verify TOTP code, activate 2FA, return 8 backup codes |
+| `POST` | `/api/auth/2fa/disable` | Deactivate 2FA (requires password) |
+| `POST` | `/api/auth/2fa/admin-reset/:userId` | Admin: reset 2FA for any user |
+
+**Storage:**
+
+- `totpSecret` — AES-256-GCM encrypted (via `server/lib/crypto.ts`)
+- `totpBackupCodes` — 8 codes, bcrypt-hashed, consumed on use
+- Library: `otpauth` (RFC 6238)
+
+**Rate limiting** (`server.ts`):
+
+- `POST /api/auth/login` and `POST /api/auth/login/totp` share the same limiter
+- Configured via `express-rate-limit` v8
+
+### Authorization
+
+- `auth.middleware.ts` — validates JWT, attaches `req.user`
+- `admin-auth.middleware.ts` — requires `isAdmin === true`
+- `rbac.middleware.ts` — role-based access control
+- `ownership.middleware.ts` — resource ownership checks
+
+## Data Layer
+
+- Prisma ORM with PostgreSQL 15
+- Primary DB: `smitos_db` (port 5435)
+- Secondary schema: `prisma/crm-schema.prisma` (CRM data via `server/lib/crm-db.ts`)
+- No raw SQL in application code; all queries via Prisma client
+
+## API Conventions
+
+- All routes prefixed `/api/`
+- Request bodies validated with Zod schemas (`server/schemas/`)
+- Error responses: `{ error: string }`
+- Auth errors: HTTP 401; authorization errors: HTTP 403
