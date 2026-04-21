@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { Search, Check, Trash2, Edit2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { api } from '../../lib/api';
@@ -91,7 +91,7 @@ const COLS = [
 
 interface LeadLogsTabProps {
   onReady?: (actions: { paste: () => void; addRow: () => void }) => void;
-  extraControls?: React.ReactNode;
+  extraControls?: ReactNode;
 }
 
 export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps) {
@@ -106,7 +106,8 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
   const [saving, setSaving] = useState(false);
   const [aeOptions, setAeOptions] = useState<{ id: string; fullName: string }[]>([]);
   const today = new Date().toISOString().slice(0, 10);
-  const [filters, setFilters] = useState({ ae: '', status: '', dateFrom: today, dateTo: today });
+  const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  const [filters, setFilters] = useState({ ae: '', status: '', dateFrom: sevenDaysAgo.toISOString().slice(0, 10), dateTo: today });
 
   // Bulk selection
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -233,14 +234,43 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
     <div className="h-full flex flex-col gap-4">
       {/* Filters */}
       <div className="shrink-0 flex flex-wrap gap-3 items-center p-4 bg-white/50 backdrop-blur-md rounded-3xl shadow-sm">
-        <CustomFilter value={filters.ae} onChange={(v) => sf('ae', v)} options={[{ value: '', label: 'All AE' }, ...aeOptions.map((a) => ({ value: a.fullName, label: a.fullName }))]} />
-        <CustomFilter value={filters.status} onChange={(v) => sf('status', v)} options={[{ value: '', label: 'All Status' }, ...STATUSES.map((s) => ({ value: s, label: s }))]} />
         <div className="flex items-center gap-1.5">
           <DatePicker value={filters.dateFrom} onChange={(v) => sf('dateFrom', v)} placeholder="Từ ngày" />
           <span className="text-slate-300 text-xs">&#8212;</span>
           <DatePicker value={filters.dateTo} onChange={(v) => sf('dateTo', v)} placeholder="Đến ngày" />
         </div>
-        {extraControls && <div className="ml-auto">{extraControls}</div>}
+        <CustomFilter value={filters.ae} onChange={(v) => sf('ae', v)} options={[{ value: '', label: 'All AE' }, ...aeOptions.map((a) => ({ value: a.fullName, label: a.fullName }))]} buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case" />
+        <CustomFilter value={filters.status} onChange={(v) => sf('status', v)} options={[{ value: '', label: 'All Status' }, ...STATUSES.map((s) => ({ value: s, label: s }))]} buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case" />
+        <div className="ml-auto flex items-center gap-3">
+          {/* Stat bars */}
+          {!loading && (() => {
+            const c = (s: string) => leads.filter((l) => l.status === s).length;
+            const vn = leads.filter((l) => l.leadType === 'Việt Nam').length;
+            const intl = leads.filter((l) => l.leadType === 'Quốc Tế').length;
+            const statCls = 'flex items-center gap-4 px-4 py-2 bg-white border border-slate-100 rounded-2xl shadow-sm text-[10px] font-black uppercase tracking-widest';
+            const dot = (color: string) => <span className={`size-2 rounded-full inline-block ${color}`} />;
+            const stat = (color: string, label: string, val: number) => (
+              <span className="flex items-center gap-1.5 text-slate-500">{dot(color)}{label}: {val}</span>
+            );
+            return (
+              <div className="flex items-center gap-2">
+                <div className={statCls}>
+                  {stat('bg-slate-400', 'Total', leads.length)}
+                  {stat('bg-violet-400', 'New', c('Mới'))}
+                  {stat('bg-blue-400', 'Approaching', c('Đang liên hệ'))}
+                  {stat('bg-amber-400', 'Nurturing', c('Đang nuôi dưỡng'))}
+                  {stat('bg-emerald-500', 'Qualified', c('Qualified'))}
+                  {stat('bg-rose-400', 'Unqualified', c('Unqualified'))}
+                </div>
+                <div className={statCls}>
+                  {stat('bg-red-400', 'Việt Nam', vn)}
+                  {stat('bg-sky-400', 'Quốc Tế', intl)}
+                </div>
+              </div>
+            );
+          })()}
+          {extraControls && <div>{extraControls}</div>}
+        </div>
       </div>
 
       {/* Table */}
@@ -251,12 +281,14 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
               <tr className="bg-white border-b border-slate-100">
                 {isSale && (
                   <th className="pl-6 py-5 w-10">
-                    <input
-                      type="checkbox"
-                      checked={allSelected}
-                      onChange={toggleSelectAll}
-                      className="size-4 rounded accent-primary cursor-pointer"
-                    />
+                    <button
+                      onClick={toggleSelectAll}
+                      className={`size-4 rounded-[4px] border-2 flex items-center justify-center transition-all cursor-pointer ${
+                        allSelected ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary/60 bg-white'
+                      }`}
+                    >
+                      {allSelected && <Check size={10} strokeWidth={3} className="text-white" />}
+                    </button>
                   </th>
                 )}
                 {COLS.map((c) => (
@@ -277,7 +309,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
                 const isSelected = selectedIds.has(lead.id);
                 if (editId === lead.id) return (
                   <tr key={lead.id} className="bg-primary/[0.03]">
-                    {isSale && <td className="pl-6"><input type="checkbox" checked={isSelected} onChange={() => toggleSelect(lead.id)} className="size-4 rounded accent-primary cursor-pointer" /></td>}
+                    {isSale && <td className="pl-6"><button onClick={() => toggleSelect(lead.id)} className={`size-4 rounded-[4px] border-2 flex items-center justify-center transition-all cursor-pointer ${isSelected ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary/60 bg-white'}`}>{isSelected && <Check size={10} strokeWidth={3} className="text-white" />}</button></td>}
                     <td className={cellCls}><input className={inputCls} value={draft.customerName ?? ''} onChange={(e) => setDraft((d) => ({ ...d, customerName: e.target.value }))} /></td>
                     <td className={cellCls}><input className={inputCls} value={draft.ae ?? ''} onChange={(e) => setDraft((d) => ({ ...d, ae: e.target.value }))} /></td>
                     <td className={cellCls}><input type="date" className={inputCls} value={draft.receivedDate?.slice(0, 10) ?? ''} onChange={(e) => setDraft((d) => ({ ...d, receivedDate: e.target.value }))} /></td>
@@ -302,7 +334,9 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
                   <tr key={lead.id} className={`hover:bg-slate-50/80 transition-colors group ${isSelected ? 'bg-primary/[0.04]' : ''}`}>
                     {isSale && (
                       <td className="pl-6">
-                        <input type="checkbox" checked={isSelected} onChange={() => toggleSelect(lead.id)} className="size-4 rounded accent-primary cursor-pointer" />
+                        <button onClick={() => toggleSelect(lead.id)} className={`size-4 rounded-[4px] border-2 flex items-center justify-center transition-all cursor-pointer ${isSelected ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary/60 bg-white'}`}>
+                          {isSelected && <Check size={10} strokeWidth={3} className="text-white" />}
+                        </button>
                       </td>
                     )}
                     <td className={`${cellCls} font-black text-on-surface group-hover:text-primary transition-colors`}>{lead.customerName}</td>

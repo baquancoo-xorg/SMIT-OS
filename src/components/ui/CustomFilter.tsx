@@ -14,6 +14,7 @@ interface CustomFilterProps {
   options: FilterOption[];
   icon?: React.ReactNode;
   className?: string;
+  buttonClassName?: string;
 }
 
 export default function CustomFilter({
@@ -21,7 +22,8 @@ export default function CustomFilter({
   onChange,
   options,
   icon,
-  className = ''
+  className = '',
+  buttonClassName = ''
 }: CustomFilterProps) {
   const selectedOption = options.find(opt => opt.value === value);
 
@@ -38,6 +40,7 @@ export default function CustomFilter({
               focus:border-primary focus:ring-2 focus:ring-primary/20
               outline-none transition-all cursor-pointer
               text-[10px] font-bold uppercase tracking-widest
+              ${buttonClassName}
             `}
           >
             {icon && <span className="text-slate-400">{icon}</span>}

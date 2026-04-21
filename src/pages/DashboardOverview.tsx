@@ -73,7 +73,7 @@ function DashboardOverviewContent() {
         <section className="space-y-3">
           <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
             <span className="w-1 h-4 bg-[#0059B6] rounded-full" />
-            CRM Performance
+            Lead Flow & Clearance
           </h2>
           <DashboardTab dateFrom={range.from} dateTo={range.to} />
         </section>
