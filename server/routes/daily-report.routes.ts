@@ -70,7 +70,6 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
         teamType: teamType || null,
         teamMetrics: teamMetrics || null,
         adHocTasks: adHocTasks && typeof adHocTasks === 'string' ? adHocTasks : null,
-        rawData: req.rawBody || null,
         status: 'Review',
       },
       include: { user: true },

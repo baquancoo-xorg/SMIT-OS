@@ -42,7 +42,6 @@ export function createReportRoutes(prisma: PrismaClient) {
       data: {
         ...req.body,
         weekEnding: new Date(req.body.weekEnding),
-        rawData: req.rawBody || null,
         status: 'Review',
       },
       include: { user: true },
