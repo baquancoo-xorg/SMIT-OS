@@ -1,7 +1,7 @@
 import React from 'react';
-import { Users, Calendar, Target, Facebook, ShieldCheck, UserCircle } from 'lucide-react';
+import { Users, Calendar, Target, Facebook, UserCircle } from 'lucide-react';
 
-export type SettingsTabId = 'users' | 'sprints' | 'okrs' | 'fb-config' | 'security' | 'profile';
+export type SettingsTabId = 'users' | 'sprints' | 'okrs' | 'fb-config' | 'profile';
 
 interface Tab {
   id: SettingsTabId;
@@ -15,12 +15,10 @@ const ADMIN_TABS: Tab[] = [
   { id: 'sprints', label: 'Sprints', icon: Calendar },
   { id: 'okrs', label: 'OKRs', icon: Target },
   { id: 'fb-config', label: 'FB Config', icon: Facebook },
-  { id: 'security', label: 'Security', icon: ShieldCheck },
 ];
 
 const MEMBER_TABS: Tab[] = [
   { id: 'profile', label: 'Profile', icon: UserCircle },
-  { id: 'security', label: 'Security', icon: ShieldCheck },
 ];
 
 interface SettingsTabsProps {

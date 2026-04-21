@@ -1,15 +1,16 @@
 import DatePicker from '../ui/date-picker';
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Calendar, Save, Edit2, X } from 'lucide-react';
+import { Trash2, Save, Edit2, X } from 'lucide-react';
 import { Sprint } from '../../types';
 
 interface SprintCyclesTabProps {
   onDeleteConfirm: (type: 'sprint', id: string) => void;
+  isAddingSprint: boolean;
+  setIsAddingSprint: (v: boolean) => void;
 }
 
-export function SprintCyclesTab({ onDeleteConfirm }: SprintCyclesTabProps) {
+export function SprintCyclesTab({ onDeleteConfirm, isAddingSprint, setIsAddingSprint }: SprintCyclesTabProps) {
   const [sprints, setSprints] = useState<Sprint[]>([]);
-  const [isAddingSprint, setIsAddingSprint] = useState(false);
   const [editingSprint, setEditingSprint] = useState<Sprint | null>(null);
   const [newSprint, setNewSprint] = useState({ name: '', startDate: '', endDate: '' });
 
@@ -62,15 +63,6 @@ export function SprintCyclesTab({ onDeleteConfirm }: SprintCyclesTabProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-bold flex items-center gap-2">
-          <Calendar className="text-secondary" />
-          Sprint Cycles
-        </h3>
-        <button onClick={() => setIsAddingSprint(true)} className="flex items-center gap-2 bg-secondary text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-secondary/20 hover:scale-95 transition-all">
-          <Plus size={16} /> New Sprint
-        </button>
-      </div>
 
       {isAddingSprint && (
         <div className="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/20 space-y-4">

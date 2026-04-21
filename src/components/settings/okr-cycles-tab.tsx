@@ -1,15 +1,16 @@
 import DatePicker from '../ui/date-picker';
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Target, Save, Edit2, X } from 'lucide-react';
+import { Trash2, Save, Edit2, X } from 'lucide-react';
 import { OkrCycle } from '../../types';
 
 interface OkrCyclesTabProps {
   onDeleteConfirm: (type: 'cycle', id: string) => void;
+  isAddingCycle: boolean;
+  setIsAddingCycle: (v: boolean) => void;
 }
 
-export function OkrCyclesTab({ onDeleteConfirm }: OkrCyclesTabProps) {
+export function OkrCyclesTab({ onDeleteConfirm, isAddingCycle, setIsAddingCycle }: OkrCyclesTabProps) {
   const [okrCycles, setOkrCycles] = useState<OkrCycle[]>([]);
-  const [isAddingCycle, setIsAddingCycle] = useState(false);
   const [editingCycle, setEditingCycle] = useState<OkrCycle | null>(null);
   const [newCycle, setNewCycle] = useState({ name: '', startDate: '', endDate: '' });
 
@@ -75,15 +76,6 @@ export function OkrCyclesTab({ onDeleteConfirm }: OkrCyclesTabProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-bold flex items-center gap-2">
-          <Target className="text-primary" />
-          OKRs Cycle
-        </h3>
-        <button onClick={() => setIsAddingCycle(true)} className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-95 transition-all">
-          <Plus size={16} /> New Cycle
-        </button>
-      </div>
 
       {isAddingCycle && (
         <div className="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/20 space-y-4">

@@ -1,15 +1,15 @@
 # Session State
-<!-- Generated: 2026-04-21T20:09:14.849Z -->
+<!-- Generated: 2026-04-21T20:38:08.102Z -->
 <!-- Branch: unknown -->
 <!-- Plan: none -->
 
 ## What Worked (Verified)
-- Phase 01: Fix Card.tsx và Button.tsx radius
-- Phase 01: Tạo Badge.tsx và SectionHeader.tsx
-- Phase 01: Cập nhật ui/index.ts exports
-- Phase 02: Settings page overhaul
-- Phase 03: Daily Report forms fix
-- Phase 04: Responsive audit và fix
+- Fix global search bar alignment (Header.tsx xl:pl-72 → xl:pl-64)
+- Remove Security tab from settings tabs, update type
+- Rewrite ProfileTab: English labels, no section headers, add 2FA section
+- Lift isAddingUser/isAddingSprint/isAddingCycle/isAddingFb state to Settings.tsx, add header action buttons
+- Remove section headers from User/Sprint/OKR/FbConfig tabs, accept props
+- Daily Sync: rename Date→Created Date, remove Impact/Blockers cols, add Report Date col
 
 ## What's Left
 - (All tasks completed)
@@ -361,23 +361,12 @@
 - Completed at 20:08:30
 
 ## Key Files Modified
-- .claude/session-state/archive/20260422-0143.md
-- .claude/session-state/archive/20260422-0148.md
-- .claude/session-state/archive/20260422-0156.md
-- .claude/session-state/latest.md
-- src/components/daily-report/DailyReportBase.tsx
-- src/components/daily-report/DailySyncStatsBar.tsx
-- src/components/daily-report/MarketingDailyForm.tsx
-- src/components/daily-report/MediaDailyForm.tsx
-- src/components/daily-report/PMDashboard.tsx
-- src/components/daily-report/SaleDailyForm.tsx
-- src/components/daily-report/TechDailyForm.tsx
-- src/components/daily-report/components/AdHocTasksSection.tsx
-- src/components/daily-report/components/BlockerCard.tsx
-- src/components/daily-report/components/TaskStatusCard.tsx
-- src/components/daily-report/components/TodayPlanCard.tsx
+- src/components/layout/Header.tsx
 - src/components/settings/fb-config-tab.tsx
+- src/components/settings/okr-cycles-tab.tsx
 - src/components/settings/profile-tab.tsx
 - src/components/settings/settings-tabs.tsx
+- src/components/settings/sprint-cycles-tab.tsx
 - src/components/settings/user-management-tab.tsx
-- src/components/ui/Button.tsx
+- src/pages/DailySync.tsx
+- src/pages/Settings.tsx

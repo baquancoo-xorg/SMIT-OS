@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Plus, Trash2, Users, Save, Edit2, X, UserCog } from 'lucide-react';
+import { Trash2, Save, Edit2, X, UserCog } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { User } from '../../types';
-import { Input, Button, Card, Badge, SectionHeader } from '../ui';
+import { Input, Button, Card, Badge } from '../ui';
 import CustomSelect from '../ui/CustomSelect';
 
 const ALL_DEPARTMENTS = ['BOD', 'Tech', 'Marketing', 'Media', 'Sale'];
@@ -19,11 +19,12 @@ const ROLE_BADGE_VARIANT: Record<string, 'info' | 'warning' | 'neutral'> = {
 
 interface UserManagementTabProps {
   onDeleteConfirm: (type: 'user', id: string) => void;
+  isAddingUser: boolean;
+  setIsAddingUser: (v: boolean) => void;
 }
 
-export function UserManagementTab({ onDeleteConfirm }: UserManagementTabProps) {
+export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUser }: UserManagementTabProps) {
   const { users, refreshUsers, currentUser } = useAuth();
-  const [isAddingUser, setIsAddingUser] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [editFormData, setEditFormData] = useState({
     fullName: '', username: '', password: '', departments: ['Tech'] as string[],
@@ -104,16 +105,6 @@ export function UserManagementTab({ onDeleteConfirm }: UserManagementTabProps) {
 
   return (
     <div className="space-y-8">
-      <SectionHeader
-        icon={<Users size={20} />}
-        title="User Management"
-        subtitle="Workspace Personnel"
-        action={!isAddingUser ? (
-          <Button onClick={() => setIsAddingUser(true)} size="sm" className="flex items-center gap-2">
-            <Plus size={16} /> Add User
-          </Button>
-        ) : undefined}
-      />
 
       {isAddingUser && (
         <Card variant="flat" className="p-6 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">

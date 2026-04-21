@@ -354,12 +354,11 @@ export default function DailySync() {
                         />
                       </th>
                     )}
-                    <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[100px]">Date</th>
+                    <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[120px]">Created Date</th>
                     <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[150px]">Reporter</th>
                     <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[80px]">Team</th>
                     <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[100px]">Status</th>
-                    <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[80px]">Impact</th>
-                    <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[120px]">Blockers</th>
+                    <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[120px]">Report Date</th>
                     <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right min-w-[80px]">Actions</th>
                   </tr>
                 </thead>
@@ -379,7 +378,7 @@ export default function DailySync() {
                       <td className="px-4 md:px-8 py-5">
                         <div className="flex items-center gap-2 text-sm font-bold text-on-surface">
                           <Calendar size={14} className="text-slate-400" />
-                          {new Date(report.reportDate).toLocaleDateString('vi-VN')}
+                          {new Date(report.createdAt).toLocaleDateString('vi-VN')}
                         </div>
                       </td>
                       <td className="px-4 md:px-8 py-5">
@@ -418,18 +417,10 @@ export default function DailySync() {
                         </span>
                       </td>
                       <td className="px-4 md:px-8 py-5">
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                          report.impactLevel === 'high' ? 'bg-red-100 text-red-700' :
-                          report.impactLevel === 'low' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-slate-100 text-slate-500'
-                        }`}>
-                          {report.impactLevel || 'none'}
-                        </span>
-                      </td>
-                      <td className="px-4 md:px-8 py-5">
-                        <p className="text-sm text-slate-500 truncate max-w-[200px]">
-                          {report.blockers || '-'}
-                        </p>
+                        <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                          <Calendar size={14} className="text-slate-400" />
+                          {new Date(report.reportDate).toLocaleDateString('vi-VN')}
+                        </div>
                       </td>
                       <td className="px-4 md:px-8 py-5 text-right">
                         <button
@@ -443,7 +434,7 @@ export default function DailySync() {
                   ))}
                   {displayedReports.length === 0 && (
                     <tr>
-                      <td colSpan={exportMode ? 8 : 7} className="px-8 py-16 text-center">
+                      <td colSpan={exportMode ? 7 : 6} className="px-8 py-16 text-center">
                         <p className="text-slate-400 font-medium">
                           {exportMode ? 'Không có báo cáo nào khớp bộ lọc' : 'No daily reports yet'}
                         </p>

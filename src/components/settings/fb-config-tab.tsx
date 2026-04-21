@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Facebook, Plus, RefreshCw, Edit2, Trash2, DollarSign, Save, X } from 'lucide-react';
+import { RefreshCw, Edit2, Trash2, DollarSign, Save, X } from 'lucide-react';
 import { Input, Button, Card, Badge, SectionHeader } from '../ui';
 
 interface FbAccount {
@@ -12,11 +12,16 @@ interface FbAccount {
   lastSyncStatus: string | null;
 }
 
-export function FbConfigTab() {
+interface FbConfigTabProps {
+  isAddingFb: boolean;
+  setIsAddingFb: (v: boolean) => void;
+}
+
+export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
   const [accounts, setAccounts] = useState<FbAccount[]>([]);
   const [exchangeRate, setExchangeRate] = useState<number>(27000);
   const [loading, setLoading] = useState(true);
-  const [isAdding, setIsAdding] = useState(false);
+  const isAdding = isAddingFb;
   const [editingId, setEditingId] = useState<number | null>(null);
   const [syncingId, setSyncingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({ accountId: '', accountName: '', accessToken: '', currency: 'USD' });
@@ -153,7 +158,7 @@ export function FbConfigTab() {
   };
 
   const resetForm = () => {
-    setIsAdding(false);
+    setIsAddingFb(false);
     setEditingId(null);
     setFormData({ accountId: '', accountName: '', accessToken: '', currency: 'USD' });
     setFormError(null);
@@ -179,18 +184,6 @@ export function FbConfigTab() {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* FB Ad Accounts Section */}
       <div className="lg:col-span-2 space-y-8">
-        <SectionHeader
-          icon={<Facebook size={20} />}
-          title="FB Ad Accounts"
-          subtitle="Ads Integration"
-          iconBg="bg-[#1877F2]/10"
-          iconColor="text-[#1877F2]"
-          action={!isAdding && !editingId ? (
-            <Button onClick={() => setIsAdding(true)} size="sm" className="gap-2">
-              <Plus size={16} /> Add Account
-            </Button>
-          ) : undefined}
-        />
 
         {(isAdding || editingId) && (
           <Card variant="flat" className="p-6 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">

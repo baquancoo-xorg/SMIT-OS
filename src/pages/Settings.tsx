@@ -1,11 +1,11 @@
 import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { SettingsTabs, SettingsTabId } from '../components/settings/settings-tabs';
 import { UserManagementTab } from '../components/settings/user-management-tab';
 import { SprintCyclesTab } from '../components/settings/sprint-cycles-tab';
 import { OkrCyclesTab } from '../components/settings/okr-cycles-tab';
 import { FbConfigTab } from '../components/settings/fb-config-tab';
-import { TwoFactorAuthTab } from '../components/settings/two-factor-auth-tab';
 import { ProfileTab } from '../components/settings/profile-tab';
 
 import { Card, Button } from '../components/ui';
@@ -16,6 +16,10 @@ export default function Settings() {
   const { isAdmin, refreshUsers } = useAuth();
   const [activeTab, setActiveTab] = useState<SettingsTabId>(isAdmin ? 'users' : 'profile');
   const [deleteConfirm, setDeleteConfirm] = useState<DeleteConfirmType>(null);
+  const [isAddingUser, setIsAddingUser] = useState(false);
+  const [isAddingSprint, setIsAddingSprint] = useState(false);
+  const [isAddingCycle, setIsAddingCycle] = useState(false);
+  const [isAddingFb, setIsAddingFb] = useState(false);
 
   const handleDelete = async () => {
     if (!deleteConfirm) return;
@@ -46,10 +50,30 @@ export default function Settings() {
     setDeleteConfirm({ type, id });
   };
 
-  const pageTitle = isAdmin ? 'Workspace Settings' : 'Settings';
-  const pageDesc = isAdmin
-    ? 'Manage users, sprints, and system configurations.'
-    : 'Manage your profile and security settings.';
+  const headerAction = (() => {
+    if (!isAdmin) return null;
+    if (activeTab === 'users') return (
+      <Button onClick={() => setIsAddingUser(true)} size="sm" className="flex items-center gap-2">
+        <Plus size={16} /> Add User
+      </Button>
+    );
+    if (activeTab === 'sprints') return (
+      <button onClick={() => setIsAddingSprint(true)} className="flex items-center gap-2 bg-secondary text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-secondary/20 hover:scale-95 transition-all">
+        <Plus size={16} /> New Sprint
+      </button>
+    );
+    if (activeTab === 'okrs') return (
+      <button onClick={() => setIsAddingCycle(true)} className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-95 transition-all">
+        <Plus size={16} /> New Cycle
+      </button>
+    );
+    if (activeTab === 'fb-config') return (
+      <Button onClick={() => setIsAddingFb(true)} size="sm" className="flex items-center gap-2">
+        <Plus size={16} /> Add Account
+      </Button>
+    );
+    return null;
+  })();
 
   return (
     <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
@@ -63,8 +87,8 @@ export default function Settings() {
           <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">
             {isAdmin ? 'Workspace' : 'User'} <span className="text-primary italic">Settings</span>
           </h2>
-          <p className="text-slate-500 mt-2">{pageDesc}</p>
         </div>
+        {headerAction && <div>{headerAction}</div>}
       </section>
 
       <Card className="p-1 shrink-0 bg-white/30">
@@ -74,11 +98,33 @@ export default function Settings() {
       <div className="flex-1 overflow-y-auto pb-8">
         <Card variant="panel" className="p-8 min-h-full">
           {activeTab === 'profile' && <ProfileTab />}
-          {activeTab === 'users' && isAdmin && <UserManagementTab onDeleteConfirm={handleDeleteConfirm} />}
-          {activeTab === 'sprints' && isAdmin && <SprintCyclesTab onDeleteConfirm={handleDeleteConfirm} />}
-          {activeTab === 'okrs' && isAdmin && <OkrCyclesTab onDeleteConfirm={handleDeleteConfirm} />}
-          {activeTab === 'fb-config' && isAdmin && <FbConfigTab />}
-          {activeTab === 'security' && <TwoFactorAuthTab />}
+          {activeTab === 'users' && isAdmin && (
+            <UserManagementTab
+              onDeleteConfirm={handleDeleteConfirm}
+              isAddingUser={isAddingUser}
+              setIsAddingUser={setIsAddingUser}
+            />
+          )}
+          {activeTab === 'sprints' && isAdmin && (
+            <SprintCyclesTab
+              onDeleteConfirm={handleDeleteConfirm}
+              isAddingSprint={isAddingSprint}
+              setIsAddingSprint={setIsAddingSprint}
+            />
+          )}
+          {activeTab === 'okrs' && isAdmin && (
+            <OkrCyclesTab
+              onDeleteConfirm={handleDeleteConfirm}
+              isAddingCycle={isAddingCycle}
+              setIsAddingCycle={setIsAddingCycle}
+            />
+          )}
+          {activeTab === 'fb-config' && isAdmin && (
+            <FbConfigTab
+              isAddingFb={isAddingFb}
+              setIsAddingFb={setIsAddingFb}
+            />
+          )}
         </Card>
       </div>
 
