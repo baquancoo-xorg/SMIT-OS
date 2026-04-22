@@ -1,9 +1,13 @@
 import cron from 'node-cron';
 import { PrismaClient } from '@prisma/client';
 import { SheetsExportService } from '../services/sheets-export.service';
+import { GoogleOAuthService } from '../services/google-oauth.service';
 
-export function initSheetsExportScheduler(prisma: PrismaClient): SheetsExportService {
-  const exportService = new SheetsExportService(prisma);
+export function initSheetsExportScheduler(
+  prisma: PrismaClient,
+  googleOAuthService: GoogleOAuthService
+): SheetsExportService {
+  const exportService = new SheetsExportService(prisma, googleOAuthService);
 
   // Run at 11:00 AM Vietnam time every day
   cron.schedule('0 11 * * *', async () => {

@@ -1,19 +1,20 @@
 import { PrismaClient } from '@prisma/client';
 import { GoogleSheetsClient } from '../lib/google-sheets-client';
 import { ExportResult, ExportJobStatus } from '../types/sheets-export.types';
+import { GoogleOAuthService } from './google-oauth.service';
 import * as extractors from './sheets-export/extractors';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 5000;
 
 export class SheetsExportService {
-  private client: GoogleSheetsClient;
   private currentJob: ExportJobStatus | null = null;
   private isExporting = false;
 
-  constructor(private prisma: PrismaClient) {
-    this.client = new GoogleSheetsClient();
-  }
+  constructor(
+    private prisma: PrismaClient,
+    private googleOAuthService: GoogleOAuthService
+  ) {}
 
   async export(): Promise<ExportResult> {
     // Prevent concurrent exports
@@ -66,10 +67,19 @@ export class SheetsExportService {
   }
 
   private async doExport(): Promise<ExportResult> {
+    // Get OAuth client and folder from integration
+    const integration = await this.googleOAuthService.getIntegration();
+    if (!integration) {
+      throw new Error('Google account not connected. Please connect in Settings.');
+    }
+
+    const authClient = await this.googleOAuthService.getAuthenticatedClient();
+    const client = new GoogleSheetsClient(authClient, integration.folderId || undefined);
+
     const date = new Date().toISOString().split('T')[0];
     const title = `SMIT-OS-Report-${date}`;
 
-    const { id: spreadsheetId, url } = await this.client.createSpreadsheet(title);
+    const { id: spreadsheetId, url } = await client.createSpreadsheet(title);
 
     const ctx = { prisma: this.prisma };
     const allExtractors = [
@@ -92,13 +102,13 @@ export class SheetsExportService {
 
     for (const extractor of allExtractors) {
       const data = await extractor(ctx);
-      await this.client.addSheet(spreadsheetId, data.sheetName);
-      await this.client.writeData(spreadsheetId, data.sheetName, data.headers, data.rows);
+      await client.addSheet(spreadsheetId, data.sheetName);
+      await client.writeData(spreadsheetId, data.sheetName, data.headers, data.rows);
       sheetsCreated++;
       console.log(`[SheetsExport] Created sheet: ${data.sheetName}`);
     }
 
-    await this.client.deleteDefaultSheet(spreadsheetId);
+    await client.deleteDefaultSheet(spreadsheetId);
 
     return { success: true, spreadsheetId, spreadsheetUrl: url, sheetsCreated };
   }

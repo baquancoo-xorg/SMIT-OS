@@ -321,3 +321,19 @@ model EtlErrorLog {
   @@index([occurredAt])
   @@map("etl_error_log")
 }
+
+model GoogleIntegration {
+  id           String   @id @default(uuid())
+  type         String   @default("sheets_export") // sheets_export, etc.
+  email        String   // Google account email
+  accessToken  String   @map("access_token")
+  refreshToken String   @map("refresh_token")
+  expiresAt    DateTime @map("expires_at")
+  folderId     String?  @map("folder_id") // Selected Drive folder
+  folderName   String?  @map("folder_name")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@unique([type]) // Only one integration per type
+  @@map("google_integrations")
+}

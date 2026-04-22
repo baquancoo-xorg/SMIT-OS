@@ -26,6 +26,8 @@ import { createAdminFbConfigRoutes } from "./server/routes/admin-fb-config.route
 import { createNotificationRoutes } from "./server/routes/notification.routes";
 import { createLeadRoutes } from "./server/routes/lead.routes";
 import { createSheetsExportRoutes } from "./server/routes/sheets-export.routes";
+import { createGoogleOAuthRoutes } from "./server/routes/google-oauth.routes";
+import { createGoogleOAuthService } from "./server/services/google-oauth.service";
 import { startFbSyncScheduler } from "./server/services/facebook/fb-sync-scheduler.service";
 import { createNotificationService } from "./server/services/notification.service";
 import { initAlertScheduler } from "./server/jobs/alert-scheduler";
@@ -81,8 +83,11 @@ app.use("/api/dashboard/overview", createDashboardOverviewRoutes());
 app.use("/api/sync/facebook-ads", createFbSyncRoutes());
 app.use("/api/admin", createAdminFbConfigRoutes());
 
-// Sheets Export (init scheduler + routes together)
-const sheetsExportService = initSheetsExportScheduler(prisma);
+// Google OAuth & Sheets Export
+const googleOAuthService = createGoogleOAuthService(prisma);
+app.use("/api/google", createGoogleOAuthRoutes(googleOAuthService));
+
+const sheetsExportService = initSheetsExportScheduler(prisma, googleOAuthService);
 app.use("/api/sheets-export", createSheetsExportRoutes(sheetsExportService));
 
 // OKRs recalculate endpoint (legacy path)
