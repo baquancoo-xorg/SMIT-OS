@@ -34,6 +34,49 @@ function getWeekRange() {
   };
 }
 
+function formatCreatedDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${day}/${month}/${year} - ${hours}:${minutes}`;
+}
+
+function getSubmissionStatus(dateStr: string): { label: string; detail: string; type: 'early' | 'ontime' | 'late' } {
+  const d = new Date(dateStr);
+  const totalMinutes = d.getHours() * 60 + d.getMinutes();
+  const windowStart = 8 * 60 + 30; // 08:30
+  const windowEnd = 10 * 60;       // 10:00
+  if (totalMinutes < windowStart) {
+    const diff = windowStart - totalMinutes;
+    return { label: 'Early', detail: `${diff} min early`, type: 'early' };
+  }
+  if (totalMinutes <= windowEnd) {
+    return { label: 'On Time', detail: '', type: 'ontime' };
+  }
+  const diff = totalMinutes - windowEnd;
+  return { label: 'Late', detail: `+${diff} min`, type: 'late' };
+}
+
+function SubmissionStatusBadge({ createdAt }: { createdAt: string }) {
+  const { label, detail, type } = getSubmissionStatus(createdAt);
+  const styles = {
+    early: 'bg-blue-100 text-blue-700',
+    ontime: 'bg-emerald-100 text-emerald-700',
+    late: 'bg-red-100 text-red-700',
+  };
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest w-fit ${styles[type]}`}>
+        {label}
+      </span>
+      {detail && <span className="text-[10px] text-slate-400 font-medium pl-1">{detail}</span>}
+    </div>
+  );
+}
+
 export default function DailySync() {
   const [reports, setReports] = useState<DailyReport[]>([]);
   const [tasks, setTasks] = useState<WorkItem[]>([]);
@@ -354,7 +397,8 @@ export default function DailySync() {
                         />
                       </th>
                     )}
-                    <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[120px]">Created Date</th>
+                    <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[160px]">Created Date</th>
+                    <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[130px]">Submission</th>
                     <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[150px]">Reporter</th>
                     <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[80px]">Team</th>
                     <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[100px]">Status</th>
@@ -378,8 +422,11 @@ export default function DailySync() {
                       <td className="px-4 md:px-8 py-5">
                         <div className="flex items-center gap-2 text-sm font-bold text-on-surface">
                           <Calendar size={14} className="text-slate-400" />
-                          {new Date(report.createdAt).toLocaleDateString('vi-VN')}
+                          {formatCreatedDate(report.createdAt)}
                         </div>
+                      </td>
+                      <td className="px-4 md:px-8 py-5">
+                        <SubmissionStatusBadge createdAt={report.createdAt} />
                       </td>
                       <td className="px-4 md:px-8 py-5">
                         <div className="flex items-center gap-3">
@@ -434,7 +481,7 @@ export default function DailySync() {
                   ))}
                   {displayedReports.length === 0 && (
                     <tr>
-                      <td colSpan={exportMode ? 7 : 6} className="px-8 py-16 text-center">
+                      <td colSpan={exportMode ? 8 : 7} className="px-8 py-16 text-center">
                         <p className="text-slate-400 font-medium">
                           {exportMode ? 'Không có báo cáo nào khớp bộ lọc' : 'No daily reports yet'}
                         </p>
