@@ -110,6 +110,10 @@ model WorkItem {
   // KR linking via junction table (replaces linkedKrId)
   krLinks     WorkItemKrLink[]
 
+  // Lateral epic dependency links (related)
+  dependenciesFrom WorkItemDependency[] @relation("DepFrom")
+  dependenciesTo   WorkItemDependency[] @relation("DepTo")
+
   startDate   DateTime?
   dueDate     DateTime?
   createdAt   DateTime @default(now())
@@ -128,6 +132,17 @@ model WorkItemKrLink {
   createdAt   DateTime  @default(now())
 
   @@unique([workItemId, keyResultId])
+}
+
+model WorkItemDependency {
+  id        String   @id @default(uuid())
+  fromId    String
+  from      WorkItem @relation("DepFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  toId      String
+  to        WorkItem @relation("DepTo", fields: [toId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([fromId, toId])
 }
 
 model WeeklyReport {
@@ -179,7 +194,9 @@ model Lead {
   status          String    // "Dang lien he" | "Dang nuoi duong" | "Qualified" | "Unqualified"
   leadType        String?   // "Viet Nam" | "Quoc Te"
   unqualifiedType String?
-  notes           String?
+  notes               String?
+  deleteRequestedBy   String?   // User.id người gửi yêu cầu xoá
+  deleteRequestedAt   DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   auditLogs       LeadAuditLog[]

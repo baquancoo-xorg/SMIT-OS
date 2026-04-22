@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { handleAsync } from '../utils/async-handler';
-import { createWorkItemSchema, updateWorkItemSchema, workItemKrLinkSchema } from '../schemas/work-item.schema';
+import { createWorkItemSchema, updateWorkItemSchema, workItemKrLinkSchema, workItemDependencySchema } from '../schemas/work-item.schema';
 import { createOwnershipMiddleware } from '../middleware/ownership.middleware';
 
 // Validate parentId to prevent circular references
@@ -29,6 +29,31 @@ async function validateParentId(
   return { valid: true };
 }
 
+// --- Epic graph helpers ---
+function getDescendants(id: string, all: any[]): any[] {
+  const direct = all.filter(i => i.parentId === id);
+  return direct.flatMap(c => [c, ...getDescendants(c.id, all)]);
+}
+
+function getLeafTasks(epicId: string, all: any[]) {
+  return getDescendants(epicId, all).filter(
+    i => i.type !== 'Epic' && i.type !== 'UserStory'
+  );
+}
+
+function inferEpicTeam(epicId: string, all: any[]) {
+  const tasks = getLeafTasks(epicId, all);
+  const counts: Record<string, number> = {};
+  for (const t of tasks) {
+    const dept = t.assignee?.departments?.[0];
+    if (dept) counts[dept] = (counts[dept] ?? 0) + 1;
+  }
+  const teams = Object.keys(counts);
+  if (!teams.length) return { primaryTeam: 'Unassigned', teams: [] as string[] };
+  if (teams.length > 1) return { primaryTeam: 'Cross-team', teams };
+  return { primaryTeam: teams[0], teams };
+}
+
 export function createWorkItemRoutes(prisma: PrismaClient) {
   const router = Router();
   const checkOwnership = createOwnershipMiddleware(prisma);
@@ -54,6 +79,54 @@ export function createWorkItemRoutes(prisma: PrismaClient) {
       orderBy: { createdAt: 'desc' }
     });
     res.json(items);
+  }));
+
+  // Epic graph endpoint — must be registered BEFORE /:id
+  router.get('/epics/graph', handleAsync(async (_req: any, res: any) => {
+    const [allItems, links] = await Promise.all([
+      prisma.workItem.findMany({
+        include: { assignee: { select: { departments: true } } },
+      }),
+      prisma.workItemDependency.findMany(),
+    ]);
+    const epics = allItems.filter(i => i.type === 'Epic');
+    const result = epics.map(epic => {
+      const { primaryTeam, teams } = inferEpicTeam(epic.id, allItems);
+      const descendants = getDescendants(epic.id, allItems);
+      const tasks = descendants.filter(i => i.type !== 'Epic' && i.type !== 'UserStory');
+      const stories = descendants.filter(i => i.type === 'UserStory');
+      const done = tasks.filter(t => t.status === 'Done').length;
+      return {
+        id: epic.id,
+        title: epic.title,
+        status: epic.status,
+        priority: epic.priority,
+        primaryTeam,
+        teams,
+        progress: tasks.length ? Math.round(done / tasks.length * 100) : 0,
+        taskCount: tasks.length,
+        storyCount: stories.length,
+      };
+    });
+    res.json({ epics: result, links });
+  }));
+
+  // Create dependency link
+  router.post('/dependencies', handleAsync(async (req: any, res: any) => {
+    const { fromId, toId } = workItemDependencySchema.parse(req.body);
+    if (fromId === toId) return res.status(400).json({ error: 'Cannot link epic to itself' });
+    const existing = await prisma.workItemDependency.findFirst({
+      where: { OR: [{ fromId, toId }, { fromId: toId, toId: fromId }] },
+    });
+    if (existing) return res.status(409).json({ error: 'Link already exists' });
+    const link = await prisma.workItemDependency.create({ data: { fromId, toId } });
+    res.status(201).json(link);
+  }));
+
+  // Delete dependency link
+  router.delete('/dependencies/:depId', handleAsync(async (req: any, res: any) => {
+    await prisma.workItemDependency.delete({ where: { id: req.params.depId } });
+    res.status(204).send();
   }));
 
   router.get('/:id', handleAsync(async (req: any, res: any) => {

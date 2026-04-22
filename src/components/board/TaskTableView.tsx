@@ -246,9 +246,10 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
           <tbody className="divide-y divide-slate-100/50">
             {items.map(item => {
               const assignee = users.find(u => u.id === item.assigneeId);
-              const totalSubtasks = item.subtasks?.length || 0;
-              const completedSubtasks = item.subtasks?.filter(st => st.completed).length || 0;
-              const progress = totalSubtasks > 0 ? Math.round((completedSubtasks / totalSubtasks) * 100) : 0;
+              const children = item.children || [];
+              const progress = children.length > 0
+                ? Math.round((children.filter((c: any) => c.status === 'Done').length / children.length) * 100)
+                : item.status === 'Done' ? 100 : item.status === 'In Progress' || item.status === 'Doing' ? 50 : 0;
               const isSelected = selectedIds.has(item.id);
 
               return (

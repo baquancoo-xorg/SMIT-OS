@@ -31,5 +31,10 @@ export const workItemKrLinkSchema = z.object({
   keyResultId: z.string().uuid(),
 });
 
+export const workItemDependencySchema = z.object({
+  fromId: z.string().uuid(),
+  toId:   z.string().uuid(),
+});
+
 export type CreateWorkItemInput = z.infer<typeof createWorkItemSchema>;
 export type UpdateWorkItemInput = z.infer<typeof updateWorkItemSchema>;

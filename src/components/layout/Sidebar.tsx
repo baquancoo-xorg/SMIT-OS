@@ -83,12 +83,6 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
             onClick={() => onViewChange('backlog')}
           />
           <NavItem
-            icon="flag"
-            label="Epic Board"
-            active={currentView === 'epics'}
-            onClick={() => onViewChange('epics')}
-          />
-          <NavItem
             icon="sprint"
             label="Sprint Board"
             active={currentView === 'sprint'}

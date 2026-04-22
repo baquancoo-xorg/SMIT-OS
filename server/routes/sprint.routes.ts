@@ -29,8 +29,8 @@ export function createSprintRoutes(prisma: PrismaClient) {
     const stats = {
       total: items.length,
       done: items.filter(i => i.status === 'Done').length,
-      inProgress: items.filter(i => i.status === 'InProgress').length,
-      todo: items.filter(i => i.status === 'Todo').length,
+      inProgress: items.filter(i => i.status === 'In Progress').length,
+      todo: items.filter(i => i.status === 'Todo' || i.status === 'To Do').length,
       blocked: items.filter(i => i.priority === 'Urgent' && i.status !== 'Done').length,
       progress: items.length > 0
         ? Math.round((items.filter(i => i.status === 'Done').length / items.length) * 100)

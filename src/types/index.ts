@@ -156,6 +156,8 @@ export interface Lead {
   leadType?: string | null;
   unqualifiedType?: string | null;
   notes?: string | null;
+  deleteRequestedBy?: string | null;
+  deleteRequestedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -181,6 +183,30 @@ export interface DailyReportTasksData {
   completedYesterday: string[];
   doingYesterday: string[];
   doingToday: string[];
+}
+
+// Epic dependency graph types
+export interface EpicGraphNode {
+  id: string;
+  title: string;
+  status: string;
+  priority: string;
+  primaryTeam: string;
+  teams: string[];
+  progress: number;
+  taskCount: number;
+  storyCount: number;
+}
+
+export interface EpicDependencyLink {
+  id: string;
+  fromId: string;
+  toId: string;
+}
+
+export interface EpicGraphData {
+  epics: EpicGraphNode[];
+  links: EpicDependencyLink[];
 }
 
 // Re-export team-specific types

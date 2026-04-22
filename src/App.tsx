@@ -20,10 +20,9 @@ import LoginPage from './pages/LoginPage';
 import DashboardOverview from './pages/DashboardOverview';
 import SprintBoard from './pages/SprintBoard';
 import LeadTracker from './pages/LeadTracker';
-import EpicBoard from './pages/EpicBoard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'backlog' | 'mkt' | 'media' | 'sale' | 'sync' | 'daily-sync' | 'settings' | 'profile' | 'ads-overview' | 'sprint' | 'lead-tracker' | 'epics';
+export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'backlog' | 'mkt' | 'media' | 'sale' | 'sync' | 'daily-sync' | 'settings' | 'profile' | 'ads-overview' | 'sprint' | 'lead-tracker';
 
 function AppContent() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -59,7 +58,6 @@ function AppContent() {
       {currentView === 'ads-overview' && <DashboardOverview key="ads-overview" />}
       {currentView === 'sprint' && <SprintBoard key="sprint" />}
       {currentView === 'lead-tracker' && <LeadTracker key="lead-tracker" />}
-      {currentView === 'epics' && <EpicBoard key="epics" />}
     </AppLayout>
   );
 }

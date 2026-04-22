@@ -1,11 +1,15 @@
 # Session State
-<!-- Generated: 2026-04-22T03:49:39.414Z -->
+<!-- Generated: 2026-04-22T06:44:55.284Z -->
 <!-- Branch: unknown -->
 <!-- Plan: none -->
 
 ## What Worked (Verified)
-- Fix Bug 1: handleBulkDelete không gọi API (4 boards)
-- Fix Bug 2: Drag & Drop không lưu DB do race condition với handleDragOver (4 boards)
+- Step 1: EpicBoard.tsx — add hideHeader prop, wrap header block
+- Step 2: EpicGraph.tsx — add hideHeader prop, wrap header block
+- Step 3: ProductBacklog.tsx — extend view state, add imports, update ViewToggle, gate UI sections
+- Step 4: App.tsx — remove dead ViewType entries and routes
+- Step 5: Sidebar.tsx — remove Epic Board and Epic Graph NavItems
+- Compile check: npx tsc --noEmit
 
 ## What's Left
 - (All tasks completed)
@@ -356,12 +360,36 @@
 ## Agent Result: project-manager (20:08:30)
 - Completed at 20:08:30
 
+
+## Agent Result: project-manager (06:08:18)
+- Completed at 06:08:18
+
+
+## Agent Result: journal-writer (06:09:23)
+- Completed at 06:09:23
+
+
+## Agent Result: planner (06:37:43)
+- Completed at 06:37:43
+
 ## Key Files Modified
-- .claude/session-state/archive/20260422-0236.md
-- .claude/session-state/archive/20260422-0251.md
-- .claude/session-state/archive/20260422-0308.md
+- .claude/session-state/archive/20260422-0338.md
+- .claude/session-state/archive/20260422-1019.md
+- .claude/session-state/archive/20260422-1026.md
+- .claude/session-state/archive/20260422-1029.md
+- .claude/session-state/archive/20260422-1049.md
 - .claude/session-state/latest.md
-- src/pages/MarketingBoard.tsx
-- src/pages/MediaBoard.tsx
-- src/pages/SaleBoard.tsx
-- src/pages/TechBoard.tsx
+- package-lock.json
+- package.json
+- prisma/schema.prisma
+- server/routes/lead.routes.ts
+- server/routes/sprint.routes.ts
+- server/routes/work-item.routes.ts
+- server/schemas/work-item.schema.ts
+- src/App.tsx
+- src/components/board/TaskTableView.tsx
+- src/components/layout/Sidebar.tsx
+- src/components/lead-tracker/lead-logs-tab.tsx
+- src/lib/api.ts
+- src/pages/EpicBoard.tsx
+- src/pages/PMDashboard.tsx

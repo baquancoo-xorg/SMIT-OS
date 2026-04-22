@@ -6,6 +6,13 @@ import { createLeadSchema, updateLeadSchema } from '../schemas/lead.schema';
 
 const TRACKED_FIELDS = ['status', 'ae', 'leadType', 'unqualifiedType', 'notes', 'resolvedDate', 'receivedDate'] as const;
 
+function canDelete(user: any): boolean {
+  if (!user) return false;
+  if (user.isAdmin || user.role === 'Admin') return true;
+  if (user.role === 'Leader' && user.departments?.includes('Sale')) return true;
+  return false;
+}
+
 function normalizeVal(field: string, val: unknown): string | null {
   if (val === null || val === undefined) return null;
   if (field === 'resolvedDate' || field === 'receivedDate') {
@@ -113,6 +120,51 @@ export function createLeadRoutes(prisma: PrismaClient) {
     res.json(logs);
   }));
 
+  router.post('/:id/delete-request', handleAsync(async (req: any, res: any) => {
+    const existing = await prisma.lead.findUnique({ where: { id: req.params.id } });
+    if (!existing) return res.status(404).json({ error: 'Not found' });
+    if (existing.deleteRequestedBy) {
+      return res.status(409).json({ error: 'Delete request already pending' });
+    }
+    const lead = await prisma.lead.update({
+      where: { id: req.params.id },
+      data: { deleteRequestedBy: req.user.userId, deleteRequestedAt: new Date() },
+    });
+    res.json(lead);
+  }));
+
+  router.delete('/:id/delete-request', handleAsync(async (req: any, res: any) => {
+    const existing = await prisma.lead.findUnique({ where: { id: req.params.id } });
+    if (!existing) return res.status(404).json({ error: 'Not found' });
+    if (existing.deleteRequestedBy !== req.user.userId) {
+      return res.status(403).json({ error: 'Not your request' });
+    }
+    const lead = await prisma.lead.update({
+      where: { id: req.params.id },
+      data: { deleteRequestedBy: null, deleteRequestedAt: null },
+    });
+    res.json(lead);
+  }));
+
+  router.post('/:id/delete-request/approve', handleAsync(async (req: any, res: any) => {
+    if (!canDelete(req.user)) return res.status(403).json({ error: 'Insufficient permissions' });
+    const existing = await prisma.lead.findUnique({ where: { id: req.params.id } });
+    if (!existing) return res.status(404).json({ error: 'Not found' });
+    await prisma.lead.delete({ where: { id: req.params.id } });
+    res.status(204).send();
+  }));
+
+  router.post('/:id/delete-request/reject', handleAsync(async (req: any, res: any) => {
+    if (!canDelete(req.user)) return res.status(403).json({ error: 'Insufficient permissions' });
+    const existing = await prisma.lead.findUnique({ where: { id: req.params.id } });
+    if (!existing) return res.status(404).json({ error: 'Not found' });
+    const lead = await prisma.lead.update({
+      where: { id: req.params.id },
+      data: { deleteRequestedBy: null, deleteRequestedAt: null },
+    });
+    res.json(lead);
+  }));
+
   router.get('/', handleAsync(async (req: any, res: any) => {
     const { ae, status, dateFrom, dateTo } = req.query;
     const where: any = {};
@@ -177,6 +229,7 @@ export function createLeadRoutes(prisma: PrismaClient) {
   router.delete('/:id', handleAsync(async (req: any, res: any) => {
     const existing = await prisma.lead.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ error: 'Not found' });
+    if (!canDelete(req.user)) return res.status(403).json({ error: 'Insufficient permissions' });
     await prisma.lead.delete({ where: { id: req.params.id } });
     res.status(204).send();
   }));

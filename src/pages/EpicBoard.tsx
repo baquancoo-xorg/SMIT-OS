@@ -20,7 +20,7 @@ function computeEpicProgress(epicId: string, allItems: WorkItem[]) {
   return { total: tasks.length, done, pct: tasks.length ? Math.round(done / tasks.length * 100) : 0 };
 }
 
-export default function EpicBoard() {
+export default function EpicBoard({ hideHeader = false }: { hideHeader?: boolean }) {
   const [allItems, setAllItems] = useState<WorkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -98,34 +98,36 @@ export default function EpicBoard() {
   return (
     <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--space-md)] shrink-0">
-        <div>
-          <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
-            <span className="hover:text-primary cursor-pointer">Planning</span>
-            <span className="material-symbols-outlined text-sm">chevron_right</span>
-            <span className="text-on-surface">Epic Board</span>
-          </nav>
-          <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">
-            Epic <span className="text-purple-600 italic">Board</span>
-          </h2>
+      {!hideHeader && (
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--space-md)] shrink-0">
+          <div>
+            <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
+              <span className="hover:text-primary cursor-pointer">Planning</span>
+              <span className="material-symbols-outlined text-sm">chevron_right</span>
+              <span className="text-on-surface">Epic Board</span>
+            </nav>
+            <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">
+              Epic <span className="text-purple-600 italic">Board</span>
+            </h2>
+          </div>
+          <div className="flex items-center gap-3">
+            <CustomFilter
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={[
+                { value: 'All', label: 'All Status' },
+                { value: 'Todo', label: 'Active' },
+                { value: 'InProgress', label: 'In Progress' },
+                { value: 'Done', label: 'Done' },
+              ]}
+              icon={<Filter size={14} />}
+            />
+            <PrimaryActionButton onClick={() => { setEditingEpic(null); setIsModalOpen(true); }}>
+              New Epic
+            </PrimaryActionButton>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <CustomFilter
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={[
-              { value: 'All', label: 'All Status' },
-              { value: 'Todo', label: 'Active' },
-              { value: 'InProgress', label: 'In Progress' },
-              { value: 'Done', label: 'Done' },
-            ]}
-            icon={<Filter size={14} />}
-          />
-          <PrimaryActionButton onClick={() => { setEditingEpic(null); setIsModalOpen(true); }}>
-            New Epic
-          </PrimaryActionButton>
-        </div>
-      </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 bg-white/50 backdrop-blur-md p-4 rounded-3xl shadow-sm shrink-0">

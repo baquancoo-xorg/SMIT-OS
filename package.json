@@ -38,6 +38,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^4.17.21",
     "@vitejs/plugin-react": "^5.0.4",
+    "@xyflow/react": "^12.10.2",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",

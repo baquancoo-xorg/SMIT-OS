@@ -11,9 +11,11 @@ import TaskDetailsModal from '../components/board/TaskDetailsModal';
 import CustomFilter from '../components/ui/CustomFilter';
 import ViewToggle from '../components/ui/ViewToggle';
 import PrimaryActionButton from '../components/ui/PrimaryActionButton';
+import EpicBoard from './EpicBoard';
+import EpicGraph from './EpicGraph';
 
 export default function ProductBacklog() {
-  const [view, setView] = useState<'board' | 'table'>('board');
+  const [view, setView] = useState<'grouped' | 'table' | 'epic-board' | 'epic-graph'>('grouped');
   const [items, setItems] = useState<WorkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -203,22 +205,26 @@ export default function ProductBacklog() {
         <div className="flex items-center gap-3">
           <ViewToggle
             value={view}
-            onChange={(v) => setView(v as 'board' | 'table')}
+            onChange={(v) => setView(v as 'grouped' | 'table' | 'epic-board' | 'epic-graph')}
             options={[
-              { value: 'board', label: 'Grouped', icon: <span className="material-symbols-outlined text-[14px]">account_tree</span> },
+              { value: 'grouped', label: 'Grouped', icon: <span className="material-symbols-outlined text-[14px]">account_tree</span> },
               { value: 'table', label: 'Table', icon: <span className="material-symbols-outlined text-[14px]">table_rows</span> },
+              { value: 'epic-board', label: 'Board', icon: <span className="material-symbols-outlined text-[14px]">flag</span> },
+              { value: 'epic-graph', label: 'Graph', icon: <span className="material-symbols-outlined text-[14px]">share</span> },
             ]}
           />
-          <PrimaryActionButton
-            onClick={() => { setEditingTask(null); setNewItemDefaultParentId(undefined); setNewItemDefaultType('Epic'); setIsModalOpen(true); }}
-          >
-            New Item
-          </PrimaryActionButton>
+          {(view === 'grouped' || view === 'table') && (
+            <PrimaryActionButton
+              onClick={() => { setEditingTask(null); setNewItemDefaultParentId(undefined); setNewItemDefaultType('Epic'); setIsModalOpen(true); }}
+            >
+              New Item
+            </PrimaryActionButton>
+          )}
         </div>
       </div>
 
       {/* Stats & Filters */}
-      <div className="flex flex-col lg:flex-row gap-4">
+      {(view === 'grouped' || view === 'table') && <div className="flex flex-col lg:flex-row gap-4">
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 bg-white/50 backdrop-blur-md p-4 rounded-3xl shadow-sm">
           <div className="text-center">
@@ -278,7 +284,7 @@ export default function ProductBacklog() {
             ]}
           />
         </div>
-      </div>
+      </div>}
 
       {/* Bulk Actions */}
       {selectedIds.size > 0 && (
@@ -307,7 +313,7 @@ export default function ProductBacklog() {
       )}
 
       {/* Content */}
-      {view === 'table' ? (
+      {view === 'table' && (
         <div className="flex-1 overflow-y-auto pb-8">
           <BacklogTableView
             items={filteredItems}
@@ -321,7 +327,8 @@ export default function ProductBacklog() {
             users={users}
           />
         </div>
-      ) : (
+      )}
+      {view === 'grouped' && (
         <div className="flex-1 overflow-y-auto pb-8 space-y-6 custom-scrollbar">
           {filteredItems.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center py-20 bg-slate-50/50 border-2 border-dashed border-outline-variant/10 rounded-3xl">
@@ -360,6 +367,8 @@ export default function ProductBacklog() {
           )}
         </div>
       )}
+      {view === 'epic-board' && <EpicBoard hideHeader />}
+      {view === 'epic-graph' && <EpicGraph hideHeader />}
 
       <TaskModal
         isOpen={isModalOpen}

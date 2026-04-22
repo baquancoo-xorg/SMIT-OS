@@ -67,6 +67,14 @@ class ApiClient {
 
   deleteLead(id: string) { return this.delete(`/leads/${id}`); }
 
+  requestLeadDelete(id: string) { return this.post<import('../types').Lead>(`/leads/${id}/delete-request`, {}); }
+
+  cancelLeadDeleteRequest(id: string) { return this.delete(`/leads/${id}/delete-request`); }
+
+  approveLeadDeleteRequest(id: string) { return this.post<void>(`/leads/${id}/delete-request/approve`, {}); }
+
+  rejectLeadDeleteRequest(id: string) { return this.post<import('../types').Lead>(`/leads/${id}/delete-request/reject`, {}); }
+
   getLeadDailyStats(params?: Record<string, string>) {
     const qs = params ? `?${new URLSearchParams(params)}` : '';
     return this.get<import('../types').LeadDailyStat[]>(`/leads/daily-stats${qs}`);

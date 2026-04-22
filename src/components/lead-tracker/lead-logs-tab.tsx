@@ -9,6 +9,7 @@ import CustomFilter from '../ui/CustomFilter';
 import DatePicker from '../ui/date-picker';
 import BulkActionBar, { type BulkEditFields } from './bulk-action-bar';
 import LeadDetailModal from './lead-detail-modal';
+import LeadLogDialog from './lead-log-dialog';
 
 const STATUSES = ['Mới', 'Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'];
 const LEAD_TYPES = ['Việt Nam', 'Quốc Tế'];
@@ -28,11 +29,6 @@ type PendingRow = {
   status: string; leadType: string; unqualifiedType: string; notes: string;
 };
 
-function emptyPending(): PendingRow {
-  return { _id: crypto.randomUUID(), customerName: '', ae: '', receivedDate: new Date().toISOString().slice(0, 10), resolvedDate: '', status: 'Đang liên hệ', leadType: '', unqualifiedType: '', notes: '' };
-}
-
-// Convert dd/mm/yyyy to yyyy-mm-dd for HTML date inputs
 function parseExcelDate(s: string): string {
   if (!s) return '';
   const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
@@ -40,7 +36,6 @@ function parseExcelDate(s: string): string {
   return s;
 }
 
-// RFC 4180-compliant TSV parser — handles quoted cells with embedded newlines
 function parseTsvRfc4180(text: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
@@ -100,12 +95,15 @@ interface LeadLogsTabProps {
 export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps) {
   const { currentUser } = useAuth();
   const isSale = currentUser?.departments?.includes('Sale');
+  const isAdminOrLeaderSale = (
+    currentUser?.isAdmin ||
+    currentUser?.role === 'Admin' ||
+    (currentUser?.role === 'Leader' && currentUser?.departments?.includes('Sale'))
+  );
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState<PendingRow[]>([]);
-  const [editId, setEditId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<Partial<Lead>>({});
   const [saving, setSaving] = useState(false);
   const [aeOptions, setAeOptions] = useState<{ id: string; fullName: string }[]>([]);
   const today = new Date().toISOString().slice(0, 10);
@@ -118,9 +116,9 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
   const [bulkEdit, setBulkEdit] = useState<BulkEditFields>({ status: '', ae: '', leadType: '' });
   const [bulkSaving, setBulkSaving] = useState(false);
 
-  // Inline edit & detail modal
-  const [inlineEdit, setInlineEdit] = useState<{ id: string; field: string } | null>(null);
-  const [inlineSaving, setInlineSaving] = useState<{ id: string; field: string } | null>(null);
+  // Dialog & detail modal
+  const [dialogMode, setDialogMode] = useState<'add' | 'edit' | null>(null);
+  const [dialogLead, setDialogLead] = useState<Lead | null>(null);
   const [detailLead, setDetailLead] = useState<Lead | null>(null);
 
   const sf = (k: string, v: string) => setFilters((f) => ({ ...f, [k]: v }));
@@ -148,10 +146,8 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
     } catch { alert('Cannot read clipboard. Please allow clipboard permissions in your browser.'); }
   };
 
-  const addRow = () => setPending((prev) => [...prev, emptyPending()]);
-
   useEffect(() => {
-    onReady?.({ paste: pasteFromClipboard, addRow });
+    onReady?.({ paste: pasteFromClipboard, addRow: () => setDialogMode('add') });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -170,8 +166,40 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
   };
   const clearSelection = () => { setSelectedIds(new Set()); setBulkEditMode(false); setBulkEdit({ status: '', ae: '', leadType: '' }); };
 
-  // --- Bulk delete ---
+  // --- Delete handlers ---
+  const handleDelete = async (lead: Lead) => {
+    if (isAdminOrLeaderSale) {
+      if (!confirm(`Xóa lead "${lead.customerName}"?`)) return;
+      await api.deleteLead(lead.id);
+    } else {
+      if (!confirm(`Gửi yêu cầu xóa lead "${lead.customerName}"?`)) return;
+      await api.requestLeadDelete(lead.id);
+    }
+    fetchLeads();
+  };
+
+  const handleCancelDeleteRequest = async (lead: Lead) => {
+    await api.cancelLeadDeleteRequest(lead.id);
+    fetchLeads();
+  };
+
+  const handleApproveDelete = async (lead: Lead) => {
+    if (!confirm(`Duyệt xóa lead "${lead.customerName}"?`)) return;
+    await api.approveLeadDeleteRequest(lead.id);
+    fetchLeads();
+  };
+
+  const handleRejectDelete = async (lead: Lead) => {
+    await api.rejectLeadDeleteRequest(lead.id);
+    fetchLeads();
+  };
+
+  // --- Bulk actions ---
   const bulkDelete = async () => {
+    if (!isAdminOrLeaderSale) {
+      alert('Chỉ Admin hoặc Leader Sale mới có thể xóa hàng loạt');
+      return;
+    }
     if (!confirm(`Xóa ${selectedIds.size} lead đã chọn?`)) return;
     setBulkSaving(true);
     try {
@@ -183,7 +211,6 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
     } finally { setBulkSaving(false); }
   };
 
-  // --- Bulk edit apply ---
   const applyBulkEdit = async () => {
     const payload: Record<string, string> = {};
     if (bulkEdit.status) payload.status = bulkEdit.status;
@@ -200,7 +227,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
     } finally { setBulkSaving(false); }
   };
 
-  // --- Pending save ---
+  // --- Pending save (from paste) ---
   const savePending = async () => {
     const valid = pending.filter((r) => r.customerName && r.ae && r.receivedDate && r.status);
     if (!valid.length) return;
@@ -216,32 +243,8 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
       setPending([]);
       fetchLeads();
     } catch (err: any) {
-      alert(`Lỗi khi lưu: ${err?.message ?? 'Unknown error'}. Kiểm tra lại dữ liệu (ngày tháng, trạng thái).`);
+      alert(`Lỗi khi lưu: ${err?.message ?? 'Unknown error'}. Kiểm tra lại dữ liệu.`);
     } finally { setSaving(false); }
-  };
-
-  const saveEdit = async () => {
-    if (!editId) return;
-    await api.updateLead(editId, draft);
-    setEditId(null); setDraft({});
-    fetchLeads();
-  };
-
-  const del = async (id: string) => {
-    if (!confirm('Delete this lead?')) return;
-    await api.deleteLead(id); fetchLeads();
-  };
-
-  // --- Per-cell inline edit save ---
-  const saveInlineField = async (id: string, field: string, value: string) => {
-    setInlineSaving({ id, field });
-    try {
-      await api.updateLead(id, { [field]: value || null });
-      await fetchLeads();
-    } finally {
-      setInlineSaving(null);
-      setInlineEdit((cur) => (cur?.id === id && cur.field === field ? null : cur));
-    }
   };
 
   const setPR = (id: string, k: keyof PendingRow, v: string) =>
@@ -249,9 +252,6 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
 
   const inputCls = 'w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all';
   const cellCls = 'px-4 py-4 text-xs';
-  const inlineCls = 'w-full bg-white border border-primary/40 rounded-lg px-2 py-1 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/30';
-  const editableCellCls = (id: string, field: string) =>
-    `${cellCls} ${inlineSaving?.id === id && inlineSaving.field === field ? 'opacity-50' : 'hover:bg-slate-50 cursor-pointer'}`;
 
   return (
     <div className="h-full flex flex-col gap-4">
@@ -265,7 +265,6 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
         <CustomFilter value={filters.ae} onChange={(v) => sf('ae', v)} options={[{ value: '', label: 'All AE' }, ...aeOptions.map((a) => ({ value: a.fullName, label: a.fullName }))]} buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case" />
         <CustomFilter value={filters.status} onChange={(v) => sf('status', v)} options={[{ value: '', label: 'All Status' }, ...STATUSES.map((s) => ({ value: s, label: s }))]} buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case" />
         <div className="ml-auto flex items-center gap-3">
-          {/* Stat bars */}
           {!loading && (() => {
             const c = (s: string) => leads.filter((l) => l.status === s).length;
             const vn = leads.filter((l) => l.leadType === 'Việt Nam').length;
@@ -327,35 +326,18 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
                 <tr><td colSpan={isSale ? 11 : 10} className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest animate-pulse">Loading...</td></tr>
               )}
 
-              {/* Existing rows */}
+              {/* Lead rows */}
               {!loading && leads.map((lead) => {
                 const isSelected = selectedIds.has(lead.id);
-                if (editId === lead.id) return (
-                  <tr key={lead.id} className="bg-primary/[0.03]">
-                    {isSale && <td className="pl-6"><button onClick={() => toggleSelect(lead.id)} className={`size-4 rounded-[4px] border-2 flex items-center justify-center transition-all cursor-pointer ${isSelected ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary/60 bg-white'}`}>{isSelected && <Check size={10} strokeWidth={3} className="text-white" />}</button></td>}
-                    <td className={cellCls}><input className={inputCls} value={draft.customerName ?? ''} onChange={(e) => setDraft((d) => ({ ...d, customerName: e.target.value }))} /></td>
-                    <td className={cellCls}><input className={inputCls} value={draft.ae ?? ''} onChange={(e) => setDraft((d) => ({ ...d, ae: e.target.value }))} /></td>
-                    <td className={cellCls}><input type="date" className={inputCls} value={draft.receivedDate?.slice(0, 10) ?? ''} onChange={(e) => setDraft((d) => ({ ...d, receivedDate: e.target.value }))} /></td>
-                    <td className={cellCls}><input type="date" className={inputCls} value={draft.resolvedDate?.slice(0, 10) ?? ''} onChange={(e) => setDraft((d) => ({ ...d, resolvedDate: e.target.value }))} /></td>
-                    <td className={cellCls}><select className={inputCls} value={draft.status ?? ''} onChange={(e) => setDraft((d) => ({ ...d, status: e.target.value }))}>{STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}</select></td>
-                    <td className={cellCls}><select className={inputCls} value={draft.leadType ?? ''} onChange={(e) => setDraft((d) => ({ ...d, leadType: e.target.value }))}><option value="">-</option>{LEAD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}</select></td>
-                    <td className={cellCls}>
-                      {draft.status === 'Unqualified'
-                        ? <select className={inputCls} value={draft.unqualifiedType ?? ''} onChange={(e) => setDraft((d) => ({ ...d, unqualifiedType: e.target.value }))}><option value="">-</option>{UNQUALIFIED_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}</select>
-                        : <span className="text-slate-300">-</span>}
-                    </td>
-                    <td className={cellCls}><input className={inputCls} value={draft.notes ?? ''} onChange={(e) => setDraft((d) => ({ ...d, notes: e.target.value }))} /></td>
-                    <td className={cellCls} />
-                    <td className={cellCls}>
-                      <div className="flex gap-2">
-                        <button onClick={saveEdit} className="p-2 bg-emerald-100 text-emerald-600 rounded-xl hover:bg-emerald-200 transition-colors"><Check size={16} /></button>
-                        <button onClick={() => { setEditId(null); setDraft({}); }} className="p-2 bg-slate-100 text-slate-500 rounded-xl hover:bg-slate-200 transition-colors"><X size={16} /></button>
-                      </div>
-                    </td>
-                  </tr>
-                );
+                const hasPendingDelete = !!lead.deleteRequestedBy;
                 return (
-                  <tr key={lead.id} className={`hover:bg-slate-50/80 transition-colors group ${isSelected ? 'bg-primary/[0.04]' : ''}`}>
+                  <tr
+                    key={lead.id}
+                    className={`hover:bg-slate-50/80 transition-colors group
+                      ${isSelected ? 'bg-primary/[0.04]' : ''}
+                      ${hasPendingDelete && isAdminOrLeaderSale ? 'border-l-2 border-rose-400' : ''}
+                    `}
+                  >
                     {isSale && (
                       <td className="pl-6">
                         <button onClick={() => toggleSelect(lead.id)} className={`size-4 rounded-[4px] border-2 flex items-center justify-center transition-all cursor-pointer ${isSelected ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary/60 bg-white'}`}>
@@ -363,119 +345,54 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
                         </button>
                       </td>
                     )}
-                    {/* Customer — click to open detail modal */}
                     <td className={`${cellCls} font-black text-on-surface`}>
-                      <span
-                        className="cursor-pointer hover:text-primary hover:underline transition-colors"
-                        onClick={() => setDetailLead(lead)}
-                      >{lead.customerName}</span>
+                      <span className="cursor-pointer hover:text-primary hover:underline transition-colors" onClick={() => setDetailLead(lead)}>{lead.customerName}</span>
                     </td>
-                    {/* AE — inline edit dropdown */}
-                    <td className={editableCellCls(lead.id, 'ae')} onClick={() => setInlineEdit({ id: lead.id, field: 'ae' })}>
-                      {inlineEdit?.id === lead.id && inlineEdit.field === 'ae'
-                        ? <select autoFocus className={inlineCls} defaultValue={lead.ae}
-                            onChange={(e) => saveInlineField(lead.id, 'ae', e.target.value)}
-                            onBlur={() => setInlineEdit(null)}>
-                            {aeOptions.map((a) => <option key={a.id} value={a.fullName}>{a.fullName}</option>)}
-                          </select>
-                        : <span className="font-bold text-slate-600">{lead.ae}</span>
-                      }
+                    <td className={`${cellCls} font-bold text-slate-600`}>{lead.ae}</td>
+                    <td className={`${cellCls} text-slate-500 font-medium`}>{lead.receivedDate.slice(0, 10)}</td>
+                    <td className={`${cellCls} text-slate-500`}>{lead.resolvedDate ? lead.resolvedDate.slice(0, 10) : '-'}</td>
+                    <td className={cellCls}>
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${STATUS_BADGE[lead.status] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                        {lead.status}
+                      </span>
                     </td>
-                    {/* Received Date — inline edit */}
-                    <td className={editableCellCls(lead.id, 'receivedDate')} onClick={() => setInlineEdit({ id: lead.id, field: 'receivedDate' })}>
-                      {inlineEdit?.id === lead.id && inlineEdit.field === 'receivedDate'
-                        ? <input type="date" autoFocus className={inlineCls} defaultValue={lead.receivedDate.slice(0, 10)}
-                            onBlur={(e) => saveInlineField(lead.id, 'receivedDate', e.target.value)}
-                            onKeyDown={(e) => { if (e.key === 'Escape') setInlineEdit(null); }} />
-                        : <span className="text-slate-500 font-medium">{lead.receivedDate.slice(0, 10)}</span>
-                      }
+                    <td className={`${cellCls} text-slate-500`}>{lead.leadType ?? '-'}</td>
+                    <td className={`${cellCls} text-slate-500 font-medium`}>{lead.unqualifiedType ?? '-'}</td>
+                    <td className={`${cellCls} italic max-w-[150px]`}>
+                      <span className="text-slate-400 truncate block">{lead.notes || '—'}</span>
                     </td>
-                    {/* Resolved Date — inline edit */}
-                    <td className={editableCellCls(lead.id, 'resolvedDate')} onClick={() => setInlineEdit({ id: lead.id, field: 'resolvedDate' })}>
-                      {inlineEdit?.id === lead.id && inlineEdit.field === 'resolvedDate'
-                        ? <input type="date" autoFocus className={inlineCls} defaultValue={lead.resolvedDate?.slice(0, 10) ?? ''}
-                            onBlur={(e) => saveInlineField(lead.id, 'resolvedDate', e.target.value)}
-                            onKeyDown={(e) => { if (e.key === 'Escape') setInlineEdit(null); }} />
-                        : lead.resolvedDate ? lead.resolvedDate.slice(0, 10) : '-'
-                      }
-                    </td>
-                    {/* Status — inline edit */}
-                    <td className={editableCellCls(lead.id, 'status')} onClick={() => setInlineEdit({ id: lead.id, field: 'status' })}>
-                      {inlineEdit?.id === lead.id && inlineEdit.field === 'status'
-                        ? <select autoFocus className={inlineCls} defaultValue={lead.status}
-                            onChange={(e) => saveInlineField(lead.id, 'status', e.target.value)}
-                            onBlur={() => setInlineEdit(null)}>
-                            {STATUSES.map((s) => <option key={s}>{s}</option>)}
-                          </select>
-                        : <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${STATUS_BADGE[lead.status] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}>
-                            {lead.status}
-                          </span>
-                      }
-                    </td>
-                    {/* Lead Type — inline edit */}
-                    <td className={editableCellCls(lead.id, 'leadType')} onClick={() => setInlineEdit({ id: lead.id, field: 'leadType' })}>
-                      {inlineEdit?.id === lead.id && inlineEdit.field === 'leadType'
-                        ? <select autoFocus className={inlineCls} defaultValue={lead.leadType ?? ''}
-                            onChange={(e) => saveInlineField(lead.id, 'leadType', e.target.value)}
-                            onBlur={() => setInlineEdit(null)}>
-                            <option value="">-</option>
-                            {LEAD_TYPES.map((t) => <option key={t}>{t}</option>)}
-                          </select>
-                        : lead.leadType ?? '-'
-                      }
-                    </td>
-                    {/* UQ Reason — inline edit (only if Unqualified) */}
-                    <td
-                      className={`${cellCls} text-slate-500 font-medium ${lead.status === 'Unqualified' ? (inlineSaving?.id === lead.id && inlineSaving.field === 'unqualifiedType' ? 'opacity-50' : 'hover:bg-slate-50 cursor-pointer') : ''}`}
-                      onClick={() => lead.status === 'Unqualified' && setInlineEdit({ id: lead.id, field: 'unqualifiedType' })}
-                    >
-                      {lead.status !== 'Unqualified'
-                        ? '-'
-                        : inlineEdit?.id === lead.id && inlineEdit.field === 'unqualifiedType'
-                          ? <select autoFocus className={inlineCls} defaultValue={lead.unqualifiedType ?? ''}
-                              onChange={(e) => saveInlineField(lead.id, 'unqualifiedType', e.target.value)}
-                              onBlur={() => setInlineEdit(null)}>
-                              <option value="">-</option>
-                              {UNQUALIFIED_TYPES.map((t) => <option key={t}>{t}</option>)}
-                            </select>
-                          : lead.unqualifiedType ?? '-'
-                      }
-                    </td>
-                    {/* Notes — textarea inline edit */}
-                    <td className={`${editableCellCls(lead.id, 'notes')} italic max-w-[150px]`} onClick={() => setInlineEdit({ id: lead.id, field: 'notes' })}>
-                      {inlineEdit?.id === lead.id && inlineEdit.field === 'notes'
-                        ? <textarea
-                            autoFocus
-                            rows={2}
-                            className={`${inlineCls} resize-none`}
-                            defaultValue={lead.notes ?? ''}
-                            onBlur={(e) => saveInlineField(lead.id, 'notes', e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                (e.target as HTMLTextAreaElement).blur();
-                              }
-                              if (e.key === 'Escape') setInlineEdit(null);
-                            }}
-                          />
-                        : <span className="text-slate-400 truncate block">{lead.notes || '—'}</span>
-                      }
-                    </td>
-                    {/* Last Modified — read only */}
                     <td className={`${cellCls} text-slate-400 text-[11px] font-medium whitespace-nowrap`}>
                       {format(new Date(lead.updatedAt), 'dd/MM/yyyy - HH:mm')}
                     </td>
                     <td className={cellCls}>
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => { setEditId(lead.id); setDraft({ ...lead }); }} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all" title="Edit"><Edit2 size={16} /></button>
-                        <button onClick={() => del(lead.id)} className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all" title="Delete"><Trash2 size={16} /></button>
+                      <div className="flex gap-1 items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => { setDialogMode('edit'); setDialogLead(lead); }}
+                          className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+                        ><Edit2 size={16} /></button>
+
+                        {hasPendingDelete ? (
+                          isAdminOrLeaderSale ? (
+                            <>
+                              <span className="size-2 rounded-full bg-rose-500 inline-block" />
+                              <button onClick={() => handleApproveDelete(lead)} className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all" title="Duyệt xóa"><Check size={16} /></button>
+                              <button onClick={() => handleRejectDelete(lead)} className="p-2 text-rose-400 hover:bg-rose-50 rounded-xl transition-all" title="Từ chối"><X size={16} /></button>
+                            </>
+                          ) : lead.deleteRequestedBy === currentUser?.id ? (
+                            <button onClick={() => handleCancelDeleteRequest(lead)} className="flex items-center gap-1 px-2 py-1 text-amber-600 bg-amber-50 rounded-xl text-[10px] font-black" title="Hủy yêu cầu xóa">⏳ Đang chờ</button>
+                          ) : (
+                            <span className="px-2 py-1 text-slate-400 text-[10px] font-black">⏳</span>
+                          )
+                        ) : (
+                          <button onClick={() => handleDelete(lead)} className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all" title={isAdminOrLeaderSale ? 'Xóa' : 'Yêu cầu xóa'}><Trash2 size={16} /></button>
+                        )}
                       </div>
                     </td>
                   </tr>
                 );
               })}
 
-              {/* Pending rows */}
+              {/* Pending rows from paste */}
               <AnimatePresence>
                 {pending.map((row, idx) => (
                   <motion.tr key={row._id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="bg-amber-50/40 border-l-4 border-amber-400">
@@ -511,7 +428,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
         </div>
       </div>
 
-      {/* Pending bar */}
+      {/* Pending bar (paste results) */}
       <AnimatePresence>
         {pending.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="shrink-0 flex items-center justify-between p-6 bg-amber-50 border border-amber-200 rounded-[2rem] shadow-lg shadow-amber-200/20">
@@ -532,7 +449,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
         )}
       </AnimatePresence>
 
-      {/* Floating bulk action bubble */}
+      {/* Bulk action bar */}
       <AnimatePresence>
         {selectedIds.size > 0 && (
           <BulkActionBar
@@ -548,6 +465,17 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
           />
         )}
       </AnimatePresence>
+
+      {/* Lead log dialog (add/edit) */}
+      {dialogMode && (
+        <LeadLogDialog
+          mode={dialogMode}
+          lead={dialogLead ?? undefined}
+          aeOptions={aeOptions}
+          onClose={() => { setDialogMode(null); setDialogLead(null); }}
+          onSaved={fetchLeads}
+        />
+      )}
 
       {/* Lead detail modal */}
       <LeadDetailModal lead={detailLead} onClose={() => setDetailLead(null)} />
