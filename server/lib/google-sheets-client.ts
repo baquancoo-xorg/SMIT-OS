@@ -1,15 +1,25 @@
 import { google, sheets_v4, drive_v3 } from 'googleapis';
 
 export class GoogleSheetsClient {
-  private sheets: sheets_v4.Sheets;
-  private drive: drive_v3.Drive;
-  private folderId: string;
+  private sheets: sheets_v4.Sheets | null = null;
+  private drive: drive_v3.Drive | null = null;
+  private folderId: string = '';
+  private initialized = false;
 
-  constructor() {
+  private ensureInitialized(): void {
+    if (this.initialized) return;
+
+    const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+    const privateKey = process.env.GOOGLE_PRIVATE_KEY;
+
+    if (!email || !privateKey) {
+      throw new Error('Google Sheets credentials not configured. Set GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_PRIVATE_KEY.');
+    }
+
     const auth = new google.auth.GoogleAuth({
       credentials: {
-        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        client_email: email,
+        private_key: privateKey.replace(/\\n/g, '\n'),
       },
       scopes: [
         'https://www.googleapis.com/auth/spreadsheets',
@@ -20,10 +30,12 @@ export class GoogleSheetsClient {
     this.sheets = google.sheets({ version: 'v4', auth });
     this.drive = google.drive({ version: 'v3', auth });
     this.folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || '';
+    this.initialized = true;
   }
 
   async createSpreadsheet(title: string): Promise<{ id: string; url: string }> {
-    const response = await this.sheets.spreadsheets.create({
+    this.ensureInitialized();
+    const response = await this.sheets!.spreadsheets.create({
       requestBody: { properties: { title } },
     });
 
@@ -31,7 +43,7 @@ export class GoogleSheetsClient {
     const url = response.data.spreadsheetUrl!;
 
     if (this.folderId) {
-      await this.drive.files.update({
+      await this.drive!.files.update({
         fileId: spreadsheetId,
         addParents: this.folderId,
         removeParents: 'root',
@@ -43,7 +55,8 @@ export class GoogleSheetsClient {
   }
 
   async addSheet(spreadsheetId: string, sheetName: string): Promise<number> {
-    const response = await this.sheets.spreadsheets.batchUpdate({
+    this.ensureInitialized();
+    const response = await this.sheets!.spreadsheets.batchUpdate({
       spreadsheetId,
       requestBody: {
         requests: [{ addSheet: { properties: { title: sheetName } } }],
@@ -58,8 +71,9 @@ export class GoogleSheetsClient {
     headers: string[],
     rows: (string | number | boolean | null)[][]
   ): Promise<void> {
+    this.ensureInitialized();
     const values = [headers, ...rows];
-    await this.sheets.spreadsheets.values.update({
+    await this.sheets!.spreadsheets.values.update({
       spreadsheetId,
       range: `'${sheetName}'!A1`,
       valueInputOption: 'USER_ENTERED',
@@ -68,8 +82,9 @@ export class GoogleSheetsClient {
   }
 
   async deleteDefaultSheet(spreadsheetId: string): Promise<void> {
+    this.ensureInitialized();
     try {
-      await this.sheets.spreadsheets.batchUpdate({
+      await this.sheets!.spreadsheets.batchUpdate({
         spreadsheetId,
         requestBody: {
           requests: [{ deleteSheet: { sheetId: 0 } }],
