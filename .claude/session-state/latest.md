@@ -1,15 +1,11 @@
 # Session State
-<!-- Generated: 2026-04-21T20:38:08.102Z -->
+<!-- Generated: 2026-04-22T03:49:39.414Z -->
 <!-- Branch: unknown -->
 <!-- Plan: none -->
 
 ## What Worked (Verified)
-- Fix global search bar alignment (Header.tsx xl:pl-72 → xl:pl-64)
-- Remove Security tab from settings tabs, update type
-- Rewrite ProfileTab: English labels, no section headers, add 2FA section
-- Lift isAddingUser/isAddingSprint/isAddingCycle/isAddingFb state to Settings.tsx, add header action buttons
-- Remove section headers from User/Sprint/OKR/FbConfig tabs, accept props
-- Daily Sync: rename Date→Created Date, remove Impact/Blockers cols, add Report Date col
+- Fix Bug 1: handleBulkDelete không gọi API (4 boards)
+- Fix Bug 2: Drag & Drop không lưu DB do race condition với handleDragOver (4 boards)
 
 ## What's Left
 - (All tasks completed)
@@ -361,12 +357,11 @@
 - Completed at 20:08:30
 
 ## Key Files Modified
-- src/components/layout/Header.tsx
-- src/components/settings/fb-config-tab.tsx
-- src/components/settings/okr-cycles-tab.tsx
-- src/components/settings/profile-tab.tsx
-- src/components/settings/settings-tabs.tsx
-- src/components/settings/sprint-cycles-tab.tsx
-- src/components/settings/user-management-tab.tsx
-- src/pages/DailySync.tsx
-- src/pages/Settings.tsx
+- .claude/session-state/archive/20260422-0236.md
+- .claude/session-state/archive/20260422-0251.md
+- .claude/session-state/archive/20260422-0308.md
+- .claude/session-state/latest.md
+- src/pages/MarketingBoard.tsx
+- src/pages/MediaBoard.tsx
+- src/pages/SaleBoard.tsx
+- src/pages/TechBoard.tsx

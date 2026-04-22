@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import DraggableTaskCard from '../components/board/DraggableTaskCard';
 import {
   DndContext,
@@ -41,6 +41,8 @@ export default function MarketingBoard() {
   const [activeItem, setActiveItem] = useState<WorkItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const dragOriginStatus = useRef<string | null>(null);
+  const dragOriginSprintId = useRef<string | null | undefined>(null);
   const { currentUser, users } = useAuth();
   const {
     selectedSprintId, setSelectedSprintId,
@@ -109,7 +111,11 @@ export default function MarketingBoard() {
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     const item = items.find(i => i.id === active.id);
-    if (item) setActiveItem(item);
+    if (item) {
+      setActiveItem(item);
+      dragOriginStatus.current = item.status;
+      dragOriginSprintId.current = item.sprintId;
+    }
   };
 
   const handleDragOver = (event: DragOverEvent) => {
@@ -176,7 +182,8 @@ export default function MarketingBoard() {
       newSprintId = selectedSprintId;
     }
 
-    if (activeItem.status !== newStatus || activeItem.sprintId !== newSprintId) {
+    // Compare against origin (before DragOver mutated local state)
+    if (dragOriginStatus.current !== newStatus || dragOriginSprintId.current !== newSprintId) {
       try {
         const res = await fetch(`/api/work-items/${activeId}`, {
           method: 'PUT',
@@ -250,8 +257,13 @@ export default function MarketingBoard() {
     }
   };
 
-  const handleBulkDelete = (ids: string[]) => {
-    setItems(prev => prev.filter(item => !ids.includes(item.id)));
+  const handleBulkDelete = async (ids: string[]) => {
+    try {
+      await Promise.all(ids.map(id => fetch(`/api/work-items/${id}`, { method: 'DELETE' })));
+      setItems(prev => prev.filter(item => !ids.includes(item.id)));
+    } catch (error) {
+      console.error('Failed to bulk delete tasks:', error);
+    }
   };
 
   const handleEditTask = (item: WorkItem) => {
@@ -388,7 +400,7 @@ export default function MarketingBoard() {
                             col === 'Review' ? 'bg-secondary' :
                               'bg-tertiary'
                           }`}></div>
-                        <h3 className="font-black text-on-surface text-[10px] uppercase tracking-widest">{col}</h3>
+                        <span className="font-black text-on-surface text-[10px] uppercase tracking-widest">{col}</span>
                       </div>
                       <span className="px-2 py-0.5 rounded-full bg-white text-slate-500 text-[10px] font-black border border-slate-200 shadow-sm">
                         {columnItems.length}
