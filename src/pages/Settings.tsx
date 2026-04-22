@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Download, RefreshCw } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { SettingsTabs, SettingsTabId } from '../components/settings/settings-tabs';
 import { UserManagementTab } from '../components/settings/user-management-tab';
@@ -10,6 +10,7 @@ import { ProfileTab } from '../components/settings/profile-tab';
 import { SheetsExportTab } from '../components/settings/sheets-export-tab';
 
 import { Card, Button } from '../components/ui';
+import PrimaryActionButton from '../components/ui/PrimaryActionButton';
 
 type DeleteConfirmType = { type: 'user' | 'sprint' | 'cycle'; id: string } | null;
 
@@ -21,6 +22,8 @@ export default function Settings() {
   const [isAddingSprint, setIsAddingSprint] = useState(false);
   const [isAddingCycle, setIsAddingCycle] = useState(false);
   const [isAddingFb, setIsAddingFb] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportTrigger, setExportTrigger] = useState(0);
 
   const handleDelete = async () => {
     if (!deleteConfirm) return;
@@ -54,24 +57,33 @@ export default function Settings() {
   const headerAction = (() => {
     if (!isAdmin) return null;
     if (activeTab === 'users') return (
-      <Button onClick={() => setIsAddingUser(true)} size="sm" className="flex items-center gap-2">
-        <Plus size={16} /> Add User
-      </Button>
+      <PrimaryActionButton onClick={() => setIsAddingUser(true)}>
+        Add User
+      </PrimaryActionButton>
     );
     if (activeTab === 'sprints') return (
-      <button onClick={() => setIsAddingSprint(true)} className="flex items-center gap-2 bg-secondary text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-secondary/20 hover:scale-95 transition-all">
-        <Plus size={16} /> New Sprint
-      </button>
+      <PrimaryActionButton onClick={() => setIsAddingSprint(true)}>
+        New Sprint
+      </PrimaryActionButton>
     );
     if (activeTab === 'okrs') return (
-      <button onClick={() => setIsAddingCycle(true)} className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-95 transition-all">
-        <Plus size={16} /> New Cycle
-      </button>
+      <PrimaryActionButton onClick={() => setIsAddingCycle(true)}>
+        New Cycle
+      </PrimaryActionButton>
     );
     if (activeTab === 'fb-config') return (
-      <Button onClick={() => setIsAddingFb(true)} size="sm" className="flex items-center gap-2">
-        <Plus size={16} /> Add Account
-      </Button>
+      <PrimaryActionButton onClick={() => setIsAddingFb(true)}>
+        Add Account
+      </PrimaryActionButton>
+    );
+    if (activeTab === 'export') return (
+      <PrimaryActionButton 
+        onClick={() => setExportTrigger(v => v + 1)} 
+        disabled={exporting}
+        icon={exporting ? <RefreshCw className="animate-spin" size={14} /> : <Download size={14} />}
+      >
+        {exporting ? 'Exporting...' : 'Export Now'}
+      </PrimaryActionButton>
     );
     return null;
   })();
@@ -89,15 +101,15 @@ export default function Settings() {
             {isAdmin ? 'Workspace' : 'User'} <span className="text-primary italic">Settings</span>
           </h2>
         </div>
-        {headerAction && <div>{headerAction}</div>}
+        
+        <div className="flex items-center gap-3">
+          <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} isAdmin={isAdmin} />
+          {headerAction}
+        </div>
       </section>
 
-      <Card className="p-1 shrink-0 bg-white/30">
-        <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} isAdmin={isAdmin} />
-      </Card>
-
-      <div className="flex-1 overflow-y-auto pb-8">
-        <Card variant="panel" className="p-8 min-h-full">
+      <div className="flex-1 overflow-y-auto pb-8 custom-scrollbar">
+        <div className="min-h-full">
           {activeTab === 'profile' && <ProfileTab />}
           {activeTab === 'users' && isAdmin && (
             <UserManagementTab
@@ -126,8 +138,13 @@ export default function Settings() {
               setIsAddingFb={setIsAddingFb}
             />
           )}
-          {activeTab === 'export' && isAdmin && <SheetsExportTab />}
-        </Card>
+          {activeTab === 'export' && isAdmin && (
+            <SheetsExportTab 
+              exportTrigger={exportTrigger}
+              onExportingChange={setExporting}
+            />
+          )}
+        </div>
       </div>
 
       {deleteConfirm && (

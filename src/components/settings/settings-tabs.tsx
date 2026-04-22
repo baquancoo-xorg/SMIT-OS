@@ -32,21 +32,22 @@ export function SettingsTabs({ activeTab, onTabChange, isAdmin }: SettingsTabsPr
   const tabs = isAdmin ? ADMIN_TABS : MEMBER_TABS;
 
   return (
-    <div className="flex gap-1 bg-surface-container-low p-1 rounded-2xl">
+    <div className="flex h-10 bg-surface-container-high rounded-full shadow-sm p-0">
       {tabs.map((tab) => {
-        const Icon = tab.icon;
         const isActive = activeTab === tab.id;
+        const Icon = tab.icon;
+        
         return (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+            className={`flex items-center gap-2 px-5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
               isActive
-                ? 'bg-surface-container-lowest text-primary shadow-sm'
-                : 'text-slate-500 hover:text-on-surface'
+                ? 'bg-white text-primary shadow-sm'
+                : 'text-slate-500 hover:text-primary'
             }`}
           >
-            <Icon size={16} />
+            <Icon size={12} />
             {tab.label}
           </button>
         );

@@ -7,10 +7,6 @@ type SetupState = 'idle' | 'setup' | 'backup-codes';
 
 export function ProfileTab() {
   const { currentUser, refreshCurrentUser } = useAuth();
-  const [fullName, setFullName] = useState(currentUser?.fullName ?? '');
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -26,62 +22,6 @@ export function ProfileTab() {
   const [twoFaError, setTwoFaError] = useState('');
   const [copied, setCopied] = useState(false);
   const [totpEnabled, setTotpEnabled] = useState(currentUser?.totpEnabled ?? false);
-
-  const handleUpdateProfile = async () => {
-    setLoading(true);
-    setError('');
-    setSuccess('');
-    try {
-      const res = await fetch('/api/users/me', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName }),
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        const e = await res.json();
-        setError(e.error || 'Update failed');
-      } else {
-        setSuccess('Profile updated successfully');
-        await refreshCurrentUser();
-      }
-    } catch {
-      setError('Update failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    setLoading(true);
-    setError('');
-    setSuccess('');
-    try {
-      const res = await fetch('/api/users/me/password', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ currentPassword, newPassword }),
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        const e = await res.json();
-        setError(e.error || 'Password change failed');
-      } else {
-        setSuccess('Password changed successfully');
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-      }
-    } catch {
-      setError('Password change failed');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleStartSetup = async () => {
     setTwoFaLoading(true);
@@ -154,11 +94,11 @@ export function ProfileTab() {
     <div className="max-w-2xl space-y-12">
       {/* Personal Information */}
       <section className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Input
             label="Display Name"
-            value={fullName}
-            onChange={e => setFullName(e.target.value)}
+            value={currentUser?.fullName ?? ''}
+            disabled
           />
           <Input
             label="Username"
@@ -171,60 +111,7 @@ export function ProfileTab() {
             disabled
           />
         </div>
-        <Button
-          onClick={handleUpdateProfile}
-          isLoading={loading}
-          disabled={fullName === currentUser?.fullName}
-          className="gap-2"
-        >
-          <Save size={16} /> Save Changes
-        </Button>
       </section>
-
-      <hr className="border-slate-100" />
-
-      {/* Change Password */}
-      <section className="space-y-6">
-        <h3 className="text-base font-bold text-on-surface">Change Password</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Input
-            type="password"
-            label="Current Password"
-            value={currentPassword}
-            onChange={e => setCurrentPassword(e.target.value)}
-          />
-          <div className="hidden md:block" />
-          <Input
-            type="password"
-            label="New Password"
-            value={newPassword}
-            onChange={e => setNewPassword(e.target.value)}
-          />
-          <Input
-            type="password"
-            label="Confirm New Password"
-            value={confirmPassword}
-            onChange={e => setConfirmPassword(e.target.value)}
-          />
-        </div>
-        <Button
-          onClick={handleChangePassword}
-          isLoading={loading}
-          disabled={!currentPassword || !newPassword || !confirmPassword}
-          variant="secondary"
-          className="gap-2"
-        >
-          <Check size={16} /> Change Password
-        </Button>
-      </section>
-
-      {(error || success) && (
-        <div className={`p-4 rounded-xl border text-sm font-medium ${
-          error ? 'bg-error/10 border-error/20 text-error' : 'bg-tertiary/10 border-tertiary/20 text-tertiary'
-        }`}>
-          {error || success}
-        </div>
-      )}
 
       <hr className="border-slate-100" />
 

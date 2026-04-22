@@ -1,5 +1,16 @@
-import { useState, useEffect } from 'react';
-import { FileSpreadsheet, Download, CheckCircle, AlertCircle, Loader2, Link2, Unlink, FolderOpen } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  Download,
+  FileSpreadsheet,
+  FolderOpen,
+  Link2,
+  Loader2,
+  Search,
+  Unlink,
+} from 'lucide-react';
+import { Badge, Button, Card, SectionHeader } from '../ui';
 
 interface GoogleStatus {
   connected: boolean;
@@ -23,7 +34,12 @@ interface ExportStatus {
   retryCount: number;
 }
 
-export function SheetsExportTab() {
+interface SheetsExportTabProps {
+  exportTrigger?: number;
+  onExportingChange?: (exporting: boolean) => void;
+}
+
+export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExportTabProps) {
   const [googleStatus, setGoogleStatus] = useState<GoogleStatus | null>(null);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [exportStatus, setExportStatus] = useState<ExportStatus | null>(null);
@@ -31,10 +47,27 @@ export function SheetsExportTab() {
   const [connecting, setConnecting] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [loadingFolders, setLoadingFolders] = useState(false);
+  const [folderSearch, setFolderSearch] = useState('');
+  const [showFolderDropdown, setShowFolderDropdown] = useState(false);
+
+  useEffect(() => {
+    if (exportTrigger && exportTrigger > 0) {
+      triggerExport();
+    }
+  }, [exportTrigger]);
+
+  useEffect(() => {
+    onExportingChange?.(exporting);
+  }, [exporting, onExportingChange]);
+
+  const filteredFolders = useMemo(() => {
+    if (!folderSearch.trim()) return folders;
+    const search = folderSearch.toLowerCase();
+    return folders.filter((folder) => folder.name.toLowerCase().includes(search));
+  }, [folders, folderSearch]);
 
   useEffect(() => {
     checkGoogleStatus();
-    // Check URL params for OAuth callback
     const params = new URLSearchParams(window.location.search);
     if (params.get('connected') === 'true') {
       checkGoogleStatus();
@@ -87,9 +120,15 @@ export function SheetsExportTab() {
     try {
       const res = await fetch('/api/google/folders');
       const data = await res.json();
-      setFolders(data.folders || []);
+      if (res.ok) {
+        setFolders(data.folders || []);
+      } else {
+        console.error('Failed to load folders:', data.error, data.details);
+        setFolders([]);
+      }
     } catch (error) {
       console.error('Failed to load folders:', error);
+      setFolders([]);
     } finally {
       setLoadingFolders(false);
     }
@@ -100,9 +139,17 @@ export function SheetsExportTab() {
       await fetch('/api/google/folder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ folderId, folderName }),
+        body: JSON.stringify({ folderId: folderId || null, folderName: folderName || null }),
       });
-      setGoogleStatus(prev => prev ? { ...prev, folderId, folderName } : null);
+      setGoogleStatus((prev) =>
+        prev
+          ? {
+              ...prev,
+              folderId: folderId || undefined,
+              folderName: folderName || undefined,
+            }
+          : null,
+      );
     } catch (error) {
       console.error('Failed to set folder:', error);
     }
@@ -140,159 +187,192 @@ export function SheetsExportTab() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-12 text-on-surface-variant">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
 
+  const statusBadgeVariant = googleStatus?.connected ? 'success' : 'neutral';
+  const selectedFolder = googleStatus?.folderName || 'Root (My Drive)';
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="p-3 rounded-2xl bg-emerald-100">
-          <FileSpreadsheet className="h-6 w-6 text-emerald-600" />
-        </div>
-        <div>
-          <h3 className="text-xl font-bold text-on-surface">Google Sheets Export</h3>
-          <p className="text-sm text-slate-500">Export toàn bộ SMIT OS data ra Google Sheets</p>
-        </div>
-      </div>
+    <div className="max-w-6xl space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="lg:col-span-2">
+          <div className="bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-white/20 space-y-6 h-full">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-2">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Google Account</p>
+                <div className="flex items-center gap-2">
+                  <Badge variant={statusBadgeVariant}>{googleStatus?.connected ? 'Connected' : 'Not connected'}</Badge>
+                  {googleStatus?.connected && googleStatus.email && (
+                    <span className="text-sm font-medium text-on-surface">{googleStatus.email}</span>
+                  )}
+                </div>
+              </div>
 
-      {/* Google Account Connection */}
-      <div className="p-5 bg-slate-50 rounded-2xl space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-semibold text-slate-700">Google Account</p>
-            {googleStatus?.connected ? (
-              <p className="text-xs text-emerald-600">{googleStatus.email}</p>
-            ) : (
-              <p className="text-xs text-slate-500">Not connected</p>
-            )}
-          </div>
-          {googleStatus?.connected ? (
-            <button
-              onClick={disconnectGoogle}
-              className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl text-sm font-medium transition-colors"
-            >
-              <Unlink className="h-4 w-4" />
-              Disconnect
-            </button>
-          ) : (
-            <button
-              onClick={connectGoogle}
-              disabled={connecting}
-              className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-bold hover:scale-[0.98] transition-all disabled:opacity-50"
-            >
-              {connecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
-              Connect Google
-            </button>
-          )}
-        </div>
-
-        {/* Folder Selection */}
-        {googleStatus?.connected && (
-          <div className="pt-4 border-t border-slate-200">
-            <div className="flex items-center gap-2 mb-2">
-              <FolderOpen className="h-4 w-4 text-slate-500" />
-              <p className="text-sm font-medium text-slate-700">Export Folder</p>
+              {googleStatus?.connected ? (
+                <button onClick={disconnectGoogle} className="flex items-center gap-2 text-[10px] font-black text-error uppercase tracking-widest hover:bg-error/5 px-3 py-1.5 rounded-full transition-all">
+                  <Unlink size={14} />
+                  Disconnect
+                </button>
+              ) : (
+                <Button onClick={connectGoogle} disabled={connecting} className="gap-2">
+                  {connecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 size={16} />}
+                  Connect Google
+                </Button>
+              )}
             </div>
-            {loadingFolders ? (
-              <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
-            ) : (
-              <select
-                value={googleStatus.folderId || ''}
-                onChange={(e) => {
-                  const folder = folders.find(f => f.id === e.target.value);
-                  if (folder) selectFolder(folder.id, folder.name);
-                }}
-                className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="">Root (My Drive)</option>
-                {folders.map(folder => (
-                  <option key={folder.id} value={folder.id}>{folder.name}</option>
-                ))}
-              </select>
+
+            {googleStatus?.connected && (
+              <div className="pt-5 border-t border-outline-variant/10 space-y-3">
+                <div className="flex items-center gap-2">
+                  <FolderOpen className="h-4 w-4 text-on-surface-variant" />
+                  <p className="text-sm font-bold text-on-surface">Export Folder</p>
+                </div>
+
+                {loadingFolders ? (
+                  <div className="flex items-center gap-2 text-sm text-on-surface-variant">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading folders...
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant/70" />
+                    <input
+                      type="text"
+                      value={showFolderDropdown ? folderSearch : selectedFolder}
+                      onChange={(e) => setFolderSearch(e.target.value)}
+                      onFocus={() => {
+                        setShowFolderDropdown(true);
+                        setFolderSearch('');
+                      }}
+                      onBlur={() => setTimeout(() => setShowFolderDropdown(false), 200)}
+                      placeholder="Tìm kiếm folder..."
+                      className="w-full rounded-xl border border-outline-variant/30 bg-white/50 py-2.5 pr-4 pl-10 text-sm text-on-surface placeholder:text-on-surface-variant/70 outline-none transition-all focus:border-primary/40 focus:ring-2 focus:ring-primary/20"
+                    />
+
+                    {showFolderDropdown && (
+                      <div className="absolute z-20 mt-2 max-h-64 w-full overflow-auto rounded-2xl border border-outline-variant/20 bg-surface-container-lowest shadow-sm">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            selectFolder('', 'Root (My Drive)');
+                            setShowFolderDropdown(false);
+                          }}
+                          className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-surface-container-low ${
+                            !googleStatus.folderId
+                              ? 'bg-primary/10 text-primary font-semibold'
+                              : 'text-on-surface'
+                          }`}
+                        >
+                          Root (My Drive)
+                        </button>
+
+                        {filteredFolders.length === 0 ? (
+                          <div className="px-4 py-3 text-center text-sm text-on-surface-variant">Không tìm thấy folder</div>
+                        ) : (
+                          filteredFolders.map((folder) => (
+                            <button
+                              key={folder.id}
+                              type="button"
+                              onClick={() => {
+                                selectFolder(folder.id, folder.name);
+                                setShowFolderDropdown(false);
+                              }}
+                              className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-surface-container-low ${
+                                googleStatus.folderId === folder.id
+                                  ? 'bg-primary/10 text-primary font-semibold'
+                                  : 'text-on-surface'
+                              }`}
+                            >
+                              {folder.name}
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
           </div>
-        )}
+        </div>
+
+        <div className="lg:col-span-1">
+          <div className="bg-white/50 backdrop-blur-md p-5 rounded-3xl border border-white/20 space-y-2 h-full">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scheduled Export</p>
+            <p className="text-sm font-bold text-on-surface">Daily at 11:00 AM</p>
+            <Badge variant={googleStatus?.connected ? 'success' : 'neutral'}>
+              {googleStatus?.connected ? 'Active' : 'Inactive'}
+            </Badge>
+          </div>
+        </div>
+
+        <div className="lg:col-span-1">
+          <div className="bg-white/50 backdrop-blur-md p-5 rounded-3xl border border-white/20 space-y-2 h-full">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sheets Created</p>
+            <p className="text-sm font-bold text-on-surface">Per export cycle</p>
+            <p className="text-4xl font-black font-headline text-primary">13</p>
+          </div>
+        </div>
       </div>
 
-      {/* Info Cards */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="p-5 bg-slate-50 rounded-2xl">
-          <p className="text-sm font-semibold text-slate-700 mb-1">Scheduled Export</p>
-          <p className="text-xs text-slate-500 mb-3">Runs daily at 11:00 AM</p>
-          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-            googleStatus?.connected ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-500'
-          }`}>
-            {googleStatus?.connected ? 'Active' : 'Inactive'}
-          </span>
-        </div>
-        <div className="p-5 bg-slate-50 rounded-2xl">
-          <p className="text-sm font-semibold text-slate-700 mb-1">Sheets Created</p>
-          <p className="text-xs text-slate-500 mb-3">Per export</p>
-          <span className="text-2xl font-bold text-primary">13</span>
-        </div>
-      </div>
-
-      {/* Export Button */}
-      <button
-        onClick={triggerExport}
-        disabled={!googleStatus?.connected || exporting}
-        className="w-full flex items-center justify-center gap-2 h-12 bg-primary text-white rounded-xl font-bold text-sm hover:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {exporting ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Exporting...
-          </>
-        ) : (
-          <>
-            <Download className="h-4 w-4" />
-            Export Now
-          </>
-        )}
-      </button>
-
-      {/* Export Status */}
       {exportStatus && (
-        <div className={`p-5 rounded-2xl border ${
-          exportStatus.status === 'completed'
-            ? 'bg-emerald-50 border-emerald-200'
-            : exportStatus.status === 'failed'
-              ? 'bg-red-50 border-red-200'
-              : 'bg-blue-50 border-blue-200'
-        }`}>
-          <div className="flex items-start gap-3">
-            {exportStatus.status === 'completed' ? (
-              <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0" />
-            ) : exportStatus.status === 'failed' ? (
-              <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
-            ) : (
-              <Loader2 className="h-5 w-5 text-blue-600 animate-spin shrink-0" />
-            )}
-            <div className="flex-1 min-w-0">
-              <p className={`text-sm font-semibold ${
-                exportStatus.status === 'completed' ? 'text-emerald-700' :
-                exportStatus.status === 'failed' ? 'text-red-700' : 'text-blue-700'
-              }`}>
-                {exportStatus.status === 'completed' ? 'Export Completed' :
-                 exportStatus.status === 'failed' ? 'Export Failed' : 'Exporting...'}
+        <div
+          className={`p-5 rounded-3xl border backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-500 ${
+            exportStatus.status === 'completed'
+              ? 'bg-emerald-50/50 border-emerald-200'
+              : exportStatus.status === 'failed'
+                ? 'bg-error/5 border-error/20'
+                : 'bg-primary/5 border-primary/20'
+          }`}
+        >
+          <div className="flex items-start gap-4">
+            <div className={`p-2 rounded-xl ${
+              exportStatus.status === 'completed' ? 'bg-emerald-100 text-emerald-600' : 
+              exportStatus.status === 'failed' ? 'bg-error/10 text-error' : 
+              'bg-primary/10 text-primary'
+            }`}>
+              {exportStatus.status === 'completed' ? (
+                <CheckCircle2 size={20} />
+              ) : exportStatus.status === 'failed' ? (
+                <AlertCircle size={20} />
+              ) : (
+                <Loader2 size={20} className="animate-spin" />
+              )}
+            </div>
+
+            <div className="min-w-0 flex-1 py-1">
+              <p
+                className={`text-sm font-black uppercase tracking-widest ${
+                  exportStatus.status === 'completed'
+                    ? 'text-emerald-700'
+                    : exportStatus.status === 'failed'
+                      ? 'text-error'
+                      : 'text-primary'
+                }`}
+              >
+                {exportStatus.status === 'completed'
+                  ? 'Export Completed'
+                  : exportStatus.status === 'failed'
+                    ? 'Export Failed'
+                    : 'Export in Progress...'}
               </p>
+
               {exportStatus.spreadsheetUrl && (
                 <a
                   href={exportStatus.spreadsheetUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-primary hover:underline block mt-1"
+                  className="mt-2 inline-flex items-center gap-2 text-xs font-bold text-on-surface hover:text-primary transition-colors"
                 >
-                  Open in Google Sheets →
+                  View Google Sheets <span className="material-symbols-outlined text-[14px]">open_in_new</span>
                 </a>
               )}
-              {exportStatus.error && (
-                <p className="text-xs text-red-600 mt-1">{exportStatus.error}</p>
-              )}
+
+              {exportStatus.error && <p className="mt-1 text-xs font-medium text-error opacity-80">{exportStatus.error}</p>}
             </div>
           </div>
         </div>

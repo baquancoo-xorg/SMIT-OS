@@ -4,7 +4,7 @@ import { google } from 'googleapis';
 const SCOPES = [
   'https://www.googleapis.com/auth/userinfo.email',
   'https://www.googleapis.com/auth/spreadsheets',
-  'https://www.googleapis.com/auth/drive.file',
+  'https://www.googleapis.com/auth/drive',  // Full drive access to list folders
 ];
 
 export function createGoogleOAuthService(prisma: PrismaClient) {
@@ -13,8 +13,14 @@ export function createGoogleOAuthService(prisma: PrismaClient) {
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
     const redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000/api/google/callback';
 
+    console.log('[GoogleOAuth] Config:', {
+      hasClientId: !!clientId,
+      hasClientSecret: !!clientSecret,
+      redirectUri
+    });
+
     if (!clientId || !clientSecret) {
-      throw new Error('Google OAuth credentials not configured');
+      throw new Error('Google OAuth credentials not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env');
     }
 
     return new google.auth.OAuth2(clientId, clientSecret, redirectUri);
@@ -84,6 +90,8 @@ export function createGoogleOAuthService(prisma: PrismaClient) {
         throw new Error('Google account not connected');
       }
 
+      console.log('[GoogleOAuth] Getting authenticated client, token expires:', integration.expiresAt);
+
       const oauth2Client = getOAuth2Client();
       oauth2Client.setCredentials({
         access_token: integration.accessToken,
@@ -93,35 +101,49 @@ export function createGoogleOAuthService(prisma: PrismaClient) {
 
       // Auto-refresh if expired
       if (integration.expiresAt < new Date()) {
-        const { credentials } = await oauth2Client.refreshAccessToken();
-        await prisma.googleIntegration.update({
-          where: { type: 'sheets_export' },
-          data: {
-            accessToken: credentials.access_token!,
-            expiresAt: new Date(credentials.expiry_date || Date.now() + 3600000),
-          },
-        });
-        oauth2Client.setCredentials(credentials);
+        console.log('[GoogleOAuth] Token expired, refreshing...');
+        try {
+          const { credentials } = await oauth2Client.refreshAccessToken();
+          await prisma.googleIntegration.update({
+            where: { type: 'sheets_export' },
+            data: {
+              accessToken: credentials.access_token!,
+              expiresAt: new Date(credentials.expiry_date || Date.now() + 3600000),
+            },
+          });
+          oauth2Client.setCredentials(credentials);
+          console.log('[GoogleOAuth] Token refreshed successfully');
+        } catch (error: any) {
+          console.error('[GoogleOAuth] Token refresh failed:', error.message);
+          throw new Error('Failed to refresh token. Please reconnect Google account.');
+        }
       }
 
       return oauth2Client;
     },
 
     async listFolders() {
-      const auth = await this.getAuthenticatedClient();
-      const drive = google.drive({ version: 'v3', auth });
+      try {
+        console.log('[GoogleOAuth] Listing folders...');
+        const auth = await this.getAuthenticatedClient();
+        const drive = google.drive({ version: 'v3', auth });
 
-      const response = await drive.files.list({
-        q: "mimeType='application/vnd.google-apps.folder' and trashed=false",
-        fields: 'files(id, name)',
-        orderBy: 'name',
-        pageSize: 100,
-      });
+        const response = await drive.files.list({
+          q: "mimeType='application/vnd.google-apps.folder' and trashed=false",
+          fields: 'files(id, name)',
+          orderBy: 'name',
+          pageSize: 100,
+        });
 
-      return response.data.files || [];
+        console.log('[GoogleOAuth] Found', response.data.files?.length || 0, 'folders');
+        return response.data.files || [];
+      } catch (error: any) {
+        console.error('[GoogleOAuth] listFolders error:', error.message);
+        throw error;
+      }
     },
 
-    async setFolder(folderId: string, folderName: string) {
+    async setFolder(folderId: string | null, folderName: string | null) {
       return prisma.googleIntegration.update({
         where: { type: 'sheets_export' },
         data: { folderId, folderName },

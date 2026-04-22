@@ -949,7 +949,12 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, objective
       <EditKRModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        initialData={krData}
+        initialData={{
+          title: krData.title,
+          targetValue: krData.targetValue ?? 0,
+          currentValue: krData.currentValue ?? 0,
+          unit: krData.unit ?? '%',
+        }}
         title="Edit Key Result"
         onSave={async (newData) => {
           const res = await fetch(`/api/key-results/${kr.id}`, {

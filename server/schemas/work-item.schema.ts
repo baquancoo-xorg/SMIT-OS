@@ -16,7 +16,7 @@ export const createWorkItemSchema = z.object({
   title: z.string().min(1, 'Title required').max(200),
   description: z.string().max(2000).optional().nullable(),
   type: WorkItemTypeEnum.default('TechTask'),
-  status: z.enum(['Backlog', 'Todo', 'In Progress', 'Review', 'Done']).default('Backlog'),
+  status: z.enum(['Backlog', 'Todo', 'In Progress', 'Active', 'Doing', 'Review', 'Done', 'Void']).default('Backlog'),
   priority: z.enum(['Low', 'Medium', 'High', 'Urgent']).default('Medium'),
   assigneeId: z.string().uuid().nullable().optional(),
   sprintId: z.string().uuid().nullable().optional(),

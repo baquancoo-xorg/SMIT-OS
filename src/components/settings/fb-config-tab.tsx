@@ -186,7 +186,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
       <div className="lg:col-span-2 space-y-8">
 
         {(isAdding || editingId) && (
-          <Card variant="flat" className="p-6 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-white/20 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-black text-on-surface uppercase tracking-wider">{isAdding ? 'New Ad Account' : 'Edit Ad Account'}</h4>
               <button onClick={resetForm} className="p-2 hover:bg-slate-100 rounded-xl transition-colors"><X size={18} /></button>
@@ -242,39 +242,39 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
                 </Button>
               </div>
             </div>
-          </Card>
+          </div>
         )}
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-separate border-spacing-y-2">
+        <div className="bg-white/50 backdrop-blur-md rounded-3xl shadow-sm border border-white/20 overflow-hidden">
+          <table className="w-full text-left">
             <thead>
-              <tr>
+              <tr className="border-b border-outline-variant/10 bg-surface-container-low/30">
                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Account</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Currency</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Last Sync</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-outline-variant/5">
               {accounts.map(acc => (
-                <tr key={acc.id} className="group">
-                  <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 first:rounded-l-2xl border-y border-l border-white/20 transition-colors">
+                <tr key={acc.id} className="group hover:bg-surface-container-low/30 transition-all">
+                  <td className="px-6 py-4">
                     <div>
                       <span className="text-sm font-bold text-on-surface block">{acc.accountName || acc.accountId}</span>
                       <span className="text-[10px] text-slate-400 font-medium">{acc.accountId}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 border-y border-white/20 transition-colors">
+                  <td className="px-6 py-4">
                     <Badge variant="neutral">{acc.currency}</Badge>
                   </td>
-                  <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 border-y border-white/20 transition-colors">
+                  <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                       <Badge variant={acc.lastSyncStatus === 'success' ? 'success' : acc.lastSyncStatus === 'failed' ? 'error' : 'neutral'}>
                         {formatSyncTime(acc.lastSyncAt)}
                       </Badge>
                     </div>
                   </td>
-                  <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 last:rounded-r-2xl border-y border-r border-white/20 transition-colors text-right">
+                  <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button onClick={() => handleSync(acc.id)} disabled={syncingId === acc.id} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all disabled:animate-spin" title="Sync Now"><RefreshCw size={16} /></button>
                       <button onClick={() => openEdit(acc)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all" title="Edit Account"><Edit2 size={16} /></button>
@@ -292,16 +292,18 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
       </div>
 
       {/* Exchange Rate Section */}
-      <div className="space-y-8">
-        <SectionHeader
-          icon={<DollarSign size={20} />}
-          title="Exchange Rate"
-          subtitle="Financial Settings"
-          iconBg="bg-amber-500/10"
-          iconColor="text-amber-500"
-        />
+      <div className="space-y-6">
+        <div className="bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-white/20 space-y-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+              <DollarSign size={20} />
+            </div>
+            <div>
+              <h4 className="text-sm font-black text-on-surface uppercase tracking-wider">Exchange Rate</h4>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Financial Settings</p>
+            </div>
+          </div>
 
-        <Card variant="flat" className="p-6 space-y-6">
           <div className="space-y-2">
             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">USD to VND Rate</label>
             <div className="flex items-center gap-3">
@@ -332,19 +334,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
               {rateError || 'Rate updated successfully!'}
             </div>
           )}
-        </Card>
-
-        <Card variant="glass" className="p-6">
-          <h4 className="text-xs font-black text-on-surface uppercase tracking-widest mb-4 opacity-50">Quick Reference</h4>
-          <div className="space-y-3">
-            {[100, 1000, 10000].map(val => (
-              <div key={val} className="flex justify-between items-end border-b border-white/10 pb-2 last:border-0 last:pb-0">
-                <span className="text-xs font-bold text-slate-400">${val.toLocaleString()} USD</span>
-                <span className="text-sm font-black text-on-surface">{(val * exchangeRate).toLocaleString()} <span className="text-[10px] opacity-40">VND</span></span>
-              </div>
-            ))}
-          </div>
-        </Card>
+        </div>
       </div>
     </div>
   );

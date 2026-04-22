@@ -67,6 +67,22 @@ app.use('/api/auth/login/totp', authLimiter);
 // Public routes
 app.use("/api/auth", createAuthRoutes(prisma));
 
+// Google OAuth callback (public - Google redirects here)
+const googleOAuthService = createGoogleOAuthService(prisma);
+app.get("/api/google/callback", async (req, res) => {
+  const { code } = req.query;
+  if (!code || typeof code !== 'string') {
+    return res.status(400).send('Missing authorization code');
+  }
+  try {
+    await googleOAuthService.handleCallback(code);
+    res.redirect('/settings?tab=export&connected=true');
+  } catch (error: any) {
+    console.error('[GoogleOAuth] Callback error:', error);
+    res.redirect('/settings?tab=export&error=' + encodeURIComponent(error.message));
+  }
+});
+
 // Protected routes
 app.use("/api", createAuthMiddleware(prisma));
 app.use("/api/users", createUserRoutes(prisma));
@@ -83,8 +99,7 @@ app.use("/api/dashboard/overview", createDashboardOverviewRoutes());
 app.use("/api/sync/facebook-ads", createFbSyncRoutes());
 app.use("/api/admin", createAdminFbConfigRoutes());
 
-// Google OAuth & Sheets Export
-const googleOAuthService = createGoogleOAuthService(prisma);
+// Google OAuth & Sheets Export (googleOAuthService created above, before auth middleware)
 app.use("/api/google", createGoogleOAuthRoutes(googleOAuthService));
 
 const sheetsExportService = initSheetsExportScheduler(prisma, googleOAuthService);

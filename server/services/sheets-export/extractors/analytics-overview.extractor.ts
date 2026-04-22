@@ -1,90 +1,188 @@
 import { ExtractorContext, Extractor } from './types';
 import { SheetData } from '../../../types/sheets-export.types';
+import { getKpiMetrics } from '../../dashboard/overview-kpi.service';
+import { getCohortKpiMetrics } from '../../dashboard/overview-cohort.service';
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat('vi-VN').format(Math.round(value));
+}
+
+function formatPercent(value: number): string {
+  return `${value.toFixed(2)}%`;
+}
 
 export const analyticsOverviewRealtime: Extractor = async (ctx): Promise<SheetData> => {
-  // Get last 30 days of Facebook ads data
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const today = new Date();
 
-  const rawAds = await ctx.prisma.rawAdsFacebook.findMany({
-    where: { dateStart: { gte: thirtyDaysAgo } },
-    orderBy: { dateStart: 'desc' },
-  });
-
-  // Aggregate by date
-  const byDate = new Map<string, { spend: number; impressions: number; clicks: number; reach: number }>();
-
-  for (const ad of rawAds) {
-    const dateKey = ad.dateStart.toISOString().split('T')[0];
-    const existing = byDate.get(dateKey) || { spend: 0, impressions: 0, clicks: 0, reach: 0 };
-    existing.spend += Number(ad.spend || 0);
-    existing.impressions += Number(ad.impressions || 0);
-    existing.clicks += Number(ad.clicks || 0);
-    existing.reach += Number(ad.reach || 0);
-    byDate.set(dateKey, existing);
-  }
+  const kpiData = await getKpiMetrics(thirtyDaysAgo, today);
 
   const headers = [
-    'Date', 'Ad Spend', 'Impressions', 'Reach', 'Clicks', 'CTR', 'CPM', 'CPC'
+    'Date',
+    'Ad Spend',
+    'Sessions',
+    'CPSe',
+    'Signups',
+    'CPSi',
+    'Opps',
+    'CPOpp',
+    'Orders',
+    'CPOr',
+    'MQL',
+    'MQL Bronze',
+    'MQL Silver',
+    'MQL Gold',
+    'Pre-PQL',
+    'PQL',
+    'Pre-SQL',
+    'SQL',
+    'Revenue',
+    'ROAS',
+    'ME/RE'
   ];
 
-  const rows: (string | number | boolean | null)[][] = [];
-  for (const [date, data] of Array.from(byDate.entries()).sort((a, b) => b[0].localeCompare(a[0]))) {
-    const ctr = data.impressions > 0 ? ((data.clicks / data.impressions) * 100).toFixed(2) : 0;
-    const cpm = data.impressions > 0 ? ((data.spend / data.impressions) * 1000).toFixed(2) : 0;
-    const cpc = data.clicks > 0 ? (data.spend / data.clicks).toFixed(2) : 0;
+  const rows: (string | number | boolean | null)[][] = kpiData.data.map(row => {
+    const meRe = row.adSpend > 0 ? ((row.revenue / row.adSpend - 1) * 100) : 0;
+    return [
+      row.date,
+      formatCurrency(row.adSpend),
+      row.sessions,
+      formatCurrency(row.costPerSession),
+      row.signups,
+      formatCurrency(row.costPerSignup),
+      row.opportunities,
+      formatCurrency(row.costPerOpportunity),
+      row.orders,
+      formatCurrency(row.costPerOrder),
+      row.mql,
+      row.mqlBronze,
+      row.mqlSilver,
+      row.mqlGold,
+      row.prePql,
+      row.pql,
+      row.preSql,
+      row.sql,
+      formatCurrency(row.revenue),
+      `${row.roas.toFixed(2)}x`,
+      formatPercent(meRe)
+    ];
+  });
 
-    rows.push([
-      date,
-      data.spend.toFixed(2),
-      data.impressions,
-      data.reach,
-      data.clicks,
-      ctr,
-      cpm,
-      cpc,
-    ]);
-  }
+  // Add totals row
+  const totals = kpiData.totals;
+  const totalMeRe = totals.adSpend > 0 ? ((totals.revenue / totals.adSpend - 1) * 100) : 0;
+  rows.push([
+    'TOTAL',
+    formatCurrency(totals.adSpend),
+    totals.sessions,
+    formatCurrency(totals.costPerSession),
+    totals.signups,
+    formatCurrency(totals.costPerSignup),
+    totals.opportunities,
+    formatCurrency(totals.costPerOpportunity),
+    totals.orders,
+    formatCurrency(totals.costPerOrder),
+    totals.mql,
+    totals.mqlBronze,
+    totals.mqlSilver,
+    totals.mqlGold,
+    totals.prePql,
+    totals.pql,
+    totals.preSql,
+    totals.sql,
+    formatCurrency(totals.revenue),
+    `${totals.roas.toFixed(2)}x`,
+    formatPercent(totalMeRe)
+  ]);
 
   return { sheetName: 'Analytics-Realtime', headers, rows };
 };
 
 export const analyticsOverviewCohort: Extractor = async (ctx): Promise<SheetData> => {
-  // Weekly cohort aggregation
   const ninetyDaysAgo = new Date();
   ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+  const today = new Date();
 
-  const rawAds = await ctx.prisma.rawAdsFacebook.findMany({
-    where: { dateStart: { gte: ninetyDaysAgo } },
-    orderBy: { dateStart: 'asc' },
+  const kpiData = await getCohortKpiMetrics(ninetyDaysAgo, today);
+
+  const headers = [
+    'Date',
+    'Ad Spend',
+    'Sessions',
+    'CPSe',
+    'Signups',
+    'CPSi',
+    'Opps',
+    'CPOpp',
+    'Orders',
+    'CPOr',
+    'MQL',
+    'MQL Bronze',
+    'MQL Silver',
+    'MQL Gold',
+    'Pre-PQL',
+    'PQL',
+    'Pre-SQL',
+    'SQL',
+    'Revenue',
+    'ROAS',
+    'ME/RE'
+  ];
+
+  const rows: (string | number | boolean | null)[][] = kpiData.data.map(row => {
+    const meRe = row.adSpend > 0 ? ((row.revenue / row.adSpend - 1) * 100) : 0;
+    return [
+      row.date,
+      formatCurrency(row.adSpend),
+      row.sessions,
+      formatCurrency(row.costPerSession),
+      row.signups,
+      formatCurrency(row.costPerSignup),
+      row.opportunities,
+      formatCurrency(row.costPerOpportunity),
+      row.orders,
+      formatCurrency(row.costPerOrder),
+      row.mql,
+      row.mqlBronze,
+      row.mqlSilver,
+      row.mqlGold,
+      row.prePql,
+      row.pql,
+      row.preSql,
+      row.sql,
+      formatCurrency(row.revenue),
+      `${row.roas.toFixed(2)}x`,
+      formatPercent(meRe)
+    ];
   });
 
-  // Group by week
-  const byWeek = new Map<string, { spend: number; impressions: number; clicks: number; days: number }>();
-
-  for (const ad of rawAds) {
-    const date = new Date(ad.dateStart);
-    const weekStart = new Date(date);
-    weekStart.setDate(date.getDate() - date.getDay());
-    const weekKey = weekStart.toISOString().split('T')[0];
-
-    const existing = byWeek.get(weekKey) || { spend: 0, impressions: 0, clicks: 0, days: 0 };
-    existing.spend += Number(ad.spend || 0);
-    existing.impressions += Number(ad.impressions || 0);
-    existing.clicks += Number(ad.clicks || 0);
-    existing.days++;
-    byWeek.set(weekKey, existing);
-  }
-
-  const headers = ['Week Starting', 'Total Spend', 'Avg Daily Spend', 'Total Impressions', 'Total Clicks', 'CTR'];
-
-  const rows: (string | number | boolean | null)[][] = [];
-  for (const [week, data] of Array.from(byWeek.entries()).sort((a, b) => b[0].localeCompare(a[0]))) {
-    const ctr = data.impressions > 0 ? ((data.clicks / data.impressions) * 100).toFixed(2) : 0;
-    const avgDaily = data.days > 0 ? (data.spend / data.days).toFixed(2) : 0;
-
-    rows.push([week, data.spend.toFixed(2), avgDaily, data.impressions, data.clicks, ctr]);
-  }
+  // Add totals row
+  const totals = kpiData.totals;
+  const totalMeRe = totals.adSpend > 0 ? ((totals.revenue / totals.adSpend - 1) * 100) : 0;
+  rows.push([
+    'TOTAL',
+    formatCurrency(totals.adSpend),
+    totals.sessions,
+    formatCurrency(totals.costPerSession),
+    totals.signups,
+    formatCurrency(totals.costPerSignup),
+    totals.opportunities,
+    formatCurrency(totals.costPerOpportunity),
+    totals.orders,
+    formatCurrency(totals.costPerOrder),
+    totals.mql,
+    totals.mqlBronze,
+    totals.mqlSilver,
+    totals.mqlGold,
+    totals.prePql,
+    totals.pql,
+    totals.preSql,
+    totals.sql,
+    formatCurrency(totals.revenue),
+    `${totals.roas.toFixed(2)}x`,
+    formatPercent(totalMeRe)
+  ]);
 
   return { sheetName: 'Analytics-Cohort', headers, rows };
 };

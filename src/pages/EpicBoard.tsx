@@ -20,7 +20,7 @@ function computeEpicProgress(epicId: string, allItems: WorkItem[]) {
   return { total: tasks.length, done, pct: tasks.length ? Math.round(done / tasks.length * 100) : 0 };
 }
 
-export default function EpicBoard({ hideHeader = false }: { hideHeader?: boolean }) {
+export default function EpicBoard({ hideHeader = false, hideStats = false }: { hideHeader?: boolean; hideStats?: boolean }) {
   const [allItems, setAllItems] = useState<WorkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -116,9 +116,13 @@ export default function EpicBoard({ hideHeader = false }: { hideHeader?: boolean
               onChange={setStatusFilter}
               options={[
                 { value: 'All', label: 'All Status' },
-                { value: 'Todo', label: 'Active' },
-                { value: 'InProgress', label: 'Active' },
+                { value: 'Backlog', label: 'Backlog' },
+                { value: 'Todo', label: 'Todo' },
+                { value: 'In Progress', label: 'In Progress' },
+                { value: 'Active', label: 'Active' },
+                { value: 'Review', label: 'Review' },
                 { value: 'Done', label: 'Done' },
+                { value: 'Void', label: 'Void' },
               ]}
               icon={<Filter size={14} />}
             />
@@ -130,24 +134,26 @@ export default function EpicBoard({ hideHeader = false }: { hideHeader?: boolean
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 bg-white/50 backdrop-blur-md p-4 rounded-3xl shadow-sm shrink-0">
-        <div className="text-center">
-          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Total Epics</p>
-          <p className="text-2xl font-black font-headline text-on-surface">{epics.length}</p>
+      {!hideStats && (
+        <div className="grid grid-cols-3 gap-4 bg-white/50 backdrop-blur-md p-4 rounded-3xl shadow-sm shrink-0">
+          <div className="text-center">
+            <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Total Epics</p>
+            <p className="text-2xl font-black font-headline text-on-surface">{epics.length}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Active</p>
+            <p className="text-2xl font-black font-headline text-purple-600">
+              {epics.filter(e => computeEpicProgress(e.id, allItems).pct > 0 && computeEpicProgress(e.id, allItems).pct < 100).length}
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Completed</p>
+            <p className="text-2xl font-black font-headline text-emerald-600">
+              {epics.filter(e => { const p = computeEpicProgress(e.id, allItems); return p.total > 0 && p.pct === 100; }).length}
+            </p>
+          </div>
         </div>
-        <div className="text-center">
-          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Active</p>
-          <p className="text-2xl font-black font-headline text-purple-600">
-            {epics.filter(e => computeEpicProgress(e.id, allItems).pct > 0 && computeEpicProgress(e.id, allItems).pct < 100).length}
-          </p>
-        </div>
-        <div className="text-center">
-          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Completed</p>
-          <p className="text-2xl font-black font-headline text-emerald-600">
-            {epics.filter(e => { const p = computeEpicProgress(e.id, allItems); return p.total > 0 && p.pct === 100; }).length}
-          </p>
-        </div>
-      </div>
+      )}
 
       {/* Epic Grid */}
       <div className="flex-1 overflow-y-auto pb-8 custom-scrollbar">

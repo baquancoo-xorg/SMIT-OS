@@ -2,6 +2,7 @@ import React, { useState, FormEvent, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Eye, EyeOff, Shield, Sparkles, Zap, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 
 // Floating orb component for background
 const FloatingOrb = ({
@@ -118,7 +119,7 @@ export default function LoginPage() {
   };
 
   // Animation variants
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -129,19 +130,18 @@ export default function LoginPage() {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
         duration: 0.6,
-        ease: [0.25, 0.46, 0.45, 0.94],
       },
     },
   };
 
-  const formVariants = {
+  const formVariants: Variants = {
     hidden: { opacity: 0, x: 50, scale: 0.95 },
     visible: {
       opacity: 1,
@@ -149,7 +149,6 @@ export default function LoginPage() {
       scale: 1,
       transition: {
         duration: 0.8,
-        ease: [0.25, 0.46, 0.45, 0.94],
         delay: 0.3,
       },
     },

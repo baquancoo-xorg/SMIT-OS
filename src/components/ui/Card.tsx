@@ -1,15 +1,15 @@
 import React from 'react';
 
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
-  className?: string;
   variant?: 'glass' | 'panel' | 'flat';
 }
 
-export const Card: React.FC<CardProps> = ({ 
-  children, 
-  className = '', 
-  variant = 'glass' 
+export const Card: React.FC<CardProps> = ({
+  children,
+  className = '',
+  variant = 'glass',
+  ...props
 }) => {
   const variants = {
     glass: 'glass-card rounded-2xl',
@@ -18,7 +18,7 @@ export const Card: React.FC<CardProps> = ({
   };
 
   return (
-    <div className={`${variants[variant]} ${className}`}>
+    <div className={`${variants[variant]} ${className}`} {...props}>
       {children}
     </div>
   );

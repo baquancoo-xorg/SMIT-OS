@@ -107,7 +107,7 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
     <div className="space-y-8">
 
       {isAddingUser && (
-        <Card variant="flat" className="p-6 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-white/20 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input label="Full Name" placeholder="Nguyen Van A" value={newUser.fullName} onChange={e => setNewUser({ ...newUser, fullName: e.target.value })} />
             <Input label="Username" placeholder="nva_smit" value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} />
@@ -141,7 +141,7 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
             <Button onClick={handleAddUser} className="flex-1">Save User</Button>
             <Button onClick={() => setIsAddingUser(false)} variant="ghost">Cancel</Button>
           </div>
-        </Card>
+        </div>
       )}
 
       {editingUser && (
@@ -200,10 +200,10 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
       )}
 
       {/* Desktop: table */}
-      <div className="hidden lg:block overflow-x-auto">
-        <table className="w-full text-left border-separate border-spacing-y-2">
+      <div className="hidden lg:block bg-white/50 backdrop-blur-md rounded-3xl shadow-sm border border-white/20 overflow-hidden">
+        <table className="w-full text-left">
           <thead>
-            <tr>
+            <tr className="border-b border-outline-variant/10 bg-surface-container-low/30">
               <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
               <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Dept</th>
               <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Role</th>
@@ -211,10 +211,10 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
               <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-outline-variant/5">
             {users.map(user => (
-              <tr key={user.id} className="group">
-                <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 first:rounded-l-2xl border-y border-l border-white/20 transition-colors">
+              <tr key={user.id} className="group hover:bg-surface-container-low/30 transition-all">
+                <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs font-black text-slate-400">
                       {user.avatar ? <img src={user.avatar} className="w-full h-full rounded-full object-cover" /> : user.fullName[0]}
@@ -225,18 +225,18 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 border-y border-white/20 transition-colors">
+                <td className="px-6 py-4">
                   <div className="flex flex-wrap gap-1">
                     {user.departments?.map(dept => (<span key={dept} className="px-2 py-0.5 bg-primary/5 text-primary rounded-lg text-[9px] font-black uppercase tracking-wider">{dept}</span>))}
                   </div>
                 </td>
-                <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 border-y border-white/20 transition-colors">
+                <td className="px-6 py-4">
                   <Badge variant={ROLE_BADGE_VARIANT[user.role] || 'neutral'}>{user.role}</Badge>
                 </td>
-                <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 border-y border-white/20 transition-colors">
+                <td className="px-6 py-4">
                   <span className="text-xs font-bold text-slate-500">{user.scope || '-'}</span>
                 </td>
-                <td className="px-6 py-4 bg-white/40 group-hover:bg-white/60 last:rounded-r-2xl border-y border-r border-white/20 transition-colors text-right">
+                <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => openEditUser(user)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all" title="Edit User"><Edit2 size={16} /></button>
                     <button onClick={() => onDeleteConfirm('user', user.id)} disabled={user.id === currentUser?.id} className="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-xl transition-all disabled:opacity-10" title="Delete User"><Trash2 size={16} /></button>
