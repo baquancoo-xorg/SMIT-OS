@@ -25,9 +25,11 @@ import { createFbSyncRoutes } from "./server/routes/fb-sync.routes";
 import { createAdminFbConfigRoutes } from "./server/routes/admin-fb-config.routes";
 import { createNotificationRoutes } from "./server/routes/notification.routes";
 import { createLeadRoutes } from "./server/routes/lead.routes";
+import { createSheetsExportRoutes } from "./server/routes/sheets-export.routes";
 import { startFbSyncScheduler } from "./server/services/facebook/fb-sync-scheduler.service";
 import { createNotificationService } from "./server/services/notification.service";
 import { initAlertScheduler } from "./server/jobs/alert-scheduler";
+import { initSheetsExportScheduler } from "./server/jobs/sheets-export-scheduler";
 
 const prisma = new PrismaClient();
 const app = express();
@@ -78,6 +80,10 @@ app.use("/api/leads", createLeadRoutes(prisma));
 app.use("/api/dashboard/overview", createDashboardOverviewRoutes());
 app.use("/api/sync/facebook-ads", createFbSyncRoutes());
 app.use("/api/admin", createAdminFbConfigRoutes());
+
+// Sheets Export (init scheduler + routes together)
+const sheetsExportService = initSheetsExportScheduler(prisma);
+app.use("/api/sheets-export", createSheetsExportRoutes(sheetsExportService));
 
 // OKRs recalculate endpoint (legacy path)
 import { createOKRService } from "./server/services/okr.service";

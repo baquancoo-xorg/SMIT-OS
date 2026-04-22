@@ -1,7 +1,7 @@
 import React from 'react';
-import { Users, Calendar, Target, Facebook, UserCircle } from 'lucide-react';
+import { Users, Calendar, Target, Facebook, UserCircle, FileSpreadsheet } from 'lucide-react';
 
-export type SettingsTabId = 'users' | 'sprints' | 'okrs' | 'fb-config' | 'profile';
+export type SettingsTabId = 'users' | 'sprints' | 'okrs' | 'fb-config' | 'profile' | 'export';
 
 interface Tab {
   id: SettingsTabId;
@@ -15,6 +15,7 @@ const ADMIN_TABS: Tab[] = [
   { id: 'sprints', label: 'Sprints', icon: Calendar },
   { id: 'okrs', label: 'OKRs', icon: Target },
   { id: 'fb-config', label: 'FB Config', icon: Facebook },
+  { id: 'export', label: 'Export', icon: FileSpreadsheet },
 ];
 
 const MEMBER_TABS: Tab[] = [

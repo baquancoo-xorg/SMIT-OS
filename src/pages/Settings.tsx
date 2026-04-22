@@ -7,6 +7,7 @@ import { SprintCyclesTab } from '../components/settings/sprint-cycles-tab';
 import { OkrCyclesTab } from '../components/settings/okr-cycles-tab';
 import { FbConfigTab } from '../components/settings/fb-config-tab';
 import { ProfileTab } from '../components/settings/profile-tab';
+import { SheetsExportTab } from '../components/settings/sheets-export-tab';
 
 import { Card, Button } from '../components/ui';
 
@@ -125,6 +126,7 @@ export default function Settings() {
               setIsAddingFb={setIsAddingFb}
             />
           )}
+          {activeTab === 'export' && isAdmin && <SheetsExportTab />}
         </Card>
       </div>
 
