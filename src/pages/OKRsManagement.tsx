@@ -898,7 +898,7 @@ function KeyResultRow({ kr, index, isL2, department, owner, workItems, objective
               </span>
               <span className="text-[10px] font-medium text-on-surface truncate max-w-[150px]">{item.title}</span>
               <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${item.status === 'Done' || item.status === 'Won' ? 'bg-emerald-50 text-emerald-600' :
-                item.status === 'In Progress' || item.status === 'Doing' ? 'bg-blue-50 text-blue-600' :
+                item.status === 'Active' || item.status === 'Doing' ? 'bg-blue-50 text-blue-600' :
                   'bg-slate-100 text-slate-500'
                 }`}>
                 {item.status}

@@ -50,7 +50,8 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
 
   const statusColors: Record<string, string> = {
     'Todo': 'bg-slate-100 text-slate-600',
-    'In Progress': 'bg-blue-100 text-blue-600',
+    'Active': 'bg-blue-100 text-blue-600',
+    'Void': 'bg-yellow-50 text-yellow-600',
     'Doing': 'bg-blue-100 text-blue-600',
     'Code Review': 'bg-purple-100 text-purple-600',
     'Review': 'bg-purple-100 text-purple-600',
@@ -123,7 +124,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
               </span>
               <span className={`font-bold ${
                 item.status === 'Done' || item.status === 'Won' ? 'text-emerald-600' :
-                item.status === 'In Progress' || item.status === 'Doing' ? 'text-primary' :
+                item.status === 'Active' || item.status === 'Doing' ? 'text-primary' :
                 'text-slate-400'
               }`}>
                 {item.status}
@@ -249,7 +250,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
               const children = item.children || [];
               const progress = children.length > 0
                 ? Math.round((children.filter((c: any) => c.status === 'Done').length / children.length) * 100)
-                : item.status === 'Done' ? 100 : item.status === 'In Progress' || item.status === 'Doing' ? 50 : 0;
+                : item.status === 'Done' ? 100 : item.status === 'Active' || item.status === 'Doing' ? 50 : 0;
               const isSelected = selectedIds.has(item.id);
 
               return (
@@ -285,7 +286,8 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
                   <td className="px-8 py-5">
                     <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border ${
                       item.status === 'Done' || item.status === 'Won' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                      item.status === 'In Progress' || item.status === 'Doing' ? 'bg-primary/5 text-primary border-primary/10' :
+                      item.status === 'Active' || item.status === 'Doing' ? 'bg-primary/5 text-primary border-primary/10' :
+                      item.status === 'Void' ? 'bg-yellow-50 text-yellow-600 border-yellow-100' :
                       'bg-slate-50 text-slate-500 border-slate-100'
                     }`}>
                       {item.status}

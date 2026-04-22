@@ -19,9 +19,10 @@ import TaskTableView from '../components/board/TaskTableView';
 const STATUS_OPTIONS = [
   { value: 'All', label: 'All Status' },
   { value: 'Todo', label: 'Todo' },
-  { value: 'In Progress', label: 'In Progress' },
+  { value: 'Active', label: 'Active' },
   { value: 'Review', label: 'Review' },
   { value: 'Done', label: 'Done' },
+  { value: 'Void', label: 'Void' },
 ];
 
 export default function SprintBoard() {

@@ -117,7 +117,7 @@ export default function EpicBoard({ hideHeader = false }: { hideHeader?: boolean
               options={[
                 { value: 'All', label: 'All Status' },
                 { value: 'Todo', label: 'Active' },
-                { value: 'InProgress', label: 'In Progress' },
+                { value: 'InProgress', label: 'Active' },
                 { value: 'Done', label: 'Done' },
               ]}
               icon={<Filter size={14} />}
@@ -136,7 +136,7 @@ export default function EpicBoard({ hideHeader = false }: { hideHeader?: boolean
           <p className="text-2xl font-black font-headline text-on-surface">{epics.length}</p>
         </div>
         <div className="text-center">
-          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">In Progress</p>
+          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Active</p>
           <p className="text-2xl font-black font-headline text-purple-600">
             {epics.filter(e => computeEpicProgress(e.id, allItems).pct > 0 && computeEpicProgress(e.id, allItems).pct < 100).length}
           </p>

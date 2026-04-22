@@ -115,7 +115,7 @@ export default function PMDashboard() {
   const reviewQueueCount = workItems.filter(i => i.status === 'Review').length;
 
   // Card 4: WIP per Person
-  const inProgressItems = workItems.filter(i => i.status === 'In Progress');
+  const inProgressItems = workItems.filter(i => i.status === 'Active');
   const activeAssigneeCount = new Set(
     inProgressItems.map(i => i.assigneeId).filter(Boolean)
   ).size;
@@ -179,7 +179,7 @@ export default function PMDashboard() {
   // Status Breakdown
   const statusData = [
     { name: 'Todo', count: workItems.filter(i => i.status === 'Todo').length, color: 'bg-slate-400' },
-    { name: 'In Progress', count: inProgressItems.length, color: 'bg-primary' },
+    { name: 'Active', count: inProgressItems.length, color: 'bg-primary' },
     { name: 'Review', count: reviewQueueCount, color: 'bg-secondary' },
     { name: 'Done', count: doneItems, color: 'bg-tertiary' },
   ];

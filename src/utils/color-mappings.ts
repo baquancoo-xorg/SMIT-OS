@@ -20,11 +20,12 @@ export const PRIORITY_COLORS: Record<string, string> = {
 export const STATUS_COLORS: Record<string, string> = {
   Backlog: 'bg-slate-50 text-slate-500 border-slate-100',
   Todo: 'bg-slate-50 text-slate-500 border-slate-100',
-  'In Progress': 'bg-primary/5 text-primary border-primary/10',
+  Active: 'bg-primary/5 text-primary border-primary/10',
   Doing: 'bg-primary/5 text-primary border-primary/10',
   Review: 'bg-purple-50 text-purple-600 border-purple-100',
   Done: 'bg-emerald-50 text-emerald-600 border-emerald-100',
   Won: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+  Void: 'bg-yellow-50 text-yellow-600 border-yellow-100',
 };
 
 export const TEAM_COLORS: Record<string, string> = {

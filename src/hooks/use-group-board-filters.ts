@@ -16,9 +16,10 @@ interface UseGroupBoardFiltersParams {
 const STATUS_OPTIONS: FilterOption[] = [
   { value: 'All', label: 'All' },
   { value: 'Todo', label: 'Todo' },
-  { value: 'In Progress', label: 'In Progress' },
+  { value: 'Active', label: 'Active' },
   { value: 'Review', label: 'Review' },
   { value: 'Done', label: 'Done' },
+  { value: 'Void', label: 'Void' },
 ];
 
 export function useGroupBoardFilters({ dept, items, sprints, users }: UseGroupBoardFiltersParams) {

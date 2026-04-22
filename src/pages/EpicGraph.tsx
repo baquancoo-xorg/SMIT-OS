@@ -173,7 +173,7 @@ export default function EpicGraph({ hideHeader = false }: { hideHeader?: boolean
 
   const toOpts = (arr: string[]): FilterOption[] => arr.map(v => ({ value: v, label: v }));
   const teamOptions = toOpts(['All', ...TEAM_ORDER]);
-  const statusOptions = toOpts(['All', 'Backlog', 'Todo', 'In Progress', 'Review', 'Done']);
+  const statusOptions = toOpts(['All', 'Backlog', 'Todo', 'Active', 'Review', 'Done', 'Void']);
 
   const userList = (users ?? []).map(u => ({ id: u.id, fullName: u.fullName }));
 

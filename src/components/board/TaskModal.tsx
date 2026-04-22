@@ -224,9 +224,10 @@ export default function TaskModal({
                 onChange={setStatus}
                 options={[
                   { value: 'Todo', label: 'Todo' },
-                  { value: 'In Progress', label: 'In Progress' },
+                  { value: 'Active', label: 'Active' },
                   { value: 'Review', label: 'Review' },
-                  { value: 'Done', label: 'Done' }
+                  { value: 'Done', label: 'Done' },
+                  { value: 'Void', label: 'Void' }
                 ]}
               />
             </div>

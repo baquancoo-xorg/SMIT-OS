@@ -28,7 +28,7 @@ import { useAuth } from '../contexts/AuthContext';
 import CustomFilter from '../components/ui/CustomFilter';
 import { useGroupBoardFilters } from '../hooks/use-group-board-filters';
 
-const COLUMNS = ['Todo', 'In Progress', 'Review', 'Done'];
+const COLUMNS = ['Todo', 'Active', 'Review', 'Done', 'Void'];
 
 export default function MarketingBoard() {
   const [view, setView] = useState<'board' | 'table'>('board');
@@ -350,7 +350,7 @@ export default function MarketingBoard() {
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/5">
             <div className="w-2 h-2 rounded-full bg-primary"></div>
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-              In Progress: {filteredItems.filter(i => i.status === 'In Progress').length}
+              Active: {filteredItems.filter(i => i.status === 'Active').length}
             </span>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/5">
@@ -363,6 +363,12 @@ export default function MarketingBoard() {
             <div className="w-2 h-2 rounded-full bg-tertiary"></div>
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
               Done: {filteredItems.filter(i => i.status === 'Done').length}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-50">
+            <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              Void: {filteredItems.filter(i => i.status === 'Void').length}
             </span>
           </div>
         </div>
@@ -396,9 +402,10 @@ export default function MarketingBoard() {
                     <div className="p-[var(--space-sm)] flex items-center justify-between bg-white/30 shrink-0">
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${col === 'Todo' ? 'bg-slate-400' :
-                          col === 'In Progress' ? 'bg-primary' :
+                          col === 'Active' ? 'bg-primary' :
                             col === 'Review' ? 'bg-secondary' :
-                              'bg-tertiary'
+                              col === 'Done' ? 'bg-tertiary' :
+                                'bg-yellow-500'
                           }`}></div>
                         <span className="font-black text-on-surface text-[10px] uppercase tracking-widest">{col}</span>
                       </div>

@@ -181,7 +181,7 @@ export default function SprintContextWidget({ onViewSprint }: Props) {
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-slate-600 flex items-center gap-2">
                     <RefreshCw size={14} className="text-primary" />
-                    In Progress
+                    Active
                   </span>
                   <span className="font-bold text-slate-800">{stats?.inProgress}</span>
                 </div>
