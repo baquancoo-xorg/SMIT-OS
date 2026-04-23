@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Save, Check, ShieldCheck, ShieldOff, QrCode, Copy, AlertTriangle } from 'lucide-react';
+import { Check, ShieldCheck, ShieldOff, QrCode, Copy, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Input, Button } from '../ui';
 
@@ -7,10 +7,6 @@ type SetupState = 'idle' | 'setup' | 'backup-codes';
 
 export function ProfileTab() {
   const { currentUser, refreshCurrentUser } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
   const [setupState, setSetupState] = useState<SetupState>('idle');
   const [qrUrl, setQrUrl] = useState('');
   const [secret, setSecret] = useState('');
@@ -141,19 +137,21 @@ export function ProfileTab() {
               </div>
             </div>
             <div className="flex gap-3">
-              <button
+              <Button
                 onClick={copyBackupCodes}
-                className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200 transition-colors"
+                variant="outline"
+                size="sm"
+                className="gap-2"
               >
                 {copied ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
                 {copied ? 'Copied!' : 'Copy all'}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setSetupState('idle')}
-                className="flex-1 px-4 py-2 bg-primary text-white rounded-xl text-sm font-bold"
+                className="flex-1"
               >
                 Done
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -181,24 +179,24 @@ export function ProfileTab() {
                 value={verifyCode}
                 onChange={e => setVerifyCode(e.target.value.replace(/\D/g, ''))}
                 placeholder="000000"
-                className="w-full text-center font-mono text-2xl tracking-[0.5em] bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full text-center font-mono text-2xl tracking-[0.5em] bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 outline-none transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary/40"
               />
             </div>
             {twoFaError && <p className="text-red-500 text-sm">{twoFaError}</p>}
             <div className="flex gap-3">
-              <button
+              <Button
                 onClick={() => { setSetupState('idle'); setTwoFaError(''); }}
-                className="px-4 py-2 bg-slate-100 rounded-xl text-sm font-bold text-slate-600"
+                variant="outline"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleEnable2FA}
                 disabled={verifyCode.length !== 6 || twoFaLoading}
-                className="flex-1 py-2 bg-primary text-white rounded-xl text-sm font-bold disabled:opacity-50"
+                className="flex-1"
               >
                 {twoFaLoading ? 'Verifying...' : 'Activate 2FA'}
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -224,49 +222,51 @@ export function ProfileTab() {
             </div>
 
             {!totpEnabled && (
-              <button
+              <Button
                 onClick={handleStartSetup}
                 disabled={twoFaLoading}
-                className="w-full py-3 bg-primary text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-95 transition-all disabled:opacity-50"
+                className="w-full"
               >
                 {twoFaLoading ? 'Loading...' : 'Enable 2FA'}
-              </button>
+              </Button>
             )}
 
             {totpEnabled && !showDisable && (
-              <button
+              <Button
                 onClick={() => setShowDisable(true)}
-                className="flex items-center gap-2 text-sm text-red-500 hover:text-red-700 font-medium transition-colors"
+                variant="ghost"
+                size="sm"
+                className="gap-2 text-error"
               >
                 <ShieldOff size={16} /> Disable 2FA
-              </button>
+              </Button>
             )}
 
             {showDisable && (
               <div className="space-y-3">
                 <p className="text-sm text-slate-600">Enter your password to confirm disabling 2FA:</p>
-                <input
+                <Input
                   type="password"
                   value={disablePassword}
                   onChange={e => setDisablePassword(e.target.value)}
                   placeholder="Current password"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-red-200"
                 />
                 {twoFaError && <p className="text-red-500 text-sm">{twoFaError}</p>}
                 <div className="flex gap-3">
-                  <button
+                  <Button
                     onClick={() => { setShowDisable(false); setDisablePassword(''); setTwoFaError(''); }}
-                    className="px-4 py-2 bg-slate-100 rounded-xl text-sm font-bold text-slate-600"
+                    variant="outline"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleDisable2FA}
                     disabled={!disablePassword || twoFaLoading}
-                    className="flex-1 py-2 bg-red-500 text-white rounded-xl text-sm font-bold disabled:opacity-50"
+                    variant="danger"
+                    className="flex-1"
                   >
                     {twoFaLoading ? 'Disabling...' : 'Confirm disable 2FA'}
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

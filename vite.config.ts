@@ -15,6 +15,23 @@ export default defineConfig(({mode}) => {
         '@': path.resolve(__dirname, '.'),
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (!id.includes('node_modules')) {
+              return;
+            }
+
+            const modulePath = id.split('node_modules/')[1];
+            const segments = modulePath.split('/');
+            const packageName = segments[0].startsWith('@') ? `${segments[0]}-${segments[1]}` : segments[0];
+
+            return `vendor-${packageName.replace('@', '')}`;
+          },
+        },
+      },
+    },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modify—file watching is disabled to prevent flickering during agent edits.

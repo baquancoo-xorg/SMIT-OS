@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { RefreshCw, Edit2, Trash2, DollarSign, Save, X } from 'lucide-react';
-import { Input, Button, Card, Badge, SectionHeader } from '../ui';
+import { Input, Button, Card, Badge } from '../ui';
 
 interface FbAccount {
   id: number;
@@ -186,13 +186,13 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
       <div className="lg:col-span-2 space-y-8">
 
         {(isAdding || editingId) && (
-          <div className="bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-white/20 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+          <Card variant="glass" className="p-6 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-black text-on-surface uppercase tracking-wider">{isAdding ? 'New Ad Account' : 'Edit Ad Account'}</h4>
-              <button onClick={resetForm} className="p-2 hover:bg-slate-100 rounded-xl transition-colors"><X size={18} /></button>
+              <button onClick={resetForm} className="p-2 hover:bg-surface-container-low rounded-xl transition-colors"><X size={18} /></button>
             </div>
             {formError && (
-              <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-2 rounded-xl text-xs font-bold">{formError}</div>
+              <div className="bg-error/5 border border-error/20 text-error px-4 py-2 rounded-xl text-xs font-bold">{formError}</div>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
@@ -242,10 +242,10 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
                 </Button>
               </div>
             </div>
-          </div>
+          </Card>
         )}
 
-        <div className="bg-white/50 backdrop-blur-md rounded-3xl shadow-sm border border-white/20 overflow-hidden">
+        <Card variant="glass" className="overflow-hidden shadow-sm">
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-outline-variant/10 bg-surface-container-low/30">
@@ -288,12 +288,12 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
               )}
             </tbody>
           </table>
-        </div>
+        </Card>
       </div>
 
       {/* Exchange Rate Section */}
       <div className="space-y-6">
-        <div className="bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-white/20 space-y-6">
+        <Card variant="glass" className="p-6 space-y-6">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600">
               <DollarSign size={20} />
@@ -313,7 +313,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
                   type="number"
                   value={exchangeRate}
                   onChange={e => setExchangeRate(Number(e.target.value))}
-                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-lg font-black text-on-surface text-right outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  className="w-full bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-lg font-black text-on-surface text-right outline-none transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary/40"
                 />
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary font-black text-xs opacity-20">VND</span>
               </div>
@@ -334,7 +334,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
               {rateError || 'Rate updated successfully!'}
             </div>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

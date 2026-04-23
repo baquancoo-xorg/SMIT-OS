@@ -2,15 +2,13 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   AlertCircle,
   CheckCircle2,
-  Download,
-  FileSpreadsheet,
   FolderOpen,
   Link2,
   Loader2,
   Search,
   Unlink,
 } from 'lucide-react';
-import { Badge, Button, Card, SectionHeader } from '../ui';
+import { Badge, Button, Card } from '../ui';
 
 interface GoogleStatus {
   connected: boolean;
@@ -200,7 +198,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
     <div className="max-w-6xl space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-2">
-          <div className="bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-white/20 space-y-6 h-full">
+          <Card variant="glass" className="p-6 space-y-6 h-full">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-2">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Google Account</p>
@@ -213,10 +211,10 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
               </div>
 
               {googleStatus?.connected ? (
-                <button onClick={disconnectGoogle} className="flex items-center gap-2 text-[10px] font-black text-error uppercase tracking-widest hover:bg-error/5 px-3 py-1.5 rounded-full transition-all">
+                <Button onClick={disconnectGoogle} variant="ghost" size="sm" className="gap-2 text-error">
                   <Unlink size={14} />
                   Disconnect
-                </button>
+                </Button>
               ) : (
                 <Button onClick={connectGoogle} disabled={connecting} className="gap-2">
                   {connecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 size={16} />}
@@ -297,31 +295,31 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
                 )}
               </div>
             )}
-          </div>
+          </Card>
         </div>
 
         <div className="lg:col-span-1">
-          <div className="bg-white/50 backdrop-blur-md p-5 rounded-3xl border border-white/20 space-y-2 h-full">
+          <Card variant="glass" className="p-5 space-y-2 h-full">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scheduled Export</p>
             <p className="text-sm font-bold text-on-surface">Daily at 11:00 AM</p>
             <Badge variant={googleStatus?.connected ? 'success' : 'neutral'}>
               {googleStatus?.connected ? 'Active' : 'Inactive'}
             </Badge>
-          </div>
+          </Card>
         </div>
 
         <div className="lg:col-span-1">
-          <div className="bg-white/50 backdrop-blur-md p-5 rounded-3xl border border-white/20 space-y-2 h-full">
+          <Card variant="glass" className="p-5 space-y-2 h-full">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sheets Created</p>
             <p className="text-sm font-bold text-on-surface">Per export cycle</p>
             <p className="text-4xl font-black font-headline text-primary">13</p>
-          </div>
+          </Card>
         </div>
       </div>
 
       {exportStatus && (
         <div
-          className={`p-5 rounded-3xl border backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-500 ${
+          className={`p-5 rounded-2xl border backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-500 ${
             exportStatus.status === 'completed'
               ? 'bg-emerald-50/50 border-emerald-200'
               : exportStatus.status === 'failed'
@@ -368,7 +366,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
                   rel="noopener noreferrer"
                   className="mt-2 inline-flex items-center gap-2 text-xs font-bold text-on-surface hover:text-primary transition-colors"
                 >
-                  View Google Sheets <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                  View Google Sheets <Link2 size={14} />
                 </a>
               )}
 
