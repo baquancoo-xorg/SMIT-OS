@@ -1,17 +1,18 @@
 # Session State
-<!-- Generated: 2026-04-22T20:10:58.574Z -->
+<!-- Generated: 2026-04-23T06:10:53.950Z -->
 <!-- Branch: unknown -->
 <!-- Plan: none -->
 
 ## What Worked (Verified)
-- Khảo sát module phù hợp để viết smoke test tối thiểu
-- Tạo smoke test đầu tiên cho luồng ổn định
-- Chạy lại test và test:ci để xác nhận
-- Chạy lint/typecheck/build để đảm bảo không hồi quy
-- Báo cáo kết quả cuối
+- Hoàn thiện hiển thị cột SLA và stat bar trong lead-logs-tab.tsx
+- Rà soát logic filter hasNote/noteDate giữa frontend và server
+- Chạy npm run build để xác nhận không lỗi biên dịch
+- Nhờ tester chạy kiểm thử và tổng hợp kết quả
+- Nhờ code-reviewer rà soát thay đổi cuối cùng
+- Chạy lại build và kiểm thử sau khi fix concern
 
 ## What's Left
-- (All tasks completed)
+- [ ] Manual UI validation cho Notification và Lead Logs trên trình duyệt
 
 ## Agent Result: tester (16:42:41)
 - Completed at 16:42:41
@@ -411,14 +412,21 @@
 ## Agent Result: Explore (19:52:24)
 - Completed at 19:52:24
 
+
+## Agent Result: unknown (05:01:45)
+- Completed at 05:01:45
+
 ## Key Files Modified
-- .claude/session-state/archive/20260423-0220.md
-- .claude/session-state/archive/20260423-0226.md
-- .claude/session-state/archive/20260423-0237.md
-- .claude/session-state/archive/20260423-0242.md
+- .claude/session-state/archive/20260423-0255.md
+- .claude/session-state/archive/20260423-0303.md
+- .claude/session-state/archive/20260423-0304.md
+- .claude/session-state/archive/20260423-0308.md
+- .claude/session-state/archive/20260423-0310.md
 - .claude/session-state/latest.md
-- package.json
-- src/components/settings/fb-config-tab.tsx
-- src/components/settings/profile-tab.tsx
-- src/components/settings/sheets-export-tab.tsx
-- vite.config.ts
+- server/routes/lead.routes.ts
+- server/services/notification.service.ts
+- src/components/layout/DateCalendarWidget.tsx
+- src/components/layout/Header.tsx
+- src/components/layout/NotificationCenter.tsx
+- src/components/lead-tracker/lead-logs-tab.tsx
+- src/hooks/use-notifications.ts

@@ -12,6 +12,14 @@ interface CreateNotificationInput {
 }
 
 export function createNotificationService(prisma: PrismaClient) {
+  const testNotificationFilter = {
+    OR: [
+      { type: { in: ['test', 'test_notification'] } },
+      { title: { contains: 'test notification', mode: 'insensitive' as const } },
+      { message: { contains: 'testing notification', mode: 'insensitive' as const } },
+    ],
+  };
+
   return {
     async create(data: CreateNotificationInput) {
       return prisma.notification.create({ data });
@@ -36,7 +44,11 @@ export function createNotificationService(prisma: PrismaClient) {
 
     async getUnreadCount(userId: string) {
       return prisma.notification.count({
-        where: { userId, isRead: false },
+        where: {
+          userId,
+          isRead: false,
+          NOT: testNotificationFilter,
+        },
       });
     },
 

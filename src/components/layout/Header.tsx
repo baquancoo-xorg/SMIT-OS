@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, Search, ChevronRight, User as UserIcon, Calendar, Tag, Menu, X } from 'lucide-react';
+import { Search, Tag, Menu, X } from 'lucide-react';
 import { WorkItem } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
-import DateCalendarWidget from './DateCalendarWidget';
 import SprintContextWidget from './SprintContextWidget';
 import NotificationCenter from './NotificationCenter';
 import { ViewType } from '../../App';
@@ -214,8 +213,7 @@ export default function Header({ onMenuClick, onViewChange }: {
 
         {/* Widgets - hidden on mobile */}
         <div className="hidden md:flex items-center gap-2">
-          <NotificationCenter />
-          <DateCalendarWidget workItems={allWorkItems} />
+          <NotificationCenter workItems={allWorkItems} />
           <SprintContextWidget onViewSprint={() => onViewChange?.('sprint')} />
         </div>
       </div>

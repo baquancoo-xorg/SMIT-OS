@@ -166,10 +166,12 @@ export function createLeadRoutes(prisma: PrismaClient) {
   }));
 
   router.get('/', handleAsync(async (req: any, res: any) => {
-    const { ae, status, dateFrom, dateTo } = req.query;
+    const { ae, status, dateFrom, dateTo, hasNote, noteDate } = req.query;
     const where: any = {};
+
     if (ae) where.ae = ae as string;
     if (status) where.status = status as string;
+
     if (dateFrom || dateTo) {
       where.receivedDate = {};
       if (dateFrom) where.receivedDate.gte = new Date(dateFrom as string);
@@ -179,6 +181,22 @@ export function createLeadRoutes(prisma: PrismaClient) {
         where.receivedDate.lte = to;
       }
     }
+
+    if (hasNote === 'yes') {
+      where.NOT = [{ notes: null }, { notes: '' }];
+    } else if (hasNote === 'no') {
+      where.OR = [
+        { notes: null },
+        { notes: '' },
+      ];
+    }
+
+    if (noteDate) {
+      const start = new Date(`${String(noteDate)}T00:00:00`);
+      const end = new Date(`${String(noteDate)}T23:59:59.999`);
+      where.updatedAt = { gte: start, lte: end };
+    }
+
     const leads = await prisma.lead.findMany({
       where,
       orderBy: { receivedDate: 'desc' },
