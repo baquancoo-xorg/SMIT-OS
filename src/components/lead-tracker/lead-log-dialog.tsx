@@ -161,6 +161,7 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
               </div>
             </div>
             <button
+              type="button"
               onClick={onClose}
               className="size-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
             >
@@ -251,6 +252,11 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
                 value={form.notes}
                 onChange={(e) => set('notes', e.target.value)}
                 placeholder="Ghi chú thêm..."
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.stopPropagation();
+                  }
+                }}
               />
             </Field>
 
@@ -261,12 +267,14 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
             <div className="text-xs font-bold text-rose-500">{error}</div>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={onClose}
                 className="h-9 px-5 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
               >
                 Hủy
               </button>
               <button
+                type="button"
                 onClick={handleSave}
                 disabled={saving}
                 className="h-9 px-7 rounded-2xl bg-primary text-white text-xs font-black uppercase tracking-widest hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 disabled:shadow-none"
