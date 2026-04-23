@@ -1,32 +1,75 @@
 #!/bin/bash
 
-# SMIT-OS Auto-Start Script
-# This script starts the Docker DB and the application server
+set -euo pipefail
 
 PROJECT_DIR="/Users/dominium/Documents/Project/SMIT-OS"
-LOG_FILE="/Users/dominium/Documents/Project/SMIT-OS/logs/startup.log"
+LOG_DIR="/Users/dominium/Library/Logs/SMIT-OS"
+LOG_FILE="$LOG_DIR/startup.log"
+DOCKER_COMPOSE_BIN="/usr/local/bin/docker-compose"
+NPM_BIN="/opt/homebrew/bin/npm"
+APP_PORT="3000"
 
-# Create logs directory if it doesn't exist
-mkdir -p "$(dirname "$LOG_FILE")"
+export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/sbin"
 
-echo "[$(date)] Starting SMIT-OS..." >> "$LOG_FILE"
+mkdir -p "$LOG_DIR"
 
-# Check if Docker is running
-if ! /usr/local/bin/docker info > /dev/null 2>&1; then
-    echo "[$(date)] Docker is not running. Waiting..." >> "$LOG_FILE"
-    sleep 10
+log() {
+  printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1" >> "$LOG_FILE"
+}
+
+is_port_listening() {
+  lsof -nP -iTCP:"$APP_PORT" -sTCP:LISTEN >/dev/null 2>&1
+}
+
+run() {
+  log "$1"
+  shift
+  "$@" >> "$LOG_FILE" 2>&1
+}
+
+log "Starting SMIT-OS bootstrap"
+
+if [ ! -d "$PROJECT_DIR" ]; then
+  log "Project directory missing: $PROJECT_DIR"
+  exit 78
 fi
 
-# Start Docker containers
 cd "$PROJECT_DIR"
-/usr/local/bin/docker-compose up -d 2>> "$LOG_FILE"
-echo "[$(date)] Docker containers started" >> "$LOG_FILE"
 
-# Wait for DB to be ready
+if [ ! -x "$NPM_BIN" ]; then
+  log "npm binary missing or not executable: $NPM_BIN"
+  exit 78
+fi
+
+if ! /usr/local/bin/docker info >/dev/null 2>&1; then
+  log "Docker is not ready; waiting 10 seconds"
+  sleep 10
+fi
+
+if [ -x "$DOCKER_COMPOSE_BIN" ]; then
+  run "Starting Docker containers with docker-compose" "$DOCKER_COMPOSE_BIN" up -d
+else
+  run "Skipping Docker startup because docker-compose is unavailable" /usr/bin/true
+fi
+
 sleep 5
 
-# Start the application server
-cd "$PROJECT_DIR"
-/opt/homebrew/bin/npm run start >> "$LOG_FILE" 2>&1 &
+if is_port_listening; then
+  log "App port $APP_PORT already listening; skipping app start"
+  exit 0
+fi
 
-echo "[$(date)] Server process started (PID: $!)" >> "$LOG_FILE"
+log "Starting application server on port $APP_PORT"
+nohup "$NPM_BIN" run start >> "$LOG_FILE" 2>&1 &
+APP_PID=$!
+log "Server process started (PID: $APP_PID)"
+
+sleep 3
+
+if is_port_listening; then
+  log "App port $APP_PORT is now listening"
+  exit 0
+fi
+
+log "App failed to start on port $APP_PORT"
+exit 78

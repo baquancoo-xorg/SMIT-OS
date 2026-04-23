@@ -4,32 +4,33 @@
 <dict>
     <key>Label</key>
     <string>com.smitos.server</string>
-    
+
     <key>ProgramArguments</key>
     <array>
-        <string>/bin/bash</string>
-        <string>/Users/dominium/Documents/Project/SMIT-OS/scripts/start-server.sh</string>
+        <string>/Users/dominium/Library/Application Support/SMIT-OS/start-server.sh</string>
     </array>
-    
+
     <key>WorkingDirectory</key>
-    <string>/Users/dominium/Documents/Project/SMIT-OS</string>
-    
+    <string>/Users/dominium</string>
+
     <key>RunAtLoad</key>
     <true/>
-    
+
     <key>KeepAlive</key>
     <true/>
-    
+
     <key>StandardOutPath</key>
-    <string>/Users/dominium/Documents/Project/SMIT-OS/logs/launchagent.log</string>
-    
+    <string>/Users/dominium/Library/Logs/SMIT-OS/launchagent.log</string>
+
     <key>StandardErrorPath</key>
-    <string>/Users/dominium/Documents/Project/SMIT-OS/logs/launchagent-error.log</string>
-    
+    <string>/Users/dominium/Library/Logs/SMIT-OS/launchagent-error.log</string>
+
     <key>EnvironmentVariables</key>
     <dict>
         <key>PATH</key>
         <string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/sbin</string>
+        <key>HOME</key>
+        <string>/Users/dominium</string>
     </dict>
 </dict>
 </plist>
