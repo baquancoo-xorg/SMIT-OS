@@ -181,9 +181,9 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
   if (loading) return <div className="text-center py-8 text-slate-400">Loading...</div>;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="space-y-8 max-w-5xl">
       {/* FB Ad Accounts Section */}
-      <div className="lg:col-span-2 space-y-8">
+      <div className="space-y-8">
 
         {(isAdding || editingId) && (
           <Card variant="glass" className="p-6 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
@@ -299,7 +299,6 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
               <DollarSign size={20} />
             </div>
             <div>
-              <h4 className="text-sm font-black text-on-surface uppercase tracking-wider">Exchange Rate</h4>
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Financial Settings</p>
             </div>
           </div>

@@ -158,6 +158,7 @@ export interface Lead {
   notes?: string | null;
   deleteRequestedBy?: string | null;
   deleteRequestedAt?: string | null;
+  deleteReason?: string | null;
   createdAt: string;
   updatedAt: string;
 }

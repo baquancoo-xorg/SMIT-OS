@@ -67,7 +67,7 @@ class ApiClient {
 
   deleteLead(id: string) { return this.delete(`/leads/${id}`); }
 
-  requestLeadDelete(id: string) { return this.post<import('../types').Lead>(`/leads/${id}/delete-request`, {}); }
+  requestLeadDelete(id: string, reason?: string) { return this.post<import('../types').Lead>(`/leads/${id}/delete-request`, { reason }); }
 
   cancelLeadDeleteRequest(id: string) { return this.delete(`/leads/${id}/delete-request`); }
 

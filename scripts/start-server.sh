@@ -12,14 +12,14 @@ mkdir -p "$(dirname "$LOG_FILE")"
 echo "[$(date)] Starting SMIT-OS..." >> "$LOG_FILE"
 
 # Check if Docker is running
-if ! docker info > /dev/null 2>&1; then
+if ! /usr/local/bin/docker info > /dev/null 2>&1; then
     echo "[$(date)] Docker is not running. Waiting..." >> "$LOG_FILE"
     sleep 10
 fi
 
 # Start Docker containers
 cd "$PROJECT_DIR"
-docker-compose up -d 2>> "$LOG_FILE"
+/usr/local/bin/docker-compose up -d 2>> "$LOG_FILE"
 echo "[$(date)] Docker containers started" >> "$LOG_FILE"
 
 # Wait for DB to be ready
@@ -27,6 +27,6 @@ sleep 5
 
 # Start the application server
 cd "$PROJECT_DIR"
-npm run start >> "$LOG_FILE" 2>&1 &
+/opt/homebrew/bin/npm run start >> "$LOG_FILE" 2>&1 &
 
 echo "[$(date)] Server process started (PID: $!)" >> "$LOG_FILE"

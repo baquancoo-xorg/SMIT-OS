@@ -128,7 +128,11 @@ export function createLeadRoutes(prisma: PrismaClient) {
     }
     const lead = await prisma.lead.update({
       where: { id: req.params.id },
-      data: { deleteRequestedBy: req.user.userId, deleteRequestedAt: new Date() },
+      data: {
+        deleteRequestedBy: req.user.userId,
+        deleteRequestedAt: new Date(),
+        deleteReason: req.body.reason || 'No reason provided',
+      },
     });
     res.json(lead);
   }));
@@ -141,7 +145,7 @@ export function createLeadRoutes(prisma: PrismaClient) {
     }
     const lead = await prisma.lead.update({
       where: { id: req.params.id },
-      data: { deleteRequestedBy: null, deleteRequestedAt: null },
+      data: { deleteRequestedBy: null, deleteRequestedAt: null, deleteReason: null },
     });
     res.json(lead);
   }));
@@ -160,7 +164,7 @@ export function createLeadRoutes(prisma: PrismaClient) {
     if (!existing) return res.status(404).json({ error: 'Not found' });
     const lead = await prisma.lead.update({
       where: { id: req.params.id },
-      data: { deleteRequestedBy: null, deleteRequestedAt: null },
+      data: { deleteRequestedBy: null, deleteRequestedAt: null, deleteReason: null },
     });
     res.json(lead);
   }));

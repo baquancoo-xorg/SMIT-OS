@@ -28,11 +28,11 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [editFormData, setEditFormData] = useState({
     fullName: '', username: '', password: '', departments: ['Tech'] as string[],
-    role: 'Member', scope: '', avatar: 'https://picsum.photos/seed/user/200', isAdmin: false
+    role: 'Member', scope: '', isAdmin: false
   });
   const [newUser, setNewUser] = useState({
     fullName: '', username: '', password: '', departments: ['Tech'] as string[],
-    role: 'Member', scope: '', avatar: 'https://picsum.photos/seed/user/200', isAdmin: false
+    role: 'Member', scope: '', isAdmin: false
   });
 
   const toggleDepartment = (dept: string, isEdit: boolean) => {
@@ -63,7 +63,7 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
       if (res.ok) {
         await refreshUsers();
         setIsAddingUser(false);
-        setNewUser({ fullName: '', username: '', password: '', departments: ['Tech'], role: 'Member', scope: '', avatar: 'https://picsum.photos/seed/user/200', isAdmin: false });
+        setNewUser({ fullName: '', username: '', password: '', departments: ['Tech'], role: 'Member', scope: '', isAdmin: false });
       }
     } catch (error) {
       console.error('Failed to add user:', error);
@@ -75,7 +75,7 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
     setEditFormData({
       fullName: user.fullName, username: user.username, password: '',
       departments: user.departments || [], role: user.role,
-      scope: user.scope || '', avatar: user.avatar, isAdmin: user.isAdmin,
+      scope: user.scope || '', isAdmin: user.isAdmin,
     });
   };
 
@@ -85,7 +85,7 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
       const data: Record<string, unknown> = {
         fullName: editFormData.fullName, username: editFormData.username,
         departments: editFormData.departments, role: editFormData.role,
-        scope: editFormData.scope, avatar: editFormData.avatar, isAdmin: editFormData.isAdmin,
+        scope: editFormData.scope, isAdmin: editFormData.isAdmin,
       };
       if (editFormData.password.trim()) data.password = editFormData.password;
 
@@ -216,8 +216,8 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
               <tr key={user.id} className="group hover:bg-surface-container-low/30 transition-all">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs font-black text-slate-400">
-                      {user.avatar ? <img src={user.avatar} className="w-full h-full rounded-full object-cover" /> : user.fullName[0]}
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xs font-black text-primary">
+                      {user.fullName[0]}
                     </div>
                     <div>
                       <span className="text-sm font-bold text-on-surface block">{user.fullName}</span>
@@ -254,8 +254,8 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
           <Card key={user.id} variant="flat" className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs font-black text-slate-400 shrink-0">
-                  {user.avatar ? <img src={user.avatar} className="w-full h-full rounded-full object-cover" /> : user.fullName[0]}
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xs font-black text-primary shrink-0">
+                  {user.fullName[0]}
                 </div>
                 <div>
                   <span className="text-sm font-bold text-on-surface block">{user.fullName}</span>

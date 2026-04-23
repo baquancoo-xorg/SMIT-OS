@@ -397,7 +397,7 @@ export default function PMDashboard() {
               <TrendingUp size={18} className="text-primary" />
             </div>
             {velocityData.some(v => v.completed > 0) ? (
-              <div className="h-[200px] md:h-[280px]">
+              <div className="h-[200px] md:h-[280px] min-h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={velocityData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -473,7 +473,7 @@ export default function PMDashboard() {
               ))}
             </div>
             {upcomingDeadlinesData.some(w => w.Urgent + w.High + w.Medium + w.Low > 0) ? (
-              <div className="h-[200px] md:h-[240px]">
+              <div className="h-[200px] md:h-[240px] min-h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={upcomingDeadlinesData} margin={{ top: 0, right: 16, left: -16, bottom: 0 }} barCategoryGap="40%">
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />

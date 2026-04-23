@@ -197,6 +197,7 @@ model Lead {
   notes               String?
   deleteRequestedBy   String?   // User.id người gửi yêu cầu xoá
   deleteRequestedAt   DateTime?
+  deleteReason        String?   // Lý do yêu cầu xoá
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   auditLogs       LeadAuditLog[]

@@ -24,11 +24,11 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 const STATUS_LABEL: Record<string, string> = {
-  'Mới': 'New',
-  'Đang liên hệ': 'Attempted',
-  'Đang nuôi dưỡng': 'Nurturing',
-  'Qualified': 'Qualified',
-  'Unqualified': 'Unqualified',
+  'Mới': 'NEW',
+  'Đang liên hệ': 'ATT',
+  'Đang nuôi dưỡng': 'NUR',
+  'Qualified': 'QLD',
+  'Unqualified': 'UQLD',
 };
 
 const toStatusLabel = (status: string) => STATUS_LABEL[status] ?? status;
@@ -151,6 +151,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
     noteDate: '',
     dateFrom: sevenDaysAgo.toISOString().slice(0, 10),
     dateTo: today,
+    q: '',
   });
 
   // Bulk selection
@@ -178,7 +179,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
       if (filters.noteDate) p.noteDate = filters.noteDate;
       setLeads(await api.getLeads(Object.keys(p).length ? p : undefined));
     } finally { setLoading(false); }
-  }, [filters]);
+  }, [filters.ae, filters.status, filters.dateFrom, filters.dateTo, filters.hasNote, filters.noteDate]);
 
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
   useEffect(() => { api.getLeadAeList().then(setAeOptions); }, []);
@@ -217,8 +218,10 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
       if (!confirm(`Xóa lead "${lead.customerName}"?`)) return;
       await api.deleteLead(lead.id);
     } else {
-      if (!confirm(`Gửi yêu cầu xóa lead "${lead.customerName}"?`)) return;
-      await api.requestLeadDelete(lead.id);
+      const reason = prompt(`Lý do gửi yêu cầu xóa lead "${lead.customerName}"?`);
+      if (reason === null) return;
+      if (!reason.trim()) return alert('Vui lòng nhập lý do xóa');
+      await api.requestLeadDelete(lead.id, reason);
     }
     fetchLeads();
   };
@@ -308,7 +311,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
           <DatePicker value={filters.dateTo} onChange={(v) => sf('dateTo', v)} placeholder="Đến ngày" />
         </div>
         <CustomFilter value={filters.ae} onChange={(v) => sf('ae', v)} options={[{ value: '', label: 'All AE' }, ...aeOptions.map((a) => ({ value: a.fullName, label: a.fullName }))]} buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case" />
-        <CustomFilter value={filters.status} onChange={(v) => sf('status', v)} options={[{ value: '', label: 'All Status' }, ...STATUSES.map((s) => ({ value: s, label: s }))]} buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case" />
+        <CustomFilter value={filters.status} onChange={(v) => sf('status', v)} options={[{ value: '', label: 'All Status' }, ...STATUSES.map((s) => ({ value: s, label: toStatusLabel(s) }))]} buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case" />
         <CustomFilter
           value={filters.hasNote}
           onChange={(v) => sf('hasNote', v)}
@@ -320,18 +323,37 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
           buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case"
         />
         <DatePicker value={filters.noteDate} onChange={(v) => sf('noteDate', v)} placeholder="Note changed" />
+        <div className="relative">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search leads..."
+            value={filters.q}
+            onChange={(e) => sf('q', e.target.value)}
+            className="h-9 pl-9 pr-4 bg-white border border-slate-200 rounded-full text-[11px] font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-48"
+          />
+        </div>
         <div className="ml-auto flex items-center gap-3">
           {!loading && (() => {
             const now = new Date();
-            const c = (s: string) => leads.filter((l) => l.status === s).length;
-            const vn = leads.filter((l) => l.leadType === 'Việt Nam').length;
-            const intl = leads.filter((l) => l.leadType === 'Quốc Tế').length;
-            const onTime = leads.filter((l) => {
+            const filteredLeads = leads.filter(l => {
+              if (!filters.q) return true;
+              const q = filters.q.toLowerCase();
+              return (
+                l.customerName.toLowerCase().includes(q) ||
+                l.ae.toLowerCase().includes(q) ||
+                (l.notes?.toLowerCase() || '').includes(q)
+              );
+            });
+            const c = (s: string) => filteredLeads.filter((l) => l.status === s).length;
+            const vn = filteredLeads.filter((l) => l.leadType === 'Việt Nam').length;
+            const intl = filteredLeads.filter((l) => l.leadType === 'Quốc Tế').length;
+            const onTime = filteredLeads.filter((l) => {
               if (isClosedLead(l.status)) return false;
               const sla = getLeadSla(l, now);
               return sla.label.startsWith('On-time');
             }).length;
-            const overdue = leads.filter((l) => {
+            const overdue = filteredLeads.filter((l) => {
               if (isClosedLead(l.status)) return false;
               const sla = getLeadSla(l, now);
               return sla.label.startsWith('Overdue');
@@ -344,18 +366,18 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
             return (
               <div className="flex items-center gap-2">
                 <div className={statCls}>
-                  {stat('bg-slate-400', 'Total', leads.length)}
-                  {stat('bg-violet-400', 'New', c('Mới'))}
-                  {stat('bg-blue-400', 'Attempted', c('Đang liên hệ'))}
-                  {stat('bg-amber-400', 'Nurturing', c('Đang nuôi dưỡng'))}
-                  {stat('bg-emerald-500', 'Qualified', c('Qualified'))}
-                  {stat('bg-rose-400', 'Unqualified', c('Unqualified'))}
-                  {stat('bg-emerald-400', 'On-time', onTime)}
-                  {stat('bg-red-500', 'Overdue', overdue)}
+                  {stat('bg-slate-400', 'Total', filteredLeads.length)}
+                  {stat('bg-violet-400', 'NEW', c('Mới'))}
+                  {stat('bg-blue-400', 'ATT', c('Đang liên hệ'))}
+                  {stat('bg-amber-400', 'NUR', c('Đang nuôi dưỡng'))}
+                  {stat('bg-emerald-500', 'QLD', c('Qualified'))}
+                  {stat('bg-rose-400', 'UQLD', c('Unqualified'))}
+                  {stat('bg-emerald-400', 'OT', onTime)}
+                  {stat('bg-red-500', 'OVD', overdue)}
                 </div>
                 <div className={statCls}>
-                  {stat('bg-red-400', 'Việt Nam', vn)}
-                  {stat('bg-sky-400', 'Quốc Tế', intl)}
+                  {stat('bg-red-400', 'VN', vn)}
+                  {stat('bg-sky-400', 'QT', intl)}
                 </div>
               </div>
             );
@@ -396,7 +418,17 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
               )}
 
               {/* Lead rows */}
-              {!loading && leads.map((lead) => {
+              {!loading && leads
+                .filter(l => {
+                  if (!filters.q) return true;
+                  const q = filters.q.toLowerCase();
+                  return (
+                    l.customerName.toLowerCase().includes(q) ||
+                    l.ae.toLowerCase().includes(q) ||
+                    (l.notes?.toLowerCase() || '').includes(q)
+                  );
+                })
+                .map((lead) => {
                 const isSelected = selectedIds.has(lead.id);
                 const hasPendingDelete = !!lead.deleteRequestedBy;
                 const sla = getLeadSla(lead, new Date());
@@ -431,7 +463,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
                         {sla.label}
                       </span>
                     </td>
-                    <td className={`${cellCls} text-slate-500`}>{lead.leadType ?? '-'}</td>
+                    <td className={`${cellCls} text-slate-500`}>{lead.leadType === 'Việt Nam' ? 'VN' : lead.leadType === 'Quốc Tế' ? 'QT' : (lead.leadType ?? '-')}</td>
                     <td className={`${cellCls} text-slate-500 font-medium`}>{lead.unqualifiedType ?? '-'}</td>
                     <td className={`${cellCls} italic max-w-[150px]`}>
                       <span className="text-slate-400 truncate block">{lead.notes || '—'}</span>
@@ -448,11 +480,13 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
 
                         {hasPendingDelete ? (
                           isAdminOrLeaderSale ? (
-                            <>
-                              <span className="size-2 rounded-full bg-rose-500 inline-block" />
-                              <button onClick={() => handleApproveDelete(lead)} className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all" title="Duyệt xóa"><Check size={16} /></button>
-                              <button onClick={() => handleRejectDelete(lead)} className="p-2 text-rose-400 hover:bg-rose-50 rounded-xl transition-all" title="Từ chối"><X size={16} /></button>
-                            </>
+                            <div className="flex items-center gap-1 bg-rose-50 p-1 rounded-xl border border-rose-100">
+                              <span className="text-[10px] font-bold text-rose-600 px-2 max-w-[120px] truncate" title={lead.deleteReason || ''}>
+                                Lý do: {lead.deleteReason || 'N/A'}
+                              </span>
+                              <button onClick={() => handleApproveDelete(lead)} className="p-1.5 text-emerald-500 hover:bg-white rounded-lg transition-all" title="Duyệt xóa"><Check size={14} /></button>
+                              <button onClick={() => handleRejectDelete(lead)} className="p-1.5 text-rose-400 hover:bg-white rounded-lg transition-all" title="Từ chối"><X size={14} /></button>
+                            </div>
                           ) : lead.deleteRequestedBy === currentUser?.id ? (
                             <button onClick={() => handleCancelDeleteRequest(lead)} className="flex items-center gap-1 px-2 py-1 text-amber-600 bg-amber-50 rounded-xl text-[10px] font-black" title="Hủy yêu cầu xóa">⏳ Đang chờ</button>
                           ) : (

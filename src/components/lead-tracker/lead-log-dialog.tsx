@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, UserCircle, FileText } from 'lucide-react';
 import { api } from '../../lib/api';
@@ -75,9 +75,26 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
   const [form, setForm] = useState<FormData>(initialForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const notesRef = useRef<HTMLTextAreaElement>(null);
+
+  const autoResizeNotes = () => {
+    const el = notesRef.current;
+    if (el) {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    }
+  };
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    nameInputRef.current?.focus();
+    autoResizeNotes();
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
@@ -140,6 +157,7 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
           transition={{ duration: 0.2, ease: 'easeOut' }}
           className="bg-white rounded-[2rem] shadow-2xl shadow-slate-300/40 w-full max-w-[520px] overflow-hidden"
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-7 pt-6 pb-5 border-b border-slate-100">
@@ -175,11 +193,11 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
             {/* Customer Name */}
             <Field label="Tên khách hàng *" wide>
               <input
+                ref={nameInputRef}
                 className={inputCls}
                 value={form.customerName}
                 onChange={(e) => set('customerName', e.target.value)}
                 placeholder="Nguyễn Văn A..."
-                autoFocus
               />
             </Field>
 
@@ -247,14 +265,24 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
             {/* Notes */}
             <Field label="Ghi chú" wide>
               <textarea
-                rows={3}
-                className={`${inputCls} resize-y min-h-[72px]`}
+                ref={notesRef}
+                rows={2}
+                className={`${inputCls} resize-none min-h-[56px] max-h-[200px] overflow-y-auto`}
                 value={form.notes}
-                onChange={(e) => set('notes', e.target.value)}
+                onChange={(e) => {
+                  set('notes', e.target.value);
+                  autoResizeNotes();
+                }}
+                onInput={autoResizeNotes}
                 placeholder="Ghi chú thêm..."
                 onKeyDown={(e) => {
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
                   if (e.key === 'Enter') {
-                    e.stopPropagation();
+                    requestAnimationFrame(() => {
+                      autoResizeNotes();
+                      notesRef.current?.focus();
+                    });
                   }
                 }}
               />
