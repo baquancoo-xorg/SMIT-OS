@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Search, Tag, Menu, X } from 'lucide-react';
 import { WorkItem } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
 import SprintContextWidget from './SprintContextWidget';
 import NotificationCenter from './NotificationCenter';
+import { useWorkItems } from '../../hooks/use-work-items';
 
 export default function Header({ onMenuClick }: {
   onMenuClick?: () => void;
@@ -15,24 +16,7 @@ export default function Header({ onMenuClick }: {
   const [searchResults, setSearchResults] = useState<WorkItem[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
   const { users } = useAuth();
-  const [allWorkItems, setAllWorkItems] = useState<WorkItem[]>([]);
-
-
-  useEffect(() => {
-    const fetchAllWorkItems = async () => {
-      try {
-        const res = await fetch('/api/work-items');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setAllWorkItems(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch work items for search:', error);
-      }
-    };
-    fetchAllWorkItems();
-  }, []);
+  const { data: allWorkItems = [] } = useWorkItems();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

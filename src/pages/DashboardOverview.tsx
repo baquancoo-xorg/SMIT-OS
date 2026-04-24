@@ -1,26 +1,14 @@
 import { useState } from 'react';
 import { format, startOfMonth } from 'date-fns';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DateRangePicker } from '../components/dashboard/overview/DateRangePicker';
 import { SummaryCards } from '../components/dashboard/overview/SummaryCards';
 import { KpiTable } from '../components/dashboard/overview/KpiTable';
 import { useOverviewAll } from '../hooks/use-overview-data';
 import DashboardTab from '../components/lead-tracker/dashboard-tab';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000,
-      gcTime: 10 * 60 * 1000,
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
-
 type ViewMode = 'realtime' | 'cohort';
 
-function DashboardOverviewContent() {
+export default function DashboardOverview() {
   const [range, setRange] = useState({
     from: format(startOfMonth(new Date()), 'yyyy-MM-dd'),
     to: format(new Date(), 'yyyy-MM-dd'),
@@ -82,10 +70,3 @@ function DashboardOverviewContent() {
   );
 }
 
-export default function DashboardOverview() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <DashboardOverviewContent />
-    </QueryClientProvider>
-  );
-}
