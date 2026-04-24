@@ -277,13 +277,6 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
                 placeholder="Ghi chú thêm..."
                 onKeyDown={(e) => {
                   e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                  if (e.key === 'Enter') {
-                    requestAnimationFrame(() => {
-                      autoResizeNotes();
-                      notesRef.current?.focus();
-                    });
-                  }
                 }}
               />
             </Field>
