@@ -1,7 +1,8 @@
 ---
 title: "LeadLogs — Modal UX & Delete Permission System"
-status: pending
+status: completed
 createdAt: 2026-04-22
+completedAt: 2026-04-24
 blockedBy: []
 blocks: []
 ---
@@ -33,6 +34,11 @@ blocks: []
 - **Leader Sale check**: `role === 'Leader' && departments.includes('Sale')` → xoá được
 - **Paste từ clipboard**: GIỮ NGUYÊN — chỉ xoá pending rows thủ công, paste vẫn dùng pending flow
 - **Bulk delete**: cập nhật permission check theo role
+
+## Completion Note
+
+- Hoàn tất về mặt codebase: modal dialog, delete permission flow, frontend/backend wiring đã hiện diện trong repo.
+- Bug focus/caret phát sinh sau đó được theo dõi riêng tại plan `260424-1457-lead-log-dialog-focus-caret-fix`.
 
 ## Files Affected
 
