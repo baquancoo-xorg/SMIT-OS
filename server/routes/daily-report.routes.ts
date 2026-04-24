@@ -49,8 +49,10 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
     res.json(report);
   }));
 
-  router.post('/', validate(createDailyReportSchema), handleAsync(async (req: any, res: any) => {
-    const { userId, reportDate, tasksData, blockers, impactLevel, teamType, teamMetrics, adHocTasks } = req.body;
+  router.post('/', RBAC.authenticated, validate(createDailyReportSchema), handleAsync(async (req: any, res: any) => {
+    // Force userId from authenticated user - prevent impersonation
+    const userId = req.user!.userId;
+    const { reportDate, tasksData, blockers, impactLevel, teamType, teamMetrics, adHocTasks } = req.body;
 
     const existing = await prisma.dailyReport.findFirst({
       where: { userId, reportDate: new Date(reportDate) },
@@ -94,8 +96,13 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
     }
 
     const isOwner = report.userId === currentUser.userId;
-    const isLeaderOfUser = currentUser.role?.includes('Leader') && report.user.role === 'Member';
     const isAdmin = currentUser.isAdmin;
+    // Leader can only edit reports from same department members
+    let isLeaderOfUser = false;
+    if (currentUser.role?.includes('Leader') && report.user.role === 'Member') {
+      const sharedDepts = report.user.departments?.filter(d => currentUser.departments?.includes(d)) || [];
+      isLeaderOfUser = sharedDepts.length > 0;
+    }
 
     if (!isOwner && !isLeaderOfUser && !isAdmin) {
       return res.status(403).json({ error: 'Not authorized' });

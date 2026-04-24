@@ -96,6 +96,13 @@ export function createGoogleOAuthRoutes(googleOAuthService: GoogleOAuthService) 
   router.post('/folder', requireAdmin, async (req: Request, res: Response) => {
     const { folderId, folderName } = req.body;
 
+    // Validate folderId format if provided (Google Drive folder IDs are alphanumeric with dashes/underscores)
+    if (folderId && typeof folderId === 'string') {
+      if (!/^[A-Za-z0-9_-]{10,}$/.test(folderId)) {
+        return res.status(400).json({ error: 'Invalid folder ID format' });
+      }
+    }
+
     try {
       await googleOAuthService.setFolder(folderId || null, folderName || null);
       res.json({ success: true });

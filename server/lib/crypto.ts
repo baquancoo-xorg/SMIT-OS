@@ -35,9 +35,17 @@ export function decryptIfEncrypted(payload: string | null | undefined): string |
     return null;
   }
 
+  // Detect if payload looks like base64 encrypted data (our format: iv + tag + ciphertext)
+  const isLikelyEncrypted = /^[A-Za-z0-9+/=]{44,}$/.test(payload);
+  if (!isLikelyEncrypted) {
+    console.warn('[crypto] decryptIfEncrypted: payload does not look encrypted, returning as-is (legacy format?)');
+    return payload;
+  }
+
   try {
     return decrypt(payload);
-  } catch {
-    return payload;
+  } catch (err) {
+    console.error('[crypto] decryptIfEncrypted: decryption failed for encrypted-looking payload', err);
+    throw new Error('Decryption failed - data may be corrupted or key mismatch');
   }
 }

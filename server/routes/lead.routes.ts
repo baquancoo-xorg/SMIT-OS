@@ -3,8 +3,17 @@ import { PrismaClient } from '@prisma/client';
 import { handleAsync } from '../utils/async-handler';
 import { validate } from '../middleware/validate.middleware';
 import { createLeadSchema, updateLeadSchema } from '../schemas/lead.schema';
+import { RBAC } from '../middleware/rbac.middleware';
 
 const TRACKED_FIELDS = ['status', 'ae', 'leadType', 'unqualifiedType', 'notes', 'resolvedDate', 'receivedDate'] as const;
+
+// Check if user can write leads (Sale dept member or Admin)
+function canWriteLead(user: any): boolean {
+  if (!user) return false;
+  if (user.isAdmin || user.role === 'Admin') return true;
+  if (user.departments?.includes('Sale')) return true;
+  return false;
+}
 
 function canDelete(user: any): boolean {
   if (!user) return false;
@@ -111,8 +120,11 @@ export function createLeadRoutes(prisma: PrismaClient) {
     res.json(results);
   }));
 
-  // Audit log for a lead u2014 static route before /:id
-  router.get('/:id/audit', handleAsync(async (req: any, res: any) => {
+  // Audit log for a lead - requires Sale dept or Admin (contains PII)
+  router.get('/:id/audit', RBAC.authenticated, handleAsync(async (req: any, res: any) => {
+    if (!canWriteLead(req.user)) {
+      return res.status(403).json({ error: 'Sale department or Admin required' });
+    }
     const logs = await prisma.leadAuditLog.findMany({
       where: { leadId: req.params.id },
       orderBy: { createdAt: 'desc' },
@@ -120,16 +132,23 @@ export function createLeadRoutes(prisma: PrismaClient) {
     res.json(logs);
   }));
 
-  router.post('/:id/delete-request', handleAsync(async (req: any, res: any) => {
+  router.post('/:id/delete-request', RBAC.authenticated, handleAsync(async (req: any, res: any) => {
     const existing = await prisma.lead.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ error: 'Not found' });
+    // Only the AE of this lead, or Leader/Admin can request deletion
+    const user = req.user!;
+    const isAeOfLead = existing.ae === user.fullName || existing.ae === user.username;
+    const isLeaderOrAdmin = user.isAdmin || user.role?.includes('Leader');
+    if (!isAeOfLead && !isLeaderOrAdmin) {
+      return res.status(403).json({ error: 'Only the AE of this lead or Leader/Admin can request deletion' });
+    }
     if (existing.deleteRequestedBy) {
       return res.status(409).json({ error: 'Delete request already pending' });
     }
     const lead = await prisma.lead.update({
       where: { id: req.params.id },
       data: {
-        deleteRequestedBy: req.user.userId,
+        deleteRequestedBy: user.userId,
         deleteRequestedAt: new Date(),
         deleteReason: req.body.reason || 'No reason provided',
       },
@@ -137,10 +156,10 @@ export function createLeadRoutes(prisma: PrismaClient) {
     res.json(lead);
   }));
 
-  router.delete('/:id/delete-request', handleAsync(async (req: any, res: any) => {
+  router.delete('/:id/delete-request', RBAC.authenticated, handleAsync(async (req: any, res: any) => {
     const existing = await prisma.lead.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ error: 'Not found' });
-    if (existing.deleteRequestedBy !== req.user.userId) {
+    if (existing.deleteRequestedBy !== req.user!.userId) {
       return res.status(403).json({ error: 'Not your request' });
     }
     const lead = await prisma.lead.update({
@@ -208,7 +227,10 @@ export function createLeadRoutes(prisma: PrismaClient) {
     res.json(leads);
   }));
 
-  router.post('/', validate(createLeadSchema), handleAsync(async (req: any, res: any) => {
+  router.post('/', RBAC.authenticated, validate(createLeadSchema), handleAsync(async (req: any, res: any) => {
+    if (!canWriteLead(req.user)) {
+      return res.status(403).json({ error: 'Sale department or Admin required' });
+    }
     const { receivedDate, resolvedDate, ...rest } = req.body;
     const lead = await prisma.lead.create({
       data: {
@@ -220,7 +242,10 @@ export function createLeadRoutes(prisma: PrismaClient) {
     res.status(201).json(lead);
   }));
 
-  router.put('/:id', validate(updateLeadSchema), handleAsync(async (req: any, res: any) => {
+  router.put('/:id', RBAC.authenticated, validate(updateLeadSchema), handleAsync(async (req: any, res: any) => {
+    if (!canWriteLead(req.user)) {
+      return res.status(403).json({ error: 'Sale department or Admin required' });
+    }
     const { id } = req.params;
     const { receivedDate, resolvedDate, ...rest } = req.body;
     const existing = await prisma.lead.findUnique({ where: { id } });
@@ -242,7 +267,9 @@ export function createLeadRoutes(prisma: PrismaClient) {
       if (from !== to) changes[field] = { from, to };
     }
     if (Object.keys(changes).length > 0) {
-      await prisma.leadAuditLog.create({ data: { leadId: id, changes } });
+      await prisma.leadAuditLog.create({
+        data: { leadId: id, changes, actorUserId: req.user!.userId }
+      });
     }
 
     res.json(lead);

@@ -209,13 +209,15 @@ model Lead {
 }
 
 model LeadAuditLog {
-  id        String   @id @default(uuid())
-  leadId    String
-  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  changes   Json     // { field: { from: any, to: any } }
-  createdAt DateTime @default(now())
+  id          String   @id @default(uuid())
+  leadId      String
+  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  actorUserId String?  // User who made the change (nullable for backwards compat)
+  changes     Json     // { field: { from: any, to: any } }
+  createdAt   DateTime @default(now())
 
   @@index([leadId, createdAt])
+  @@index([actorUserId])
 }
 
 model OkrCycle {

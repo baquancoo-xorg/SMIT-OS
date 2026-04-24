@@ -17,5 +17,12 @@ export const createUserSchema = z.object({
 
 export const updateUserSchema = createUserSchema.partial();
 
+// Self-profile update - whitelist only safe fields (no isAdmin, password, role)
+export const updateSelfProfileSchema = z.object({
+  fullName: z.string().min(1).max(100).optional(),
+  avatar: z.string().url('Invalid avatar URL').optional(),
+});
+
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+export type UpdateSelfProfileInput = z.infer<typeof updateSelfProfileSchema>;

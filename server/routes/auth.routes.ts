@@ -10,7 +10,14 @@ const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'strict' as const,
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  maxAge: 4 * 60 * 60 * 1000, // 4 hours (matches JWT_EXPIRES_IN)
+};
+
+// clearCookie should NOT have maxAge
+const CLEAR_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict' as const,
 };
 
 export function createAuthRoutes(prisma: PrismaClient) {
@@ -96,7 +103,7 @@ export function createAuthRoutes(prisma: PrismaClient) {
 
   // Logout
   router.post('/logout', (_req, res) => {
-    res.clearCookie('jwt', COOKIE_OPTIONS);
+    res.clearCookie('jwt', CLEAR_COOKIE_OPTIONS);
     res.json({ success: true });
   });
 
@@ -109,7 +116,7 @@ export function createAuthRoutes(prisma: PrismaClient) {
 
     const payload = authService.verifyToken(token);
     if (!payload) {
-      res.clearCookie('jwt', COOKIE_OPTIONS);
+      res.clearCookie('jwt', CLEAR_COOKIE_OPTIONS);
       return res.status(401).json({ error: 'Invalid token' });
     }
 
@@ -129,7 +136,7 @@ export function createAuthRoutes(prisma: PrismaClient) {
     });
 
     if (!user) {
-      res.clearCookie('jwt', COOKIE_OPTIONS);
+      res.clearCookie('jwt', CLEAR_COOKIE_OPTIONS);
       return res.status(401).json({ error: 'User not found' });
     }
 

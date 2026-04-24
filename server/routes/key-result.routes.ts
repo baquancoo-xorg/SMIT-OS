@@ -2,6 +2,9 @@ import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { createOKRService } from '../services/okr.service';
 import { handleAsync } from '../utils/async-handler';
+import { RBAC } from '../middleware/rbac.middleware';
+import { validate } from '../middleware/validate.middleware';
+import { createKeyResultSchema, updateKeyResultSchema } from '../schemas/objective.schema';
 
 export function createKeyResultRoutes(prisma: PrismaClient) {
   const router = Router();
@@ -14,7 +17,7 @@ export function createKeyResultRoutes(prisma: PrismaClient) {
     res.json(keyResults);
   }));
 
-  router.post('/', handleAsync(async (req: any, res: any) => {
+  router.post('/', RBAC.leaderOrAdmin, validate(createKeyResultSchema), handleAsync(async (req: any, res: any) => {
     const keyResult = await prisma.keyResult.create({
       data: req.body,
       include: { objective: true },
@@ -22,7 +25,7 @@ export function createKeyResultRoutes(prisma: PrismaClient) {
     res.json(keyResult);
   }));
 
-  router.put('/:id', handleAsync(async (req: any, res: any) => {
+  router.put('/:id', RBAC.leaderOrAdmin, validate(updateKeyResultSchema), handleAsync(async (req: any, res: any) => {
     const keyResult = await prisma.keyResult.update({
       where: { id: req.params.id },
       data: req.body,
@@ -32,7 +35,7 @@ export function createKeyResultRoutes(prisma: PrismaClient) {
     res.json(keyResult);
   }));
 
-  router.delete('/:id', handleAsync(async (req: any, res: any) => {
+  router.delete('/:id', RBAC.leaderOrAdmin, handleAsync(async (req: any, res: any) => {
     await prisma.keyResult.delete({ where: { id: req.params.id } });
     await okrService.recalculateObjectiveProgress();
     res.status(204).send();

@@ -1,23 +1,26 @@
 import { Router } from 'express';
 import { createUserService } from '../services/user.service';
-import { RBAC, rbac } from '../middleware/rbac.middleware';
+import { RBAC } from '../middleware/rbac.middleware';
 import { handleAsync } from '../utils/async-handler';
 import { validate } from '../middleware/validate.middleware';
-import { createUserSchema, updateUserSchema } from '../schemas/user.schema';
+import { createUserSchema, updateUserSchema, updateSelfProfileSchema } from '../schemas/user.schema';
 import { PrismaClient } from '@prisma/client';
 
 export function createUserRoutes(prisma: PrismaClient) {
   const router = Router();
   const userService = createUserService(prisma);
 
-  // Update own profile (fullName)
-  router.patch('/me', RBAC.authenticated, handleAsync(async (req: any, res: any) => {
+  // Update own profile (only fullName, avatar allowed)
+  router.patch('/me', RBAC.authenticated, validate(updateSelfProfileSchema), handleAsync(async (req: any, res: any) => {
     const userId = req.user!.userId;
-    const { fullName } = req.body;
-    if (!fullName || typeof fullName !== 'string') {
-      return res.status(400).json({ error: 'fullName is required' });
+    const { fullName, avatar } = req.body;
+    if (!fullName && !avatar) {
+      return res.status(400).json({ error: 'At least one of fullName or avatar required' });
     }
-    const user = await userService.update(userId, { fullName });
+    const updateData: Record<string, string> = {};
+    if (fullName) updateData.fullName = fullName;
+    if (avatar) updateData.avatar = avatar;
+    const user = await userService.update(userId, updateData);
     res.json(user);
   }));
 
@@ -27,6 +30,16 @@ export function createUserRoutes(prisma: PrismaClient) {
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) {
       return res.status(400).json({ error: 'currentPassword and newPassword are required' });
+    }
+    // Password policy: min 12 chars, must have letter + number
+    if (newPassword.length < 12) {
+      return res.status(400).json({ error: 'Password must be at least 12 characters' });
+    }
+    if (!/[a-zA-Z]/.test(newPassword) || !/\d/.test(newPassword)) {
+      return res.status(400).json({ error: 'Password must contain at least one letter and one number' });
+    }
+    if (newPassword === currentPassword) {
+      return res.status(400).json({ error: 'New password must be different from current password' });
     }
     const dbUser = await prisma.user.findUnique({ where: { id: userId }, select: { password: true } });
     if (!dbUser) return res.status(404).json({ error: 'User not found' });
@@ -47,14 +60,9 @@ export function createUserRoutes(prisma: PrismaClient) {
     res.json(user);
   }));
 
-  router.put('/:id', rbac({ allowSelf: true }), validate(updateUserSchema), handleAsync(async (req: any, res: any) => {
+  // Admin-only: update any user with full schema
+  router.put('/:id', RBAC.adminOnly, validate(updateUserSchema), handleAsync(async (req: any, res: any) => {
     const { id } = req.params;
-    const currentUser = req.user!;
-
-    if (!currentUser.isAdmin && id !== currentUser.userId) {
-      return res.status(403).json({ error: 'Can only edit your own profile' });
-    }
-
     const user = await userService.update(id, req.body);
     res.json(user);
   }));

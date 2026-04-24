@@ -3,14 +3,10 @@ import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
 
 const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('FATAL: JWT_SECRET must be set in production');
-  }
-  console.warn('[auth] Using default JWT_SECRET - DO NOT USE IN PRODUCTION');
+if (!JWT_SECRET || JWT_SECRET.length < 32) {
+  throw new Error('FATAL: JWT_SECRET must be set and >= 32 chars');
 }
-const EFFECTIVE_SECRET = JWT_SECRET || 'dev-secret-change-in-prod';
-const JWT_EXPIRES_IN = '7d';
+const JWT_EXPIRES_IN = '4h'; // Reduced from 7d for security
 
 export interface JWTPayload {
   userId: string;
@@ -21,12 +17,12 @@ export interface JWTPayload {
 
 export const authService = {
   signToken(payload: JWTPayload): string {
-    return jwt.sign(payload, EFFECTIVE_SECRET, { expiresIn: JWT_EXPIRES_IN });
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
   },
 
   verifyToken(token: string): JWTPayload | null {
     try {
-      return jwt.verify(token, EFFECTIVE_SECRET) as JWTPayload;
+      return jwt.verify(token, JWT_SECRET) as JWTPayload;
     } catch {
       return null;
     }
@@ -35,14 +31,14 @@ export const authService = {
   signTempToken(userId: string): string {
     return jwt.sign(
       { userId, role: '', isAdmin: false, purpose: 'totp-pending' },
-      EFFECTIVE_SECRET,
+      JWT_SECRET,
       { expiresIn: '5m' }
     );
   },
 
   verifyTempToken(token: string): { userId: string } | null {
     try {
-      const payload = jwt.verify(token, EFFECTIVE_SECRET) as JWTPayload;
+      const payload = jwt.verify(token, JWT_SECRET) as JWTPayload;
       if (payload.purpose !== 'totp-pending') return null;
       return { userId: payload.userId };
     } catch {

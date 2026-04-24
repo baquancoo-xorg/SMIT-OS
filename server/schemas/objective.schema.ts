@@ -23,3 +23,17 @@ export const updateObjectiveSchema = createObjectiveSchema.partial();
 
 export type CreateObjectiveInput = z.infer<typeof createObjectiveSchema>;
 export type UpdateObjectiveInput = z.infer<typeof updateObjectiveSchema>;
+
+// Key Result CRUD schemas
+export const createKeyResultSchema = z.object({
+  objectiveId: z.string().uuid('Invalid objective ID'),
+  title: z.string().min(1, 'Title required').max(200),
+  targetValue: z.number().min(0).default(100),
+  currentValue: z.number().min(0).default(0),
+  unit: z.string().max(20).optional(),
+});
+
+export const updateKeyResultSchema = createKeyResultSchema.omit({ objectiveId: true }).partial();
+
+export type CreateKeyResultInput = z.infer<typeof createKeyResultSchema>;
+export type UpdateKeyResultInput = z.infer<typeof updateKeyResultSchema>;
