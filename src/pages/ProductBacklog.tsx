@@ -230,74 +230,8 @@ export default function ProductBacklog() {
         </div>
       </div>
 
-      {(view === 'grouped' || view === 'table') ? (
-        <div className="flex flex-col lg:flex-row gap-3">
-          <div className="grid grid-cols-3 gap-4 bg-surface-container-low/70 border border-outline-variant/10 rounded-3xl px-6 py-4 shrink-0 lg:min-w-[230px]">
-            <div className="text-center">
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Total</p>
-              <p className="text-2xl font-black font-headline text-on-surface">{filteredItems.length}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Epics</p>
-              <p className="text-2xl font-black font-headline text-purple-600">{items.filter(i => i.type === 'Epic').length}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Stories</p>
-              <p className="text-2xl font-black font-headline text-primary">{items.filter(i => i.type === 'UserStory').length}</p>
-            </div>
-          </div>
-
-          <div className="flex-1 flex items-center gap-3 bg-surface-container-low/70 border border-outline-variant/10 rounded-3xl px-3 py-2.5 min-w-0">
-            <div className="flex-1 relative min-w-0">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search backlog items..."
-                className="w-full h-10 pl-10 pr-4 bg-slate-200/55 border border-slate-300/50 rounded-2xl text-sm font-semibold text-slate-600 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-            <CustomFilter
-              className="shrink-0"
-              buttonClassName="h-10 min-w-[126px] px-4 rounded-2xl bg-slate-100 border-slate-200/80 text-slate-500"
-              value={typeFilter}
-              onChange={setTypeFilter}
-              options={[
-                { value: 'All', label: 'All Types' },
-                { value: 'Epic', label: 'Epic' },
-                { value: 'UserStory', label: 'User Story' }
-              ]}
-              icon={<Filter size={14} />}
-            />
-            <CustomFilter
-              className="shrink-0"
-              buttonClassName="h-10 min-w-[138px] px-4 rounded-2xl bg-slate-100 border-slate-200/80 text-slate-500"
-              value={priorityFilter}
-              onChange={setPriorityFilter}
-              options={[
-                { value: 'All', label: 'All Priorities' },
-                { value: 'Urgent', label: 'Urgent' },
-                { value: 'High', label: 'High' },
-                { value: 'Medium', label: 'Medium' },
-                { value: 'Low', label: 'Low' }
-              ]}
-            />
-            <CustomFilter
-              className="shrink-0"
-              buttonClassName="h-10 min-w-[108px] px-4 rounded-2xl bg-slate-100 border-slate-200/80 text-slate-500"
-              value={sortBy}
-              onChange={(val) => setSortBy(val as any)}
-              options={[
-                { value: 'createdAt', label: 'Newest' },
-                { value: 'priority', label: 'Priority' },
-                { value: 'dueDate', label: 'Due Date' }
-              ]}
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-3 gap-4 bg-white/50 backdrop-blur-md p-4 rounded-3xl shadow-sm">
+      <div className="flex flex-col lg:flex-row gap-3">
+        <div className="grid grid-cols-3 gap-4 bg-surface-container-low/70 border border-outline-variant/10 rounded-3xl px-6 py-4 shrink-0 lg:min-w-[230px]">
           <div className="text-center">
             <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Total</p>
             <p className="text-2xl font-black font-headline text-on-surface">{filteredItems.length}</p>
@@ -311,7 +245,56 @@ export default function ProductBacklog() {
             <p className="text-2xl font-black font-headline text-primary">{items.filter(i => i.type === 'UserStory').length}</p>
           </div>
         </div>
-      )}
+
+        <div className="flex-1 flex items-center gap-3 bg-surface-container-low/70 border border-outline-variant/10 rounded-3xl px-3 py-2.5 min-w-0">
+          <div className="flex-1 relative min-w-0">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search backlog items..."
+              className="w-full h-10 pl-10 pr-4 bg-slate-200/55 border border-slate-300/50 rounded-2xl text-sm font-semibold text-slate-600 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+          <CustomFilter
+            className="shrink-0"
+            buttonClassName="h-10 min-w-[126px] px-4 rounded-2xl bg-slate-100 border-slate-200/80 text-slate-500"
+            value={typeFilter}
+            onChange={setTypeFilter}
+            options={[
+              { value: 'All', label: 'All Types' },
+              { value: 'Epic', label: 'Epic' },
+              { value: 'UserStory', label: 'User Story' }
+            ]}
+            icon={<Filter size={14} />}
+          />
+          <CustomFilter
+            className="shrink-0"
+            buttonClassName="h-10 min-w-[138px] px-4 rounded-2xl bg-slate-100 border-slate-200/80 text-slate-500"
+            value={priorityFilter}
+            onChange={setPriorityFilter}
+            options={[
+              { value: 'All', label: 'All Priorities' },
+              { value: 'Urgent', label: 'Urgent' },
+              { value: 'High', label: 'High' },
+              { value: 'Medium', label: 'Medium' },
+              { value: 'Low', label: 'Low' }
+            ]}
+          />
+          <CustomFilter
+            className="shrink-0"
+            buttonClassName="h-10 min-w-[108px] px-4 rounded-2xl bg-slate-100 border-slate-200/80 text-slate-500"
+            value={sortBy}
+            onChange={(val) => setSortBy(val as any)}
+            options={[
+              { value: 'createdAt', label: 'Newest' },
+              { value: 'priority', label: 'Priority' },
+              { value: 'dueDate', label: 'Due Date' }
+            ]}
+          />
+        </div>
+      </div>
 
       {/* Bulk Actions */}
       {selectedIds.size > 0 && (
@@ -394,8 +377,8 @@ export default function ProductBacklog() {
           )}
         </div>
       )}
-      {view === 'epic-board' && <EpicBoard hideHeader hideStats />}
-      {view === 'epic-graph' && <EpicGraph hideHeader />}
+      {view === 'epic-board' && <EpicBoard hideHeader hideStats filteredBacklogItems={filteredItems} />}
+      {view === 'epic-graph' && <EpicGraph hideHeader filteredBacklogItems={filteredItems} />}
 
       <TaskModal
         isOpen={isModalOpen}

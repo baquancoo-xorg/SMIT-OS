@@ -1,10 +1,9 @@
-import { useState, useEffect, useCallback, KeyboardEvent } from 'react';
+import { useState, useEffect, useCallback, KeyboardEvent, useMemo } from 'react';
 import {
   ReactFlow,
   Background,
   Controls,
   MiniMap,
-  addEdge,
   useNodesState,
   useEdgesState,
   type Node,
@@ -59,8 +58,12 @@ function buildNodes(
   return nodes;
 }
 
-function buildEdges(links: EpicGraphData['links']): Edge[] {
-  return links.map(l => ({
+function buildEdges(links: EpicGraphData['links'], visibleEpicIds?: Set<string>): Edge[] {
+  const filteredLinks = visibleEpicIds
+    ? links.filter(l => visibleEpicIds.has(l.fromId) && visibleEpicIds.has(l.toId))
+    : links;
+
+  return filteredLinks.map(l => ({
     id: l.id,
     source: l.fromId,
     target: l.toId,
@@ -71,7 +74,12 @@ function buildEdges(links: EpicGraphData['links']): Edge[] {
   }));
 }
 
-export default function EpicGraph({ hideHeader = false }: { hideHeader?: boolean }) {
+type EpicGraphProps = {
+  hideHeader?: boolean;
+  filteredBacklogItems?: WorkItem[];
+};
+
+export default function EpicGraph({ hideHeader = false, filteredBacklogItems }: EpicGraphProps) {
   const { users } = useAuth();
   const [graphData, setGraphData] = useState<EpicGraphData>({ epics: [], links: [] });
   const [allWorkItems, setAllWorkItems] = useState<WorkItem[]>([]);
@@ -83,6 +91,41 @@ export default function EpicGraph({ hideHeader = false }: { hideHeader?: boolean
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  const externalEpicIds = useMemo(() => {
+    if (!filteredBacklogItems) return null;
+    return filteredBacklogItems.filter(i => i.type === 'Epic').map(i => i.id);
+  }, [filteredBacklogItems]);
+
+  const externalEpicSet = useMemo(
+    () => (externalEpicIds ? new Set(externalEpicIds) : null),
+    [externalEpicIds]
+  );
+
+  const externalEpicOrder = useMemo(() => {
+    if (!externalEpicIds) return null;
+    return new Map(externalEpicIds.map((id, index) => [id, index]));
+  }, [externalEpicIds]);
+
+  const visibleGraphEpics = useMemo(() => {
+    let list = graphData.epics;
+
+    if (externalEpicSet) {
+      list = list.filter(epic => externalEpicSet.has(epic.id));
+    }
+
+    if (externalEpicOrder) {
+      list = [...list].sort(
+        (a, b) =>
+          (externalEpicOrder.get(a.id) ?? Number.MAX_SAFE_INTEGER)
+          - (externalEpicOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER)
+      );
+    }
+
+    return list;
+  }, [graphData.epics, externalEpicSet, externalEpicOrder]);
+
+  const visibleEpicIds = useMemo(() => new Set(visibleGraphEpics.map(e => e.id)), [visibleGraphEpics]);
 
   const fetchGraph = useCallback(async () => {
     try {
@@ -103,9 +146,9 @@ export default function EpicGraph({ hideHeader = false }: { hideHeader?: boolean
 
   // Rebuild nodes/edges whenever data or filters change
   useEffect(() => {
-    setNodes(buildNodes(graphData.epics, teamFilter, statusFilter, linkingFrom));
-    setEdges(buildEdges(graphData.links));
-  }, [graphData, teamFilter, statusFilter, linkingFrom, setNodes, setEdges]);
+    setNodes(buildNodes(visibleGraphEpics, teamFilter, statusFilter, linkingFrom));
+    setEdges(buildEdges(graphData.links, visibleEpicIds));
+  }, [graphData.links, visibleGraphEpics, visibleEpicIds, teamFilter, statusFilter, linkingFrom, setNodes, setEdges]);
 
   // Escape cancels linking mode
   const handleKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>) => {
@@ -189,7 +232,7 @@ export default function EpicGraph({ hideHeader = false }: { hideHeader?: boolean
           <div>
             <h1 className="text-base font-semibold text-slate-800">Epic Graph</h1>
             <p className="text-xs text-slate-400 mt-0.5">
-              {graphData.epics.length} epics · {graphData.links.length} links
+              {visibleGraphEpics.length} epics · {edges.length} links
               {linkingFrom && (
                 <span className="ml-2 text-orange-500 font-medium">
                   · Ctrl+Click node để link · Esc để hủy

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { WorkItem, WorkItemType } from '../types';
 import { Filter } from 'lucide-react';
 import PrimaryActionButton from '../components/ui/PrimaryActionButton';
@@ -20,7 +20,13 @@ function computeEpicProgress(epicId: string, allItems: WorkItem[]) {
   return { total: tasks.length, done, pct: tasks.length ? Math.round(done / tasks.length * 100) : 0 };
 }
 
-export default function EpicBoard({ hideHeader = false, hideStats = false }: { hideHeader?: boolean; hideStats?: boolean }) {
+type EpicBoardProps = {
+  hideHeader?: boolean;
+  hideStats?: boolean;
+  filteredBacklogItems?: WorkItem[];
+};
+
+export default function EpicBoard({ hideHeader = false, hideStats = false, filteredBacklogItems }: EpicBoardProps) {
   const [allItems, setAllItems] = useState<WorkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -29,6 +35,21 @@ export default function EpicBoard({ hideHeader = false, hideStats = false }: { h
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEpic, setEditingEpic] = useState<WorkItem | null>(null);
   const { users } = useAuth();
+
+  const externalEpicIds = useMemo(() => {
+    if (!filteredBacklogItems) return null;
+    return filteredBacklogItems.filter(i => i.type === 'Epic').map(i => i.id);
+  }, [filteredBacklogItems]);
+
+  const externalEpicSet = useMemo(
+    () => (externalEpicIds ? new Set(externalEpicIds) : null),
+    [externalEpicIds]
+  );
+
+  const externalEpicOrder = useMemo(() => {
+    if (!externalEpicIds) return null;
+    return new Map(externalEpicIds.map((id, index) => [id, index]));
+  }, [externalEpicIds]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -83,9 +104,25 @@ export default function EpicBoard({ hideHeader = false, hideStats = false }: { h
     }
   };
 
-  const epics = allItems
-    .filter(i => i.type === 'Epic')
-    .filter(i => statusFilter === 'All' || i.status === statusFilter);
+  const epics = useMemo(() => {
+    let list = allItems
+      .filter(i => i.type === 'Epic')
+      .filter(i => statusFilter === 'All' || i.status === statusFilter);
+
+    if (externalEpicSet) {
+      list = list.filter(i => externalEpicSet.has(i.id));
+    }
+
+    if (externalEpicOrder) {
+      list = [...list].sort(
+        (a, b) =>
+          (externalEpicOrder.get(a.id) ?? Number.MAX_SAFE_INTEGER)
+          - (externalEpicOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER)
+      );
+    }
+
+    return list;
+  }, [allItems, statusFilter, externalEpicSet, externalEpicOrder]);
 
   if (loading) {
     return (
