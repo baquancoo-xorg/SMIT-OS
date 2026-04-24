@@ -13,6 +13,7 @@ import {
   ExportFilters,
 } from '../utils/export-daily-report';
 import { Card } from '../components/ui';
+import PrimaryActionButton from '../components/ui/PrimaryActionButton';
 
 interface Sprint {
   id: string;
@@ -253,7 +254,7 @@ export default function DailySync() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--space-md)] shrink-0">
         <div>
           <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
-            <span className="hover:text-primary cursor-pointer">Rituals</span>
+            <span className="hover:text-primary cursor-pointer transition-colors">Rituals</span>
             <span className="material-symbols-outlined text-[14px]">chevron_right</span>
             <span className="text-on-surface">Daily Sync</span>
           </nav>
@@ -276,13 +277,9 @@ export default function DailySync() {
               {exportMode ? 'Hủy' : 'Quick Action'}
             </button>
           )}
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center justify-center gap-2 h-10 bg-primary text-white px-5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all min-w-[130px] whitespace-nowrap"
-          >
-            <Plus size={14} />
+          <PrimaryActionButton onClick={() => setIsModalOpen(true)} icon={<Plus size={14} />}>
             New Report
-          </button>
+          </PrimaryActionButton>
         </div>
       </div>
 

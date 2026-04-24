@@ -2,6 +2,7 @@ import DatePicker from '../ui/date-picker';
 import { useState, useEffect } from 'react';
 import { Trash2, Save, Edit2, X } from 'lucide-react';
 import { Sprint } from '../../types';
+import { Input, Button } from '../ui';
 
 interface SprintCyclesTabProps {
   onDeleteConfirm: (type: 'sprint', id: string) => void;
@@ -66,10 +67,7 @@ export function SprintCyclesTab({ onDeleteConfirm, isAddingSprint, setIsAddingSp
 
       {isAddingSprint && (
         <div className="bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-white/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Sprint Name</label>
-            <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" placeholder="e.g., Sprint 4: Deep Space" value={newSprint.name} onChange={e => setNewSprint({ ...newSprint, name: e.target.value })} />
-          </div>
+          <Input label="Sprint Name" placeholder="e.g., Sprint 4: Deep Space" value={newSprint.name} onChange={e => setNewSprint({ ...newSprint, name: e.target.value })} />
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Start Date</label>
@@ -81,8 +79,8 @@ export function SprintCyclesTab({ onDeleteConfirm, isAddingSprint, setIsAddingSp
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={handleAddSprint} className="flex-1 bg-secondary text-white py-2 rounded-xl text-sm font-bold">Create Sprint</button>
-            <button onClick={() => { setIsAddingSprint(false); setNewSprint({ name: '', startDate: '', endDate: '' }); }} className="px-4 py-2 bg-slate-100 text-slate-500 rounded-xl text-sm font-bold">Cancel</button>
+            <Button onClick={handleAddSprint} variant="secondary" className="flex-1">Create Sprint</Button>
+            <Button onClick={() => { setIsAddingSprint(false); setNewSprint({ name: '', startDate: '', endDate: '' }); }} variant="ghost">Cancel</Button>
           </div>
         </div>
       )}
@@ -93,10 +91,7 @@ export function SprintCyclesTab({ onDeleteConfirm, isAddingSprint, setIsAddingSp
             <h4 className="text-sm font-bold text-on-surface">Edit Sprint</h4>
             <button onClick={() => setEditingSprint(null)} className="text-slate-400 hover:text-on-surface"><X size={18} /></button>
           </div>
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Sprint Name</label>
-            <input type="text" className="w-full bg-white border border-outline-variant/30 rounded-3xl px-4 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/20" value={editingSprint.name} onChange={e => setEditingSprint({ ...editingSprint, name: e.target.value })} />
-          </div>
+          <Input label="Sprint Name" value={editingSprint.name} onChange={e => setEditingSprint({ ...editingSprint, name: e.target.value })} />
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Start Date</label>
@@ -108,8 +103,8 @@ export function SprintCyclesTab({ onDeleteConfirm, isAddingSprint, setIsAddingSp
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => handleUpdateSprint(editingSprint)} className="flex-1 bg-secondary text-white py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><Save size={14} />Save</button>
-            <button onClick={() => setEditingSprint(null)} className="px-4 py-2 bg-slate-100 text-slate-500 rounded-xl text-sm font-bold">Cancel</button>
+            <Button onClick={() => handleUpdateSprint(editingSprint)} variant="secondary" className="flex-1 gap-2"><Save size={14} />Save</Button>
+            <Button onClick={() => setEditingSprint(null)} variant="ghost">Cancel</Button>
           </div>
         </div>
       )}

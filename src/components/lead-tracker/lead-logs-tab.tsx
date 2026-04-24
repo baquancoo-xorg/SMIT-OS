@@ -387,7 +387,7 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
       </div>
 
       {/* Table */}
-      <div className="flex-1 min-h-0 bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/30 border border-slate-100 overflow-hidden">
+      <div className="flex-1 min-h-0 bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden">
         <div className="h-full overflow-y-auto overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[1100px]">
             <thead className="sticky top-0 z-10">

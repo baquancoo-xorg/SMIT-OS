@@ -47,7 +47,7 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
   });
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm shadow-xl shadow-slate-200/20 overflow-hidden">
+    <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
