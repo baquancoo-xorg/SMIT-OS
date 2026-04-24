@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { forwardRef } from 'react';
-import { motion } from 'framer-motion';
-import type { HTMLMotionProps } from 'framer-motion';
+import { motion } from 'motion/react';
+import type { HTMLMotionProps } from 'motion/react';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg';

@@ -1,8 +1,8 @@
 import React, { useState, FormEvent, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Eye, EyeOff, Shield, Sparkles, Zap, ArrowRight } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import type { Variants } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
+import type { Variants } from 'motion/react';
 
 // Floating orb component for background
 const FloatingOrb = ({
