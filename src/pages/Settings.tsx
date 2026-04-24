@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { Download, RefreshCw } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { SettingsTabs, SettingsTabId } from '../components/settings/settings-tabs';
@@ -17,6 +18,10 @@ type DeleteConfirmType = { type: 'user' | 'sprint' | 'cycle'; id: string } | nul
 export default function Settings() {
   const { isAdmin, refreshUsers } = useAuth();
   const [activeTab, setActiveTab] = useState<SettingsTabId>(isAdmin ? 'users' : 'profile');
+
+  if (!isAdmin) {
+    return <Navigate to="/profile" replace />;
+  }
   const [deleteConfirm, setDeleteConfirm] = useState<DeleteConfirmType>(null);
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [isAddingSprint, setIsAddingSprint] = useState(false);

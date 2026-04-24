@@ -2,10 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { BarChart3, CheckCircle2, RefreshCw, ListTodo, Ban } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
-
-interface Props {
-  onViewSprint?: () => void;
-}
+import { useNavigate } from 'react-router-dom';
 
 interface WorkItemPreview {
   id: string;
@@ -38,7 +35,8 @@ interface IncompleteData {
   nextSprint: { id: string; name: string } | null;
 }
 
-export default function SprintContextWidget({ onViewSprint }: Props) {
+export default function SprintContextWidget() {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [data, setData] = useState<SprintData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -93,7 +91,10 @@ export default function SprintContextWidget({ onViewSprint }: Props) {
     if (!data?.sprint) return;
     setCompleting(true);
     try {
-      await fetch(`/api/sprints/${data.sprint.id}/complete`, { method: 'POST' });
+      const response = await fetch(`/api/sprints/${data.sprint.id}/complete`, { method: 'POST' });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
       setShowEndDialog(false);
       setIncompleteData(null);
       fetchActiveSprint();
@@ -203,7 +204,7 @@ export default function SprintContextWidget({ onViewSprint }: Props) {
 
               <div className="p-4 border-t border-slate-100 space-y-2">
                 <button
-                  onClick={() => { setIsOpen(false); onViewSprint?.(); }}
+                  onClick={() => { setIsOpen(false); navigate('/sprint'); }}
                   className="w-full text-center text-sm font-medium text-primary hover:underline"
                 >
                   View Sprint Board &rarr;

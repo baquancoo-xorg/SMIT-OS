@@ -5,11 +5,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
 import SprintContextWidget from './SprintContextWidget';
 import NotificationCenter from './NotificationCenter';
-import { ViewType } from '../../App';
 
-export default function Header({ onMenuClick, onViewChange }: {
+export default function Header({ onMenuClick }: {
   onMenuClick?: () => void;
-  onViewChange?: (view: ViewType) => void;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -214,7 +212,7 @@ export default function Header({ onMenuClick, onViewChange }: {
         {/* Widgets - hidden on mobile */}
         <div className="hidden md:flex items-center gap-2">
           <NotificationCenter workItems={allWorkItems} />
-          <SprintContextWidget onViewSprint={() => onViewChange?.('sprint')} />
+          <SprintContextWidget />
         </div>
       </div>
     </header>

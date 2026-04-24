@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
@@ -9,6 +10,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, requireAdmin, fallback }: ProtectedRouteProps) {
   const { currentUser, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -19,11 +21,11 @@ export function ProtectedRoute({ children, requireAdmin, fallback }: ProtectedRo
   }
 
   if (!currentUser) {
-    return fallback ? <>{fallback}</> : null;
+    return fallback ? <>{fallback}</> : <Navigate to="/" replace state={{ from: location }} />;
   }
 
   if (requireAdmin && !currentUser.isAdmin) {
-    return fallback ? <>{fallback}</> : null;
+    return fallback ? <>{fallback}</> : <Navigate to="/" replace state={{ from: location }} />;
   }
 
   return <>{children}</>;

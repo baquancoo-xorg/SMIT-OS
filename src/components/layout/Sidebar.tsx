@@ -1,16 +1,14 @@
 import React, { memo } from 'react';
-import { LayoutDashboard, Target, KanbanSquare, Trello, Filter, CalendarSync, Settings, LogOut, Inbox } from 'lucide-react';
-import { ViewType } from '../../App';
+import { Inbox, LogOut, Settings } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface SidebarProps {
-  currentView: ViewType;
-  onViewChange: (view: ViewType) => void;
   onLogout: () => void;
-  onSettingsClick?: () => void;
+  onNavigate?: () => void;
 }
 
-export default function Sidebar({ currentView, onViewChange, onLogout, onSettingsClick }: SidebarProps) {
+export default function Sidebar({ onLogout, onNavigate }: SidebarProps) {
   const { currentUser } = useAuth();
 
   return (
@@ -21,100 +19,36 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
       </div>
 
       <nav className="flex-1 space-y-4 overflow-y-auto overflow-x-visible custom-scrollbar px-1">
-        {/* Analytics */}
         <div className="space-y-2">
           <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Analytics</p>
-          <NavItem
-            icon="grid_view"
-            label="Overview"
-            active={currentView === 'dashboard'}
-            onClick={() => onViewChange('dashboard')}
-          />
-          <NavItem
-            icon="monitoring"
-            label="Dashboard"
-            active={currentView === 'ads-overview'}
-            onClick={() => onViewChange('ads-overview')}
-          />
+          <NavItem icon="grid_view" label="Overview" to="/" onNavigate={onNavigate} />
+          <NavItem icon="monitoring" label="Dashboard" to="/ads-overview" onNavigate={onNavigate} />
         </div>
 
-        {/* Workspaces */}
         <div className="space-y-2">
           <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Workspaces</p>
-          <NavItem
-            icon="terminal"
-            label="Tech & Product"
-            active={currentView === 'tech'}
-            onClick={() => onViewChange('tech')}
-          />
-          <NavItem
-            icon="layers"
-            label="Marketing"
-            active={currentView === 'mkt'}
-            onClick={() => onViewChange('mkt')}
-          />
-          <NavItem
-            icon="video_library"
-            label="Media"
-            active={currentView === 'media'}
-            onClick={() => onViewChange('media')}
-          />
-          <NavItem
-            icon="payments"
-            label="Sales"
-            active={currentView === 'sale'}
-            onClick={() => onViewChange('sale')}
-          />
+          <NavItem icon="terminal" label="Tech & Product" to="/tech" onNavigate={onNavigate} />
+          <NavItem icon="layers" label="Marketing" to="/mkt" onNavigate={onNavigate} />
+          <NavItem icon="video_library" label="Media" to="/media" onNavigate={onNavigate} />
+          <NavItem icon="payments" label="Sales" to="/sale" onNavigate={onNavigate} />
         </div>
 
-        {/* Planning */}
         <div className="space-y-2">
           <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Planning</p>
-          <NavItem
-            icon="track_changes"
-            label="OKRs"
-            active={currentView === 'okrs'}
-            onClick={() => onViewChange('okrs')}
-          />
-          <NavItem
-            icon={<Inbox size={18} />}
-            label="Team Backlog"
-            active={currentView === 'backlog'}
-            onClick={() => onViewChange('backlog')}
-          />
-          <NavItem
-            icon="sprint"
-            label="Sprint Board"
-            active={currentView === 'sprint'}
-            onClick={() => onViewChange('sprint')}
-          />
+          <NavItem icon="track_changes" label="OKRs" to="/okrs" onNavigate={onNavigate} />
+          <NavItem icon={<Inbox size={18} />} label="Team Backlog" to="/backlog" onNavigate={onNavigate} />
+          <NavItem icon="sprint" label="Sprint Board" to="/sprint" onNavigate={onNavigate} />
         </div>
 
-        {/* Rituals */}
         <div className="space-y-2">
           <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Rituals</p>
-          <NavItem
-            icon="event_note"
-            label="Daily Sync"
-            active={currentView === 'daily-sync'}
-            onClick={() => onViewChange('daily-sync')}
-          />
-          <NavItem
-            icon="event_repeat"
-            label="Weekly Report"
-            active={currentView === 'sync'}
-            onClick={() => onViewChange('sync')}
-          />
+          <NavItem icon="event_note" label="Daily Sync" to="/daily-sync" onNavigate={onNavigate} />
+          <NavItem icon="event_repeat" label="Weekly Report" to="/sync" onNavigate={onNavigate} />
         </div>
-        {/* CRM */}
+
         <div className="space-y-2">
           <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">CRM</p>
-          <NavItem
-            icon="person_search"
-            label="Lead Tracker"
-            active={currentView === 'lead-tracker'}
-            onClick={() => onViewChange('lead-tracker')}
-          />
+          <NavItem icon="person_search" label="Lead Tracker" to="/lead-tracker" onNavigate={onNavigate} />
         </div>
       </nav>
 
@@ -126,13 +60,14 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
           </div>
           <div className="flex items-center gap-1">
             {currentUser?.isAdmin && (
-              <button
-                onClick={onSettingsClick}
+              <NavLink
+                to="/settings"
+                onClick={onNavigate}
                 className="p-2 text-slate-400 hover:text-primary transition-colors rounded-xl hover:bg-slate-100"
                 title="Settings"
               >
                 <Settings size={18} />
-              </button>
+              </NavLink>
             )}
             <button
               onClick={onLogout}
@@ -148,23 +83,26 @@ export default function Sidebar({ currentView, onViewChange, onLogout, onSetting
   );
 }
 
-const NavItem = memo(function NavItem({ icon, label, active, onClick }: { icon: string | React.ReactNode; label: string; active?: boolean; onClick?: () => void }) {
+const NavItem = memo(function NavItem({ icon, label, to, onNavigate }: { icon: string | React.ReactNode; label: string; to: string; onNavigate?: () => void }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`w-full text-left flex items-center gap-2.5 px-3 py-1.5 min-h-[34px] rounded-full cursor-pointer transition-all duration-200 ease-in-out group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${active
+    <NavLink
+      to={to}
+      onClick={onNavigate}
+      className={({ isActive }) => `w-full text-left flex items-center gap-2.5 px-3 py-1.5 min-h-[34px] rounded-full cursor-pointer transition-all duration-200 ease-in-out group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${isActive
         ? 'text-primary font-bold bg-primary/10 border border-primary/20'
         : 'text-slate-500 hover:text-primary hover:bg-slate-50 border border-transparent'
         }`}
-      aria-current={active ? 'page' : undefined}
     >
-      {typeof icon === 'string' ? (
-        <span className="material-symbols-outlined" style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0", fontSize: '20px' }}>{icon}</span>
-      ) : (
-        icon
+      {({ isActive }) => (
+        <>
+          {typeof icon === 'string' ? (
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0", fontSize: '20px' }}>{icon}</span>
+          ) : (
+            icon
+          )}
+          <span className="font-medium text-sm">{label}</span>
+        </>
       )}
-      <span className="font-medium text-sm">{label}</span>
-    </button>
+    </NavLink>
   );
 });

@@ -3,32 +3,37 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { lazy, Suspense } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout';
-import PMDashboard from './pages/PMDashboard';
-import OKRsManagement from './pages/OKRsManagement';
-import TechBoard from './pages/TechBoard';
-import ProductBacklog from './pages/ProductBacklog';
-import MarketingBoard from './pages/MarketingBoard';
-import MediaBoard from './pages/MediaBoard';
-import SaleBoard from './pages/SaleBoard';
-import SaturdaySync from './pages/SaturdaySync';
-import DailySync from './pages/DailySync';
-import Settings from './pages/Settings';
-import Profile from './pages/Profile';
 import LoginPage from './pages/LoginPage';
-import DashboardOverview from './pages/DashboardOverview';
-import SprintBoard from './pages/SprintBoard';
-import LeadTracker from './pages/LeadTracker';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-export type ViewType = 'dashboard' | 'okrs' | 'tech' | 'backlog' | 'mkt' | 'media' | 'sale' | 'sync' | 'daily-sync' | 'settings' | 'profile' | 'ads-overview' | 'sprint' | 'lead-tracker';
+const PMDashboard = lazy(() => import('./pages/PMDashboard'));
+const OKRsManagement = lazy(() => import('./pages/OKRsManagement'));
+const TechBoard = lazy(() => import('./pages/TechBoard'));
+const ProductBacklog = lazy(() => import('./pages/ProductBacklog'));
+const MarketingBoard = lazy(() => import('./pages/MarketingBoard'));
+const MediaBoard = lazy(() => import('./pages/MediaBoard'));
+const SaleBoard = lazy(() => import('./pages/SaleBoard'));
+const SaturdaySync = lazy(() => import('./pages/SaturdaySync'));
+const DailySync = lazy(() => import('./pages/DailySync'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Profile = lazy(() => import('./pages/Profile'));
+const DashboardOverview = lazy(() => import('./pages/DashboardOverview'));
+const SprintBoard = lazy(() => import('./pages/SprintBoard'));
+const LeadTracker = lazy(() => import('./pages/LeadTracker'));
+
+function PageLoader() {
+  return (
+    <div className="h-full w-full flex items-center justify-center bg-slate-50">
+      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
+    </div>
+  );
+}
 
 function AppContent() {
-  const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const { currentUser, loading, logout } = useAuth();
-
-  const SCROLLABLE_VIEWS: ViewType[] = ['okrs', 'settings', 'profile', 'sync', 'daily-sync', 'ads-overview', 'lead-tracker'];
 
   if (loading) {
     return (
@@ -43,21 +48,26 @@ function AppContent() {
   }
 
   return (
-    <AppLayout currentView={currentView} onViewChange={setCurrentView} onLogout={logout} scrollable={SCROLLABLE_VIEWS.includes(currentView)}>
-      {currentView === 'dashboard' && <PMDashboard key="dashboard" />}
-      {currentView === 'okrs' && <OKRsManagement key="okrs" />}
-      {currentView === 'tech' && <TechBoard key="tech" />}
-      {currentView === 'backlog' && <ProductBacklog key="backlog" />}
-      {currentView === 'mkt' && <MarketingBoard key="mkt" />}
-      {currentView === 'media' && <MediaBoard key="media" />}
-      {currentView === 'sale' && <SaleBoard key="sale" />}
-      {currentView === 'sync' && <SaturdaySync key="sync" />}
-      {currentView === 'daily-sync' && <DailySync key="daily-sync" />}
-      {currentView === 'settings' && <Settings key="settings" />}
-      {currentView === 'profile' && <Profile key="profile" />}
-      {currentView === 'ads-overview' && <DashboardOverview key="ads-overview" />}
-      {currentView === 'sprint' && <SprintBoard key="sprint" />}
-      {currentView === 'lead-tracker' && <LeadTracker key="lead-tracker" />}
+    <AppLayout onLogout={logout}>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<PMDashboard />} />
+          <Route path="/ads-overview" element={<DashboardOverview />} />
+          <Route path="/okrs" element={<OKRsManagement />} />
+          <Route path="/tech" element={<TechBoard />} />
+          <Route path="/backlog" element={<ProductBacklog />} />
+          <Route path="/mkt" element={<MarketingBoard />} />
+          <Route path="/media" element={<MediaBoard />} />
+          <Route path="/sale" element={<SaleBoard />} />
+          <Route path="/sprint" element={<SprintBoard />} />
+          <Route path="/daily-sync" element={<DailySync />} />
+          <Route path="/sync" element={<SaturdaySync />} />
+          <Route path="/lead-tracker" element={<LeadTracker />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </AppLayout>
   );
 }
