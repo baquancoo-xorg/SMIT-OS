@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type ReactNode } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, UserCircle, FileText } from 'lucide-react';
 import { api } from '../../lib/api';
@@ -35,6 +35,17 @@ const STATUS_COLOR: Record<string, string> = {
   'Đang liên hệ': 'text-blue-600 bg-blue-50 border-blue-100',
   'Đang nuôi dưỡng': 'text-amber-600 bg-amber-50 border-amber-100',
 };
+
+const INPUT_CLS = 'w-full bg-white border border-slate-200 rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-700 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all';
+
+function Field({ label, children, wide }: { label: string; children: React.ReactNode; wide?: boolean }) {
+  return (
+    <div className={wide ? 'col-span-2' : ''}>
+      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400 mb-1.5">{label}</p>
+      {children}
+    </div>
+  );
+}
 
 type FormData = {
   customerName: string;
@@ -135,14 +146,6 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
     }
   };
 
-  const Field = ({ label, children, wide }: { label: string; children: ReactNode; wide?: boolean }) => (
-    <div className={wide ? 'col-span-2' : ''}>
-      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400 mb-1.5">{label}</p>
-      {children}
-    </div>
-  );
-
-  const inputCls = 'w-full bg-white border border-slate-200 rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-700 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all';
 
   return (
     <AnimatePresence>
@@ -157,7 +160,6 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
           transition={{ duration: 0.2, ease: 'easeOut' }}
           className="bg-white rounded-[2rem] shadow-2xl shadow-slate-300/40 w-full max-w-[520px] overflow-hidden"
           onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-7 pt-6 pb-5 border-b border-slate-100">
@@ -194,7 +196,7 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
             <Field label="Tên khách hàng *" wide>
               <input
                 ref={nameInputRef}
-                className={inputCls}
+                className={INPUT_CLS}
                 value={form.customerName}
                 onChange={(e) => set('customerName', e.target.value)}
                 placeholder="Nguyễn Văn A..."
@@ -267,7 +269,7 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
               <textarea
                 ref={notesRef}
                 rows={2}
-                className={`${inputCls} resize-none min-h-[56px] max-h-[200px] overflow-y-auto`}
+                className={`${INPUT_CLS} resize-none min-h-[56px] max-h-[200px] overflow-y-auto`}
                 value={form.notes}
                 onChange={(e) => {
                   set('notes', e.target.value);
