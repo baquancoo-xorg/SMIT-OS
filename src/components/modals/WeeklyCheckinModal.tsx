@@ -89,14 +89,14 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
 
   // Next Week Plans state
   const [nextWeekPlans, setNextWeekPlans] = useState([
-    { id: Date.now(), item_name: '', expected_output: '', deadline: '' }
+    { id: crypto.randomUUID(), item_name: '', expected_output: '', deadline: '' }
   ]);
 
   const addPlanRow = () => {
-    setNextWeekPlans([...nextWeekPlans, { id: Date.now(), item_name: '', expected_output: '', deadline: '' }]);
+    setNextWeekPlans([...nextWeekPlans, { id: crypto.randomUUID(), item_name: '', expected_output: '', deadline: '' }]);
   };
 
-  const removePlanRow = (id: number) => {
+  const removePlanRow = (id: string) => {
     if (nextWeekPlans.length > 1) {
       setNextWeekPlans(nextWeekPlans.filter(p => p.id !== id));
     }

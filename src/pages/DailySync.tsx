@@ -539,12 +539,18 @@ function DailyReportDetailModal({
     try { return report.tasksData ? JSON.parse(report.tasksData) : {}; } catch { return {}; }
   })();
 
-  const richMetrics = report.teamMetrics as {
+  const richMetrics: {
     yesterdayTasks?: TaskEntry[];
     blockers?: BlockerEntry[];
     todayPlans?: TodayPlanEntry[];
     adHocTasks?: AdHocTask[];
-  } | null;
+  } | null = (() => {
+    if (!report.teamMetrics) return null;
+    if (typeof report.teamMetrics === 'string') {
+      try { return JSON.parse(report.teamMetrics); } catch { return null; }
+    }
+    return report.teamMetrics as typeof richMetrics;
+  })();
 
   const parsedBlockers: BlockerEntry[] = (() => {
     if (richMetrics?.blockers?.length) return richMetrics.blockers;

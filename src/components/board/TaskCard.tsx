@@ -11,7 +11,6 @@ interface TaskCardProps {
   onDelete?: (id: string) => void;
   onEdit?: (item: WorkItem) => void;
   onViewDetails?: (item: WorkItem) => void;
-  key?: string | number;
 }
 
 export default memo(function TaskCard({ item, onUpdate, onDelete, onEdit, onViewDetails }: TaskCardProps) {

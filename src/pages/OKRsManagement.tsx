@@ -325,7 +325,7 @@ export default function OKRsManagement() {
                 <ObjectiveAccordionCard
                   key={obj.id}
                   objective={obj}
-                  children={getChildren(obj.id)}
+                  childObjectives={getChildren(obj.id)}
                   workItems={items}
                   objectives={objectives}
                   onLinkWorkItem={handleLinkWorkItem}
@@ -375,7 +375,7 @@ export default function OKRsManagement() {
 // Accordion-style L1 Objective Card with expandable L2 children
 function ObjectiveAccordionCard({
   objective,
-  children,
+  childObjectives,
   workItems,
   objectives,
   onLinkWorkItem,
@@ -383,10 +383,9 @@ function ObjectiveAccordionCard({
   isExpanded,
   onToggleExpand,
   getDeptColor,
-  key: _key,
 }: {
   objective: Objective;
-  children: Objective[];
+  childObjectives: Objective[];
   workItems: WorkItem[];
   objectives: Objective[];
   onLinkWorkItem: (krId: string, item: WorkItem) => void;
@@ -394,7 +393,6 @@ function ObjectiveAccordionCard({
   isExpanded: boolean;
   onToggleExpand: () => void;
   getDeptColor: (dept: string) => { bg: string; text: string; border: string; icon: string; badge: string };
-  key?: string | number;
 }) {
   const colors = getDeptColor(objective.department);
 
@@ -418,7 +416,7 @@ function ObjectiveAccordionCard({
             </div>
             <h3 className={`text-base md:text-lg lg:text-xl font-black text-on-surface font-headline hover:${colors.text} transition-colors line-clamp-2 md:line-clamp-1`}>{objective.title}</h3>
             <p className="text-xs md:text-sm text-on-surface-variant font-medium">
-              {children.length} child objective{children.length !== 1 ? 's' : ''} · {objective.keyResults.length} key result{objective.keyResults.length !== 1 ? 's' : ''}
+              {childObjectives.length} child objective{childObjectives.length !== 1 ? 's' : ''} · {objective.keyResults.length} key result{objective.keyResults.length !== 1 ? 's' : ''}
             </p>
           </div>
         </div>
@@ -476,13 +474,13 @@ function ObjectiveAccordionCard({
               </div>
 
               {/* Child L2 Objectives */}
-              {children.length > 0 && (
+              {childObjectives.length > 0 && (
                 <div className="pt-4 md:pt-6 border-t border-outline-variant/10">
                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 md:mb-4">
                     Child Objectives (L2)
                   </h4>
                   <div className="space-y-3 md:space-y-4">
-                    {children.map(child => (
+                    {childObjectives.map(child => (
                       <ChildObjectiveCard
                         key={child.id}
                         objective={child}

@@ -64,21 +64,21 @@ export function useNotifications(workItems: WorkItem[] = []) {
     }
   }, []);
 
-  const markAsRead = async (id: string) => {
+  const markAsRead = useCallback(async (id: string) => {
     const res = await fetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
     if (!res.ok) return;
     setNotifications(prev =>
       prev.map(n => n.id === id ? { ...n, isRead: true } : n)
     );
     setUnreadCount(prev => Math.max(0, prev - 1));
-  };
+  }, []);
 
-  const markAllAsRead = async () => {
+  const markAllAsRead = useCallback(async () => {
     const res = await fetch('/api/notifications/mark-all-read', { method: 'POST' });
     if (!res.ok) return;
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     setUnreadCount(0);
-  };
+  }, []);
 
   useEffect(() => {
     setDismissedReady(false);
@@ -153,8 +153,37 @@ export function useNotifications(workItems: WorkItem[] = []) {
     fetchNotifications();
     fetchUnreadCount();
 
-    const interval = setInterval(fetchUnreadCount, 30000);
-    return () => clearInterval(interval);
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    const startPolling = () => {
+      if (!interval) {
+        interval = setInterval(fetchUnreadCount, 30000);
+      }
+    };
+
+    const stopPolling = () => {
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+    };
+
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        stopPolling();
+      } else {
+        fetchUnreadCount();
+        startPolling();
+      }
+    };
+
+    if (!document.hidden) startPolling();
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      stopPolling();
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }, [fetchNotifications, fetchUnreadCount]);
 
   return {
