@@ -7,21 +7,21 @@ import DatePicker from '../ui/date-picker';
 import CustomSelect from '../ui/CustomSelect';
 
 const STATUS_OPTIONS = [
-  { value: 'Mới', label: 'Mới' },
-  { value: 'Đang liên hệ', label: 'Đang liên hệ' },
-  { value: 'Đang nuôi dưỡng', label: 'Đang nuôi dưỡng' },
+  { value: 'Mới', label: 'New' },
+  { value: 'Đang liên hệ', label: 'Attempting' },
+  { value: 'Đang nuôi dưỡng', label: 'Nurturing' },
   { value: 'Qualified', label: 'Qualified' },
   { value: 'Unqualified', label: 'Unqualified' },
 ];
 
 const LEAD_TYPE_OPTIONS = [
-  { value: '', label: '— Chưa chọn —' },
-  { value: 'Việt Nam', label: 'Việt Nam' },
-  { value: 'Quốc Tế', label: 'Quốc Tế' },
+  { value: '', label: '— Select —' },
+  { value: 'Việt Nam', label: 'Vietnam' },
+  { value: 'Quốc Tế', label: 'International' },
 ];
 
 const UQ_OPTIONS = [
-  { value: '', label: '— Chưa chọn —' },
+  { value: '', label: '— Select —' },
   { value: 'Unreachable', label: 'Unreachable' },
   { value: 'Rejected', label: 'Rejected' },
   { value: 'Bad Fit', label: 'Bad Fit' },
@@ -113,13 +113,13 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
   const set = (k: keyof FormData, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
   const aeSelectOptions = [
-    { value: '', label: '— Chọn AE —' },
+    { value: '', label: '— Select AE —' },
     ...aeOptions.map((a) => ({ value: a.fullName, label: a.fullName })),
   ];
 
   const handleSave = async () => {
     if (!form.customerName.trim() || !form.ae || !form.receivedDate || !form.status) {
-      setError('Vui lòng điền đủ các trường bắt buộc (*).');
+      setError('Please fill in all required fields (*)');
       return;
     }
     setSaving(true);
@@ -140,7 +140,7 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
       onSaved();
       onClose();
     } catch (err: any) {
-      setError(err?.message ?? 'Lỗi khi lưu. Thử lại.');
+      setError(err?.message ?? 'Error saving. Try again.');
     } finally {
       setSaving(false);
     }
@@ -171,7 +171,7 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
               </div>
               <div>
                 <h2 className="text-sm font-black uppercase tracking-[0.15em] text-slate-700">
-                  {mode === 'add' ? 'Thêm Lead Mới' : 'Chỉnh Sửa Lead'}
+                  {mode === 'add' ? 'Add New Lead' : 'Edit Lead'}
                 </h2>
                 {mode === 'edit' && lead && (
                   <span className={`inline-flex items-center mt-0.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
@@ -193,13 +193,13 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
           <div className="px-7 py-5 grid grid-cols-2 gap-x-4 gap-y-4 max-h-[70vh] overflow-y-auto">
 
             {/* Customer Name */}
-            <Field label="Tên khách hàng *" wide>
+            <Field label="Customer Name *" wide>
               <input
                 ref={nameInputRef}
                 className={INPUT_CLS}
                 value={form.customerName}
                 onChange={(e) => set('customerName', e.target.value)}
-                placeholder="Nguyễn Văn A..."
+                placeholder="Enter customer name..."
               />
             </Field>
 
@@ -214,7 +214,7 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
             </Field>
 
             {/* Status */}
-            <Field label="Trạng thái *">
+            <Field label="Status *">
               <CustomSelect
                 value={form.status}
                 onChange={(v) => set('status', v)}
@@ -223,29 +223,29 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
             </Field>
 
             {/* Received Date */}
-            <Field label="Ngày nhận *">
+            <Field label="Received Date *">
               <div className="relative">
                 <DatePicker
                   value={form.receivedDate}
                   onChange={(v) => set('receivedDate', v)}
-                  placeholder="Chọn ngày"
+                  placeholder="Select date"
                   className="!w-full !rounded-2xl !bg-white !border !border-slate-200 !h-[42px] !px-4 hover:!border-primary/40"
                 />
               </div>
             </Field>
 
             {/* Resolved Date */}
-            <Field label="Ngày xử lý">
+            <Field label="Resolved Date">
               <DatePicker
                 value={form.resolvedDate}
                 onChange={(v) => set('resolvedDate', v)}
-                placeholder="Chọn ngày"
+                placeholder="Select date"
                 className="!w-full !rounded-2xl !bg-white !border !border-slate-200 !h-[42px] !px-4 hover:!border-primary/40"
               />
             </Field>
 
             {/* Lead Type */}
-            <Field label="Loại Lead">
+            <Field label="Lead Type">
               <CustomSelect
                 value={form.leadType}
                 onChange={(v) => set('leadType', v)}
@@ -255,7 +255,7 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
 
             {/* UQ Reason — only when Unqualified */}
             {form.status === 'Unqualified' && (
-              <Field label="Lý do Unqualified">
+              <Field label="UQ Reason">
                 <CustomSelect
                   value={form.unqualifiedType}
                   onChange={(v) => set('unqualifiedType', v)}
@@ -265,7 +265,7 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
             )}
 
             {/* Notes */}
-            <Field label="Ghi chú" wide>
+            <Field label="Notes" wide>
               <textarea
                 ref={notesRef}
                 rows={2}
@@ -276,7 +276,7 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
                   autoResizeNotes();
                 }}
                 onInput={autoResizeNotes}
-                placeholder="Ghi chú thêm..."
+                placeholder="Add notes..."
                 onKeyDown={(e) => {
                   e.stopPropagation();
                 }}
@@ -294,7 +294,7 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
                 onClick={onClose}
                 className="h-9 px-5 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
               >
-                Hủy
+                Cancel
               </button>
               <button
                 type="button"
@@ -302,7 +302,7 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
                 disabled={saving}
                 className="h-9 px-7 rounded-2xl bg-primary text-white text-xs font-black uppercase tracking-widest hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 disabled:shadow-none"
               >
-                {saving ? 'Saving...' : mode === 'add' ? 'Thêm Lead' : 'Lưu'}
+                {saving ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>
