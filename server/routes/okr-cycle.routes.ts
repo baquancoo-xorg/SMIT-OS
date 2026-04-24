@@ -43,12 +43,19 @@ export function createOkrCycleRoutes(prisma: PrismaClient) {
     if (data.startDate) data.startDate = new Date(data.startDate);
     if (data.endDate) data.endDate = new Date(data.endDate);
 
-    // If setting as active, deactivate all other cycles first
+    // Atomic activation - wrap deactivate + activate in transaction (BUG-006)
     if (data.isActive === true) {
-      await prisma.okrCycle.updateMany({
-        where: { isActive: true },
-        data: { isActive: false },
-      });
+      const [, cycle] = await prisma.$transaction([
+        prisma.okrCycle.updateMany({
+          where: { isActive: true },
+          data: { isActive: false },
+        }),
+        prisma.okrCycle.update({
+          where: { id: req.params.id },
+          data,
+        }),
+      ]);
+      return res.json(cycle);
     }
 
     const cycle = await prisma.okrCycle.update({

@@ -183,6 +183,8 @@ model DailyReport {
   approvedAt  DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  @@unique([userId, reportDate], name: "user_date_unique")
 }
 
 model Lead {
@@ -245,6 +247,7 @@ model FbAdAccountConfig {
   isActive               Boolean   @default(true) @map("is_active")
   lastSyncAt             DateTime? @map("last_sync_at")
   lastSyncStatus         String?   @map("last_sync_status")
+  lastSyncError          String?   @map("last_sync_error")
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @default(now()) @updatedAt @map("updated_at")
 

@@ -178,8 +178,13 @@ export function createWorkItemRoutes(prisma: PrismaClient) {
     }
 
     const updateData: any = { ...data };
-    if (data.dueDate) updateData.dueDate = new Date(data.dueDate);
-    if (data.startDate) updateData.startDate = new Date(data.startDate);
+    // Allow nulling dates (BUG-010)
+    if (data.dueDate !== undefined) {
+      updateData.dueDate = data.dueDate ? new Date(data.dueDate) : null;
+    }
+    if (data.startDate !== undefined) {
+      updateData.startDate = data.startDate ? new Date(data.startDate) : null;
+    }
 
     const item = await prisma.workItem.update({
       where: { id },

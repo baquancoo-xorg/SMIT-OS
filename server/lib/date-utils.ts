@@ -18,7 +18,10 @@ export function getDateRange(from: Date, to: Date): string[] {
 
 /** Compute previous period of same length (exclusive of `from`) */
 export function previousPeriod(from: Date, to: Date) {
-  const days = Math.ceil((to.getTime() - from.getTime()) / 86_400_000) + 1;
+  // Use calendar day diff to avoid time-of-day edge cases (BUG-008)
+  const fromMidnight = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  const toMidnight = new Date(to.getFullYear(), to.getMonth(), to.getDate());
+  const days = Math.round((toMidnight.getTime() - fromMidnight.getTime()) / 86_400_000) + 1;
   const previousTo = new Date(from);
   previousTo.setDate(previousTo.getDate() - 1);
   const previousFrom = new Date(previousTo);

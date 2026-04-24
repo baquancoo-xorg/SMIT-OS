@@ -91,7 +91,19 @@ export function createAuthRoutes(prisma: PrismaClient) {
 
     const { valid, remaining } = await totpService.verifyAndConsumeBackupCode(code, user.totpBackupCodes);
     if (valid) {
-      await prisma.user.update({ where: { id: user.id }, data: { totpBackupCodes: remaining } });
+      // Atomic update: only update if codes haven't changed (optimistic lock for BUG-004)
+      const result = await prisma.user.updateMany({
+        where: {
+          id: user.id,
+          // Verify codes array length matches to detect concurrent consumption
+          totpBackupCodes: { equals: user.totpBackupCodes }
+        },
+        data: { totpBackupCodes: remaining }
+      });
+      if (result.count === 0) {
+        // Someone else consumed a code concurrently - reject
+        return res.status(401).json({ error: 'Backup code already used' });
+      }
       const token = authService.signToken({ userId: user.id, role: user.role, isAdmin: user.isAdmin });
       res.cookie('jwt', token, COOKIE_OPTIONS);
       const { password: _, totpSecret: __, totpBackupCodes: ___, ...safeUser } = user;

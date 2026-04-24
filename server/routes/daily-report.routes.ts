@@ -54,29 +54,29 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
     const userId = req.user!.userId;
     const { reportDate, tasksData, blockers, impactLevel, teamType, teamMetrics, adHocTasks } = req.body;
 
-    const existing = await prisma.dailyReport.findFirst({
-      where: { userId, reportDate: new Date(reportDate) },
-    });
-
-    if (existing) {
-      return res.status(400).json({ error: 'Report for this date already exists' });
+    try {
+      const report = await prisma.dailyReport.create({
+        data: {
+          userId,
+          reportDate: new Date(reportDate),
+          tasksData: typeof tasksData === 'string' ? tasksData : JSON.stringify(tasksData),
+          blockers,
+          impactLevel,
+          teamType: teamType || null,
+          teamMetrics: teamMetrics || null,
+          adHocTasks: adHocTasks && typeof adHocTasks === 'string' ? adHocTasks : null,
+          status: 'Review',
+        },
+        include: { user: true },
+      });
+      res.json(report);
+    } catch (err: any) {
+      // Handle unique constraint violation (P2002) - duplicate report for same user+date
+      if (err.code === 'P2002') {
+        return res.status(409).json({ error: 'Report for this date already exists' });
+      }
+      throw err;
     }
-
-    const report = await prisma.dailyReport.create({
-      data: {
-        userId,
-        reportDate: new Date(reportDate),
-        tasksData: typeof tasksData === 'string' ? tasksData : JSON.stringify(tasksData),
-        blockers,
-        impactLevel,
-        teamType: teamType || null,
-        teamMetrics: teamMetrics || null,
-        adHocTasks: adHocTasks && typeof adHocTasks === 'string' ? adHocTasks : null,
-        status: 'Review',
-      },
-      include: { user: true },
-    });
-    res.json(report);
   }));
 
   router.put('/:id', handleAsync(async (req: any, res: any) => {
@@ -184,7 +184,8 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
       if (report.impactLevel === 'high') teamStats[team].blockers++;
 
       const metrics = report.teamMetrics as any;
-      if (!metrics?.yesterdayTasks) continue;
+      // Guard against non-array metrics (BUG-011)
+      if (!metrics?.yesterdayTasks || !Array.isArray(metrics.yesterdayTasks)) continue;
 
       for (const task of metrics.yesterdayTasks) {
         if (!task.metrics) continue;

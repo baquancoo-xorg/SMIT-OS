@@ -30,11 +30,13 @@ import { createSheetsExportRoutes } from "./server/routes/sheets-export.routes";
 import { createGoogleOAuthRoutes } from "./server/routes/google-oauth.routes";
 import { createGoogleOAuthService } from "./server/services/google-oauth.service";
 import { startFbSyncScheduler } from "./server/services/facebook/fb-sync-scheduler.service";
+import { initFbSyncService } from "./server/services/facebook/fb-sync.service";
 import { createNotificationService } from "./server/services/notification.service";
 import { initAlertScheduler } from "./server/jobs/alert-scheduler";
 import { initSheetsExportScheduler } from "./server/jobs/sheets-export-scheduler";
 
 const prisma = new PrismaClient();
+initFbSyncService(prisma);
 const app = express();
 const PORT = Number(process.env.PORT ?? 3000);
 
