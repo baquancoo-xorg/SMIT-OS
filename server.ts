@@ -6,6 +6,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import type { Request, Response, NextFunction } from "express";
 
 // Middleware
 import { createAuthMiddleware } from "./server/middleware/auth.middleware";
@@ -37,6 +38,14 @@ const prisma = new PrismaClient();
 const app = express();
 const PORT = Number(process.env.PORT ?? 3000);
 
+function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  if (!req.user?.isAdmin) {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+
+  next();
+}
+
 // Global middleware
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
 app.use(cors({
@@ -53,11 +62,12 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json());
 app.use(cookieParser());
 
-// Request logging
-app.use((req, _res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  next();
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, _res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+  });
+}
 
 // Rate limiting for auth routes
 const authLimiter = rateLimit({
@@ -73,21 +83,8 @@ app.use('/api/auth/login/totp', authLimiter);
 // Public routes
 app.use("/api/auth", createAuthRoutes(prisma));
 
-// Google OAuth callback (public - Google redirects here)
 const googleOAuthService = createGoogleOAuthService(prisma);
-app.get("/api/google/callback", async (req, res) => {
-  const { code } = req.query;
-  if (!code || typeof code !== 'string') {
-    return res.status(400).send('Missing authorization code');
-  }
-  try {
-    await googleOAuthService.handleCallback(code);
-    res.redirect('/settings?tab=export&connected=true');
-  } catch (error: any) {
-    console.error('[GoogleOAuth] Callback error:', error);
-    res.redirect('/settings?tab=export&error=' + encodeURIComponent(error.message));
-  }
-});
+app.use("/api/google", createGoogleOAuthRoutes(googleOAuthService));
 
 // Protected routes
 app.use("/api", createAuthMiddleware(prisma));
@@ -105,16 +102,13 @@ app.use("/api/dashboard/overview", createDashboardOverviewRoutes());
 app.use("/api/sync/facebook-ads", createFbSyncRoutes());
 app.use("/api/admin", createAdminFbConfigRoutes());
 
-// Google OAuth & Sheets Export (googleOAuthService created above, before auth middleware)
-app.use("/api/google", createGoogleOAuthRoutes(googleOAuthService));
-
 const sheetsExportService = initSheetsExportScheduler(prisma, googleOAuthService);
 app.use("/api/sheets-export", createSheetsExportRoutes(sheetsExportService));
 
 // OKRs recalculate endpoint (legacy path)
 import { createOKRService } from "./server/services/okr.service";
 const okrService = createOKRService(prisma);
-app.post("/api/okrs/recalculate", async (_req, res) => {
+app.post("/api/okrs/recalculate", requireAdmin, async (_req, res) => {
   await okrService.recalculateObjectiveProgress();
   res.json({ success: true });
 });

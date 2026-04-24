@@ -1,11 +1,36 @@
 import { PrismaClient } from '@prisma/client';
 import { google } from 'googleapis';
+import { decryptIfEncrypted, encrypt } from '../lib/crypto';
 
 const SCOPES = [
   'https://www.googleapis.com/auth/userinfo.email',
   'https://www.googleapis.com/auth/spreadsheets',
-  'https://www.googleapis.com/auth/drive',  // Full drive access to list folders
+  'https://www.googleapis.com/auth/drive.metadata.readonly',
 ];
+
+function isDev() {
+  return process.env.NODE_ENV !== 'production';
+}
+
+function encryptToken(token: string | null | undefined): string | null {
+  if (!token) {
+    return null;
+  }
+
+  return encrypt(token);
+}
+
+function decryptToken(token: string | null | undefined): string | null {
+  return decryptIfEncrypted(token);
+}
+
+function requireToken(token: string | null, name: string): string {
+  if (!token) {
+    throw new Error(`${name} is missing. Please reconnect Google account.`);
+  }
+
+  return token;
+}
 
 export function createGoogleOAuthService(prisma: PrismaClient) {
   const getOAuth2Client = () => {
@@ -13,26 +38,25 @@ export function createGoogleOAuthService(prisma: PrismaClient) {
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
     const redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000/api/google/callback';
 
-    console.log('[GoogleOAuth] Config:', {
-      hasClientId: !!clientId,
-      hasClientSecret: !!clientSecret,
-      redirectUri
-    });
-
     if (!clientId || !clientSecret) {
       throw new Error('Google OAuth credentials not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env');
+    }
+
+    if (isDev()) {
+      console.log('[GoogleOAuth] OAuth client configured', { redirectUri });
     }
 
     return new google.auth.OAuth2(clientId, clientSecret, redirectUri);
   };
 
   return {
-    getAuthUrl(): string {
+    getAuthUrl(state: string): string {
       const oauth2Client = getOAuth2Client();
       return oauth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: SCOPES,
         prompt: 'consent',
+        state,
       });
     },
 
@@ -45,31 +69,26 @@ export function createGoogleOAuthService(prisma: PrismaClient) {
       }
 
       oauth2Client.setCredentials(tokens);
-
-      // Get user email
       const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
       const { data } = await oauth2.userinfo.get();
       const email = data.email || 'unknown';
 
-      // Upsert integration
-      const integration = await prisma.googleIntegration.upsert({
+      return prisma.googleIntegration.upsert({
         where: { type: 'sheets_export' },
         create: {
           type: 'sheets_export',
           email,
-          accessToken: tokens.access_token,
-          refreshToken: tokens.refresh_token,
+          accessToken: encrypt(tokens.access_token),
+          refreshToken: encrypt(tokens.refresh_token),
           expiresAt: new Date(tokens.expiry_date || Date.now() + 3600000),
         },
         update: {
           email,
-          accessToken: tokens.access_token,
-          refreshToken: tokens.refresh_token,
+          accessToken: encrypt(tokens.access_token),
+          refreshToken: encrypt(tokens.refresh_token),
           expiresAt: new Date(tokens.expiry_date || Date.now() + 3600000),
         },
       });
-
-      return integration;
     },
 
     async getIntegration() {
@@ -90,29 +109,33 @@ export function createGoogleOAuthService(prisma: PrismaClient) {
         throw new Error('Google account not connected');
       }
 
-      console.log('[GoogleOAuth] Getting authenticated client, token expires:', integration.expiresAt);
-
       const oauth2Client = getOAuth2Client();
+      const accessToken = requireToken(decryptToken(integration.accessToken), 'Google access token');
+      const refreshToken = requireToken(decryptToken(integration.refreshToken), 'Google refresh token');
+
       oauth2Client.setCredentials({
-        access_token: integration.accessToken,
-        refresh_token: integration.refreshToken,
+        access_token: accessToken,
+        refresh_token: refreshToken,
         expiry_date: integration.expiresAt.getTime(),
       });
 
-      // Auto-refresh if expired
       if (integration.expiresAt < new Date()) {
-        console.log('[GoogleOAuth] Token expired, refreshing...');
         try {
           const { credentials } = await oauth2Client.refreshAccessToken();
+          const nextAccessToken = requireToken(credentials.access_token ?? accessToken, 'Google access token');
           await prisma.googleIntegration.update({
             where: { type: 'sheets_export' },
             data: {
-              accessToken: credentials.access_token!,
+              accessToken: encrypt(nextAccessToken),
+              refreshToken: encryptToken(credentials.refresh_token) ?? integration.refreshToken,
               expiresAt: new Date(credentials.expiry_date || Date.now() + 3600000),
             },
           });
-          oauth2Client.setCredentials(credentials);
-          console.log('[GoogleOAuth] Token refreshed successfully');
+          oauth2Client.setCredentials({
+            ...credentials,
+            access_token: nextAccessToken,
+            refresh_token: credentials.refresh_token ?? refreshToken,
+          });
         } catch (error: any) {
           console.error('[GoogleOAuth] Token refresh failed:', error.message);
           throw new Error('Failed to refresh token. Please reconnect Google account.');
@@ -124,10 +147,8 @@ export function createGoogleOAuthService(prisma: PrismaClient) {
 
     async listFolders() {
       try {
-        console.log('[GoogleOAuth] Listing folders...');
         const auth = await this.getAuthenticatedClient();
         const drive = google.drive({ version: 'v3', auth });
-
         const response = await drive.files.list({
           q: "mimeType='application/vnd.google-apps.folder' and trashed=false",
           fields: 'files(id, name)',
@@ -135,7 +156,6 @@ export function createGoogleOAuthService(prisma: PrismaClient) {
           pageSize: 100,
         });
 
-        console.log('[GoogleOAuth] Found', response.data.files?.length || 0, 'folders');
         return response.data.files || [];
       } catch (error: any) {
         console.error('[GoogleOAuth] listFolders error:', error.message);

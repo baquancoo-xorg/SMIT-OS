@@ -27,7 +27,7 @@ Open http://localhost:3000
 
 ### 4. Login
 - **Username:** `dominium`
-- **Password:** `change-me-local-only`
+- **Password:** giá trị bạn đặt trong `ADMIN_INITIAL_PASSWORD`
 
 ## Database Management
 

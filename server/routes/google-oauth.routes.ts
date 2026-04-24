@@ -1,21 +1,38 @@
+import crypto from 'node:crypto';
 import { Router, Request, Response } from 'express';
 import { GoogleOAuthService } from '../services/google-oauth.service';
+
+const OAUTH_STATE_COOKIE = 'google_oauth_state';
+const OAUTH_STATE_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict' as const,
+  maxAge: 10 * 60 * 1000,
+};
 
 export function createGoogleOAuthRoutes(googleOAuthService: GoogleOAuthService) {
   const router = Router();
 
-  // PUBLIC: OAuth callback (Google redirects here, no auth cookie)
   router.get('/callback', async (req: Request, res: Response) => {
-    const { code } = req.query;
+    const { code, state } = req.query;
+    const cookieState = req.cookies?.[OAUTH_STATE_COOKIE];
+
     if (!code || typeof code !== 'string') {
       return res.status(400).send('Missing authorization code');
     }
 
+    if (!state || typeof state !== 'string' || !cookieState || cookieState !== state) {
+      res.clearCookie(OAUTH_STATE_COOKIE, OAUTH_STATE_COOKIE_OPTIONS);
+      return res.status(400).send('Invalid OAuth state');
+    }
+
     try {
       await googleOAuthService.handleCallback(code);
+      res.clearCookie(OAUTH_STATE_COOKIE, OAUTH_STATE_COOKIE_OPTIONS);
       res.redirect('/settings?tab=export&connected=true');
     } catch (error: any) {
-      console.error('[GoogleOAuth] Callback error:', error);
+      res.clearCookie(OAUTH_STATE_COOKIE, OAUTH_STATE_COOKIE_OPTIONS);
+      console.error('[GoogleOAuth] Callback error:', error.message);
       res.redirect('/settings?tab=export&error=' + encodeURIComponent(error.message));
     }
   });
@@ -28,14 +45,14 @@ export function createGoogleOAuthRoutes(googleOAuthService: GoogleOAuthService) 
     next();
   };
 
-  router.get('/auth', requireAdmin, (req: Request, res: Response) => {
+  router.get('/auth', requireAdmin, (_req: Request, res: Response) => {
     try {
-      console.log('[GoogleOAuth] Getting auth URL...');
-      const authUrl = googleOAuthService.getAuthUrl();
-      console.log('[GoogleOAuth] Auth URL generated successfully');
+      const state = crypto.randomUUID();
+      const authUrl = googleOAuthService.getAuthUrl(state);
+      res.cookie(OAUTH_STATE_COOKIE, state, OAUTH_STATE_COOKIE_OPTIONS);
       res.json({ authUrl });
     } catch (error: any) {
-      console.error('[GoogleOAuth] Auth error:', error.message, error.stack);
+      console.error('[GoogleOAuth] Auth error:', error.message);
       res.status(500).json({ error: error.message || 'Failed to get auth URL' });
     }
   });
@@ -66,13 +83,13 @@ export function createGoogleOAuthRoutes(googleOAuthService: GoogleOAuthService) 
     }
   });
 
-  router.get('/folders', requireAdmin, async (req: Request, res: Response) => {
+  router.get('/folders', requireAdmin, async (_req: Request, res: Response) => {
     try {
       const folders = await googleOAuthService.listFolders();
       res.json({ folders });
     } catch (error: any) {
-      console.error('[GoogleOAuth] Folders error:', error.message, error.response?.data || '');
-      res.status(500).json({ error: error.message, details: error.response?.data?.error?.message });
+      console.error('[GoogleOAuth] Folders error:', error.message);
+      res.status(500).json({ error: error.message });
     }
   });
 

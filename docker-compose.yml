@@ -8,9 +8,9 @@ services:
         limits:
           memory: 256M
     environment:
-      POSTGRES_USER: smitos
-      POSTGRES_PASSWORD: "change-me-local-only"
-      POSTGRES_DB: smitos_db
+      POSTGRES_USER: ${POSTGRES_USER:-smitos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-local-only}
+      POSTGRES_DB: ${POSTGRES_DB:-smitos_db}
     ports:
       - "5435:5432"
     volumes:

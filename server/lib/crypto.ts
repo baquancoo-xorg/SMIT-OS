@@ -29,3 +29,15 @@ export function decrypt(payload: string): string {
   decipher.setAuthTag(tag);
   return Buffer.concat([decipher.update(enc), decipher.final()]).toString('utf8');
 }
+
+export function decryptIfEncrypted(payload: string | null | undefined): string | null {
+  if (!payload) {
+    return null;
+  }
+
+  try {
+    return decrypt(payload);
+  } catch {
+    return payload;
+  }
+}

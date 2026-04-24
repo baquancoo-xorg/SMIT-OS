@@ -11,7 +11,7 @@ npm run db:setup
 ```
 
 This will create:
-- Admin user: `dominium` / `change-me-local-only`
+- Admin user: `dominium` / giá trị của `ADMIN_INITIAL_PASSWORD`
 
 ## Database Commands
 
