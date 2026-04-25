@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { Zap, Download, Trash2 } from 'lucide-react';
 import WeeklyCheckinModal from '../components/modals/WeeklyCheckinModal';
 import ReportTableView from '../components/board/ReportTableView';
 import ReportDetailDialog from '../components/modals/ReportDetailDialog';
 import PrimaryActionButton from '../components/ui/PrimaryActionButton';
 import { useAuth } from '../contexts/AuthContext';
 import { WeeklyReport, Sprint } from '../types';
+import { exportWeeklyReportsAsMarkdown, getSprintWeek, WeeklyExportFilters } from '../utils/export-weekly-report';
 
 export default function SaturdaySync() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,7 +15,20 @@ export default function SaturdaySync() {
   const [reports, setReports] = useState<WeeklyReport[]>([]);
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Bulk action state
+  const [exportMode, setExportMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [deleting, setDeleting] = useState(false);
+  const [exportFilters, setExportFilters] = useState<WeeklyExportFilters>({
+    assignUserId: '',
+    sprintId: '',
+    week: '',
+  });
+
   const { users, currentUser } = useAuth();
+  const canAccessPage = currentUser?.isAdmin || currentUser?.role?.includes('Leader');
+  const canExport = currentUser?.isAdmin || currentUser?.role?.includes('Leader');
 
   // Get current week's date range (Monday to Sunday)
   const getCurrentWeekRange = () => {
@@ -100,10 +115,96 @@ export default function SaturdaySync() {
     }
   };
 
+  // Quick action handlers
+  const toggleExportMode = () => {
+    setExportMode(v => !v);
+    setSelectedIds(new Set());
+    setExportFilters({ assignUserId: '', sprintId: '', week: '' });
+  };
+
+  const toggleSelectReport = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = (ids: string[]) => {
+    const allSelected = ids.every(id => selectedIds.has(id));
+    setSelectedIds(allSelected ? new Set() : new Set(ids));
+  };
+
+  // Unique assignees from reports for filter dropdown
+  const assigneeOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    reports.forEach(r => {
+      if (r.userId && r.user?.fullName) map.set(r.userId, r.user.fullName);
+    });
+    return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+  }, [reports]);
+
+  // Apply export filters to reports for table display
+  const displayedReports = useMemo(() => {
+    if (!exportMode) return reports;
+    return reports.filter(r => {
+      if (exportFilters.assignUserId && r.userId !== exportFilters.assignUserId) return false;
+      if (exportFilters.sprintId) {
+        const sprint = sprints.find(s => s.id === exportFilters.sprintId);
+        if (!sprint) return false;
+        const date = new Date(r.weekEnding);
+        const start = new Date(sprint.startDate);
+        const end = new Date(sprint.endDate);
+        if (date < start || date > end) return false;
+        if (exportFilters.week) {
+          const week = getSprintWeek(r.weekEnding, sprint);
+          if (week !== Number(exportFilters.week)) return false;
+        }
+      }
+      return true;
+    });
+  }, [reports, exportMode, exportFilters, sprints]);
+
+  const handleExport = () => {
+    exportWeeklyReportsAsMarkdown(selectedIds, reports, sprints, exportFilters);
+  };
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Xóa ${selectedIds.size} báo cáo đã chọn? Không thể hoàn tác.`)) return;
+    setDeleting(true);
+    try {
+      await Promise.all(
+        Array.from(selectedIds).map(id =>
+          fetch(`/api/reports/${id}`, { method: 'DELETE' })
+        )
+      );
+      await fetchReports();
+      setSelectedIds(new Set());
+    } catch (error) {
+      console.error('Failed to delete reports:', error);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading || !currentUser) {
     return (
       <div className="h-full flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!canAccessPage) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center gap-4">
+        <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
+          <span className="material-symbols-outlined text-3xl text-amber-600">lock</span>
+        </div>
+        <h2 className="text-xl font-bold text-slate-700">Không có quyền truy cập</h2>
+        <p className="text-slate-500 text-center max-w-md">
+          Trang Weekly Report chỉ dành cho Leader và Admin. Vui lòng liên hệ quản lý nếu bạn cần truy cập.
+        </p>
       </div>
     );
   }
@@ -139,6 +240,19 @@ export default function SaturdaySync() {
         </div>
 
         <div className="flex items-center gap-3">
+          {canExport && (
+            <button
+              onClick={toggleExportMode}
+              className={`flex items-center justify-center gap-2 h-10 px-5 rounded-full font-black text-[10px] uppercase tracking-widest transition-all ${
+                exportMode
+                  ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                  : 'bg-surface-container-high text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              <Zap size={13} />
+              {exportMode ? 'Hủy' : 'Quick Action'}
+            </button>
+          )}
           <PrimaryActionButton onClick={() => setIsModalOpen(true)}>
             New Report
           </PrimaryActionButton>
@@ -178,8 +292,86 @@ export default function SaturdaySync() {
         </div>
       </div>
 
+      {/* Export Filter Panel */}
+      {exportMode && (
+        <div className="bg-white/70 backdrop-blur-md border border-white/20 rounded-3xl px-6 py-4 shadow-sm shrink-0">
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
+              Bộ lọc:
+            </span>
+
+            {/* Assign filter */}
+            <select
+              value={exportFilters.assignUserId}
+              onChange={e => setExportFilters(f => ({ ...f, assignUserId: e.target.value }))}
+              className="text-xs font-semibold border border-slate-200 rounded-xl px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/30"
+            >
+              <option value="">Tất cả assignee</option>
+              {assigneeOptions.map(u => (
+                <option key={u.id} value={u.id}>{u.name}</option>
+              ))}
+            </select>
+
+            {/* Sprint filter */}
+            <select
+              value={exportFilters.sprintId}
+              onChange={e => setExportFilters(f => ({ ...f, sprintId: e.target.value, week: '' }))}
+              className="text-xs font-semibold border border-slate-200 rounded-xl px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/30"
+            >
+              <option value="">Tất cả sprint</option>
+              {sprints.map(s => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+
+            {/* Week filter - only if sprint selected */}
+            {exportFilters.sprintId && (
+              <select
+                value={exportFilters.week}
+                onChange={e => setExportFilters(f => ({ ...f, week: e.target.value as WeeklyExportFilters['week'] }))}
+                className="text-xs font-semibold border border-slate-200 rounded-xl px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/30"
+              >
+                <option value="">Cả 2 tuần</option>
+                <option value="1">Tuần 1</option>
+                <option value="2">Tuần 2</option>
+              </select>
+            )}
+
+            <div className="ml-auto flex items-center gap-3">
+              <span className="text-[10px] text-slate-400 font-medium">
+                {selectedIds.size} báo cáo đã chọn
+              </span>
+              <button
+                onClick={handleBulkDelete}
+                disabled={selectedIds.size === 0 || deleting}
+                className="flex items-center gap-2 h-9 bg-red-500 text-white px-5 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none"
+              >
+                <Trash2 size={12} />
+                {deleting ? 'Đang xóa...' : `Xóa (${selectedIds.size})`}
+              </button>
+              <button
+                onClick={handleExport}
+                disabled={selectedIds.size === 0}
+                className="flex items-center gap-2 h-9 bg-primary text-white px-5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none"
+              >
+                <Download size={12} />
+                Export ({selectedIds.size})
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto pb-8">
-        <ReportTableView reports={reports} onViewDetail={handleViewDetail} sprints={sprints} />
+        <ReportTableView
+          reports={exportMode ? displayedReports : reports}
+          onViewDetail={handleViewDetail}
+          sprints={sprints}
+          exportMode={exportMode}
+          selectedIds={selectedIds}
+          onToggleSelect={toggleSelectReport}
+          onToggleSelectAll={toggleSelectAll}
+        />
       </div>
 
       <WeeklyCheckinModal

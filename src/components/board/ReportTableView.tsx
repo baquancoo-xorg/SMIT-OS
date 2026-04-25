@@ -5,6 +5,11 @@ interface ReportTableViewProps {
   reports: WeeklyReport[];
   onViewDetail: (report: WeeklyReport) => void;
   sprints?: Sprint[];
+  // Quick action props
+  exportMode?: boolean;
+  selectedIds?: Set<string>;
+  onToggleSelect?: (id: string) => void;
+  onToggleSelectAll?: (ids: string[]) => void;
 }
 
 // Helper to get week number from date
@@ -38,7 +43,15 @@ function getSprintForDate(date: Date, sprints: Sprint[]): Sprint | null {
   return null;
 }
 
-export default function ReportTableView({ reports, onViewDetail, sprints = [] }: ReportTableViewProps) {
+export default function ReportTableView({
+  reports,
+  onViewDetail,
+  sprints = [],
+  exportMode = false,
+  selectedIds,
+  onToggleSelect,
+  onToggleSelectAll,
+}: ReportTableViewProps) {
   // Sort reports by week (most recent first)
   const sortedReports = [...reports].sort((a, b) => {
     const dateA = new Date(a.weekEnding).getTime();
@@ -46,13 +59,26 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
     return dateB - dateA;
   });
 
+  const displayedIds = sortedReports.map(r => r.id);
+  const allDisplayedSelected = displayedIds.length > 0 && selectedIds && displayedIds.every(id => selectedIds.has(id));
+
   return (
     <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            {/* Column order: Created at → Reporter → Status → Department → Week → Sprint */}
+            {/* Column order: [Checkbox] → Created at → Reporter → Status → Department → Week → Sprint */}
             <tr className="bg-slate-50/50 border-b border-outline-variant/10">
+              {exportMode && (
+                <th className="pl-6 pr-2 py-6 w-10">
+                  <input
+                    type="checkbox"
+                    checked={allDisplayedSelected}
+                    onChange={() => onToggleSelectAll?.(displayedIds)}
+                    className="rounded accent-primary cursor-pointer"
+                  />
+                </th>
+              )}
               <th className="px-4 md:px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Created at</th>
               <th className="px-4 md:px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 min-w-[150px]">Reporter</th>
               <th className="px-4 md:px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 min-w-[90px]">Status</th>
@@ -73,9 +99,20 @@ export default function ReportTableView({ reports, onViewDetail, sprints = [] }:
               return (
                 <tr
                   key={report.id}
-                  onClick={() => onViewDetail(report)}
-                  className="hover:bg-primary/[0.02] transition-colors group cursor-pointer"
+                  onClick={() => !exportMode && onViewDetail(report)}
+                  className={`hover:bg-primary/[0.02] transition-colors group ${exportMode ? '' : 'cursor-pointer'}`}
                 >
+                  {/* Checkbox */}
+                  {exportMode && (
+                    <td className="pl-6 pr-2 py-5">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds?.has(report.id) || false}
+                        onChange={() => onToggleSelect?.(report.id)}
+                        className="rounded accent-primary cursor-pointer"
+                      />
+                    </td>
+                  )}
                   {/* Created at */}
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-2 text-sm text-on-surface-variant">
