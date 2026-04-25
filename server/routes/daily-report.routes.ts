@@ -69,6 +69,26 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
         },
         include: { user: true },
       });
+
+      // FIX: Auto-update WorkItem status for completed tasks
+      try {
+        const parsedTasksData = typeof tasksData === 'string' ? JSON.parse(tasksData) : tasksData;
+        if (parsedTasksData?.completedYesterday?.length > 0) {
+          await prisma.workItem.updateMany({
+            where: {
+              id: { in: parsedTasksData.completedYesterday },
+              status: { not: 'Done' }
+            },
+            data: {
+              status: 'Done',
+              updatedAt: new Date()
+            }
+          });
+        }
+      } catch (parseErr) {
+        console.error('Failed to update WorkItem statuses:', parseErr);
+      }
+
       res.json(report);
     } catch (err: any) {
       // Handle unique constraint violation (P2002) - duplicate report for same user+date

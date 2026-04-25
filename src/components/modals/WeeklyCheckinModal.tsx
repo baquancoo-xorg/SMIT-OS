@@ -62,7 +62,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
   useEffect(() => {
     const fetchObjectives = async () => {
       try {
-        const res = await fetch('/api/objectives');
+        const res = await fetch('/api/objectives', { credentials: 'include' });
         const data = await res.json();
         const teamObjectives = data.filter((obj: Objective) => obj.department === selectedTeam);
         setObjectives(teamObjectives);
@@ -125,16 +125,31 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
         userId: currentUser?.id,
         weekEnding: weekEnding.toISOString(),
         confidenceScore: Number(confidenceScore),
-        progress: JSON.stringify(krReviews.map(r => ({
-          krId: r.kr_id,
-          title: r.title,
-          what_we_did: r.what_we_did,
-          progress_added: r.progress_added
-        }))),
-        plans: JSON.stringify(nextWeekPlans.map(({ item_name, expected_output, deadline }) => ({
-          item_name, expected_output, deadline
-        }))),
-        blockers: blockers || '',
+        // FIX: Wrap in { keyResults: [] } to match ReportDetailDialog format
+        progress: JSON.stringify({
+          keyResults: krReviews.map(r => ({
+            krId: r.kr_id,
+            title: r.title,
+            previousProgress: r.currentProgress,
+            currentProgress: Math.min(100, r.currentProgress + r.progress_added),
+            progressChange: r.progress_added,
+            activities: r.what_we_did.split('\n').filter(Boolean),
+            impact: r.impact_assessment
+          }))
+        }),
+        // FIX: Wrap in { items: [] } with correct field names
+        plans: JSON.stringify({
+          items: nextWeekPlans.map((p, idx) => ({
+            stt: idx + 1,
+            item: p.item_name,
+            output: p.expected_output,
+            deadline: p.deadline
+          }))
+        }),
+        // FIX: Convert plain text to { items: [] }
+        blockers: JSON.stringify({
+          items: blockers.trim() ? [{ difficulty: blockers.trim(), supportRequest: '' }] : []
+        }),
         score: Number(confidenceScore),
         krProgress: JSON.stringify(krProgressData),
         adHocTasks: adHocTasks.length > 0 ? JSON.stringify(adHocTasks) : null
@@ -143,6 +158,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
       const res = await fetch('/api/reports', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(payload)
       });
 
