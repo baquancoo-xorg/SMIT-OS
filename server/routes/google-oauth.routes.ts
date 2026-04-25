@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { GoogleOAuthService } from '../services/google-oauth.service';
 
 const OAUTH_STATE_COOKIE = 'google_oauth_state';
@@ -10,7 +10,11 @@ const OAUTH_STATE_COOKIE_OPTIONS = {
   maxAge: 10 * 60 * 1000,
 };
 
-export function createGoogleOAuthRoutes(googleOAuthService: GoogleOAuthService) {
+/**
+ * Public routes - mounted BEFORE auth middleware.
+ * Only callback is public (Google redirects browser here).
+ */
+export function createGoogleOAuthPublicRoutes(googleOAuthService: GoogleOAuthService) {
   const router = Router();
 
   router.get('/callback', async (req: Request, res: Response) => {
@@ -18,12 +22,12 @@ export function createGoogleOAuthRoutes(googleOAuthService: GoogleOAuthService) 
     const cookieState = req.cookies?.[OAUTH_STATE_COOKIE];
 
     if (!code || typeof code !== 'string') {
-      return res.status(400).send('Missing authorization code');
+      return res.redirect('/settings?tab=export&error=' + encodeURIComponent('Missing authorization code'));
     }
 
     if (!state || typeof state !== 'string' || !cookieState || cookieState !== state) {
       res.clearCookie(OAUTH_STATE_COOKIE, OAUTH_STATE_COOKIE_OPTIONS);
-      return res.status(400).send('Invalid OAuth state');
+      return res.redirect('/settings?tab=export&error=' + encodeURIComponent('Invalid OAuth state'));
     }
 
     try {
@@ -37,15 +41,25 @@ export function createGoogleOAuthRoutes(googleOAuthService: GoogleOAuthService) 
     }
   });
 
-  // All routes below require admin auth
-  const requireAdmin = (req: Request, res: Response, next: Function) => {
+  return router;
+}
+
+/**
+ * Protected admin routes - mounted AFTER auth middleware.
+ */
+export function createGoogleOAuthAdminRoutes(googleOAuthService: GoogleOAuthService) {
+  const router = Router();
+
+  const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
     if (!req.user?.isAdmin) {
       return res.status(403).json({ error: 'Admin access required' });
     }
     next();
   };
 
-  router.get('/auth', requireAdmin, (_req: Request, res: Response) => {
+  router.use(requireAdmin);
+
+  router.get('/auth', (_req: Request, res: Response) => {
     try {
       const state = crypto.randomUUID();
       const authUrl = googleOAuthService.getAuthUrl(state);
@@ -57,7 +71,7 @@ export function createGoogleOAuthRoutes(googleOAuthService: GoogleOAuthService) 
     }
   });
 
-  router.get('/status', requireAdmin, async (req: Request, res: Response) => {
+  router.get('/status', async (_req: Request, res: Response) => {
     try {
       const integration = await googleOAuthService.getIntegration();
       if (!integration) {
@@ -74,7 +88,7 @@ export function createGoogleOAuthRoutes(googleOAuthService: GoogleOAuthService) 
     }
   });
 
-  router.delete('/disconnect', requireAdmin, async (req: Request, res: Response) => {
+  router.delete('/disconnect', async (_req: Request, res: Response) => {
     try {
       await googleOAuthService.disconnect();
       res.json({ success: true });
@@ -83,7 +97,7 @@ export function createGoogleOAuthRoutes(googleOAuthService: GoogleOAuthService) 
     }
   });
 
-  router.get('/folders', requireAdmin, async (_req: Request, res: Response) => {
+  router.get('/folders', async (_req: Request, res: Response) => {
     try {
       const folders = await googleOAuthService.listFolders();
       res.json({ folders });
@@ -93,10 +107,9 @@ export function createGoogleOAuthRoutes(googleOAuthService: GoogleOAuthService) 
     }
   });
 
-  router.post('/folder', requireAdmin, async (req: Request, res: Response) => {
+  router.post('/folder', async (req: Request, res: Response) => {
     const { folderId, folderName } = req.body;
 
-    // Validate folderId format if provided (Google Drive folder IDs are alphanumeric with dashes/underscores)
     if (folderId && typeof folderId === 'string') {
       if (!/^[A-Za-z0-9_-]{10,}$/.test(folderId)) {
         return res.status(400).json({ error: 'Invalid folder ID format' });
@@ -112,4 +125,9 @@ export function createGoogleOAuthRoutes(googleOAuthService: GoogleOAuthService) 
   });
 
   return router;
+}
+
+/** @deprecated Use createGoogleOAuthPublicRoutes + createGoogleOAuthAdminRoutes instead */
+export function createGoogleOAuthRoutes(googleOAuthService: GoogleOAuthService) {
+  return createGoogleOAuthAdminRoutes(googleOAuthService);
 }

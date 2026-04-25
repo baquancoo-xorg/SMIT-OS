@@ -10,6 +10,8 @@ export interface ExportResult {
   spreadsheetUrl?: string;
   error?: string;
   sheetsCreated: number;
+  exportDate?: string;
+  reusedExisting?: boolean;
 }
 
 export interface ExportJobStatus {
@@ -20,4 +22,5 @@ export interface ExportJobStatus {
   spreadsheetUrl?: string;
   error?: string;
   retryCount: number;
+  exportDate?: string;
 }

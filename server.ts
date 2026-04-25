@@ -27,7 +27,7 @@ import { createAdminFbConfigRoutes } from "./server/routes/admin-fb-config.route
 import { createNotificationRoutes } from "./server/routes/notification.routes";
 import { createLeadRoutes } from "./server/routes/lead.routes";
 import { createSheetsExportRoutes } from "./server/routes/sheets-export.routes";
-import { createGoogleOAuthRoutes } from "./server/routes/google-oauth.routes";
+import { createGoogleOAuthPublicRoutes, createGoogleOAuthAdminRoutes } from "./server/routes/google-oauth.routes";
 import { createGoogleOAuthService } from "./server/services/google-oauth.service";
 import { startFbSyncScheduler } from "./server/services/facebook/fb-sync-scheduler.service";
 import { initFbSyncService } from "./server/services/facebook/fb-sync.service";
@@ -89,10 +89,11 @@ app.use('/api/users/me/password', authLimiter);
 app.use("/api/auth", createAuthRoutes(prisma));
 
 const googleOAuthService = createGoogleOAuthService(prisma);
-app.use("/api/google", createGoogleOAuthRoutes(googleOAuthService));
+app.use("/api/google", createGoogleOAuthPublicRoutes(googleOAuthService));
 
 // Protected routes
 app.use("/api", createAuthMiddleware(prisma));
+app.use("/api/google", createGoogleOAuthAdminRoutes(googleOAuthService));
 app.use("/api/users", createUserRoutes(prisma));
 app.use("/api/objectives", createObjectiveRoutes(prisma));
 app.use("/api/key-results", createKeyResultRoutes(prisma));

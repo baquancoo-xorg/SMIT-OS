@@ -47,6 +47,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
   const [loadingFolders, setLoadingFolders] = useState(false);
   const [folderSearch, setFolderSearch] = useState('');
   const [showFolderDropdown, setShowFolderDropdown] = useState(false);
+  const [googleError, setGoogleError] = useState<string | null>(null);
 
   useEffect(() => {
     if (exportTrigger && exportTrigger > 0) {
@@ -68,7 +69,13 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
     checkGoogleStatus();
     const params = new URLSearchParams(window.location.search);
     if (params.get('connected') === 'true') {
+      setGoogleError(null);
       checkGoogleStatus();
+      window.history.replaceState({}, '', '/settings?tab=export');
+    }
+    const errorParam = params.get('error');
+    if (errorParam) {
+      setGoogleError(decodeURIComponent(errorParam));
       window.history.replaceState({}, '', '/settings?tab=export');
     }
   }, []);
@@ -90,14 +97,24 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
 
   const connectGoogle = async () => {
     setConnecting(true);
+    setGoogleError(null);
     try {
       const res = await fetch('/api/google/auth');
       const data = await res.json();
-      if (data.authUrl) {
-        window.location.href = data.authUrl;
+      if (!res.ok) {
+        setGoogleError(data.error || 'Failed to start OAuth');
+        setConnecting(false);
+        return;
       }
+      if (!data.authUrl) {
+        setGoogleError('Google OAuth URL missing. Check server configuration.');
+        setConnecting(false);
+        return;
+      }
+      window.location.href = data.authUrl;
     } catch (error) {
       console.error('Failed to start OAuth:', error);
+      setGoogleError('Network error. Please try again.');
       setConnecting(false);
     }
   };
@@ -108,6 +125,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
       await fetch('/api/google/disconnect', { method: 'DELETE' });
       setGoogleStatus({ connected: false });
       setFolders([]);
+      setGoogleError(null);
     } catch (error) {
       console.error('Failed to disconnect:', error);
     }
@@ -222,6 +240,13 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
                 </Button>
               )}
             </div>
+
+            {googleError && (
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-error/10 border border-error/20">
+                <AlertCircle className="h-4 w-4 text-error shrink-0 mt-0.5" />
+                <p className="text-sm text-error">{googleError}</p>
+              </div>
+            )}
 
             {googleStatus?.connected && (
               <div className="pt-5 border-t border-outline-variant/10 space-y-3">

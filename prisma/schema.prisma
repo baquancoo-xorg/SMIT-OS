@@ -343,3 +343,21 @@ model GoogleIntegration {
   @@unique([type]) // Only one integration per type
   @@map("google_integrations")
 }
+
+model SheetsExportRun {
+  id             String    @id @default(uuid())
+  exportDate     String    @map("export_date") // Vietnam calendar date YYYY-MM-DD
+  status         String    // running, completed, failed
+  spreadsheetId  String?   @map("spreadsheet_id")
+  spreadsheetUrl String?   @map("spreadsheet_url")
+  sheetsCreated  Int       @default(0) @map("sheets_created")
+  error          String?
+  startedAt      DateTime  @default(now()) @map("started_at")
+  completedAt    DateTime? @map("completed_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@unique([exportDate])
+  @@index([status])
+  @@map("sheets_export_runs")
+}
