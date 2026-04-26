@@ -1,5 +1,5 @@
 import { getCrmClient, safeCrmQuery } from '../../lib/crm-db';
-import { loadEmployeeMap } from '../lead-sync/employee-mapper';
+import { loadEmployeeMap, type EmployeeMapValue } from '../lead-sync/employee-mapper';
 import type { CallPerformanceCallInput, CallPerformanceResponse } from '../../types/call-performance.types';
 import { aggregateConversion, aggregateHeatmap, aggregatePerAe, aggregateTrend } from './call-performance-aggregators';
 
@@ -33,6 +33,56 @@ function writeCache(key: string, data: CallPerformanceResponse) {
     if (firstKey) cache.delete(firstKey);
   }
   cache.set(key, { data, expiresAt: Date.now() + CACHE_TTL_MS });
+}
+
+function getDisplayNameFromLarkInfo(larkInfo: unknown) {
+  if (!larkInfo || typeof larkInfo !== 'object' || Array.isArray(larkInfo)) return null;
+
+  const record = larkInfo as Record<string, unknown>;
+
+  const name = record.name;
+  if (typeof name === 'string' && name.trim()) return name.trim();
+
+  const enterpriseEmail = record.enterprise_email;
+  if (typeof enterpriseEmail === 'string' && enterpriseEmail.trim()) return enterpriseEmail.trim();
+
+  const email = record.email;
+  if (typeof email === 'string' && email.trim()) return email.trim();
+
+  return null;
+}
+
+async function loadCrmEmployeeNameMap(crm: any, employeeUserIds: number[]) {
+  if (employeeUserIds.length === 0) return new Map<number, EmployeeMapValue>();
+
+  const rows = await safeCrmQuery(
+    () =>
+      crm.smit_employee.findMany({
+        where: {
+          user_id: { in: employeeUserIds },
+          is_active: true,
+        },
+        select: {
+          user_id: true,
+          lark_info: true,
+        },
+      }),
+    [] as Array<{ user_id: number; lark_info: unknown }>
+  );
+
+  const map = new Map<number, EmployeeMapValue>();
+
+  for (const row of rows ?? []) {
+    const fullName = getDisplayNameFromLarkInfo(row.lark_info);
+    if (!fullName) continue;
+
+    map.set(row.user_id, {
+      id: `crm:${row.user_id}`,
+      fullName,
+    });
+  }
+
+  return map;
 }
 
 export async function getCallPerformance(from: Date, to: Date, aeId?: string): Promise<CallPerformanceResponse> {
@@ -102,6 +152,16 @@ export async function getCallPerformance(from: Date, to: Date, aeId?: string): P
     createdAt: row.created_at,
   }));
 
+  const employeeUserIds = [...new Set(calls.map((c) => c.employeeUserId).filter((id): id is number => id !== null))];
+  const crmEmployeeNameMap = await loadCrmEmployeeNameMap(crm, employeeUserIds);
+  const mergedEmployeeMap = new Map(employeeMap);
+
+  for (const [employeeUserId, employee] of crmEmployeeNameMap.entries()) {
+    if (!mergedEmployeeMap.has(employeeUserId)) {
+      mergedEmployeeMap.set(employeeUserId, employee);
+    }
+  }
+
   const subscriberIds = [...new Set(calls.map((c) => c.subscriberId).filter((id): id is number => id !== null))];
   const statusesRaw = subscriberIds.length > 0
     ? await safeCrmQuery(
@@ -123,9 +183,9 @@ export async function getCallPerformance(from: Date, to: Date, aeId?: string): P
   }
 
   const data: CallPerformanceResponse = {
-    perAe: aggregatePerAe(calls, employeeMap),
+    perAe: aggregatePerAe(calls, mergedEmployeeMap),
     heatmap: aggregateHeatmap(calls),
-    conversion: aggregateConversion(calls, employeeMap, subscriberStatusMap),
+    conversion: aggregateConversion(calls, mergedEmployeeMap, subscriberStatusMap),
     trend: aggregateTrend(calls),
   };
 

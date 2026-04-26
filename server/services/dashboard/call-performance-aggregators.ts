@@ -40,11 +40,20 @@ function round2(value: number) {
   return Math.round(value * 100) / 100;
 }
 
+const LEGACY_AE_NAME_BY_EMPLOYEE_ID: Record<number, string> = {
+  151150: 'Dương Chín',
+};
+
 function buildAeIdentity(employeeUserId: number | null, employeeMap: Map<number, { id: string; fullName: string }>) {
   if (employeeUserId === null) return { aeUserId: 'unmapped:unknown', aeName: 'Unmapped (CRM ID: unknown)' };
 
   const mapped = employeeMap.get(employeeUserId);
   if (mapped) return { aeUserId: mapped.id, aeName: mapped.fullName };
+
+  const legacyName = LEGACY_AE_NAME_BY_EMPLOYEE_ID[employeeUserId];
+  if (legacyName) {
+    return { aeUserId: `legacy:${employeeUserId}`, aeName: legacyName };
+  }
 
   return { aeUserId: `unmapped:${employeeUserId}`, aeName: `Unmapped (CRM ID: ${employeeUserId})` };
 }

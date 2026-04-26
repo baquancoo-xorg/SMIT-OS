@@ -16,8 +16,13 @@ export default function CallPerformanceAeTable({ data }: Props) {
   }
 
   return (
-    <DashboardPanel className="overflow-hidden">
-      <div className="overflow-x-auto">
+    <DashboardPanel className="overflow-hidden p-4 md:p-5">
+      <div className="mb-3">
+        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Per-AE Call Metrics</h3>
+        <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">Khối lượng gọi, tỷ lệ bắt máy và hiệu suất theo từng AE</p>
+      </div>
+
+      <div className="overflow-x-auto rounded-2xl border border-slate-100">
         <table className="w-full text-sm min-w-[920px]">
           <thead className="bg-slate-100/80 text-slate-600">
             <tr>

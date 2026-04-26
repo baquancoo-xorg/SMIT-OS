@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useCallPerformance } from '../../../hooks/use-call-performance';
 import CallPerformanceAeTable from './call-performance-ae-table';
 import CallPerformanceHeatmap from './call-performance-heatmap';
@@ -12,21 +11,11 @@ interface Props {
 }
 
 export default function CallPerformanceSection({ from, to }: Props) {
-  const [aeId, setAeId] = useState('');
-  const { data, isLoading, error } = useCallPerformance({ from, to, aeId: aeId || undefined });
+  const { data, isLoading, error } = useCallPerformance({ from, to });
 
   return (
     <section className="space-y-3">
-      <DashboardSectionTitle
-        action={
-          <input
-            value={aeId}
-            onChange={(e) => setAeId(e.target.value)}
-            placeholder="Filter theo AE ID (optional)"
-            className="h-9 w-60 rounded-xl border border-slate-200 px-3 text-xs font-medium text-slate-700 placeholder:text-slate-400"
-          />
-        }
-      >
+      <DashboardSectionTitle>
         Call Performance
       </DashboardSectionTitle>
 
