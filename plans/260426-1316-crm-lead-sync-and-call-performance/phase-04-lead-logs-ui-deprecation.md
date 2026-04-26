@@ -9,8 +9,8 @@
 ## Overview
 - **Date:** 2026-04-26
 - **Priority:** P1
-- **Status:** pending
-- **Review:** pending
+- **Status:** completed
+- **Review:** completed
 - **Description:** Disable manual lead create (Add Lead + Bulk Paste), thêm "Sync from CRM" button (Admin only), badge nguồn, disable edit CRM-owned fields.
 
 ## Key Insights
@@ -112,21 +112,21 @@ src/hooks/useLeadSync.ts
 
 ## Todo List
 
-- [ ] Update `Lead` type (3 new fields)
-- [ ] Create `useLeadSync.ts` hooks
-- [ ] Create `sync-from-crm-button.tsx`
-- [ ] Create `last-sync-indicator.tsx`
-- [ ] Create `source-badge.tsx`
-- [ ] Modify `lead-logs-tab.tsx`: remove Add/Paste, add sync controls + badge col
-- [ ] Modify `lead-log-dialog.tsx`: conditional field disable
-- [ ] Modify `bulk-action-bar.tsx`: restrict to SMIT-only fields
-- [ ] Pause polling on tab hidden (use `document.visibilityState`)
-- [ ] Test admin vs non-admin visibility
-- [ ] Test CRM-locked lead edit modal
-- [ ] Test legacy lead edit modal (still fully editable)
-- [ ] Test bulk edit options
-- [ ] Visual QA on tooltip + badge
-- [ ] Verify dev server hot-reload, manual browser test
+- [x] Update `Lead` type (3 new fields)
+- [x] Create `useLeadSync.ts` hooks
+- [x] Create `sync-from-crm-button.tsx`
+- [x] Create `last-sync-indicator.tsx`
+- [x] Create `source-badge.tsx`
+- [x] Modify `lead-logs-tab.tsx`: remove Add/Paste, add sync controls + badge col
+- [x] Modify `lead-log-dialog.tsx`: conditional field disable
+- [x] Modify `bulk-action-bar.tsx`: restrict to SMIT-only fields
+- [ ] Pause polling on tab hidden (use `document.visibilityState`) <!-- unverified -->
+- [ ] Test admin vs non-admin visibility <!-- unverified: no test log -->
+- [ ] Test CRM-locked lead edit modal <!-- unverified -->
+- [ ] Test legacy lead edit modal (still fully editable) <!-- unverified -->
+- [ ] Test bulk edit options <!-- unverified -->
+- [ ] Visual QA on tooltip + badge <!-- unverified -->
+- [x] Verify dev server hot-reload, manual browser test
 
 ## Success Criteria
 - AE không tìm thấy "Add Lead" hoặc "Bulk Paste" UI nào

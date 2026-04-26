@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import { DollarSign, CreditCard, Users, TrendingUp } from 'lucide-react';
 import { formatCurrency } from '../../../lib/formatters';
 import type { SummaryMetrics, MetricWithTrend } from '../../../types/dashboard-overview';
+import DashboardPanel from '../ui/dashboard-panel';
 
 interface MetricCardProps {
   label: string;
@@ -13,16 +14,16 @@ interface MetricCardProps {
 
 function MetricCard({ label, value, icon: Icon, trend, trendDirection }: MetricCardProps) {
   const trendColor = trendDirection === 'up'
-    ? 'text-[#0059B6]'
+    ? 'text-primary'
     : trendDirection === 'down'
       ? 'text-red-600'
       : 'text-slate-500';
 
   return (
-    <div className="group bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-5 hover:shadow-md transition-all duration-200">
+    <DashboardPanel className="group p-5 hover:shadow-md transition-all duration-200">
       <div className="flex items-start justify-between mb-3">
-        <div className="p-2 rounded-lg bg-[#0059B6]/10">
-          <Icon className="h-5 w-5 text-[#0059B6]" />
+        <div className="p-2 rounded-lg bg-primary/10">
+          <Icon className="h-5 w-5 text-primary" />
         </div>
       </div>
 
@@ -38,20 +39,20 @@ function MetricCard({ label, value, icon: Icon, trend, trendDirection }: MetricC
           <span className="text-xs text-slate-400">vs last period</span>
         </div>
       )}
-    </div>
+    </DashboardPanel>
   );
 }
 
 function SkeletonCard() {
   return (
-    <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-5 animate-pulse">
+    <DashboardPanel className="p-5 animate-pulse">
       <div className="flex items-start justify-between mb-3">
         <div className="w-9 h-9 bg-slate-100 rounded-lg" />
         <div className="w-14 h-6 bg-slate-100 rounded-md" />
       </div>
       <div className="h-3 w-16 bg-slate-100 rounded mb-2" />
       <div className="h-7 w-28 bg-slate-200 rounded" />
-    </div>
+    </DashboardPanel>
   );
 }
 
@@ -78,9 +79,9 @@ export const SummaryCards = memo(function SummaryCards({
 
   if (error) {
     return (
-      <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-5">
+      <DashboardPanel className="p-5">
         <p className="text-center text-red-600 font-medium">Lỗi: {error.message}</p>
-      </div>
+      </DashboardPanel>
     );
   }
 

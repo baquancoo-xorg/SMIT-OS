@@ -1,5 +1,6 @@
 import type { CallPerformancePerAeItem } from '../../../types/call-performance';
 import { formatNumber, formatPercent } from '../../../lib/formatters';
+import DashboardPanel from '../ui/dashboard-panel';
 
 interface Props {
   data: CallPerformancePerAeItem[];
@@ -8,14 +9,14 @@ interface Props {
 export default function CallPerformanceAeTable({ data }: Props) {
   if (data.length === 0) {
     return (
-      <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-6 text-sm text-slate-500">
+      <DashboardPanel className="p-6 text-sm text-slate-500">
         Không có dữ liệu theo bộ lọc đã chọn.
-      </div>
+      </DashboardPanel>
     );
   }
 
   return (
-    <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden">
+    <DashboardPanel className="overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm min-w-[920px]">
           <thead className="bg-slate-100/80 text-slate-600">
@@ -44,6 +45,6 @@ export default function CallPerformanceAeTable({ data }: Props) {
           </tbody>
         </table>
       </div>
-    </div>
+    </DashboardPanel>
   );
 }

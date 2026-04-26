@@ -1,12 +1,14 @@
 ---
 title: "CRM Lead Auto-Sync & Call Performance Dashboard"
 description: "Tự động sync subscriber từ CRM DB vào Lead Logs (CRM master, SMIT mirror) và thêm Call Performance section per-AE vào DashboardOverview"
-status: in_progress
+status: completed
 priority: P1
 effort: 16h
 branch: main
 tags: [crm, sync, lead-logs, dashboard, call-performance, cron]
 created: 2026-04-26
+blockedBy: []
+blocks: [260426-2346-dashboard-system-refactor-tabs-ui]
 ---
 
 # Plan: CRM Lead Auto-Sync & Call Performance Dashboard

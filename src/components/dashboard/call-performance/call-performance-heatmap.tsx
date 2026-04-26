@@ -1,4 +1,5 @@
 import type { CallPerformanceHeatmapItem } from '../../../types/call-performance';
+import DashboardPanel from '../ui/dashboard-panel';
 
 const DAYS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 
@@ -21,7 +22,7 @@ export default function CallPerformanceHeatmap({ data }: Props) {
   const map = new Map(data.map((item) => [`${item.dayOfWeek}-${item.hour}`, item.callCount]));
 
   return (
-    <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-4">
+    <DashboardPanel className="p-4">
       <div className="overflow-x-auto">
         <div className="min-w-[900px] space-y-2">
           <div className="grid grid-cols-[60px_repeat(24,minmax(24px,1fr))] gap-1 text-[10px] text-slate-400">
@@ -48,6 +49,6 @@ export default function CallPerformanceHeatmap({ data }: Props) {
           ))}
         </div>
       </div>
-    </div>
+    </DashboardPanel>
   );
 }

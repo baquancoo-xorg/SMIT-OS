@@ -1,13 +1,39 @@
 import { useState } from 'react';
 import { format, startOfMonth } from 'date-fns';
+import { useSearchParams } from 'react-router-dom';
 import { DateRangePicker } from '../components/dashboard/overview/DateRangePicker';
 import { SummaryCards } from '../components/dashboard/overview/SummaryCards';
 import { KpiTable } from '../components/dashboard/overview/KpiTable';
 import { useOverviewAll } from '../hooks/use-overview-data';
 import CallPerformanceSection from '../components/dashboard/call-performance/call-performance-section';
 import DashboardTab from '../components/lead-tracker/dashboard-tab';
+import {
+  DashboardEmptyState,
+  DashboardPageHeader,
+  DashboardSectionTitle,
+  SegmentedTabs,
+} from '../components/dashboard/ui';
 
 type ViewMode = 'realtime' | 'cohort';
+type DashboardDomainTab = 'overview' | 'sale' | 'product' | 'marketing' | 'media';
+
+const TAB_OPTIONS: Array<{ label: string; value: DashboardDomainTab }> = [
+  { label: 'Overview', value: 'overview' },
+  { label: 'Sale', value: 'sale' },
+  { label: 'Product', value: 'product' },
+  { label: 'Marketing', value: 'marketing' },
+  { label: 'Media', value: 'media' },
+];
+
+const VALID_TABS = new Set<DashboardDomainTab>(TAB_OPTIONS.map((item) => item.value));
+
+function parseDashboardTab(raw: string | null): DashboardDomainTab {
+  if (raw && VALID_TABS.has(raw as DashboardDomainTab)) {
+    return raw as DashboardDomainTab;
+  }
+
+  return 'overview';
+}
 
 export default function DashboardOverview() {
   const [range, setRange] = useState({
@@ -15,6 +41,8 @@ export default function DashboardOverview() {
     to: format(new Date(), 'yyyy-MM-dd'),
   });
   const [viewMode, setViewMode] = useState<ViewMode>('realtime');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedTab = parseDashboardTab(searchParams.get('tab'));
 
   const { data, isLoading, error } = useOverviewAll({
     from: range.from,
@@ -22,53 +50,79 @@ export default function DashboardOverview() {
     viewMode,
   });
 
+  const handleTabChange = (tab: DashboardDomainTab) => {
+    const next = new URLSearchParams(searchParams);
+
+    if (tab === 'overview') {
+      next.delete('tab');
+    } else {
+      next.set('tab', tab);
+    }
+
+    setSearchParams(next);
+  };
+
   return (
     <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
-      {/* Header Section */}
-      <section className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--space-md)] shrink-0">
-        <div>
-          <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
-            <span className="hover:text-primary cursor-pointer">Analytics</span>
-            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-            <span className="text-on-surface">Dashboard</span>
-          </nav>
-          <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">
-            Overview <span className="text-primary italic">Dashboard</span>
-          </h2>
-        </div>
-        <DateRangePicker value={range} onChange={setRange} />
-      </section>
+      <DashboardPageHeader
+        breadcrumb={[
+          { label: 'Analytics' },
+          { label: 'Dashboard', active: true },
+        ]}
+        title="Overview"
+        accent="Dashboard"
+        rightControls={
+          <div className="flex flex-wrap items-center justify-end gap-3 md:gap-4">
+            <div className="max-w-full">
+              <SegmentedTabs value={selectedTab} onChange={handleTabChange} options={TAB_OPTIONS} />
+            </div>
+            <DateRangePicker value={range} onChange={setRange} />
+          </div>
+        }
+      />
 
-      {/* Scrollable content area */}
       <div className="flex-1 overflow-y-auto pb-8 space-y-[var(--space-lg)]">
-        {/* Summary Cards */}
-        <SummaryCards
-          data={data?.summary}
-          isLoading={isLoading}
-          error={error as Error | null}
-          compareEnabled={true}
-        />
+        {selectedTab === 'overview' && (
+          <>
+            <SummaryCards
+              data={data?.summary}
+              isLoading={isLoading}
+              error={error as Error | null}
+              compareEnabled={true}
+            />
 
-        {/* KPI Table */}
-        <KpiTable
-          data={data?.kpiMetrics}
-          isLoading={isLoading}
-          error={error as Error | null}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-        />
+            <KpiTable
+              data={data?.kpiMetrics}
+              isLoading={isLoading}
+              error={error as Error | null}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+            />
+          </>
+        )}
 
-        {/* Call Performance */}
-        <CallPerformanceSection from={range.from} to={range.to} />
+        {selectedTab === 'sale' && (
+          <>
+            <CallPerformanceSection from={range.from} to={range.to} />
 
-        {/* CRM Performance */}
-        <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-            <span className="w-1 h-4 bg-[#0059B6] rounded-full" />
-            Lead Flow & Clearance
-          </h2>
-          <DashboardTab dateFrom={range.from} dateTo={range.to} />
-        </section>
+            <section className="space-y-3">
+              <DashboardSectionTitle>Lead Flow & Clearance</DashboardSectionTitle>
+              <DashboardTab dateFrom={range.from} dateTo={range.to} />
+            </section>
+          </>
+        )}
+
+        {selectedTab === 'product' && (
+          <DashboardEmptyState description="Dashboard cho Product đang được chuẩn bị." />
+        )}
+
+        {selectedTab === 'marketing' && (
+          <DashboardEmptyState description="Dashboard cho Marketing đang được chuẩn bị." />
+        )}
+
+        {selectedTab === 'media' && (
+          <DashboardEmptyState description="Dashboard cho Media đang được chuẩn bị." />
+        )}
       </div>
     </div>
   );

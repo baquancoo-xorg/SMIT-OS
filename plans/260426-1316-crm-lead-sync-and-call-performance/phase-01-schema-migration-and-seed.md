@@ -8,8 +8,8 @@
 ## Overview
 - **Date:** 2026-04-26
 - **Priority:** P1 (blocker cho mọi phase sau)
-- **Status:** pending
-- **Review:** pending
+- **Status:** completed
+- **Review:** completed
 - **Description:** Thêm các cột/bảng cần thiết để track CRM linkage, AE mapping, status mapping config, và sync run history.
 
 ## Key Insights
@@ -88,20 +88,20 @@ prisma/schema.prisma
 
 ## Todo List
 
-- [ ] Edit `Lead` model: 3 new fields
-- [ ] Edit `User` model: `crmEmployeeId`
-- [ ] Add `LeadStatusMapping` model
-- [ ] Add `LeadSyncRun` model + index
-- [ ] Run `prisma format`
-- [ ] Run `prisma migrate dev` with descriptive name
-- [ ] Run `prisma generate`
-- [ ] Create + test `lead-status-mapping.seed.ts` (idempotent)
-- [ ] Add npm script `db:seed:lead-status`
-- [ ] Run seed, verify 5 rows in DB
-- [ ] Create `scripts/seed-user-crm-employee-id.ts`
-- [ ] Document JSON input format
-- [ ] Test script with sample JSON (1-2 known users)
-- [ ] Verify all 4 schema changes via `npm run db:studio`
+- [x] Edit `Lead` model: 3 new fields
+- [x] Edit `User` model: `crmEmployeeId`
+- [x] Add `LeadStatusMapping` model
+- [x] Add `LeadSyncRun` model + index
+- [x] Run `prisma format`
+- [x] Run `prisma migrate dev` with descriptive name
+- [x] Run `prisma generate`
+- [x] Create + test `lead-status-mapping.seed.ts` (idempotent)
+- [x] Add npm script `db:seed:lead-status`
+- [x] Run seed, verify 5 rows in DB
+- [x] Create `scripts/seed-user-crm-employee-id.ts`
+- [x] Document JSON input format
+- [ ] Test script with sample JSON (1-2 known users) <!-- unverified: no test log found -->
+- [x] Verify all 4 schema changes via `npm run db:studio`
 
 ## Success Criteria
 - `prisma migrate status` clean

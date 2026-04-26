@@ -9,6 +9,7 @@ import {
   YAxis,
 } from 'recharts';
 import type { CallPerformanceTrendItem } from '../../../types/call-performance';
+import DashboardPanel from '../ui/dashboard-panel';
 
 interface Props {
   data: CallPerformanceTrendItem[];
@@ -17,14 +18,14 @@ interface Props {
 export default function CallPerformanceTrend({ data }: Props) {
   if (data.length === 0) {
     return (
-      <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-6 text-sm text-slate-500">
+      <DashboardPanel className="p-6 text-sm text-slate-500">
         Không có dữ liệu xu hướng cuộc gọi.
-      </div>
+      </DashboardPanel>
     );
   }
 
   return (
-    <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-4 h-[300px]">
+    <DashboardPanel className="p-4 h-[300px]">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 8, right: 16, left: -20, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -38,6 +39,6 @@ export default function CallPerformanceTrend({ data }: Props) {
           <Line yAxisId="duration" type="monotone" dataKey="avgDuration" stroke="#f59e0b" strokeWidth={2} dot={false} name="Avg Duration (s)" />
         </LineChart>
       </ResponsiveContainer>
-    </div>
+    </DashboardPanel>
   );
 }

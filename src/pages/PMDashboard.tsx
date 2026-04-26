@@ -9,6 +9,7 @@ import {
   BarChart2,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { DashboardPageHeader, DashboardPanel } from '../components/dashboard/ui';
 import {
   LineChart,
   Line,
@@ -19,7 +20,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from 'recharts';
 
 export default function PMDashboard() {
@@ -37,12 +37,12 @@ export default function PMDashboard() {
     try {
       setError(null);
       const [itemsRes, objsRes, usersRes, sprintsRes, reportsRes, dailyRes] = await Promise.all([
-        fetch('/api/work-items'),
-        fetch('/api/objectives'),
-        fetch('/api/users'),
-        fetch('/api/sprints'),
-        fetch('/api/reports'),
-        fetch('/api/daily-reports'),
+        fetch('/api/work-items', { credentials: 'include' }),
+        fetch('/api/objectives', { credentials: 'include' }),
+        fetch('/api/users', { credentials: 'include' }),
+        fetch('/api/sprints', { credentials: 'include' }),
+        fetch('/api/reports', { credentials: 'include' }),
+        fetch('/api/daily-reports', { credentials: 'include' }),
       ]);
 
       if (!itemsRes.ok || !objsRes.ok || !usersRes.ok || !sprintsRes.ok || !reportsRes.ok || !dailyRes.ok) {
@@ -253,29 +253,25 @@ export default function PMDashboard() {
     );
   }
 
-  const cardCls = 'bg-white/50 backdrop-blur-md border border-white/20 p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-sm flex flex-col gap-2';
   const labelCls = 'text-[10px] font-black text-slate-400 uppercase tracking-widest';
   const valueCls = 'text-lg md:text-xl font-black font-headline text-on-surface';
 
   return (
     <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
-      {/* Header */}
-      <section className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--space-md)] shrink-0">
-        <div>
-          <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
-            <span className="hover:text-primary cursor-pointer">Analytics</span>
-            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-            <span className="text-on-surface">Overview</span>
-          </nav>
-          <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">
-            Project Management <span className="text-primary italic">Control Panel</span>
-          </h2>
-        </div>
-        <div className="flex items-center gap-3 text-sm text-on-surface-variant">
-          <BarChart2 size={16} className="text-primary" />
-          <span>Last updated: {now.toLocaleTimeString()}</span>
-        </div>
-      </section>
+      <DashboardPageHeader
+        breadcrumb={[
+          { label: 'Analytics' },
+          { label: 'Overview', active: true },
+        ]}
+        title="Project Management"
+        accent="Control Panel"
+        rightControls={
+          <div className="flex items-center gap-3 text-sm text-on-surface-variant">
+            <BarChart2 size={16} className="text-primary" />
+            <span>Last updated: {now.toLocaleTimeString()}</span>
+          </div>
+        }
+      />
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto pb-8 space-y-[var(--space-lg)]">
@@ -284,7 +280,7 @@ export default function PMDashboard() {
         <section className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
 
           {/* 1. Sprint Burndown */}
-          <div className={cardCls}>
+          <DashboardPanel className="p-5 md:p-6 flex flex-col gap-2">
             <p className={labelCls}>Sprint Burndown</p>
             <div className="flex items-center justify-between">
               <h4 className={valueCls}>
@@ -301,10 +297,10 @@ export default function PMDashboard() {
             <p className="text-[10px] font-bold text-slate-400 mt-1">
               {currentSprint?.name ?? 'No active sprint'}
             </p>
-          </div>
+          </DashboardPanel>
 
           {/* 2. Overdue Tasks */}
-          <div className={cardCls}>
+          <DashboardPanel className="p-5 md:p-6 flex flex-col gap-2">
             <p className={labelCls}>Overdue Tasks</p>
             <div className="flex items-center justify-between">
               <h4 className={`${valueCls} ${overdueCount > 0 ? 'text-error' : ''}`}>
@@ -313,10 +309,10 @@ export default function PMDashboard() {
               <AlertCircle size={18} className={overdueCount > 0 ? 'text-error' : 'text-slate-300'} />
             </div>
             <p className="text-[10px] font-bold text-slate-400 mt-1">Past due date</p>
-          </div>
+          </DashboardPanel>
 
           {/* 3. Review Queue */}
-          <div className={cardCls}>
+          <DashboardPanel className="p-5 md:p-6 flex flex-col gap-2">
             <p className={labelCls}>Review Queue</p>
             <div className="flex items-center justify-between">
               <h4 className={`${valueCls} ${reviewQueueCount > 3 ? 'text-amber-600' : ''}`}>
@@ -325,10 +321,10 @@ export default function PMDashboard() {
               <Eye size={18} className="text-primary" />
             </div>
             <p className="text-[10px] font-bold text-slate-400 mt-1">Items waiting review</p>
-          </div>
+          </DashboardPanel>
 
           {/* 4. WIP per Person */}
-          <div className={cardCls}>
+          <DashboardPanel className="p-5 md:p-6 flex flex-col gap-2">
             <p className={labelCls}>WIP / Person</p>
             <div className="flex items-center justify-between">
               <h4 className={`${valueCls} ${
@@ -338,20 +334,20 @@ export default function PMDashboard() {
               <Users size={18} className="text-primary" />
             </div>
             <p className="text-[10px] font-bold text-slate-400 mt-1">In progress / person</p>
-          </div>
+          </DashboardPanel>
 
           {/* 5. Daily Report Today */}
-          <div className={cardCls}>
+          <DashboardPanel className="p-5 md:p-6 flex flex-col gap-2">
             <p className={labelCls}>Daily Reports</p>
             <div className="flex items-center justify-between">
               <h4 className={valueCls}>{dailyTodayCount}/{totalMembers}</h4>
               <ClipboardCheck size={18} className="text-primary" />
             </div>
             <p className="text-[10px] font-bold text-slate-400 mt-1">Submitted today</p>
-          </div>
+          </DashboardPanel>
 
           {/* 6. Team Confidence */}
-          <div className={cardCls}>
+          <DashboardPanel className="p-5 md:p-6 flex flex-col gap-2">
             <p className={labelCls}>Team Confidence</p>
             <div className="flex items-center justify-between">
               <h4 className={valueCls}>
@@ -361,14 +357,13 @@ export default function PMDashboard() {
                 {approvedCount}/{currentWeekReports.length}
               </span>
             </div>
-            <p className="text-[10px] font-bold text-slate-400 mt-1">Weekly score u00b7 approved</p>
-          </div>
+            <p className="text-[10px] font-bold text-slate-400 mt-1">Weekly score · approved</p>
+          </DashboardPanel>
         </section>
 
         {/* ==================== Tier 2: Row 1 — Department Progress | Weekly Velocity ==================== */}
         <section className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
-          {/* Department Progress */}
-          <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm p-5 md:p-6 lg:p-8">
+          <DashboardPanel className="p-5 md:p-6 lg:p-8">
             <h3 className="text-base md:text-lg font-black font-headline text-on-surface mb-6">
               Department Progress
             </h3>
@@ -386,10 +381,9 @@ export default function PMDashboard() {
                 </div>
               ))}
             </div>
-          </div>
+          </DashboardPanel>
 
-          {/* Weekly Velocity */}
-          <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm p-5 md:p-6 lg:p-8">
+          <DashboardPanel className="p-5 md:p-6 lg:p-8">
             <div className="flex items-center gap-2 mb-6">
               <h3 className="text-base md:text-lg font-black font-headline text-on-surface">
                 Weekly Velocity
@@ -428,13 +422,12 @@ export default function PMDashboard() {
                 <p>Insufficient data for velocity chart</p>
               </div>
             )}
-          </div>
+          </DashboardPanel>
         </section>
 
         {/* ==================== Tier 2: Row 2 — Status Breakdown | Upcoming Deadlines ==================== */}
         <section className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
-          {/* Status Breakdown */}
-          <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm p-5 md:p-6 lg:p-8">
+          <DashboardPanel className="p-5 md:p-6 lg:p-8">
             <h3 className="text-base md:text-lg font-black font-headline text-on-surface mb-6">
               Status Breakdown
             </h3>
@@ -452,10 +445,9 @@ export default function PMDashboard() {
                 </div>
               ))}
             </div>
-          </div>
+          </DashboardPanel>
 
-          {/* Upcoming Deadlines */}
-          <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm p-5 md:p-6 lg:p-8">
+          <DashboardPanel className="p-5 md:p-6 lg:p-8">
             <h3 className="text-base md:text-lg font-black font-headline text-on-surface mb-2">
               Upcoming Deadlines
             </h3>
@@ -512,7 +504,7 @@ export default function PMDashboard() {
                 <p>No upcoming deadlines in the next 4 weeks</p>
               </div>
             )}
-          </div>
+          </DashboardPanel>
         </section>
 
       </div>

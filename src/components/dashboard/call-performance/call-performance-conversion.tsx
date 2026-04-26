@@ -1,5 +1,6 @@
 import type { CallPerformanceConversionItem } from '../../../types/call-performance';
 import { formatNumber } from '../../../lib/formatters';
+import DashboardPanel from '../ui/dashboard-panel';
 
 interface Props {
   data: CallPerformanceConversionItem[];
@@ -8,14 +9,14 @@ interface Props {
 export default function CallPerformanceConversion({ data }: Props) {
   if (data.length === 0) {
     return (
-      <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-6 text-sm text-slate-500">
+      <DashboardPanel className="p-6 text-sm text-slate-500">
         Không có dữ liệu chuyển đổi cuộc gọi trong khoảng thời gian này.
-      </div>
+      </DashboardPanel>
     );
   }
 
   return (
-    <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden">
+    <DashboardPanel className="overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm min-w-[760px]">
           <thead className="bg-slate-100/80 text-slate-600">
@@ -38,6 +39,6 @@ export default function CallPerformanceConversion({ data }: Props) {
           </tbody>
         </table>
       </div>
-    </div>
+    </DashboardPanel>
   );
 }

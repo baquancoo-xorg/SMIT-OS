@@ -3,6 +3,7 @@ import { ArrowUp, ArrowDown, ArrowUpDown, HelpCircle, Medal, Award, Trophy } fro
 import { formatCurrency, formatNumber, formatPercent } from '../../../lib/formatters';
 import type { KpiMetricsResponse, KpiMetricsRow } from '../../../types/dashboard-overview';
 import { type SortConfig, type SortField, sortData, handleSortClick, formatDateVN } from './kpi-table-utils';
+import { DashboardPanel, DashboardSectionTitle, SegmentedTabs } from '../ui';
 
 type ViewMode = 'realtime' | 'cohort';
 type RateMode = 'top' | 'step';
@@ -23,7 +24,7 @@ function SortableHeader({ field, title, sortConfig, onSort }: SortableHeaderProp
       type="button"
       onClick={() => onSort(field)}
       className={`inline-flex items-center gap-0.5 text-[11px] font-semibold transition-colors whitespace-nowrap ${
-        active ? 'text-[#0059B6]' : 'text-slate-500 hover:text-slate-700'
+        active ? 'text-primary' : 'text-slate-500 hover:text-slate-700'
       }`}
     >
       <span>{title}</span>
@@ -34,11 +35,11 @@ function SortableHeader({ field, title, sortConfig, onSort }: SortableHeaderProp
 
 function RateBadge({ value, rate }: { value: number; rate: number }) {
   const style = rate >= 50
-    ? 'bg-[#0059B6] text-white'
+    ? 'bg-primary text-white'
     : rate >= 20
-      ? 'bg-[#0059B6]/70 text-white'
+      ? 'bg-primary/70 text-white'
       : rate > 0
-        ? 'bg-[#0059B6]/20 text-[#0059B6]'
+        ? 'bg-primary/20 text-primary'
         : 'bg-slate-100 text-slate-400';
   return (
     <span className="inline-flex items-center gap-1.5">
@@ -58,11 +59,11 @@ interface MqlTiers {
 
 function MqlBadgeWithTooltip({ value, rate, tiers, rowIndex }: { value: number; rate: number; tiers: MqlTiers; rowIndex?: number }) {
   const style = rate >= 50
-    ? 'bg-[#0059B6] text-white'
+    ? 'bg-primary text-white'
     : rate >= 20
-      ? 'bg-[#0059B6]/70 text-white'
+      ? 'bg-primary/70 text-white'
       : rate > 0
-        ? 'bg-[#0059B6]/20 text-[#0059B6]'
+        ? 'bg-primary/20 text-primary'
         : 'bg-slate-100 text-slate-400';
   const total = tiers.gold + tiers.silver + tiers.bronze;
   const bronzePercent = total > 0 ? (tiers.bronze / total) * 100 : 0;
@@ -84,7 +85,6 @@ function MqlBadgeWithTooltip({ value, rate, tiers, rowIndex }: { value: number; 
       </span>
       <span className="text-slate-700 tabular-nums">{value}</span>
 
-      {/* Tooltip */}
       <div className={`absolute ${tooltipPosition} right-0 p-3 bg-white shadow-sm text-slate-700 text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 whitespace-nowrap z-50 shadow-md pointer-events-none min-w-[180px]`}>
         <div className="font-semibold text-slate-800 mb-2 text-[11px]">MQL Tier Breakdown</div>
         <div className="flex flex-col gap-1.5">
@@ -145,7 +145,7 @@ function KpiTableRow({ row, isTotal, rateMode, index = 0 }: KpiTableRowProps) {
   const sqlRate = safeDivide(row.sql, row.signups);
 
   return (
-    <tr className={`${isTotal ? '' : 'border-b border-slate-100'} ${rowBg} hover:bg-[#0059B6]/5 transition-colors`}>
+    <tr className={`${isTotal ? '' : 'border-b border-slate-100'} ${rowBg} hover:bg-primary/5 transition-colors`}>
       <td className={`${cellStyle} text-left font-medium text-slate-800 sticky left-0 ${isTotal ? 'bg-slate-50 z-30' : `${rowBg} z-10`}`}>
         {isTotal ? 'TOTAL' : formatDateVN(row.date)}
       </td>
@@ -185,7 +185,7 @@ function KpiTableRow({ row, isTotal, rateMode, index = 0 }: KpiTableRowProps) {
         <RateBadge value={row.sql} rate={sqlRate} />
       </td>
       <td className={`${cellStyle} ${rightAlign} font-medium tabular-nums`}>{formatCurrency(row.revenue)}</td>
-      <td className={`${cellStyle} ${rightAlign} font-bold tabular-nums ${row.roas >= 1 ? 'text-[#0059B6]' : 'text-red-600'}`}>
+      <td className={`${cellStyle} ${rightAlign} font-bold tabular-nums ${row.roas >= 1 ? 'text-primary' : 'text-red-600'}`}>
         {row.roas.toFixed(2)}x
       </td>
       <td className={`${cellStyle} ${rightAlign}`}>
@@ -199,13 +199,13 @@ function SkeletonTable() {
   return (
     <section>
       <div className="h-5 w-24 bg-slate-200 rounded mb-3" />
-      <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm animate-pulse overflow-hidden">
+      <DashboardPanel className="animate-pulse overflow-hidden">
         <div className="p-4 space-y-2">
           {[...Array(7)].map((_, i) => (
             <div key={i} className="h-8 bg-slate-100 rounded" />
           ))}
         </div>
-      </div>
+      </DashboardPanel>
     </section>
   );
 }
@@ -218,6 +218,16 @@ interface KpiTableProps {
   onViewModeChange: (mode: ViewMode) => void;
 }
 
+const VIEW_MODE_OPTIONS: Array<{ label: string; value: ViewMode }> = [
+  { label: 'Realtime', value: 'realtime' },
+  { label: 'Cohort', value: 'cohort' },
+];
+
+const RATE_MODE_OPTIONS: Array<{ label: string; value: RateMode }> = [
+  { label: 'Top', value: 'top' },
+  { label: 'Step', value: 'step' },
+];
+
 export const KpiTable = memo(function KpiTable({
   data,
   isLoading,
@@ -229,7 +239,6 @@ export const KpiTable = memo(function KpiTable({
   const [rateMode, setRateMode] = useState<RateMode>('top');
   const handleSort = useCallback((f: SortField) => setSortConfig((p) => handleSortClick(f, p)), []);
 
-  // Cohort mode chỉ hỗ trợ Top mode
   useEffect(() => {
     if (viewMode === 'cohort' && rateMode === 'step') {
       setRateMode('top');
@@ -237,15 +246,17 @@ export const KpiTable = memo(function KpiTable({
   }, [viewMode, rateMode]);
 
   const isStepDisabled = viewMode === 'cohort';
-
   const sortedData = useMemo(() => (data ? sortData(data.data, sortConfig) : []), [data, sortConfig]);
 
-  // Refs for syncing horizontal scroll between header, data table, and total row
   const headerScrollRef = useRef<HTMLDivElement>(null);
   const dataScrollRef = useRef<HTMLDivElement>(null);
   const totalScrollRef = useRef<HTMLDivElement>(null);
+  const isSyncingScrollRef = useRef(false);
 
   const syncScroll = useCallback((scrollLeft: number, source: 'header' | 'data' | 'total') => {
+    if (isSyncingScrollRef.current) return;
+    isSyncingScrollRef.current = true;
+
     if (source !== 'header' && headerScrollRef.current) {
       headerScrollRef.current.scrollLeft = scrollLeft;
     }
@@ -255,6 +266,10 @@ export const KpiTable = memo(function KpiTable({
     if (source !== 'total' && totalScrollRef.current) {
       totalScrollRef.current.scrollLeft = scrollLeft;
     }
+
+    requestAnimationFrame(() => {
+      isSyncingScrollRef.current = false;
+    });
   }, []);
 
   const handleHeaderScroll = useCallback(() => {
@@ -280,13 +295,10 @@ export const KpiTable = memo(function KpiTable({
   if (error) {
     return (
       <section>
-        <h2 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
-          <span className="w-1 h-4 bg-[#0059B6] rounded-full" />
-          KPI Metrics
-        </h2>
-        <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-6">
+        <DashboardSectionTitle>KPI Metrics</DashboardSectionTitle>
+        <DashboardPanel className="p-6">
           <p className="text-center text-red-600 font-medium">Lỗi: {error.message}</p>
-        </div>
+        </DashboardPanel>
       </section>
     );
   }
@@ -295,64 +307,45 @@ export const KpiTable = memo(function KpiTable({
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-          <span className="w-1 h-4 bg-[#0059B6] rounded-full" />
-          KPI Metrics
-        </h2>
+      <div className="flex items-center justify-between mb-3 gap-3">
+        <DashboardSectionTitle>KPI Metrics</DashboardSectionTitle>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-md bg-slate-100 p-0.5">
-            <button
-              type="button"
-              onClick={() => onViewModeChange('realtime')}
-              className={`px-3 py-1.5 text-xs font-medium rounded transition-all ${
-                viewMode === 'realtime' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              Realtime
-            </button>
-            <button
-              type="button"
-              onClick={() => onViewModeChange('cohort')}
-              className={`px-3 py-1.5 text-xs font-medium rounded transition-all ${
-                viewMode === 'cohort' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              Cohort
-            </button>
+          <div className="w-[210px] hidden md:block">
+            <SegmentedTabs value={viewMode} onChange={onViewModeChange} options={VIEW_MODE_OPTIONS} />
           </div>
-          <div className={`flex rounded-md bg-slate-100 p-0.5 ${isStepDisabled ? 'opacity-60' : ''}`} title={isStepDisabled ? 'Step mode không khả dụng trong Cohort view' : ''}>
-            <button
-              type="button"
-              onClick={() => setRateMode('top')}
-              className={`px-3 py-1.5 text-xs font-medium rounded transition-all ${
-                rateMode === 'top' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              Top
-            </button>
-            <button
-              type="button"
-              onClick={() => !isStepDisabled && setRateMode('step')}
-              disabled={isStepDisabled}
-              className={`px-3 py-1.5 text-xs font-medium rounded transition-all ${
-                isStepDisabled
-                  ? 'text-slate-300 cursor-not-allowed'
-                  : rateMode === 'step'
-                    ? 'bg-white text-slate-800 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              Step
-            </button>
+          <div className={`w-[180px] hidden md:block ${isStepDisabled ? 'opacity-60' : ''}`} title={isStepDisabled ? 'Step mode không khả dụng trong Cohort view' : ''}>
+            <SegmentedTabs
+              value={rateMode}
+              onChange={(mode) => {
+                if (mode === 'step' && isStepDisabled) return;
+                setRateMode(mode);
+              }}
+              options={RATE_MODE_OPTIONS}
+            />
           </div>
           <button type="button" className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors" title="Hướng dẫn">
             <HelpCircle className="h-4 w-4" />
           </button>
         </div>
       </div>
-      <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden flex flex-col">
-        {/* Fixed header row */}
+
+      <div className="md:hidden flex items-center gap-2 mb-3">
+        <div className="flex-1">
+          <SegmentedTabs value={viewMode} onChange={onViewModeChange} options={VIEW_MODE_OPTIONS} />
+        </div>
+        <div className={`flex-1 ${isStepDisabled ? 'opacity-60' : ''}`} title={isStepDisabled ? 'Step mode không khả dụng trong Cohort view' : ''}>
+          <SegmentedTabs
+            value={rateMode}
+            onChange={(mode) => {
+              if (mode === 'step' && isStepDisabled) return;
+              setRateMode(mode);
+            }}
+            options={RATE_MODE_OPTIONS}
+          />
+        </div>
+      </div>
+
+      <DashboardPanel className="overflow-hidden flex flex-col">
         <div ref={headerScrollRef} onScroll={handleHeaderScroll} className="bg-slate-100 border-b border-slate-200 overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <table className="w-full text-sm table-fixed min-w-[1680px]">
             <colgroup>
@@ -435,7 +428,7 @@ export const KpiTable = memo(function KpiTable({
             </thead>
           </table>
         </div>
-        {/* Scrollable data area */}
+
         <div ref={dataScrollRef} onScroll={handleDataScroll} className="overflow-auto max-h-[500px] flex-1">
           <table className="w-full text-sm table-fixed min-w-[1680px]">
             <colgroup>
@@ -465,7 +458,7 @@ export const KpiTable = memo(function KpiTable({
             </tbody>
           </table>
         </div>
-        {/* Fixed total row */}
+
         <div ref={totalScrollRef} onScroll={handleTotalScroll} className="border-t-2 border-slate-200 bg-slate-50 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <table className="w-full text-sm table-fixed min-w-[1680px]">
             <colgroup>
@@ -493,7 +486,7 @@ export const KpiTable = memo(function KpiTable({
             </tbody>
           </table>
         </div>
-      </div>
+      </DashboardPanel>
     </section>
   );
 });
