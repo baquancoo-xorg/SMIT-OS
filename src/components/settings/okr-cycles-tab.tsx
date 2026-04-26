@@ -17,7 +17,7 @@ export function OkrCyclesTab({ onDeleteConfirm, isAddingCycle, setIsAddingCycle 
 
   const fetchOkrCycles = async () => {
     try {
-      const res = await fetch('/api/okr-cycles');
+      const res = await fetch('/api/okr-cycles', { credentials: 'include' });
       const data = await res.json();
       setOkrCycles(data);
     } catch (error) {
@@ -34,6 +34,7 @@ export function OkrCyclesTab({ onDeleteConfirm, isAddingCycle, setIsAddingCycle 
       const res = await fetch('/api/okr-cycles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(newCycle)
       });
       if (res.ok) {
@@ -51,6 +52,7 @@ export function OkrCyclesTab({ onDeleteConfirm, isAddingCycle, setIsAddingCycle 
       const res = await fetch(`/api/okr-cycles/${cycle.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(cycle)
       });
       if (res.ok) {

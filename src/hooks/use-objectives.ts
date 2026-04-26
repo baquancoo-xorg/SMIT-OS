@@ -25,7 +25,7 @@ export interface Objective {
 }
 
 async function fetchObjectives(): Promise<Objective[]> {
-  const res = await fetch('/api/objectives');
+  const res = await fetch('/api/objectives', { credentials: 'include' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -46,6 +46,7 @@ export function useObjectiveMutations() {
       const res = await fetch('/api/objectives', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -59,6 +60,7 @@ export function useObjectiveMutations() {
       const res = await fetch(`/api/objectives/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -69,7 +71,7 @@ export function useObjectiveMutations() {
 
   const deleteObjective = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/objectives/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/objectives/${id}`, { method: 'DELETE', credentials: 'include' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
     },
     onSuccess: invalidate,

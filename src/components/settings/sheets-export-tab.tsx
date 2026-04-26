@@ -82,7 +82,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
 
   const checkGoogleStatus = async () => {
     try {
-      const res = await fetch('/api/google/status');
+      const res = await fetch('/api/google/status', { credentials: 'include' });
       const data = await res.json();
       setGoogleStatus(data);
       if (data.connected) {
@@ -99,7 +99,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
     setConnecting(true);
     setGoogleError(null);
     try {
-      const res = await fetch('/api/google/auth');
+      const res = await fetch('/api/google/auth', { credentials: 'include' });
       const data = await res.json();
       if (!res.ok) {
         setGoogleError(data.error || 'Failed to start OAuth');
@@ -122,7 +122,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
   const disconnectGoogle = async () => {
     if (!confirm('Disconnect Google account?')) return;
     try {
-      await fetch('/api/google/disconnect', { method: 'DELETE' });
+      await fetch('/api/google/disconnect', { method: 'DELETE', credentials: 'include' });
       setGoogleStatus({ connected: false });
       setFolders([]);
       setGoogleError(null);
@@ -134,7 +134,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
   const loadFolders = async () => {
     setLoadingFolders(true);
     try {
-      const res = await fetch('/api/google/folders');
+      const res = await fetch('/api/google/folders', { credentials: 'include' });
       const data = await res.json();
       if (res.ok) {
         setFolders(data.folders || []);
@@ -155,6 +155,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
       await fetch('/api/google/folder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ folderId: folderId || null, folderName: folderName || null }),
       });
       setGoogleStatus((prev) =>
@@ -174,7 +175,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
   const triggerExport = async () => {
     setExporting(true);
     try {
-      const res = await fetch('/api/sheets-export/trigger', { method: 'POST' });
+      const res = await fetch('/api/sheets-export/trigger', { method: 'POST', credentials: 'include' });
       const data = await res.json();
       if (res.ok) {
         setExportStatus(data.status);
@@ -191,7 +192,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
 
   const startPolling = () => {
     const interval = setInterval(async () => {
-      const res = await fetch('/api/sheets-export/status');
+      const res = await fetch('/api/sheets-export/status', { credentials: 'include' });
       const data = await res.json();
       setExportStatus(data.status);
       if (data.status?.status === 'completed' || data.status?.status === 'failed') {

@@ -12,7 +12,7 @@ export interface User {
 }
 
 async function fetchUsers(): Promise<User[]> {
-  const res = await fetch('/api/users');
+  const res = await fetch('/api/users', { credentials: 'include' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }

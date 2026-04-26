@@ -17,7 +17,7 @@ export function SprintCyclesTab({ onDeleteConfirm, isAddingSprint, setIsAddingSp
 
   const fetchSprints = async () => {
     try {
-      const res = await fetch('/api/sprints');
+      const res = await fetch('/api/sprints', { credentials: 'include' });
       const data = await res.json();
       setSprints(data);
     } catch (error) {
@@ -34,6 +34,7 @@ export function SprintCyclesTab({ onDeleteConfirm, isAddingSprint, setIsAddingSp
       const res = await fetch('/api/sprints', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(newSprint)
       });
       if (res.ok) {
@@ -51,6 +52,7 @@ export function SprintCyclesTab({ onDeleteConfirm, isAddingSprint, setIsAddingSp
       const res = await fetch(`/api/sprints/${sprint.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(sprint)
       });
       if (res.ok) {

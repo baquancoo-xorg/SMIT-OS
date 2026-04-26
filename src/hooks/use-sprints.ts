@@ -10,7 +10,7 @@ export interface Sprint {
 }
 
 async function fetchSprints(): Promise<Sprint[]> {
-  const res = await fetch('/api/sprints');
+  const res = await fetch('/api/sprints', { credentials: 'include' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }

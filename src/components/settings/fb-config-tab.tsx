@@ -34,7 +34,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
 
   const fetchAccounts = async () => {
     try {
-      const res = await fetch('/api/admin/fb-accounts');
+      const res = await fetch('/api/admin/fb-accounts', { credentials: 'include' });
       const data = await res.json();
       if (data.success) setAccounts(data.data);
     } catch (err) {
@@ -46,7 +46,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
 
   const fetchExchangeRate = async () => {
     try {
-      const res = await fetch('/api/admin/exchange-rates');
+      const res = await fetch('/api/admin/exchange-rates', { credentials: 'include' });
       const data = await res.json();
       if (data.success) setExchangeRate(data.data.exchangeRate);
     } catch (err) {
@@ -60,6 +60,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
       const res = await fetch('/api/admin/fb-accounts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
       const data = await res.json();
@@ -86,6 +87,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
       const res = await fetch(`/api/admin/fb-accounts/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(body),
       });
       const data = await res.json();
@@ -104,7 +106,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
   const handleDeleteAccount = async (id: number) => {
     if (!confirm('Delete this account?')) return;
     try {
-      await fetch(`/api/admin/fb-accounts/${id}`, { method: 'DELETE' });
+      await fetch(`/api/admin/fb-accounts/${id}`, { method: 'DELETE', credentials: 'include' });
       await fetchAccounts();
     } catch (err) {
       console.error('Failed to delete account:', err);
@@ -120,6 +122,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
       await fetch(`/api/admin/fb-accounts/${id}/sync`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ dateStart: weekAgo, dateEnd: today }),
       });
       setTimeout(() => {
@@ -142,6 +145,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
       const res = await fetch('/api/admin/exchange-rates', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ exchangeRate: Number(exchangeRate) }),
       });
       const data = await res.json();

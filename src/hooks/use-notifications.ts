@@ -42,7 +42,7 @@ export function useNotifications(workItems: WorkItem[] = []) {
 
   const fetchNotifications = useCallback(async () => {
     try {
-      const res = await fetch('/api/notifications?limit=20');
+      const res = await fetch('/api/notifications?limit=20', { credentials: 'include' });
       if (!res.ok) return;
       const data: Notification[] = await res.json();
       setNotifications(data.filter(n => !isTestNotification(n)));
@@ -55,7 +55,7 @@ export function useNotifications(workItems: WorkItem[] = []) {
 
   const fetchUnreadCount = useCallback(async () => {
     try {
-      const res = await fetch('/api/notifications/unread-count');
+      const res = await fetch('/api/notifications/unread-count', { credentials: 'include' });
       if (!res.ok) return;
       const data: { count: number } = await res.json();
       setUnreadCount(data.count);
@@ -65,7 +65,7 @@ export function useNotifications(workItems: WorkItem[] = []) {
   }, []);
 
   const markAsRead = useCallback(async (id: string) => {
-    const res = await fetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
+    const res = await fetch(`/api/notifications/${id}/read`, { method: 'PATCH', credentials: 'include' });
     if (!res.ok) return;
     setNotifications(prev =>
       prev.map(n => n.id === id ? { ...n, isRead: true } : n)
@@ -74,7 +74,7 @@ export function useNotifications(workItems: WorkItem[] = []) {
   }, []);
 
   const markAllAsRead = useCallback(async () => {
-    const res = await fetch('/api/notifications/mark-all-read', { method: 'POST' });
+    const res = await fetch('/api/notifications/mark-all-read', { method: 'POST', credentials: 'include' });
     if (!res.ok) return;
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     setUnreadCount(0);

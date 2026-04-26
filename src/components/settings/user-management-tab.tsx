@@ -58,6 +58,7 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
       const res = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(newUser)
       });
       if (res.ok) {
@@ -92,6 +93,7 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
       const res = await fetch(`/api/users/${editingUser.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(data)
       });
       if (res.ok) {

@@ -15,6 +15,7 @@ type ActiveTab = 'logs' | 'stats';
 export default function LeadTracker() {
   const { currentUser } = useAuth();
   const isSale = currentUser?.departments?.includes('Sale');
+  const canManageLeads = currentUser?.isAdmin || currentUser?.role?.includes('Leader');
   const [actions, setActions] = useState<{ paste: () => void; addRow: () => void } | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>('logs');
   const [statsDateFrom, setStatsDateFrom] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
@@ -70,22 +71,26 @@ export default function LeadTracker() {
 
         {isSale && activeTab === 'logs' && (
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => actions?.paste()}
-              title={PASTE_HINT}
-              className="flex items-center justify-center gap-2 h-10 px-5 rounded-full bg-surface-container-high text-slate-600 hover:bg-slate-200 font-black text-[10px] uppercase tracking-widest transition-all"
-            >
-              <ClipboardPaste size={13} />
-              Paste from Excel
-            </button>
-            <button
-              onClick={handleExportCsv}
-              disabled={exporting}
-              className="flex items-center justify-center gap-2 h-10 px-5 rounded-full bg-surface-container-high text-slate-600 hover:bg-slate-200 font-black text-[10px] uppercase tracking-widest transition-all disabled:opacity-50"
-            >
-              <Download size={13} />
-              {exporting ? 'Exporting...' : 'Export CSV'}
-            </button>
+            {canManageLeads && (
+              <>
+                <button
+                  onClick={() => actions?.paste()}
+                  title={PASTE_HINT}
+                  className="flex items-center justify-center gap-2 h-10 px-5 rounded-full bg-surface-container-high text-slate-600 hover:bg-slate-200 font-black text-[10px] uppercase tracking-widest transition-all"
+                >
+                  <ClipboardPaste size={13} />
+                  Paste from Excel
+                </button>
+                <button
+                  onClick={handleExportCsv}
+                  disabled={exporting}
+                  className="flex items-center justify-center gap-2 h-10 px-5 rounded-full bg-surface-container-high text-slate-600 hover:bg-slate-200 font-black text-[10px] uppercase tracking-widest transition-all disabled:opacity-50"
+                >
+                  <Download size={13} />
+                  {exporting ? 'Exporting...' : 'Export CSV'}
+                </button>
+              </>
+            )}
             <PrimaryActionButton onClick={() => actions?.addRow()} icon={<Plus size={14} />}>
               Add Row
             </PrimaryActionButton>

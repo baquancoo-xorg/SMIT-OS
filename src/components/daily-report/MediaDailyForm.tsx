@@ -62,6 +62,7 @@ export default function MediaDailyForm({ tasks, onClose, onSuccess }: MediaDaily
       const res = await fetch('/api/daily-reports', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           userId: currentUser?.id,
           reportDate: new Date(reportDate).toISOString(),

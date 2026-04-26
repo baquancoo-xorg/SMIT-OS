@@ -56,6 +56,7 @@ export default function SaleDailyForm({ tasks, onClose, onSuccess }: SaleDailyFo
       const res = await fetch('/api/daily-reports', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           userId: currentUser?.id,
           reportDate: new Date(reportDate).toISOString(),

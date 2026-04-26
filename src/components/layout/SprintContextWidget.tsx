@@ -48,7 +48,7 @@ export default function SprintContextWidget() {
 
   const fetchActiveSprint = () => {
     setLoading(true);
-    fetch('/api/sprints/active')
+    fetch('/api/sprints/active', { credentials: 'include' })
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
@@ -74,7 +74,7 @@ export default function SprintContextWidget() {
     if (!data?.sprint) return;
     setEndDialogLoading(true);
     try {
-      const res = await fetch(`/api/sprints/${data.sprint.id}/incomplete`);
+      const res = await fetch(`/api/sprints/${data.sprint.id}/incomplete`, { credentials: 'include' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const result = await res.json();
       setIncompleteData(result);
@@ -91,7 +91,7 @@ export default function SprintContextWidget() {
     if (!data?.sprint) return;
     setCompleting(true);
     try {
-      const response = await fetch(`/api/sprints/${data.sprint.id}/complete`, { method: 'POST' });
+      const response = await fetch(`/api/sprints/${data.sprint.id}/complete`, { method: 'POST', credentials: 'include' });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }

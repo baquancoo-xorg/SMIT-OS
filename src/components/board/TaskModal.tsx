@@ -65,7 +65,7 @@ export default function TaskModal({
     const fetchParents = async () => {
       setLoadingParents(true);
       try {
-        const res = await fetch('/api/work-items');
+        const res = await fetch('/api/work-items', { credentials: 'include' });
         if (res.ok) {
           const items: WorkItem[] = await res.json();
           const parents = items.filter(

@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { WorkItem } from '../types';
 
 async function fetchWorkItems(): Promise<WorkItem[]> {
-  const res = await fetch('/api/work-items');
+  const res = await fetch('/api/work-items', { credentials: 'include' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -24,6 +24,7 @@ export function useWorkItemMutations() {
       const res = await fetch('/api/work-items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -37,6 +38,7 @@ export function useWorkItemMutations() {
       const res = await fetch(`/api/work-items/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -47,7 +49,7 @@ export function useWorkItemMutations() {
 
   const deleteItem = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/work-items/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/work-items/${id}`, { method: 'DELETE', credentials: 'include' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
     },
     onSuccess: invalidate,

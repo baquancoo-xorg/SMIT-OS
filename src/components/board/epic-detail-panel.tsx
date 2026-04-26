@@ -114,6 +114,7 @@ export default function EpicDetailPanel({ epic, allItems, users, isOpen, onClose
       await fetch('/api/work-items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ ...item, id: undefined }),
       });
       setCreateModal({ open: false, defaultType: 'TechTask' });
@@ -128,6 +129,7 @@ export default function EpicDetailPanel({ epic, allItems, users, isOpen, onClose
       await fetch(`/api/work-items/${epic.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(updated),
       });
       setIsEditEpicOpen(false);
