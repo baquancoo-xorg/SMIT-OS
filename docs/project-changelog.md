@@ -1,22 +1,23 @@
 # Project Changelog
 
-## [v2.1.8] - 2026-04-22
+## [v2.1.9] - 2026-04-26
 
-### Added: Two-Factor Authentication (TOTP)
+### Added: CRM lead sync + Call Performance dashboard
 
-- **Two-step login flow**: Users with 2FA enabled receive a short-lived `totp-pending` JWT (5 min) after password verification, then must submit a TOTP code to obtain a full session JWT. Users without 2FA are unaffected.
-- **New endpoints**:
-  - `POST /api/auth/login/totp` — verify TOTP code or backup code to complete login
-  - `GET /api/auth/2fa/setup` — generate encrypted TOTP secret + `otpauthUrl` for QR display
-  - `POST /api/auth/2fa/enable` — confirm TOTP code and activate 2FA; returns 8 single-use backup codes
-  - `POST /api/auth/2fa/disable` — deactivate 2FA (requires password confirmation)
-  - `POST /api/auth/2fa/admin-reset/:userId` — admin-only reset of 2FA for a user
-- **User model fields added** (nullable, zero impact on existing users):
-  - `totpSecret String?` — AES-256-GCM encrypted TOTP secret
-  - `totpEnabled Boolean @default(false)`
-  - `totpBackupCodes String[]` — bcrypt-hashed, consumed on use
-- **`GET /api/auth/me`** now includes `totpEnabled` in the response
-- **Rate limiting** applied to both `POST /api/auth/login` and `POST /api/auth/login/totp`
-- **New service**: `server/services/totp.service.ts` — TOTP generation/verification via `otpauth` (RFC 6238), secret encryption, backup code hashing
-</content>}}
-]
+- Added backend route `GET /api/dashboard/call-performance` with authentication and validated query params (`from`, `to`, optional `aeId`).
+- Added server-side call performance aggregation from `crm_call_history` with 4 sections: `perAe`, `heatmap`, `conversion`, `trend`.
+- Added 5-minute in-memory cache for call performance payloads with max key cap to avoid unbounded growth.
+- Added timezone-safe VN date bucketing for heatmap/trend and production-safe error response handling for dashboard call API.
+- Added frontend Call Performance section under Overview Dashboard with:
+  - per-AE performance table,
+  - 7x24 heatmap,
+  - conversion table,
+  - trend chart (dual Y-axis for count vs avg duration).
+- Integrated new React Query hook `useCallPerformance` and response types for call performance API.
+
+### Updated: Lead Tracker phase-04 UX hardening
+
+- Deprecated manual lead entry entry points in Lead Tracker logs UI and shifted control toward CRM sync flow.
+- Added CRM sync controls and last-sync indicator in lead logs, plus source badge for CRM/manual provenance.
+- Locked CRM-owned lead fields in edit modal to preserve CRM as source-of-truth.
+- Restricted bulk edit to SMIT-only fields (`notes`, `leadType`, `unqualifiedType`).

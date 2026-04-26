@@ -4,6 +4,7 @@ import { DateRangePicker } from '../components/dashboard/overview/DateRangePicke
 import { SummaryCards } from '../components/dashboard/overview/SummaryCards';
 import { KpiTable } from '../components/dashboard/overview/KpiTable';
 import { useOverviewAll } from '../hooks/use-overview-data';
+import CallPerformanceSection from '../components/dashboard/call-performance/call-performance-section';
 import DashboardTab from '../components/lead-tracker/dashboard-tab';
 
 type ViewMode = 'realtime' | 'cohort';
@@ -56,6 +57,9 @@ export default function DashboardOverview() {
           viewMode={viewMode}
           onViewModeChange={setViewMode}
         />
+
+        {/* Call Performance */}
+        <CallPerformanceSection from={range.from} to={range.to} />
 
         {/* CRM Performance */}
         <section className="space-y-3">

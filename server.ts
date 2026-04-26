@@ -21,6 +21,7 @@ import { createSprintRoutes } from "./server/routes/sprint.routes";
 import { createReportRoutes } from "./server/routes/report.routes";
 import { createDailyReportRoutes } from "./server/routes/daily-report.routes";
 import { createOkrCycleRoutes } from "./server/routes/okr-cycle.routes";
+import { createDashboardCallPerformanceRoutes } from "./server/routes/dashboard-call-performance.routes";
 import { createDashboardOverviewRoutes } from "./server/routes/dashboard-overview.routes";
 import { createFbSyncRoutes } from "./server/routes/fb-sync.routes";
 import { createAdminFbConfigRoutes } from "./server/routes/admin-fb-config.routes";
@@ -28,15 +29,20 @@ import { createNotificationRoutes } from "./server/routes/notification.routes";
 import { createLeadRoutes } from "./server/routes/lead.routes";
 import { createSheetsExportRoutes } from "./server/routes/sheets-export.routes";
 import { createGoogleOAuthPublicRoutes, createGoogleOAuthAdminRoutes } from "./server/routes/google-oauth.routes";
+import { createLeadSyncRoutes } from "./server/routes/lead-sync.routes";
 import { createGoogleOAuthService } from "./server/services/google-oauth.service";
 import { startFbSyncScheduler } from "./server/services/facebook/fb-sync-scheduler.service";
 import { initFbSyncService } from "./server/services/facebook/fb-sync.service";
 import { createNotificationService } from "./server/services/notification.service";
 import { initAlertScheduler } from "./server/jobs/alert-scheduler";
 import { initSheetsExportScheduler } from "./server/jobs/sheets-export-scheduler";
+import { initLeadSyncPrisma } from "./server/services/lead-sync/state";
+import { startLeadSyncCron } from "./server/cron/lead-sync.cron";
+import { createOKRService } from "./server/services/okr.service";
 
 const prisma = new PrismaClient();
 initFbSyncService(prisma);
+initLeadSyncPrisma(prisma);
 const app = express();
 const PORT = Number(process.env.PORT ?? 3000);
 
@@ -104,15 +110,15 @@ app.use("/api/daily-reports", createDailyReportRoutes(prisma));
 app.use("/api/okr-cycles", createOkrCycleRoutes(prisma));
 app.use("/api/notifications", createNotificationRoutes(prisma));
 app.use("/api/leads", createLeadRoutes(prisma));
+app.use("/api/leads", createLeadSyncRoutes());
 app.use("/api/dashboard/overview", createDashboardOverviewRoutes());
+app.use("/api/dashboard", createDashboardCallPerformanceRoutes());
 app.use("/api/sync/facebook-ads", createFbSyncRoutes());
 app.use("/api/admin", createAdminFbConfigRoutes());
 
 const sheetsExportService = initSheetsExportScheduler(prisma, googleOAuthService);
 app.use("/api/sheets-export", createSheetsExportRoutes(sheetsExportService));
 
-// OKRs recalculate endpoint (legacy path)
-import { createOKRService } from "./server/services/okr.service";
 const okrService = createOKRService(prisma);
 app.post("/api/okrs/recalculate", requireAdmin, async (_req, res) => {
   await okrService.recalculateObjectiveProgress();
@@ -149,6 +155,7 @@ async function startServer() {
 
     const notificationService = createNotificationService(prisma);
     initAlertScheduler(prisma, notificationService);
+    startLeadSyncCron();
   });
 }
 

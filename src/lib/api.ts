@@ -2,6 +2,18 @@ type FetchOptions = RequestInit & {
   skipAuth?: boolean;
 };
 
+type LeadSyncStatus = {
+  id: string;
+  startedAt: string;
+  finishedAt: string | null;
+  status: string;
+  subscribersScanned: number;
+  leadsCreated: number;
+  leadsUpdated: number;
+  errors: Array<{ crmSubscriberId: string; message: string }> | null;
+  triggerType: string;
+};
+
 class ApiClient {
   private baseUrl = '/api';
 
@@ -83,6 +95,10 @@ class ApiClient {
   getLeadAeList() { return this.get<{ id: string; fullName: string }[]>('/leads/ae-list'); }
 
   getLeadAuditLogs(id: string) { return this.get<import('../types').LeadAuditLog[]>(`/leads/${id}/audit`); }
+
+  triggerLeadSyncNow() { return this.post<{ accepted: boolean; mode: string }>('/leads/sync-now', {}); }
+
+  getLeadSyncStatus() { return this.get<LeadSyncStatus | null>('/leads/sync-status'); }
 }
 
 export const api = new ApiClient();

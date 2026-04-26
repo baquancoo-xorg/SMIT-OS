@@ -88,6 +88,7 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
   const [error, setError] = useState<string | null>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const notesRef = useRef<HTMLTextAreaElement>(null);
+  const isCrmLocked = mode === 'edit' && !!lead?.syncedFromCrm;
 
   const autoResizeNotes = () => {
     const el = notesRef.current;
@@ -161,7 +162,6 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
           className="bg-white rounded-[2rem] shadow-2xl shadow-slate-300/40 w-full max-w-[520px] overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
           <div className="flex items-center justify-between px-7 pt-6 pb-5 border-b border-slate-100">
             <div className="flex items-center gap-3">
               <div className="size-9 rounded-2xl bg-primary/10 flex items-center justify-center">
@@ -189,62 +189,66 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
             </button>
           </div>
 
-          {/* Form body */}
           <div className="px-7 py-5 grid grid-cols-2 gap-x-4 gap-y-4 max-h-[70vh] overflow-y-auto">
-
-            {/* Customer Name */}
             <Field label="Customer Name *" wide>
               <input
                 ref={nameInputRef}
-                className={INPUT_CLS}
+                className={`${INPUT_CLS} ${isCrmLocked ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : ''}`}
                 value={form.customerName}
                 onChange={(e) => set('customerName', e.target.value)}
                 placeholder="Enter customer name..."
+                disabled={isCrmLocked}
+                title={isCrmLocked ? 'Synced from CRM' : undefined}
               />
             </Field>
 
-            {/* AE */}
             <Field label="AE *">
-              <CustomSelect
-                value={form.ae}
-                onChange={(v) => set('ae', v)}
-                options={aeSelectOptions}
-                placeholder="Chọn AE"
-              />
-            </Field>
-
-            {/* Status */}
-            <Field label="Status *">
-              <CustomSelect
-                value={form.status}
-                onChange={(v) => set('status', v)}
-                options={STATUS_OPTIONS}
-              />
-            </Field>
-
-            {/* Received Date */}
-            <Field label="Received Date *">
-              <div className="relative">
-                <DatePicker
-                  value={form.receivedDate}
-                  onChange={(v) => set('receivedDate', v)}
-                  placeholder="Select date"
-                  className="!w-full !rounded-2xl !bg-white !border !border-slate-200 !h-[42px] !px-4 hover:!border-primary/40"
+              <div title={isCrmLocked ? 'Synced from CRM' : undefined}>
+                <CustomSelect
+                  value={form.ae}
+                  onChange={(v) => set('ae', v)}
+                  options={aeSelectOptions}
+                  placeholder="Chọn AE"
+                  disabled={isCrmLocked}
                 />
               </div>
             </Field>
 
-            {/* Resolved Date */}
-            <Field label="Resolved Date">
-              <DatePicker
-                value={form.resolvedDate}
-                onChange={(v) => set('resolvedDate', v)}
-                placeholder="Select date"
-                className="!w-full !rounded-2xl !bg-white !border !border-slate-200 !h-[42px] !px-4 hover:!border-primary/40"
-              />
+            <Field label="Status *">
+              <div title={isCrmLocked ? 'Synced from CRM' : undefined}>
+                <CustomSelect
+                  value={form.status}
+                  onChange={(v) => set('status', v)}
+                  options={STATUS_OPTIONS}
+                  disabled={isCrmLocked}
+                />
+              </div>
             </Field>
 
-            {/* Lead Type */}
+            <Field label="Received Date *">
+              <div className="relative" title={isCrmLocked ? 'Synced from CRM' : undefined}>
+                <DatePicker
+                  value={form.receivedDate}
+                  onChange={(v) => set('receivedDate', v)}
+                  placeholder="Select date"
+                  className={`!w-full !rounded-2xl !bg-white !border !border-slate-200 !h-[42px] !px-4 hover:!border-primary/40 ${
+                    isCrmLocked ? '!bg-slate-100 !text-slate-400 pointer-events-none' : ''
+                  }`}
+                />
+              </div>
+            </Field>
+
+            <Field label="Resolved Date">
+              <div className="relative" title="Synced from CRM">
+                <DatePicker
+                  value={form.resolvedDate}
+                  onChange={(v) => set('resolvedDate', v)}
+                  placeholder="Select date"
+                  className="!w-full !rounded-2xl !bg-slate-100 !border !border-slate-200 !h-[42px] !px-4 !text-slate-400 pointer-events-none"
+                />
+              </div>
+            </Field>
+
             <Field label="Lead Type">
               <CustomSelect
                 value={form.leadType}
@@ -253,7 +257,6 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
               />
             </Field>
 
-            {/* UQ Reason — only when Unqualified */}
             {form.status === 'Unqualified' && (
               <Field label="UQ Reason">
                 <CustomSelect
@@ -264,7 +267,6 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
               </Field>
             )}
 
-            {/* Notes */}
             <Field label="Notes" wide>
               <textarea
                 ref={notesRef}
@@ -282,10 +284,8 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
                 }}
               />
             </Field>
-
           </div>
 
-          {/* Footer */}
           <div className="flex items-center justify-between px-7 py-4 border-t border-slate-100 bg-slate-50/60">
             <div className="text-xs font-bold text-rose-500">{error}</div>
             <div className="flex items-center gap-2">

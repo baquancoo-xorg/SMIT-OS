@@ -24,6 +24,8 @@
     "db:seed-okrs": "tsx scripts/seed-okrs.ts",
     "db:seed-members": "tsx scripts/seed-members-sprints.ts",
     "db:seed-tasks": "tsx scripts/seed-tasks.ts",
+    "db:seed:lead-status": "tsx prisma/seeds/lead-status-mapping.seed.ts",
+    "backfill:leads": "tsx scripts/backfill-crm-leads.ts",
     "db:clear-seed-tasks": "tsx scripts/clear-and-seed-tasks.ts"
   },
   "dependencies": {

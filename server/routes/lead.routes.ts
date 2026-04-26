@@ -6,6 +6,7 @@ import { createLeadSchema, updateLeadSchema } from '../schemas/lead.schema';
 import { RBAC } from '../middleware/rbac.middleware';
 
 const TRACKED_FIELDS = ['status', 'ae', 'leadType', 'unqualifiedType', 'notes', 'resolvedDate', 'receivedDate'] as const;
+const CRM_LOCKED_FIELDS = ['customerName', 'ae', 'receivedDate', 'resolvedDate', 'status'] as const;
 
 // Check if user can write leads (Sale dept member or Admin)
 function canWriteLead(user: any): boolean {
@@ -28,6 +29,14 @@ function normalizeVal(field: string, val: unknown): string | null {
     return val instanceof Date ? val.toISOString().slice(0, 10) : String(val).slice(0, 10);
   }
   return String(val);
+}
+
+function stripCrmLockedFields(payload: Record<string, unknown>) {
+  const next = { ...payload };
+  for (const field of CRM_LOCKED_FIELDS) {
+    delete next[field];
+  }
+  return next;
 }
 
 export function createLeadRoutes(prisma: PrismaClient) {
@@ -250,12 +259,19 @@ export function createLeadRoutes(prisma: PrismaClient) {
     const { receivedDate, resolvedDate, ...rest } = req.body;
     const existing = await prisma.lead.findUnique({ where: { id } });
     if (!existing) return res.status(404).json({ error: 'Not found' });
+
+    const safeRest = existing.syncedFromCrm ? stripCrmLockedFields(rest) : rest;
+
     const lead = await prisma.lead.update({
       where: { id },
       data: {
-        ...rest,
-        ...(receivedDate && { receivedDate: new Date(receivedDate) }),
-        ...(resolvedDate !== undefined && { resolvedDate: resolvedDate ? new Date(resolvedDate) : null }),
+        ...safeRest,
+        ...(existing.syncedFromCrm
+          ? {}
+          : {
+              ...(receivedDate && { receivedDate: new Date(receivedDate) }),
+              ...(resolvedDate !== undefined && { resolvedDate: resolvedDate ? new Date(resolvedDate) : null }),
+            }),
       },
     });
 

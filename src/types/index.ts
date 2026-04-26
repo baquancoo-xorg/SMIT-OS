@@ -156,6 +156,9 @@ export interface Lead {
   leadType?: string | null;
   unqualifiedType?: string | null;
   notes?: string | null;
+  crmSubscriberId?: string | null;
+  syncedFromCrm?: boolean;
+  lastSyncedAt?: string | null;
   deleteRequestedBy?: string | null;
   deleteRequestedAt?: string | null;
   deleteReason?: string | null;

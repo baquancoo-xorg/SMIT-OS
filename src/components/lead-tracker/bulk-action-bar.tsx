@@ -1,10 +1,10 @@
 import { Trash2, Edit2, X, Check } from 'lucide-react';
 import { motion } from 'motion/react';
 
-const STATUSES = ['Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'];
 const LEAD_TYPES = ['Việt Nam', 'Quốc Tế'];
+const UNQUALIFIED_TYPES = ['Unreachable', 'Rejected', 'Bad Fit', 'Timing'];
 
-export type BulkEditFields = { status: string; ae: string; leadType: string };
+export type BulkEditFields = { notes: string; leadType: string; unqualifiedType: string };
 
 interface BulkActionBarProps {
   count: number;
@@ -70,20 +70,16 @@ export default function BulkActionBar({
           exit={{ opacity: 0, height: 0 }}
           className="mt-4 pt-4 border-t border-white/10 flex items-end gap-3 flex-wrap"
         >
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Status</span>
-            <select value={bulkEdit.status} onChange={(e) => onFieldChange('status', e.target.value)} className={selCls}>
-              <option value="">— không đổi —</option>
-              {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
+          <div className="w-full text-[10px] font-black uppercase tracking-widest text-white/40">
+            Bulk operations limited to SMIT-only fields (notes, lead type, UQ reason)
           </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-black uppercase tracking-widest text-white/40">AE</span>
+          <div className="flex flex-col gap-1 min-w-52">
+            <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Notes</span>
             <input
-              value={bulkEdit.ae}
-              onChange={(e) => onFieldChange('ae', e.target.value)}
+              value={bulkEdit.notes}
+              onChange={(e) => onFieldChange('notes', e.target.value)}
               placeholder="— không đổi —"
-              className={selCls + ' w-40'}
+              className={selCls + ' w-full'}
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -93,9 +89,16 @@ export default function BulkActionBar({
               {LEAD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
           </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-black uppercase tracking-widest text-white/40">UQ Reason</span>
+            <select value={bulkEdit.unqualifiedType} onChange={(e) => onFieldChange('unqualifiedType', e.target.value)} className={selCls}>
+              <option value="">— không đổi —</option>
+              {UNQUALIFIED_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
           <button
             onClick={onApply}
-            disabled={saving || (!bulkEdit.status && !bulkEdit.ae && !bulkEdit.leadType)}
+            disabled={saving || (!bulkEdit.notes.trim() && !bulkEdit.leadType && !bulkEdit.unqualifiedType)}
             className="flex items-center gap-2 px-6 py-[7px] bg-emerald-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-400 transition-all disabled:opacity-40"
           >
             {saving ? 'Đang áp dụng...' : <><Check size={13} /> Áp dụng</>}

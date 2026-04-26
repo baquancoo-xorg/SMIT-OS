@@ -10,10 +10,12 @@ import DatePicker from '../ui/date-picker';
 import BulkActionBar, { type BulkEditFields } from './bulk-action-bar';
 import LeadDetailModal from './lead-detail-modal';
 import LeadLogDialog from './lead-log-dialog';
+import SyncFromCrmButton from './sync-from-crm-button';
+import LastSyncIndicator from './last-sync-indicator';
+import SourceBadge from './source-badge';
+import { useSyncNowMutation, useSyncStatusQuery } from '../../hooks/use-lead-sync';
 
 const STATUSES = ['Mới', 'Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'];
-const LEAD_TYPES = ['Việt Nam', 'Quốc Tế'];
-const UNQUALIFIED_TYPES = ['Unreachable', 'Rejected', 'Bad Fit', 'Timing'];
 
 const STATUS_BADGE: Record<string, string> = {
   'Mới': 'bg-purple-50 text-purple-600 border-purple-100',
@@ -58,60 +60,9 @@ function getLeadSla(lead: Lead, now: Date) {
   };
 }
 
-type PendingRow = {
-  _id: string; customerName: string; ae: string;
-  receivedDate: string; resolvedDate: string;
-  status: string; leadType: string; unqualifiedType: string; notes: string;
-};
-
-function parseExcelDate(s: string): string {
-  if (!s) return '';
-  const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (dmy) return `${dmy[3]}-${dmy[2].padStart(2, '0')}-${dmy[1].padStart(2, '0')}`;
-  return s;
-}
-
-function parseTsvRfc4180(text: string): string[][] {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let cell = '';
-  let inQuote = false;
-  let i = 0;
-  while (i < text.length) {
-    const ch = text[i];
-    if (inQuote) {
-      if (ch === '"' && text[i + 1] === '"') { cell += '"'; i += 2; continue; }
-      if (ch === '"') { inQuote = false; i++; continue; }
-      cell += ch;
-    } else {
-      if (ch === '"') { inQuote = true; i++; continue; }
-      if (ch === '\t') { row.push(cell); cell = ''; i++; continue; }
-      if (ch === '\r' && text[i + 1] === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; i += 2; continue; }
-      if (ch === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; i++; continue; }
-      cell += ch;
-    }
-    i++;
-  }
-  if (cell || row.length) { row.push(cell); rows.push(row); }
-  return rows.filter((r) => r.some((c) => c.trim()));
-}
-
-function parseTsv(text: string): PendingRow[] {
-  return parseTsvRfc4180(text.trim()).map((c) => ({
-    _id: crypto.randomUUID(),
-    customerName: c[0] ?? '',
-    ae: c[1] ?? '',
-    receivedDate: parseExcelDate(c[2] ?? '') || new Date().toISOString().slice(0, 10),
-    resolvedDate: parseExcelDate(c[3] ?? ''),
-    status: c[4] ?? 'Đang liên hệ',
-    leadType: c[5] ?? '',
-    unqualifiedType: c[6] ?? '',
-    notes: c[7] ?? '',
-  }));
-}
-
 const COLS = [
   { label: 'Customer', key: 'customerName' },
+  { label: 'Source', key: 'source' },
   { label: 'AE', key: 'ae' },
   { label: 'Received', key: 'receivedDate' },
   { label: 'Resolved', key: 'resolvedDate' },
@@ -124,11 +75,10 @@ const COLS = [
 ];
 
 interface LeadLogsTabProps {
-  onReady?: (actions: { paste: () => void; addRow: () => void }) => void;
   extraControls?: ReactNode;
 }
 
-export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps) {
+export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
   const { currentUser } = useAuth();
   const isSale = currentUser?.departments?.includes('Sale');
   const isAdminOrLeaderSale = (
@@ -137,10 +87,11 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
     (currentUser?.role === 'Leader' && currentUser?.departments?.includes('Sale'))
   );
 
+  const syncNow = useSyncNowMutation();
+  const syncStatus = useSyncStatusQuery(!!currentUser?.isAdmin);
+
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
-  const [pending, setPending] = useState<PendingRow[]>([]);
-  const [saving, setSaving] = useState(false);
   const [aeOptions, setAeOptions] = useState<{ id: string; fullName: string }[]>([]);
   const today = new Date().toISOString().slice(0, 10);
   const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
@@ -154,13 +105,11 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
     q: '',
   });
 
-  // Bulk selection
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkEditMode, setBulkEditMode] = useState(false);
-  const [bulkEdit, setBulkEdit] = useState<BulkEditFields>({ status: '', ae: '', leadType: '' });
+  const [bulkEdit, setBulkEdit] = useState<BulkEditFields>({ notes: '', leadType: '', unqualifiedType: '' });
   const [bulkSaving, setBulkSaving] = useState(false);
 
-  // Dialog & detail modal
   const [dialogMode, setDialogMode] = useState<'add' | 'edit' | null>(null);
   const [dialogLead, setDialogLead] = useState<Lead | null>(null);
   const [detailLead, setDetailLead] = useState<Lead | null>(null);
@@ -184,20 +133,6 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
   useEffect(() => { api.getLeadAeList().then(setAeOptions); }, []);
 
-  const pasteFromClipboard = async () => {
-    try {
-      const text = await navigator.clipboard.readText();
-      const rows = parseTsv(text);
-      if (rows.length) setPending((prev) => [...prev, ...rows]);
-    } catch { alert('Cannot read clipboard. Please allow clipboard permissions in your browser.'); }
-  };
-
-  useEffect(() => {
-    onReady?.({ paste: pasteFromClipboard, addRow: () => setDialogMode('add') });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // --- Selection helpers ---
   const allSelected = leads.length > 0 && selectedIds.size === leads.length;
   const toggleSelectAll = () => {
     if (allSelected) setSelectedIds(new Set());
@@ -210,9 +145,12 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
       return next;
     });
   };
-  const clearSelection = () => { setSelectedIds(new Set()); setBulkEditMode(false); setBulkEdit({ status: '', ae: '', leadType: '' }); };
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+    setBulkEditMode(false);
+    setBulkEdit({ notes: '', leadType: '', unqualifiedType: '' });
+  };
 
-  // --- Delete handlers ---
   const handleDelete = async (lead: Lead) => {
     if (isAdminOrLeaderSale) {
       if (!confirm(`Xóa lead "${lead.customerName}"?`)) return;
@@ -242,7 +180,6 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
     fetchLeads();
   };
 
-  // --- Bulk actions ---
   const bulkDelete = async () => {
     if (!isAdminOrLeaderSale) {
       alert('Chỉ Admin hoặc Leader Sale mới có thể xóa hàng loạt');
@@ -261,10 +198,12 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
 
   const applyBulkEdit = async () => {
     const payload: Record<string, string> = {};
-    if (bulkEdit.status) payload.status = bulkEdit.status;
-    if (bulkEdit.ae) payload.ae = bulkEdit.ae;
+    const trimmedNotes = bulkEdit.notes.trim();
+    if (trimmedNotes) payload.notes = trimmedNotes;
     if (bulkEdit.leadType) payload.leadType = bulkEdit.leadType;
+    if (bulkEdit.unqualifiedType) payload.unqualifiedType = bulkEdit.unqualifiedType;
     if (!Object.keys(payload).length) return;
+
     setBulkSaving(true);
     try {
       await Promise.all([...selectedIds].map((id) => api.updateLead(id, payload)));
@@ -274,36 +213,21 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
       alert(`Lỗi khi cập nhật: ${err?.message ?? 'Unknown error'}`);
     } finally { setBulkSaving(false); }
   };
-
-  // --- Pending save (from paste) ---
-  const savePending = async () => {
-    const valid = pending.filter((r) => r.customerName && r.ae && r.receivedDate && r.status);
-    if (!valid.length) return;
-    setSaving(true);
+  const triggerSyncNow = async () => {
     try {
-      await Promise.all(valid.map((r) => api.createLead({
-        customerName: r.customerName, ae: r.ae, receivedDate: r.receivedDate,
-        resolvedDate: r.resolvedDate || null, status: r.status,
-        leadType: r.leadType || null,
-        unqualifiedType: r.status === 'Unqualified' ? (r.unqualifiedType || null) : null,
-        notes: r.notes || null,
-      })));
-      setPending([]);
-      fetchLeads();
+      await syncNow.mutateAsync();
+      alert('Đã trigger sync từ CRM. Dữ liệu sẽ cập nhật trong ít phút.');
+      await syncStatus.refetch();
+      await fetchLeads();
     } catch (err: any) {
-      alert(`Lỗi khi lưu: ${err?.message ?? 'Unknown error'}. Kiểm tra lại dữ liệu.`);
-    } finally { setSaving(false); }
+      alert(err?.message ?? 'Không thể trigger sync CRM');
+    }
   };
 
-  const setPR = (id: string, k: keyof PendingRow, v: string) =>
-    setPending((prev) => prev.map((r) => r._id === id ? { ...r, [k]: v } : r));
-
-  const inputCls = 'w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all';
   const cellCls = 'px-4 py-4 text-xs';
 
   return (
     <div className="h-full flex flex-col gap-4">
-      {/* Filters */}
       <div className="shrink-0 flex flex-wrap gap-3 items-center p-4 bg-white/50 backdrop-blur-md rounded-3xl shadow-sm">
         <div className="flex items-center gap-1.5">
           <DatePicker value={filters.dateFrom} onChange={(v) => sf('dateFrom', v)} placeholder="Từ ngày" />
@@ -382,14 +306,24 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
               </div>
             );
           })()}
+          {isSale && !!currentUser?.isAdmin && (
+            <div className="flex items-center gap-2">
+              <LastSyncIndicator status={syncStatus.data} />
+              <SyncFromCrmButton
+                canSync={true}
+                isSyncing={syncNow.isPending}
+                isRunning={syncStatus.data?.status === 'running'}
+                onSync={triggerSyncNow}
+              />
+            </div>
+          )}
           {extraControls && <div>{extraControls}</div>}
         </div>
       </div>
 
-      {/* Table */}
       <div className="flex-1 min-h-0 bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden">
         <div className="h-full overflow-y-auto overflow-x-auto custom-scrollbar">
-          <table className="w-full text-left border-collapse min-w-[1100px]">
+          <table className="w-full text-left border-collapse min-w-[1180px]">
             <thead className="sticky top-0 z-10">
               <tr className="bg-white border-b border-slate-100">
                 {isSale && (
@@ -414,10 +348,9 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
             </thead>
             <tbody className="divide-y divide-slate-50">
               {loading && (
-                <tr><td colSpan={isSale ? 12 : 11} className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest animate-pulse">Loading...</td></tr>
+                <tr><td colSpan={isSale ? 14 : 13} className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest animate-pulse">Loading...</td></tr>
               )}
 
-              {/* Lead rows */}
               {!loading && leads
                 .filter(l => {
                   if (!filters.q) return true;
@@ -449,6 +382,9 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
                     )}
                     <td className={`${cellCls} font-black text-on-surface`}>
                       <span className="cursor-pointer hover:text-primary hover:underline transition-colors" onClick={() => setDetailLead(lead)}>{lead.customerName}</span>
+                    </td>
+                    <td className={cellCls}>
+                      <SourceBadge synced={lead.syncedFromCrm} />
                     </td>
                     <td className={`${cellCls} font-bold text-slate-600`}>{lead.ae}</td>
                     <td className={`${cellCls} text-slate-500 font-medium`}>{lead.receivedDate.slice(0, 10)}</td>
@@ -501,32 +437,8 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
                 );
               })}
 
-              {/* Pending rows from paste */}
-              <AnimatePresence>
-                {pending.map((row, idx) => (
-                  <motion.tr key={row._id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="bg-amber-50/40 border-l-4 border-amber-400">
-                    {isSale && <td className="pl-6" />}
-                    <td className={cellCls}><input className={inputCls} placeholder="Customer *" value={row.customerName} onChange={(e) => setPR(row._id, 'customerName', e.target.value)} /></td>
-                    <td className={cellCls}><input className={inputCls} placeholder="AE *" value={row.ae} onChange={(e) => setPR(row._id, 'ae', e.target.value)} /></td>
-                    <td className={cellCls}><input type="date" className={inputCls} value={row.receivedDate} onChange={(e) => setPR(row._id, 'receivedDate', e.target.value)} /></td>
-                    <td className={cellCls}><input type="date" className={inputCls} value={row.resolvedDate} onChange={(e) => setPR(row._id, 'resolvedDate', e.target.value)} /></td>
-                    <td className={cellCls}><select className={inputCls} value={row.status} onChange={(e) => setPR(row._id, 'status', e.target.value)}>{STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}</select></td>
-                    <td className={cellCls}><span className="text-slate-300">-</span></td>
-                    <td className={cellCls}><select className={inputCls} value={row.leadType} onChange={(e) => setPR(row._id, 'leadType', e.target.value)}><option value="">-</option>{LEAD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}</select></td>
-                    <td className={cellCls}>
-                      {row.status === 'Unqualified'
-                        ? <select className={inputCls} value={row.unqualifiedType} onChange={(e) => setPR(row._id, 'unqualifiedType', e.target.value)}><option value="">-</option>{UNQUALIFIED_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}</select>
-                        : <span className="text-slate-300">-</span>}
-                    </td>
-                    <td className={cellCls}><input className={inputCls} placeholder="Notes" value={row.notes} onChange={(e) => setPR(row._id, 'notes', e.target.value)} /></td>
-                    <td className={cellCls} />
-                    <td className={cellCls}><button onClick={() => setPending((prev) => prev.filter((_, i) => i !== idx))} className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-all"><Trash2 size={16} /></button></td>
-                  </motion.tr>
-                ))}
-              </AnimatePresence>
-
-              {!loading && leads.length === 0 && pending.length === 0 && (
-                <tr><td colSpan={isSale ? 12 : 11} className="py-32 text-center">
+              {!loading && leads.length === 0 && (
+                <tr><td colSpan={isSale ? 14 : 13} className="py-32 text-center">
                   <div className="flex flex-col items-center opacity-30">
                     <Search className="size-12 mb-4" />
                     <p className="font-black uppercase tracking-[0.2em] text-sm">No leads found</p>
@@ -538,28 +450,6 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
         </div>
       </div>
 
-      {/* Pending bar (paste results) */}
-      <AnimatePresence>
-        {pending.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="shrink-0 flex items-center justify-between p-6 bg-amber-50 border border-amber-200 rounded-[2rem] shadow-lg shadow-amber-200/20">
-            <div className="flex items-center gap-4">
-              <div className="size-10 bg-amber-400 text-white rounded-full flex items-center justify-center font-black shadow-lg shadow-amber-400/20">{pending.length}</div>
-              <div>
-                <p className="text-sm font-black text-amber-900 tracking-tight">Pending leads</p>
-                <p className="text-[11px] font-bold text-amber-700/70 uppercase tracking-widest">Review before saving</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <button onClick={() => setPending([])} className="px-6 py-2.5 text-xs font-black text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-all">Discard All</button>
-              <button onClick={savePending} disabled={saving} className="flex items-center gap-2 px-8 py-3 bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-600/20 hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-widest disabled:opacity-50">
-                {saving ? 'Saving...' : <><Check size={18} /> Save All ({pending.length})</>}
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Bulk action bar */}
       <AnimatePresence>
         {selectedIds.size > 0 && (
           <BulkActionBar
@@ -576,7 +466,6 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
         )}
       </AnimatePresence>
 
-      {/* Lead log dialog (add/edit) */}
       {dialogMode && (
         <LeadLogDialog
           mode={dialogMode}
@@ -587,7 +476,6 @@ export default function LeadLogsTab({ onReady, extraControls }: LeadLogsTabProps
         />
       )}
 
-      {/* Lead detail modal */}
       <LeadDetailModal lead={detailLead} onClose={() => setDetailLead(null)} />
     </div>
   );
