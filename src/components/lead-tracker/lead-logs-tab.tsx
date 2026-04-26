@@ -10,10 +10,7 @@ import DatePicker from '../ui/date-picker';
 import BulkActionBar, { type BulkEditFields } from './bulk-action-bar';
 import LeadDetailModal from './lead-detail-modal';
 import LeadLogDialog from './lead-log-dialog';
-import SyncFromCrmButton from './sync-from-crm-button';
-import LastSyncIndicator from './last-sync-indicator';
 import SourceBadge from './source-badge';
-import { useSyncNowMutation, useSyncStatusQuery } from '../../hooks/use-lead-sync';
 
 const STATUSES = ['Mới', 'Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'];
 
@@ -86,9 +83,6 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
     currentUser?.role === 'Admin' ||
     (currentUser?.role === 'Leader' && currentUser?.departments?.includes('Sale'))
   );
-
-  const syncNow = useSyncNowMutation();
-  const syncStatus = useSyncStatusQuery(!!currentUser?.isAdmin);
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -213,16 +207,6 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
       alert(`Lỗi khi cập nhật: ${err?.message ?? 'Unknown error'}`);
     } finally { setBulkSaving(false); }
   };
-  const triggerSyncNow = async () => {
-    try {
-      await syncNow.mutateAsync();
-      alert('Đã trigger sync từ CRM. Dữ liệu sẽ cập nhật trong ít phút.');
-      await syncStatus.refetch();
-      await fetchLeads();
-    } catch (err: any) {
-      alert(err?.message ?? 'Không thể trigger sync CRM');
-    }
-  };
 
   const cellCls = 'px-4 py-4 text-xs';
 
@@ -306,17 +290,6 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
               </div>
             );
           })()}
-          {isSale && !!currentUser?.isAdmin && (
-            <div className="flex items-center gap-2">
-              <LastSyncIndicator status={syncStatus.data} />
-              <SyncFromCrmButton
-                canSync={true}
-                isSyncing={syncNow.isPending}
-                isRunning={syncStatus.data?.status === 'running'}
-                onSync={triggerSyncNow}
-              />
-            </div>
-          )}
           {extraControls && <div>{extraControls}</div>}
         </div>
       </div>

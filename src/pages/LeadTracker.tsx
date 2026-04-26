@@ -6,6 +6,9 @@ import LeadLogsTab from '../components/lead-tracker/lead-logs-tab';
 import DailyStatsTab from '../components/lead-tracker/daily-stats-tab';
 import DatePicker from '../components/ui/date-picker';
 import { exportAllLeadsToCsv } from '../components/lead-tracker/csv-export';
+import SyncFromCrmButton from '../components/lead-tracker/sync-from-crm-button';
+import LastSyncIndicator from '../components/lead-tracker/last-sync-indicator';
+import { useSyncNowMutation, useSyncStatusQuery } from '../hooks/use-lead-sync';
 
 type ActiveTab = 'logs' | 'stats';
 
@@ -17,10 +20,26 @@ export default function LeadTracker() {
   const [statsDateFrom, setStatsDateFrom] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
   const [statsDateTo, setStatsDateTo] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [exporting, setExporting] = useState(false);
+  const syncNow = useSyncNowMutation();
+  const syncStatus = useSyncStatusQuery(!!currentUser?.isAdmin);
 
   const handleExportCsv = async () => {
     setExporting(true);
-    try { await exportAllLeadsToCsv(); } finally { setExporting(false); }
+    try {
+      await exportAllLeadsToCsv();
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const triggerSyncNow = async () => {
+    try {
+      await syncNow.mutateAsync();
+      alert('Đã trigger sync từ CRM. Dữ liệu sẽ cập nhật trong ít phút.');
+      await syncStatus.refetch();
+    } catch (err: any) {
+      alert(err?.message ?? 'Không thể trigger sync CRM');
+    }
   };
 
   const tabToggle = (
@@ -62,6 +81,17 @@ export default function LeadTracker() {
 
         {isSale && activeTab === 'logs' && canManageLeads && (
           <div className="flex items-center gap-3">
+            {!!currentUser?.isAdmin && (
+              <>
+                <LastSyncIndicator status={syncStatus.data} />
+                <SyncFromCrmButton
+                  canSync={true}
+                  isSyncing={syncNow.isPending}
+                  isRunning={syncStatus.data?.status === 'running'}
+                  onSync={triggerSyncNow}
+                />
+              </>
+            )}
             <button
               onClick={handleExportCsv}
               disabled={exporting}

@@ -39,6 +39,17 @@ function stripCrmLockedFields(payload: Record<string, unknown>) {
   return next;
 }
 
+function serializeLeadForResponse<T extends { crmSubscriberId?: bigint | null }>(lead: T) {
+  return {
+    ...lead,
+    crmSubscriberId: lead.crmSubscriberId != null ? String(lead.crmSubscriberId) : null,
+  };
+}
+
+function serializeLeadsForResponse<T extends { crmSubscriberId?: bigint | null }>(leads: T[]) {
+  return leads.map((lead) => serializeLeadForResponse(lead));
+}
+
 export function createLeadRoutes(prisma: PrismaClient) {
   const router = Router();
 
@@ -162,7 +173,7 @@ export function createLeadRoutes(prisma: PrismaClient) {
         deleteReason: req.body.reason || 'No reason provided',
       },
     });
-    res.json(lead);
+    res.json(serializeLeadForResponse(lead));
   }));
 
   router.delete('/:id/delete-request', RBAC.authenticated, handleAsync(async (req: any, res: any) => {
@@ -175,7 +186,7 @@ export function createLeadRoutes(prisma: PrismaClient) {
       where: { id: req.params.id },
       data: { deleteRequestedBy: null, deleteRequestedAt: null, deleteReason: null },
     });
-    res.json(lead);
+    res.json(serializeLeadForResponse(lead));
   }));
 
   router.post('/:id/delete-request/approve', handleAsync(async (req: any, res: any) => {
@@ -194,7 +205,7 @@ export function createLeadRoutes(prisma: PrismaClient) {
       where: { id: req.params.id },
       data: { deleteRequestedBy: null, deleteRequestedAt: null, deleteReason: null },
     });
-    res.json(lead);
+    res.json(serializeLeadForResponse(lead));
   }));
 
   router.get('/', handleAsync(async (req: any, res: any) => {
@@ -233,7 +244,7 @@ export function createLeadRoutes(prisma: PrismaClient) {
       where,
       orderBy: { receivedDate: 'desc' },
     });
-    res.json(leads);
+    res.json(serializeLeadsForResponse(leads));
   }));
 
   router.post('/', RBAC.authenticated, validate(createLeadSchema), handleAsync(async (req: any, res: any) => {
@@ -248,7 +259,7 @@ export function createLeadRoutes(prisma: PrismaClient) {
         resolvedDate: resolvedDate ? new Date(resolvedDate) : null,
       },
     });
-    res.status(201).json(lead);
+    res.status(201).json(serializeLeadForResponse(lead));
   }));
 
   router.put('/:id', RBAC.authenticated, validate(updateLeadSchema), handleAsync(async (req: any, res: any) => {
@@ -288,7 +299,7 @@ export function createLeadRoutes(prisma: PrismaClient) {
       });
     }
 
-    res.json(lead);
+    res.json(serializeLeadForResponse(lead));
   }));
 
   router.delete('/:id', handleAsync(async (req: any, res: any) => {
