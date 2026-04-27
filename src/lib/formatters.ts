@@ -6,6 +6,13 @@ export function formatNumber(v: number): string {
   return new Intl.NumberFormat('vi-VN').format(v);
 }
 
+export function formatDecimal(v: number, digits = 1): string {
+  return new Intl.NumberFormat('vi-VN', {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  }).format(v);
+}
+
 export function formatPercent(v: number): string {
   return `${v.toFixed(1)}%`;
 }

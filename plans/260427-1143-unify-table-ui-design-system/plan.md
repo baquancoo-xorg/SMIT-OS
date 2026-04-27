@@ -127,4 +127,4 @@ This plan blocks: 260426-2346-dashboard-system-refactor-tabs-ui
 - Quality gates:
   - `npm run lint` pass.
   - Tester/checker reports cho phase modal và dense đã ghi tại `plans/reports/`.
-- Known minor follow-up (không blocker): xác nhận business precision cho một số chỉ số float ở call-performance (`callsPerLead`, `avgDuration`, `avgCallsBeforeClose`).
+- Float precision follow-up đã resolved trong code: dùng decimal formatting cho `callsPerLead`, `avgDuration`, `avgCallsBeforeClose`.

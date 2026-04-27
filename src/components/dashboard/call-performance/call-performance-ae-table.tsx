@@ -1,5 +1,5 @@
 import type { CallPerformancePerAeItem } from '../../../types/call-performance';
-import { formatNumber, formatPercent } from '../../../lib/formatters';
+import { formatDecimal, formatNumber, formatPercent } from '../../../lib/formatters';
 import DashboardPanel from '../ui/dashboard-panel';
 import { TableShell } from '../../ui/table-shell';
 import { getTableContract } from '../../ui/table-contract';
@@ -45,9 +45,9 @@ export default function CallPerformanceAeTable({ data }: Props) {
               <td className={`${denseTable.cell} text-right tabular-nums`}>{formatNumber(row.totalCalls)}</td>
               <td className={`${denseTable.cell} text-right tabular-nums`}>{formatNumber(row.answeredCalls)}</td>
               <td className={`${denseTable.cell} text-right tabular-nums`}>{formatPercent(row.answerRate)}</td>
-              <td className={`${denseTable.cell} text-right tabular-nums`}>{formatNumber(row.avgDuration)}</td>
+              <td className={`${denseTable.cell} text-right tabular-nums`}>{formatDecimal(row.avgDuration, 1)}</td>
               <td className={`${denseTable.cell} text-right tabular-nums`}>{formatNumber(row.totalLeadsCalled)}</td>
-              <td className={`${denseTable.cell} text-right tabular-nums`}>{formatNumber(row.callsPerLead)}</td>
+              <td className={`${denseTable.cell} text-right tabular-nums`}>{formatDecimal(row.callsPerLead, 1)}</td>
             </tr>
           ))}
         </tbody>

@@ -11,7 +11,8 @@
 - Preserved existing data logic and metric formatting behavior while standardizing dense visual shell.
 - Quality gate:
   - `npm run lint` passed (`tsc --noEmit`).
-  - Subagent review/test checks passed with one non-blocking note to confirm decimal precision expectations for float-like metrics (`callsPerLead`, `avgDuration`, `avgCallsBeforeClose`).
+  - Subagent review/test checks passed.
+  - Float precision follow-up resolved by using decimal formatting for `callsPerLead`, `avgDuration`, and `avgCallsBeforeClose`.
 
 ## [v2.1.12] - 2026-04-27
 

@@ -1,5 +1,5 @@
 import type { CallPerformanceConversionItem } from '../../../types/call-performance';
-import { formatNumber } from '../../../lib/formatters';
+import { formatDecimal, formatNumber } from '../../../lib/formatters';
 import DashboardPanel from '../ui/dashboard-panel';
 import { TableShell } from '../../ui/table-shell';
 import { getTableContract } from '../../ui/table-contract';
@@ -41,7 +41,7 @@ export default function CallPerformanceConversion({ data }: Props) {
               <td className={`${denseTable.cell} font-medium text-left`}>{row.aeName}</td>
               <td className={`${denseTable.cell} text-right tabular-nums`}>{formatNumber(row.callsToQualified)}</td>
               <td className={`${denseTable.cell} text-right tabular-nums`}>{formatNumber(row.callsToUnqualified)}</td>
-              <td className={`${denseTable.cell} text-right tabular-nums`}>{formatNumber(row.avgCallsBeforeClose)}</td>
+              <td className={`${denseTable.cell} text-right tabular-nums`}>{formatDecimal(row.avgCallsBeforeClose, 1)}</td>
             </tr>
           ))}
         </tbody>

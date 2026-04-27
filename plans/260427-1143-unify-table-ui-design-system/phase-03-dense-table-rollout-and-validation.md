@@ -65,7 +65,7 @@
   - `src/components/dashboard/call-performance/call-performance-conversion.tsx`
 - Validation executed:
   - `npm run lint` passed.
-  - Known minor follow-up (non-blocker): xác nhận business precision cho một số chỉ số float (`callsPerLead`, `avgDuration`, `avgCallsBeforeClose`).
+  - Numeric precision follow-up resolved in code by using decimal formatting for float-like call-performance metrics (`callsPerLead`, `avgDuration`, `avgCallsBeforeClose`).
 
 ## Next Steps
 - Sau phase 03: chuyển sang implementation workflow (`/ck:cook`) theo plan path.
