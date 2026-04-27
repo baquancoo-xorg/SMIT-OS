@@ -1,6 +1,8 @@
 import { Plus, Trash2, Briefcase, Clock } from 'lucide-react';
 import { AdHocTask } from '../../../types/daily-report-metrics';
 import CustomSelect, { SelectOption } from '../../ui/CustomSelect';
+import { TableShell } from '../../ui/table-shell';
+import { getTableContract } from '../../ui/table-contract';
 
 interface AdHocTasksSectionProps {
   tasks: AdHocTask[];
@@ -30,6 +32,7 @@ const COLOR_CLASSES = {
 export default function AdHocTasksSection({ tasks, onTasksChange, teamColor = 'indigo' }: AdHocTasksSectionProps) {
   const colors = COLOR_CLASSES[teamColor];
   const totalHours = tasks.reduce((sum, t) => sum + (t.hoursSpent || 0), 0);
+  const standardTable = getTableContract('standard');
 
   const addTask = () => {
     onTasksChange([...tasks, {
@@ -78,79 +81,78 @@ export default function AdHocTasksSection({ tasks, onTasksChange, teamColor = 'i
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                <tr className="border-b border-slate-200/50">
-                  <th className="pb-2 pr-2 min-w-[140px]">Công việc</th>
-                  <th className="pb-2 pr-2 min-w-[100px]">Người yêu cầu</th>
-                  <th className="pb-2 pr-2 w-24">Impact</th>
-                  <th className="pb-2 pr-2 w-28">Status</th>
-                  <th className="pb-2 pr-2 w-16 text-right">Giờ</th>
-                  <th className="pb-2 w-8"></th>
+          <TableShell variant="standard" className="rounded-xl" tableClassName="text-left text-sm">
+            <thead>
+              <tr className={standardTable.headerRow}>
+                <th className={`${standardTable.headerCell} min-w-[140px]`}>Công việc</th>
+                <th className={`${standardTable.headerCell} min-w-[100px]`}>Người yêu cầu</th>
+                <th className={`${standardTable.headerCell} w-24`}>Impact</th>
+                <th className={`${standardTable.headerCell} w-28`}>Status</th>
+                <th className={`${standardTable.headerCell} w-16 text-right`}>Giờ</th>
+                <th className={standardTable.actionHeaderCell}>Actions</th>
+              </tr>
+            </thead>
+            <tbody className={standardTable.body}>
+              {tasks.map((task) => (
+                <tr key={task.id} className={`${standardTable.row} group`}>
+                  <td className={standardTable.cell}>
+                    <input
+                      type="text"
+                      value={task.name}
+                      onChange={(e) => updateTask(task.id, 'name', e.target.value)}
+                      placeholder="Tên công việc..."
+                      className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+                    />
+                  </td>
+                  <td className={standardTable.cell}>
+                    <input
+                      type="text"
+                      value={task.requester}
+                      onChange={(e) => updateTask(task.id, 'requester', e.target.value)}
+                      placeholder="Ai yêu cầu..."
+                      className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+                    />
+                  </td>
+                  <td className={standardTable.cell}>
+                    <CustomSelect
+                      value={task.impact}
+                      onChange={(value) => updateTask(task.id, 'impact', value)}
+                      options={IMPACT_OPTIONS}
+                      placeholder="Impact"
+                    />
+                  </td>
+                  <td className={standardTable.cell}>
+                    <CustomSelect
+                      value={task.status}
+                      onChange={(value) => updateTask(task.id, 'status', value)}
+                      options={STATUS_OPTIONS}
+                      placeholder="Status"
+                    />
+                  </td>
+                  <td className={standardTable.cell}>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.5"
+                      value={task.hoursSpent || ''}
+                      onChange={(e) => updateTask(task.id, 'hoursSpent', parseFloat(e.target.value) || 0)}
+                      placeholder="0"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-sm text-right focus:ring-1 focus:ring-primary outline-none"
+                    />
+                  </td>
+                  <td className={standardTable.actionCell}>
+                    <button
+                      onClick={() => removeTask(task.id)}
+                      className="text-slate-300 hover:text-rose-500 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label="Delete task"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {tasks.map((task) => (
-                  <tr key={task.id} className="group">
-                    <td className="py-2 pr-2">
-                      <input
-                        type="text"
-                        value={task.name}
-                        onChange={(e) => updateTask(task.id, 'name', e.target.value)}
-                        placeholder="Tên công việc..."
-                        className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:ring-1 focus:ring-primary outline-none"
-                      />
-                    </td>
-                    <td className="py-2 pr-2">
-                      <input
-                        type="text"
-                        value={task.requester}
-                        onChange={(e) => updateTask(task.id, 'requester', e.target.value)}
-                        placeholder="Ai yêu cầu..."
-                        className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:ring-1 focus:ring-primary outline-none"
-                      />
-                    </td>
-                    <td className="py-2 pr-2">
-                      <CustomSelect
-                        value={task.impact}
-                        onChange={(value) => updateTask(task.id, 'impact', value)}
-                        options={IMPACT_OPTIONS}
-                        placeholder="Impact"
-                      />
-                    </td>
-                    <td className="py-2 pr-2">
-                      <CustomSelect
-                        value={task.status}
-                        onChange={(value) => updateTask(task.id, 'status', value)}
-                        options={STATUS_OPTIONS}
-                        placeholder="Status"
-                      />
-                    </td>
-                    <td className="py-2 pr-2">
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.5"
-                        value={task.hoursSpent || ''}
-                        onChange={(e) => updateTask(task.id, 'hoursSpent', parseFloat(e.target.value) || 0)}
-                        placeholder="0"
-                        className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-sm text-right focus:ring-1 focus:ring-primary outline-none"
-                      />
-                    </td>
-                    <td className="py-2">
-                      <button
-                        onClick={() => removeTask(task.id)}
-                        className="text-slate-300 hover:text-rose-500 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </TableShell>
           <div className="mt-2 pt-2 border-t border-slate-200/50 text-right">
             <span className="text-xs text-slate-500">Tổng:</span>
             <span className={`ml-1 font-bold ${colors.text}`}>{totalHours}h</span>

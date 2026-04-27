@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react';
 import { Trash2, Save, Edit2, X } from 'lucide-react';
 import { Sprint } from '../../types';
 import { Input, Button } from '../ui';
+import { TableShell } from '../ui/table-shell';
+import { getTableContract } from '../ui/table-contract';
+import { formatTableDate } from '../ui/table-date-format';
 
 interface SprintCyclesTabProps {
   onDeleteConfirm: (type: 'sprint', id: string) => void;
@@ -14,6 +17,7 @@ export function SprintCyclesTab({ onDeleteConfirm, isAddingSprint, setIsAddingSp
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [editingSprint, setEditingSprint] = useState<Sprint | null>(null);
   const [newSprint, setNewSprint] = useState({ name: '', startDate: '', endDate: '' });
+  const standardTable = getTableContract('standard');
 
   const fetchSprints = async () => {
     try {
@@ -66,7 +70,6 @@ export function SprintCyclesTab({ onDeleteConfirm, isAddingSprint, setIsAddingSp
 
   return (
     <div className="space-y-6">
-
       {isAddingSprint && (
         <div className="bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-white/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
           <Input label="Sprint Name" placeholder="e.g., Sprint 4: Deep Space" value={newSprint.name} onChange={e => setNewSprint({ ...newSprint, name: e.target.value })} />
@@ -111,31 +114,29 @@ export function SprintCyclesTab({ onDeleteConfirm, isAddingSprint, setIsAddingSp
         </div>
       )}
 
-      <div className="bg-white/50 backdrop-blur-md rounded-3xl shadow-sm border border-white/20 overflow-hidden">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="border-b border-outline-variant/10 bg-surface-container-low/30">
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Sprint</th>
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Duration</th>
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+      <TableShell variant="standard" className="border border-white/20">
+        <thead>
+          <tr className={standardTable.headerRow}>
+            <th className={standardTable.headerCell}>Sprint</th>
+            <th className={standardTable.headerCell}>Duration</th>
+            <th className={standardTable.actionHeaderCell}>Actions</th>
+          </tr>
+        </thead>
+        <tbody className={standardTable.body}>
+          {sprints.map(sprint => (
+            <tr key={sprint.id} className={standardTable.row}>
+              <td className={standardTable.cell}><span className="text-sm font-bold text-on-surface">{sprint.name}</span></td>
+              <td className={standardTable.cell}><span className="text-xs font-medium text-slate-500">{formatTableDate(sprint.startDate)} - {formatTableDate(sprint.endDate)}</span></td>
+              <td className={standardTable.actionCell}>
+                <div className="flex items-center justify-end gap-1">
+                  <button onClick={() => setEditingSprint(sprint)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all" title="Edit Sprint"><Edit2 size={16} /></button>
+                  <button onClick={() => onDeleteConfirm('sprint', sprint.id)} className="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-xl transition-all" title="Delete Sprint"><Trash2 size={16} /></button>
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-outline-variant/5">
-            {sprints.map(sprint => (
-              <tr key={sprint.id} className="hover:bg-surface-container-low/30 transition-all">
-                <td className="px-6 py-4"><span className="text-sm font-bold text-on-surface">{sprint.name}</span></td>
-                <td className="px-6 py-4"><span className="text-xs font-medium text-slate-500">{new Date(sprint.startDate).toLocaleDateString()} - {new Date(sprint.endDate).toLocaleDateString()}</span></td>
-                <td className="px-6 py-4 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <button onClick={() => setEditingSprint(sprint)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all" title="Edit Sprint"><Edit2 size={16} /></button>
-                    <button onClick={() => onDeleteConfirm('sprint', sprint.id)} className="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-xl transition-all" title="Delete Sprint"><Trash2 size={16} /></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </TableShell>
     </div>
   );
 }

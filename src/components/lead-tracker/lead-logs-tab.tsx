@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
-import { addDays, differenceInCalendarDays, format, parseISO } from 'date-fns';
+import { addDays, differenceInCalendarDays, parseISO } from 'date-fns';
 import { Search, Check, Trash2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { api } from '../../lib/api';
@@ -12,6 +12,9 @@ import LeadDetailModal from './lead-detail-modal';
 import LeadLogDialog from './lead-log-dialog';
 import SourceBadge from './source-badge';
 import { TableRowActions } from '../ui/table-row-actions';
+import { TableShell } from '../ui/table-shell';
+import { getTableContract } from '../ui/table-contract';
+import { formatTableDateTime } from '../ui/table-date-format';
 
 const STATUSES = ['Mới', 'Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'];
 
@@ -57,13 +60,6 @@ function getLeadSla(lead: Lead, now: Date) {
     className: 'bg-rose-50 text-rose-700 border-rose-200',
   };
 }
-
-const formatLeadDateTime = (value?: string | null) => {
-  if (!value) return '-';
-  const parsed = parseISO(value);
-  if (Number.isNaN(parsed.getTime())) return '-';
-  return format(parsed, 'dd/MM/yyyy - HH:mm');
-};
 
 const COLS = [
   { label: 'Customer', key: 'customerName' },
@@ -116,6 +112,7 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
   const [dialogMode, setDialogMode] = useState<'add' | 'edit' | null>(null);
   const [dialogLead, setDialogLead] = useState<Lead | null>(null);
   const [detailLead, setDetailLead] = useState<Lead | null>(null);
+  const standardTable = getTableContract('standard');
 
   const sf = (k: string, v: string) => setFilters((f) => ({ ...f, [k]: v }));
 
@@ -213,8 +210,6 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
     } finally { setBulkSaving(false); }
   };
 
-  const cellCls = 'px-4 py-4 text-xs';
-
   return (
     <div className="h-full flex flex-col gap-4">
       <div className="shrink-0 flex flex-wrap gap-3 items-center p-4 bg-white/50 backdrop-blur-md rounded-3xl shadow-sm">
@@ -300,132 +295,136 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
       </div>
 
       <div className="flex-1 min-h-0 bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden">
-        <div className="h-full overflow-y-auto overflow-x-auto custom-scrollbar">
-          <table className="w-full text-left border-collapse min-w-[1180px]">
-            <thead className="sticky top-0 z-10">
-              <tr className="bg-white border-b border-slate-100">
-                {isSale && (
-                  <th className="pl-6 py-5 w-10">
-                    <button
-                      onClick={toggleSelectAll}
-                      className={`size-4 rounded-[4px] border-2 flex items-center justify-center transition-all cursor-pointer ${
-                        allSelected ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary/60 bg-white'
-                      }`}
-                    >
-                      {allSelected && <Check size={10} strokeWidth={3} className="text-white" />}
-                    </button>
-                  </th>
-                )}
-                {COLS.map((c) => (
-                  <th key={c.key} className="px-4 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                    {c.label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {loading && (
-                <tr><td colSpan={isSale ? 14 : 13} className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest animate-pulse">Loading...</td></tr>
-              )}
-
-              {!loading && leads
-                .filter(l => {
-                  if (!filters.q) return true;
-                  const q = filters.q.toLowerCase();
-                  return (
-                    l.customerName.toLowerCase().includes(q) ||
-                    l.ae.toLowerCase().includes(q) ||
-                    (l.notes?.toLowerCase() || '').includes(q)
-                  );
-                })
-                .map((lead) => {
-                const isSelected = selectedIds.has(lead.id);
-                const hasPendingDelete = !!lead.deleteRequestedBy;
-                const sla = getLeadSla(lead, new Date());
-                return (
-                  <tr
-                    key={lead.id}
-                    className={`hover:bg-slate-50/80 transition-colors group
-                      ${isSelected ? 'bg-primary/[0.04]' : ''}
-                      ${hasPendingDelete && isAdminOrLeaderSale ? 'border-l-2 border-rose-400' : ''}
-                    `}
+        <TableShell variant="standard" className="h-full bg-transparent border-0 shadow-none rounded-none" scrollClassName="h-full overflow-y-auto overflow-x-auto custom-scrollbar" tableClassName="min-w-[1180px]">
+          <thead className="sticky top-0 z-10">
+            <tr className={standardTable.headerRow}>
+              {isSale && (
+                <th className={`${standardTable.headerCell} w-10 pl-6`}>
+                  <button
+                    onClick={toggleSelectAll}
+                    className={`size-4 rounded-[4px] border-2 flex items-center justify-center transition-all cursor-pointer ${
+                      allSelected ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary/60 bg-white'
+                    }`}
                   >
-                    {isSale && (
-                      <td className="pl-6">
-                        <button onClick={() => toggleSelect(lead.id)} className={`size-4 rounded-[4px] border-2 flex items-center justify-center transition-all cursor-pointer ${isSelected ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary/60 bg-white'}`}>
-                          {isSelected && <Check size={10} strokeWidth={3} className="text-white" />}
-                        </button>
-                      </td>
-                    )}
-                    <td className={`${cellCls} font-black text-on-surface`}>
-                      <span>{lead.customerName}</span>
-                    </td>
-                    <td className={cellCls}>
-                      <SourceBadge synced={lead.syncedFromCrm} />
-                    </td>
-                    <td className={`${cellCls} font-bold text-slate-600`}>{lead.ae}</td>
-                    <td className={`${cellCls} text-slate-500 font-medium`}>{formatLeadDateTime(lead.receivedDate)}</td>
-                    <td className={`${cellCls} text-slate-500`}>{formatLeadDateTime(lead.resolvedDate)}</td>
-                    <td className={cellCls}>
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${STATUS_BADGE[lead.status] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}>
-                        {toStatusLabel(lead.status)}
-                      </span>
-                    </td>
-                    <td className={cellCls}>
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${sla.className}`}>
-                        {sla.label}
-                      </span>
-                    </td>
-                    <td className={`${cellCls} text-slate-500`}>{lead.leadType === 'Việt Nam' ? 'VN' : lead.leadType === 'Quốc Tế' ? 'QT' : (lead.leadType ?? '-')}</td>
-                    <td className={`${cellCls} text-slate-500 font-medium`}>{lead.unqualifiedType ?? '-'}</td>
-                    <td className={`${cellCls} italic max-w-[150px]`}>
-                      <span className="text-slate-400 truncate block">{lead.notes || '—'}</span>
-                    </td>
-                    <td className={`${cellCls} text-slate-400 text-[11px] font-medium whitespace-nowrap`}>
-                      {formatLeadDateTime(lead.updatedAt)}
-                    </td>
-                    <td className={`${cellCls} whitespace-nowrap`}>
-                      <div className="flex gap-1 items-center">
-                        <TableRowActions
-                          onView={() => setDetailLead(lead)}
-                          onEdit={() => { setDialogMode('edit'); setDialogLead(lead); }}
-                          size={14}
-                        />
+                    {allSelected && <Check size={10} strokeWidth={3} className="text-white" />}
+                  </button>
+                </th>
+              )}
+              {COLS.map((c) => (
+                <th key={c.key} className={c.key === 'actions' ? standardTable.actionHeaderCell : standardTable.headerCell}>
+                  {c.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className={standardTable.body}>
+            {loading && (
+              <tr>
+                <td colSpan={isSale ? 14 : 13} className={standardTable.emptyState}>
+                  <p className="font-bold uppercase tracking-widest animate-pulse text-slate-400">Loading...</p>
+                </td>
+              </tr>
+            )}
 
-                        {hasPendingDelete ? (
-                          isAdminOrLeaderSale ? (
-                            <div className="flex items-center gap-1 bg-rose-50 p-1 rounded-xl border border-rose-100">
-                              <span className="text-[10px] font-bold text-rose-600 px-2 max-w-[120px] truncate" title={lead.deleteReason || ''}>
-                                Lý do: {lead.deleteReason || 'N/A'}
-                              </span>
-                              <button onClick={() => handleApproveDelete(lead)} className="p-1.5 text-emerald-500 hover:bg-white rounded-lg transition-all" title="Duyệt xóa"><Check size={14} /></button>
-                              <button onClick={() => handleRejectDelete(lead)} className="p-1.5 text-rose-400 hover:bg-white rounded-lg transition-all" title="Từ chối"><X size={14} /></button>
-                            </div>
-                          ) : lead.deleteRequestedBy === currentUser?.id ? (
-                            <button onClick={() => handleCancelDeleteRequest(lead)} className="flex items-center gap-1 px-2 py-1 text-amber-600 bg-amber-50 rounded-xl text-[10px] font-black" title="Hủy yêu cầu xóa">⏳ Đang chờ</button>
-                          ) : (
-                            <span className="px-2 py-1 text-slate-400 text-[10px] font-black">⏳</span>
-                          )
-                        ) : (
-                          <button onClick={() => handleDelete(lead)} className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all" title={isAdminOrLeaderSale ? 'Xóa' : 'Yêu cầu xóa'}><Trash2 size={16} /></button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
+            {!loading && leads
+              .filter(l => {
+                if (!filters.q) return true;
+                const q = filters.q.toLowerCase();
+                return (
+                  l.customerName.toLowerCase().includes(q) ||
+                  l.ae.toLowerCase().includes(q) ||
+                  (l.notes?.toLowerCase() || '').includes(q)
                 );
-              })}
+              })
+              .map((lead) => {
+              const isSelected = selectedIds.has(lead.id);
+              const hasPendingDelete = !!lead.deleteRequestedBy;
+              const sla = getLeadSla(lead, new Date());
+              return (
+                <tr
+                  key={lead.id}
+                  className={`${standardTable.row}
+                    ${isSelected ? standardTable.rowSelected : ''}
+                    ${hasPendingDelete && isAdminOrLeaderSale ? 'border-l-2 border-rose-400' : ''}`}
+                >
+                  {isSale && (
+                    <td className={`${standardTable.cell} pl-6`}>
+                      <button onClick={() => toggleSelect(lead.id)} className={`size-4 rounded-[4px] border-2 flex items-center justify-center transition-all cursor-pointer ${isSelected ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary/60 bg-white'}`}>
+                        {isSelected && <Check size={10} strokeWidth={3} className="text-white" />}
+                      </button>
+                    </td>
+                  )}
+                  <td className={`${standardTable.cell} font-black text-on-surface`}>
+                    <span>{lead.customerName}</span>
+                  </td>
+                  <td className={standardTable.cell}>
+                    <SourceBadge synced={lead.syncedFromCrm} />
+                  </td>
+                  <td className={`${standardTable.cell} font-bold text-slate-600`}>{lead.ae}</td>
+                  <td className={`${standardTable.cell} text-slate-500 font-medium`}>{formatTableDateTime(lead.receivedDate)}</td>
+                  <td className={`${standardTable.cell} text-slate-500`}>{formatTableDateTime(lead.resolvedDate)}</td>
+                  <td className={standardTable.cell}>
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${STATUS_BADGE[lead.status] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                      {toStatusLabel(lead.status)}
+                    </span>
+                  </td>
+                  <td className={standardTable.cell}>
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${sla.className}`}>
+                      {sla.label}
+                    </span>
+                  </td>
+                  <td className={`${standardTable.cell} text-slate-500`}>{lead.leadType === 'Việt Nam' ? 'VN' : lead.leadType === 'Quốc Tế' ? 'QT' : (lead.leadType ?? '-')}</td>
+                  <td className={`${standardTable.cell} text-slate-500 font-medium`}>{lead.unqualifiedType ?? '-'}</td>
+                  <td className={`${standardTable.cell} italic max-w-[150px]`}>
+                    <span className="text-slate-400 truncate block">{lead.notes || '—'}</span>
+                  </td>
+                  <td className={`${standardTable.cell} text-slate-400 text-[11px] font-medium whitespace-nowrap`}>
+                    {formatTableDateTime(lead.updatedAt)}
+                  </td>
+                  <td className={standardTable.actionCell}>
+                    <div className="flex gap-1 items-center justify-end">
+                      <TableRowActions
+                        onView={() => setDetailLead(lead)}
+                        onEdit={() => { setDialogMode('edit'); setDialogLead(lead); }}
+                        size={14}
+                        variant="standard"
+                      />
 
-              {!loading && leads.length === 0 && (
-                <tr><td colSpan={isSale ? 14 : 13} className="py-32 text-center">
+                      {hasPendingDelete ? (
+                        isAdminOrLeaderSale ? (
+                          <div className="flex items-center gap-1 bg-rose-50 p-1 rounded-xl border border-rose-100">
+                            <span className="text-[10px] font-bold text-rose-600 px-2 max-w-[120px] truncate" title={lead.deleteReason || ''}>
+                              Lý do: {lead.deleteReason || 'N/A'}
+                            </span>
+                            <button onClick={() => handleApproveDelete(lead)} className="p-1.5 text-emerald-500 hover:bg-white rounded-lg transition-all" title="Duyệt xóa"><Check size={14} /></button>
+                            <button onClick={() => handleRejectDelete(lead)} className="p-1.5 text-rose-400 hover:bg-white rounded-lg transition-all" title="Từ chối"><X size={14} /></button>
+                          </div>
+                        ) : lead.deleteRequestedBy === currentUser?.id ? (
+                          <button onClick={() => handleCancelDeleteRequest(lead)} className="flex items-center gap-1 px-2 py-1 text-amber-600 bg-amber-50 rounded-xl text-[10px] font-black" title="Hủy yêu cầu xóa">⏳ Đang chờ</button>
+                        ) : (
+                          <span className="px-2 py-1 text-slate-400 text-[10px] font-black">⏳</span>
+                        )
+                      ) : (
+                        <button onClick={() => handleDelete(lead)} className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all" title={isAdminOrLeaderSale ? 'Xóa' : 'Yêu cầu xóa'}><Trash2 size={16} /></button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+
+            {!loading && leads.length === 0 && (
+              <tr>
+                <td colSpan={isSale ? 14 : 13} className={standardTable.emptyState}>
                   <div className="flex flex-col items-center opacity-30">
                     <Search className="size-12 mb-4" />
                     <p className="font-black uppercase tracking-[0.2em] text-sm">No leads found</p>
                   </div>
-                </td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </TableShell>
       </div>
 
       <AnimatePresence>

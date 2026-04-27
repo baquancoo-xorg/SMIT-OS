@@ -1,8 +1,12 @@
 import DatePicker from '../ui/date-picker';
 import { useState, useEffect } from 'react';
-import { Trash2, Save, Edit2, X } from 'lucide-react';
+import { Save, X } from 'lucide-react';
 import { OkrCycle } from '../../types';
 import { Input, Button } from '../ui';
+import { TableShell } from '../ui/table-shell';
+import { getTableContract } from '../ui/table-contract';
+import { formatTableDate } from '../ui/table-date-format';
+import { TableRowActions } from '../ui/table-row-actions';
 
 interface OkrCyclesTabProps {
   onDeleteConfirm: (type: 'cycle', id: string) => void;
@@ -14,6 +18,7 @@ export function OkrCyclesTab({ onDeleteConfirm, isAddingCycle, setIsAddingCycle 
   const [okrCycles, setOkrCycles] = useState<OkrCycle[]>([]);
   const [editingCycle, setEditingCycle] = useState<OkrCycle | null>(null);
   const [newCycle, setNewCycle] = useState({ name: '', startDate: '', endDate: '' });
+  const standardTable = getTableContract('standard');
 
   const fetchOkrCycles = async () => {
     try {
@@ -79,7 +84,6 @@ export function OkrCyclesTab({ onDeleteConfirm, isAddingCycle, setIsAddingCycle 
 
   return (
     <div className="space-y-6">
-
       {isAddingCycle && (
         <div className="bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-white/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
           <Input label="Cycle Name" placeholder="e.g., Q2/2026" value={newCycle.name} onChange={e => setNewCycle({ ...newCycle, name: e.target.value })} />
@@ -124,42 +128,44 @@ export function OkrCyclesTab({ onDeleteConfirm, isAddingCycle, setIsAddingCycle 
         </div>
       )}
 
-      <div className="bg-white/50 backdrop-blur-md rounded-3xl shadow-sm border border-white/20 overflow-hidden">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="border-b border-outline-variant/10 bg-surface-container-low/30">
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Cycle</th>
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Duration</th>
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+      <TableShell variant="standard" className="border border-white/20">
+        <thead>
+          <tr className={standardTable.headerRow}>
+            <th className={standardTable.headerCell}>Cycle</th>
+            <th className={standardTable.headerCell}>Duration</th>
+            <th className={standardTable.headerCell}>Status</th>
+            <th className={standardTable.actionHeaderCell}>Actions</th>
+          </tr>
+        </thead>
+        <tbody className={standardTable.body}>
+          {okrCycles.map(cycle => (
+            <tr key={cycle.id} className={standardTable.row}>
+              <td className={standardTable.cell}><span className="text-sm font-bold text-on-surface">{cycle.name}</span></td>
+              <td className={standardTable.cell}><span className="text-xs font-medium text-slate-500">{formatTableDate(cycle.startDate)} - {formatTableDate(cycle.endDate)}</span></td>
+              <td className={standardTable.cell}>
+                {cycle.isActive ? (
+                  <span className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold">Active</span>
+                ) : (
+                  <button onClick={() => handleSetActiveCycle(cycle.id)} className="px-2 py-1 bg-slate-100 text-slate-500 rounded-full text-[10px] font-bold hover:bg-primary/10 hover:text-primary transition-colors">Set Active</button>
+                )}
+              </td>
+              <td className={standardTable.actionCell}>
+                <TableRowActions
+                  onEdit={() => setEditingCycle(cycle)}
+                  onDelete={() => onDeleteConfirm('cycle', cycle.id)}
+                  size={16}
+                  variant="standard"
+                />
+              </td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-outline-variant/5">
-            {okrCycles.map(cycle => (
-              <tr key={cycle.id} className="hover:bg-surface-container-low/30 transition-all">
-                <td className="px-6 py-4"><span className="text-sm font-bold text-on-surface">{cycle.name}</span></td>
-                <td className="px-6 py-4"><span className="text-xs font-medium text-slate-500">{new Date(cycle.startDate).toLocaleDateString('vi-VN')} - {new Date(cycle.endDate).toLocaleDateString('vi-VN')}</span></td>
-                <td className="px-6 py-4">
-                  {cycle.isActive ? (
-                    <span className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold">Active</span>
-                  ) : (
-                    <button onClick={() => handleSetActiveCycle(cycle.id)} className="px-2 py-1 bg-slate-100 text-slate-500 rounded-full text-[10px] font-bold hover:bg-primary/10 hover:text-primary transition-colors">Set Active</button>
-                  )}
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <button onClick={() => setEditingCycle(cycle)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all" title="Edit Cycle"><Edit2 size={16} /></button>
-                    <button onClick={() => onDeleteConfirm('cycle', cycle.id)} className="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-xl transition-all" title="Delete Cycle"><Trash2 size={16} /></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {okrCycles.length === 0 && (
-              <tr><td colSpan={4} className="px-6 py-8 text-center text-slate-400 text-sm">No OKR cycles created yet. Create one to start tracking quarterly objectives.</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          ))}
+          {okrCycles.length === 0 && (
+            <tr>
+              <td colSpan={4} className={standardTable.emptyState}>No OKR cycles created yet. Create one to start tracking quarterly objectives.</td>
+            </tr>
+          )}
+        </tbody>
+      </TableShell>
     </div>
   );
 }

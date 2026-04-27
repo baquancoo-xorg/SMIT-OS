@@ -1,4 +1,5 @@
 import { Eye, Edit2, Trash2 } from 'lucide-react';
+import type { TableVariant } from './table-contract';
 
 interface TableRowActionsProps {
   onView?: () => void;
@@ -8,6 +9,7 @@ interface TableRowActionsProps {
   compact?: boolean;
   className?: string;
   buttonClassName?: string;
+  variant?: TableVariant;
 }
 
 export function TableRowActions({
@@ -18,9 +20,12 @@ export function TableRowActions({
   compact = false,
   className = '',
   buttonClassName = '',
+  variant = 'standard',
 }: TableRowActionsProps) {
-  const paddingClass = compact ? 'p-1.5' : 'p-2';
-  const wrapperClass = compact
+  const useCompact = compact || variant === 'dense';
+  const iconSize = variant === 'dense' ? Math.min(size, 13) : size;
+  const paddingClass = useCompact ? 'p-1.5' : 'p-2';
+  const wrapperClass = useCompact
     ? `flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${className}`
     : `flex items-center justify-end gap-1 ${className}`;
 
@@ -33,7 +38,7 @@ export function TableRowActions({
           aria-label="View"
           className={`${paddingClass} ${buttonClassName} text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all`}
         >
-          <Eye size={size} />
+          <Eye size={iconSize} />
         </button>
       )}
 
@@ -44,7 +49,7 @@ export function TableRowActions({
           aria-label="Edit"
           className={`${paddingClass} ${buttonClassName} text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all`}
         >
-          <Edit2 size={size} />
+          <Edit2 size={iconSize} />
         </button>
       )}
 
@@ -55,7 +60,7 @@ export function TableRowActions({
           aria-label="Delete"
           className={`${paddingClass} ${buttonClassName} text-slate-400 hover:text-error hover:bg-error/5 rounded-lg transition-all`}
         >
-          <Trash2 size={size} />
+          <Trash2 size={iconSize} />
         </button>
       )}
     </div>

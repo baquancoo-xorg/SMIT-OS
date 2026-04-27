@@ -7,6 +7,8 @@ import { motion } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
 import CustomSelect from '../ui/CustomSelect';
 import AdHocTasksSection from '../daily-report/components/AdHocTasksSection';
+import { TableShell } from '../ui/table-shell';
+import { getTableContract } from '../ui/table-contract';
 
 interface WeeklyCheckinModalProps {
   isOpen: boolean;
@@ -86,6 +88,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
   }, [selectedTeam, isOpen]);
 
   const [krReviews, setKrReviews] = useState<any[]>([]);
+  const standardTable = getTableContract('standard');
 
   // Next Week Plans state
   const [nextWeekPlans, setNextWeekPlans] = useState([
@@ -369,22 +372,20 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
             
             {/* M17: Scroll wrapper for mobile */}
             <div className="overflow-hidden border border-slate-200 rounded-3xl">
-              <div className="overflow-x-auto">
-                <div className="min-w-[500px]">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest min-w-[150px]">Hạng mục (Item)</th>
-                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest min-w-[150px]">Cam kết đầu ra (Output)</th>
-                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-36 md:w-48">Deadline</th>
-                    <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-12 md:w-16"></th>
+              <TableShell variant="standard" className="rounded-none border-0 shadow-none" scrollClassName="overflow-x-auto" tableClassName="min-w-[500px]">
+                <thead>
+                  <tr className={standardTable.headerRow}>
+                    <th className={`${standardTable.headerCell} min-w-[150px]`}>Hạng mục (Item)</th>
+                    <th className={`${standardTable.headerCell} min-w-[150px]`}>Cam kết đầu ra (Output)</th>
+                    <th className={`${standardTable.headerCell} w-36 md:w-48`}>Deadline</th>
+                    <th className={standardTable.actionHeaderCell}>Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
+                <tbody className={standardTable.body}>
                   {nextWeekPlans.map((plan, idx) => (
-                    <tr key={plan.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-4 py-3">
-                        <input 
+                    <tr key={plan.id} className={standardTable.row}>
+                      <td className={standardTable.cell}>
+                        <input
                           type="text"
                           value={plan.item_name}
                           onChange={(e) => {
@@ -396,8 +397,8 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                           className="w-full bg-transparent border-none focus:ring-0 text-sm font-medium outline-none"
                         />
                       </td>
-                      <td className="px-4 py-3">
-                        <input 
+                      <td className={standardTable.cell}>
+                        <input
                           type="text"
                           value={plan.expected_output}
                           onChange={(e) => {
@@ -409,7 +410,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                           className="w-full bg-transparent border-none focus:ring-0 text-sm font-medium outline-none"
                         />
                       </td>
-                      <td className="px-4 py-3">
+                      <td className={standardTable.cell}>
                         <DatePicker
                           value={plan.deadline}
                           onChange={(v) => {
@@ -420,9 +421,9 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                           className="w-full"
                         />
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className={standardTable.actionCell}>
                         {nextWeekPlans.length > 1 && (
-                          <button 
+                          <button
                             onClick={() => removePlanRow(plan.id)}
                             className="text-slate-400 hover:text-rose-500 hover:bg-rose-50 p-1.5 rounded-lg transition-colors"
                           >
@@ -433,9 +434,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                     </tr>
                   ))}
                 </tbody>
-              </table>
-                </div>
-              </div>
+              </TableShell>
             </div>
           </section>
 

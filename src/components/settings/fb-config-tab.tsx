@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { RefreshCw, DollarSign, Save, X } from 'lucide-react';
 import { Input, Button, Card, Badge } from '../ui';
 import { TableRowActions } from '../ui/table-row-actions';
+import { TableShell } from '../ui/table-shell';
+import { getTableContract } from '../ui/table-contract';
+import { formatTableDateTime } from '../ui/table-date-format';
 
 interface FbAccount {
   id: number;
@@ -27,6 +30,9 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
   const [syncingId, setSyncingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({ accountId: '', accountName: '', accessToken: '', currency: 'USD' });
   const [formError, setFormError] = useState<string | null>(null);
+  const [rateError, setRateError] = useState<string | null>(null);
+  const [rateSaved, setRateSaved] = useState(false);
+  const standardTable = getTableContract('standard');
 
   useEffect(() => {
     fetchAccounts();
@@ -136,9 +142,6 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
     }
   };
 
-  const [rateError, setRateError] = useState<string | null>(null);
-  const [rateSaved, setRateSaved] = useState(false);
-
   const handleUpdateExchangeRate = async () => {
     setRateError(null);
     setRateSaved(false);
@@ -174,22 +177,16 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
     setFormData({ accountId: acc.accountId, accountName: acc.accountName || '', accessToken: '', currency: acc.currency });
   };
 
-  const formatSyncTime = (date: string | null) => {
-    if (!date) return 'Never';
-    const d = new Date(date);
-    const diff = Date.now() - d.getTime();
-    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-    return d.toLocaleDateString();
+  const syncBadge = (acc: FbAccount) => {
+    if (!acc.lastSyncAt) return 'Never';
+    return formatTableDateTime(acc.lastSyncAt);
   };
 
   if (loading) return <div className="text-center py-8 text-slate-400">Loading...</div>;
 
   return (
     <div className="space-y-8 max-w-5xl">
-      {/* FB Ad Accounts Section */}
       <div className="space-y-8">
-
         {(isAdding || editingId) && (
           <Card variant="glass" className="p-6 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="flex items-center justify-between">
@@ -251,55 +248,55 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
         )}
 
         <Card variant="glass" className="overflow-hidden shadow-sm">
-          <table className="w-full text-left">
+          <TableShell variant="standard">
             <thead>
-              <tr className="border-b border-outline-variant/10 bg-surface-container-low/30">
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Account</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Currency</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Last Sync</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+              <tr className={standardTable.headerRow}>
+                <th className={standardTable.headerCell}>Account</th>
+                <th className={standardTable.headerCell}>Currency</th>
+                <th className={standardTable.headerCell}>Last Sync</th>
+                <th className={standardTable.actionHeaderCell}>Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-outline-variant/5">
+            <tbody className={standardTable.body}>
               {accounts.map(acc => (
-                <tr key={acc.id} className="group hover:bg-surface-container-low/30 transition-all">
-                  <td className="px-6 py-4">
+                <tr key={acc.id} className={`${standardTable.row} group`}>
+                  <td className={standardTable.cell}>
                     <div>
                       <span className="text-sm font-bold text-on-surface block">{acc.accountName || acc.accountId}</span>
                       <span className="text-[10px] text-slate-400 font-medium">{acc.accountId}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className={standardTable.cell}>
                     <Badge variant="neutral">{acc.currency}</Badge>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Badge variant={acc.lastSyncStatus === 'success' ? 'success' : acc.lastSyncStatus === 'failed' ? 'error' : 'neutral'}>
-                        {formatSyncTime(acc.lastSyncAt)}
-                      </Badge>
-                    </div>
+                  <td className={standardTable.cell}>
+                    <Badge variant={acc.lastSyncStatus === 'success' ? 'success' : acc.lastSyncStatus === 'failed' ? 'error' : 'neutral'}>
+                      {syncBadge(acc)}
+                    </Badge>
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <td className={standardTable.actionCell}>
+                    <div className="flex items-center justify-end gap-1">
                       <button onClick={() => handleSync(acc.id)} disabled={syncingId === acc.id} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all disabled:animate-spin" title="Sync Now"><RefreshCw size={16} /></button>
                       <TableRowActions
                         onEdit={() => openEdit(acc)}
                         onDelete={() => handleDeleteAccount(acc.id)}
                         size={16}
+                        variant="standard"
                       />
                     </div>
                   </td>
                 </tr>
               ))}
               {accounts.length === 0 && (
-                <tr><td colSpan={4} className="px-6 py-12 text-center text-slate-400 text-sm font-medium italic">No accounts configured yet.</td></tr>
+                <tr>
+                  <td colSpan={4} className={standardTable.emptyState}>No accounts configured yet.</td>
+                </tr>
               )}
             </tbody>
-          </table>
+          </TableShell>
         </Card>
       </div>
 
-      {/* Exchange Rate Section */}
       <div className="space-y-6">
         <Card variant="glass" className="p-6 space-y-6">
           <div className="flex items-center gap-3 mb-2">

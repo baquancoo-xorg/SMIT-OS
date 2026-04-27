@@ -5,6 +5,8 @@ import { User } from '../../types';
 import { Input, Button, Card, Badge } from '../ui';
 import CustomSelect from '../ui/CustomSelect';
 import { TableRowActions } from '../ui/table-row-actions';
+import { TableShell } from '../ui/table-shell';
+import { getTableContract } from '../ui/table-contract';
 
 const ALL_DEPARTMENTS = ['BOD', 'Tech', 'Marketing', 'Media', 'Sale'];
 const ROLE_OPTIONS = [
@@ -35,6 +37,7 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
     fullName: '', username: '', password: '', departments: ['Tech'] as string[],
     role: 'Member', scope: '', isAdmin: false
   });
+  const standardTable = getTableContract('standard');
 
   const toggleDepartment = (dept: string, isEdit: boolean) => {
     if (isEdit) {
@@ -108,7 +111,6 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
 
   return (
     <div className="space-y-8">
-
       {isAddingUser && (
         <div className="bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-white/20 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -203,21 +205,21 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
       )}
 
       {/* Desktop: table */}
-      <div className="hidden lg:block bg-white/50 backdrop-blur-md rounded-3xl shadow-sm border border-white/20 overflow-hidden">
-        <table className="w-full text-left">
+      <div className="hidden lg:block">
+        <TableShell variant="standard" className="border border-white/20">
           <thead>
-            <tr className="border-b border-outline-variant/10 bg-surface-container-low/30">
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Dept</th>
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Role</th>
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Scope</th>
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+            <tr className={standardTable.headerRow}>
+              <th className={standardTable.headerCell}>User</th>
+              <th className={standardTable.headerCell}>Dept</th>
+              <th className={standardTable.headerCell}>Role</th>
+              <th className={standardTable.headerCell}>Scope</th>
+              <th className={standardTable.actionHeaderCell}>Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-outline-variant/5">
+          <tbody className={standardTable.body}>
             {users.map(user => (
-              <tr key={user.id} className="group hover:bg-surface-container-low/30 transition-all">
-                <td className="px-6 py-4">
+              <tr key={user.id} className={`${standardTable.row} group`}>
+                <td className={standardTable.cell}>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xs font-black text-primary">
                       {user.fullName[0]}
@@ -228,29 +230,29 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className={standardTable.cell}>
                   <div className="flex flex-wrap gap-1">
                     {user.departments?.map(dept => (<span key={dept} className="px-2 py-0.5 bg-primary/5 text-primary rounded-lg text-[9px] font-black uppercase tracking-wider">{dept}</span>))}
                   </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className={standardTable.cell}>
                   <Badge variant={ROLE_BADGE_VARIANT[user.role] || 'neutral'}>{user.role}</Badge>
                 </td>
-                <td className="px-6 py-4">
+                <td className={standardTable.cell}>
                   <span className="text-xs font-bold text-slate-500">{user.scope || '-'}</span>
                 </td>
-                <td className="px-6 py-4 text-right">
+                <td className={standardTable.actionCell}>
                   <TableRowActions
                     onEdit={() => openEditUser(user)}
                     onDelete={user.id !== currentUser?.id ? () => onDeleteConfirm('user', user.id) : undefined}
                     size={16}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    variant="standard"
                   />
                 </td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </TableShell>
       </div>
 
       {/* Tablet/Mobile: card list */}
@@ -273,6 +275,7 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
                   onEdit={() => openEditUser(user)}
                   onDelete={user.id !== currentUser?.id ? () => onDeleteConfirm('user', user.id) : undefined}
                   size={16}
+                  variant="standard"
                 />
               </div>
             </div>

@@ -12,6 +12,9 @@ import CustomFilter from '../components/ui/CustomFilter';
 import ViewToggle from '../components/ui/ViewToggle';
 import PrimaryActionButton from '../components/ui/PrimaryActionButton';
 import { TableRowActions } from '../components/ui/table-row-actions';
+import { TableShell } from '../components/ui/table-shell';
+import { getTableContract } from '../components/ui/table-contract';
+import { formatTableDate } from '../components/ui/table-date-format';
 import EpicBoard from './EpicBoard';
 import EpicGraph from './EpicGraph';
 
@@ -605,6 +608,7 @@ function BacklogTableView({
   onViewDetails: (item: WorkItem) => void;
   users: any[];
 }) {
+  const standardTable = getTableContract('standard');
   const priorityColors: Record<string, string> = {
     Urgent: 'bg-error/10 text-error',
     High: 'bg-orange-50 text-orange-600',
@@ -620,89 +624,88 @@ function BacklogTableView({
   };
 
   return (
-    <div className="bg-white/50 backdrop-blur-md rounded-3xl shadow-sm border border-white/20 overflow-hidden">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b border-outline-variant/10 bg-surface-container-low/30">
-            <th className="p-4 w-12">
-              <button
-                onClick={onSelectAll}
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                  selectedIds.size === items.length && items.length > 0
-                    ? 'bg-primary border-primary'
-                    : 'border-slate-300 hover:border-primary/50'
-                }`}
-              >
-                {selectedIds.size === items.length && items.length > 0 && (
-                  <span className="material-symbols-outlined text-white text-sm">check</span>
-                )}
-              </button>
-            </th>
-            <th className="p-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Type</th>
-            <th className="p-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Title</th>
-            <th className="p-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Assignee</th>
-            <th className="p-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Priority</th>
-            <th className="p-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Parent Epic</th>
-            <th className="p-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Due Date</th>
-            <th className="p-4 text-right text-xs font-black text-slate-400 uppercase tracking-widest">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-outline-variant/5">
-          {items.map(item => {
-            const assignee = users.find(u => u.id === item.assigneeId);
-            return (
-              <tr
-                key={item.id}
-                className={`hover:bg-surface-container-low/30 transition-all ${selectedIds.has(item.id) ? 'bg-primary/5' : ''}`}
-              >
-                <td className="p-4">
-                  <button
-                    onClick={() => onToggleSelect(item.id)}
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                      selectedIds.has(item.id)
-                        ? 'bg-primary border-primary'
-                        : 'border-slate-300 hover:border-primary/50'
-                    }`}
-                  >
-                    {selectedIds.has(item.id) && (
-                      <span className="material-symbols-outlined text-white text-sm">check</span>
-                    )}
-                  </button>
-                </td>
-                <td className="p-4">
-                  <span className={`text-xs font-black uppercase px-2 py-1 rounded-full ${typeColors[item.type] || 'bg-slate-100 text-slate-600'}`}>
-                    {item.type}
-                  </span>
-                </td>
-                <td className="p-4">
-                  <p className="text-sm font-bold text-on-surface truncate max-w-[300px]">{item.title}</p>
-                </td>
-                <td className="p-4">
-                  <p className="text-xs text-on-surface-variant font-medium">{assignee?.fullName || '—'}</p>
-                </td>
-                <td className="p-4">
-                  <p className="text-xs text-slate-400 font-medium">{item.parent?.title ?? '—'}</p>
-                </td>
-                <td className="p-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${priorityColors[item.priority] || priorityColors['Medium']}`}>
-                    {item.priority}
-                  </span>
-                </td>
-                <td className="p-4">
-                  <p className="text-xs text-on-surface-variant">{item.dueDate ? new Date(item.dueDate).toLocaleDateString() : '—'}</p>
-                </td>
-                <td className="p-4 text-right">
-                  <TableRowActions
-                    onView={() => onViewDetails(item)}
-                    onEdit={() => onEdit(item)}
-                    onDelete={() => onDelete(item.id)}
-                  />
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+    <TableShell variant="standard" className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm">
+      <thead>
+        <tr className={standardTable.headerRow}>
+          <th className={`${standardTable.headerCell} w-12`}>
+            <button
+              onClick={onSelectAll}
+              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                selectedIds.size === items.length && items.length > 0
+                  ? 'bg-primary border-primary'
+                  : 'border-slate-300 hover:border-primary/50'
+              }`}
+            >
+              {selectedIds.size === items.length && items.length > 0 && (
+                <span className="material-symbols-outlined text-white text-sm">check</span>
+              )}
+            </button>
+          </th>
+          <th className={standardTable.headerCell}>Type</th>
+          <th className={standardTable.headerCell}>Title</th>
+          <th className={standardTable.headerCell}>Assignee</th>
+          <th className={standardTable.headerCell}>Parent Epic</th>
+          <th className={standardTable.headerCell}>Priority</th>
+          <th className={standardTable.headerCell}>Due Date</th>
+          <th className={standardTable.actionHeaderCell}>Actions</th>
+        </tr>
+      </thead>
+      <tbody className={standardTable.body}>
+        {items.map(item => {
+          const assignee = users.find(u => u.id === item.assigneeId);
+          return (
+            <tr
+              key={item.id}
+              className={`${standardTable.row} ${selectedIds.has(item.id) ? standardTable.rowSelected : ''}`}
+            >
+              <td className={`${standardTable.cell} w-12`}>
+                <button
+                  onClick={() => onToggleSelect(item.id)}
+                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    selectedIds.has(item.id)
+                      ? 'bg-primary border-primary'
+                      : 'border-slate-300 hover:border-primary/50'
+                  }`}
+                >
+                  {selectedIds.has(item.id) && (
+                    <span className="material-symbols-outlined text-white text-sm">check</span>
+                  )}
+                </button>
+              </td>
+              <td className={standardTable.cell}>
+                <span className={`text-xs font-black uppercase px-2 py-1 rounded-full ${typeColors[item.type] || 'bg-slate-100 text-slate-600'}`}>
+                  {item.type}
+                </span>
+              </td>
+              <td className={standardTable.cell}>
+                <p className="text-sm font-bold text-on-surface truncate max-w-[300px]">{item.title}</p>
+              </td>
+              <td className={standardTable.cell}>
+                <p className="text-xs text-on-surface-variant font-medium">{assignee?.fullName || '—'}</p>
+              </td>
+              <td className={standardTable.cell}>
+                <p className="text-xs text-slate-400 font-medium">{item.parent?.title ?? '—'}</p>
+              </td>
+              <td className={standardTable.cell}>
+                <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${priorityColors[item.priority] || priorityColors['Medium']}`}>
+                  {item.priority}
+                </span>
+              </td>
+              <td className={standardTable.cell}>
+                <p className="text-xs text-on-surface-variant">{item.dueDate ? formatTableDate(item.dueDate) : '—'}</p>
+              </td>
+              <td className={standardTable.actionCell}>
+                <TableRowActions
+                  onView={() => onViewDetails(item)}
+                  onEdit={() => onEdit(item)}
+                  onDelete={() => onDelete(item.id)}
+                  variant="standard"
+                />
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </TableShell>
   );
 }

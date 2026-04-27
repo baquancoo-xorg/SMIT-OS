@@ -1,3 +1,4 @@
+import { formatTableDate } from '../../ui/table-date-format';
 import type { KpiMetricsRow } from '../../../types/dashboard-overview';
 
 export type SortField =
@@ -5,7 +6,6 @@ export type SortField =
   | 'adSpend'
   | 'sessions'
   | 'signups'
-  | 'trials'
   | 'opportunities'
   | 'orders'
   | 'revenue'
@@ -32,7 +32,6 @@ export function handleSortClick(field: SortField, prev: SortConfig): SortConfig 
 }
 
 export function formatDateVN(iso: string): string {
-  if (!iso || iso === 'Total') return iso;
-  const [y, m, d] = iso.split('-');
-  return `${d}/${m}/${y}`;
+  if (!iso) return iso;
+  return formatTableDate(iso);
 }

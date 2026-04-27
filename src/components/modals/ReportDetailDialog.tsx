@@ -2,6 +2,9 @@ import React from 'react';
 import { X, CheckCircle } from 'lucide-react';
 import { WeeklyReport } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
+import { TableShell } from '../ui/table-shell';
+import { getTableContract } from '../ui/table-contract';
+import { formatTableDate } from '../ui/table-date-format';
 
 interface ReportDetailDialogProps {
   report: WeeklyReport | null;
@@ -22,6 +25,7 @@ function parseJSON<T>(str: string): T | null {
 export default function ReportDetailDialog({ report, isOpen, onClose, onApprove }: ReportDetailDialogProps) {
   const { currentUser } = useAuth();
   const [approving, setApproving] = React.useState(false);
+  const standardTable = getTableContract('standard');
 
   if (!isOpen || !report) return null;
 
@@ -204,39 +208,39 @@ export default function ReportDetailDialog({ report, isOpen, onClose, onApprove 
               <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-lg shadow-blue-500/30"></span> Plans - Kế hoạch tuần tới
             </h4>
             <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
-              <table className="w-full">
+              <TableShell variant="standard" className="rounded-none border-0 shadow-none" tableClassName="w-full">
                 <thead>
-                  <tr className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-slate-50">
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-left w-14">STT</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-left">Hạng mục</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-left">Cam kết đầu ra</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-left w-32">Deadline</th>
+                  <tr className={standardTable.headerRow}>
+                    <th className={`${standardTable.headerCell} w-14`}>STT</th>
+                    <th className={standardTable.headerCell}>Hạng mục</th>
+                    <th className={standardTable.headerCell}>Cam kết đầu ra</th>
+                    <th className={`${standardTable.headerCell} w-32`}>Deadline</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className={standardTable.body}>
                   {plansData?.items?.map((plan, idx) => (
-                    <tr key={idx} className="hover:bg-blue-50/30 transition-colors">
-                      <td className="px-6 py-5">
+                    <tr key={idx} className={standardTable.row}>
+                      <td className={standardTable.cell}>
                         <span className="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 text-xs font-black border border-blue-100">
                           {plan.stt || idx + 1}
                         </span>
                       </td>
-                      <td className="px-6 py-5">
+                      <td className={standardTable.cell}>
                         <p className="text-sm font-bold text-gray-900">{plan.item}</p>
                       </td>
-                      <td className="px-6 py-5">
+                      <td className={standardTable.cell}>
                         <p className="text-sm text-gray-600 leading-relaxed">{plan.output}</p>
                       </td>
-                      <td className="px-6 py-5">
+                      <td className={standardTable.cell}>
                         <span className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 bg-gray-50 px-3 py-1.5 rounded-lg">
                           <span className="material-symbols-outlined text-[16px]">calendar_today</span>
-                          {new Date(plan.deadline).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                          {formatTableDate(plan.deadline)}
                         </span>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </TableShell>
             </div>
           </div>
 

@@ -4,6 +4,7 @@ import { formatCurrency, formatNumber, formatPercent } from '../../../lib/format
 import type { KpiMetricsResponse, KpiMetricsRow } from '../../../types/dashboard-overview';
 import { type SortConfig, type SortField, sortData, handleSortClick, formatDateVN } from './kpi-table-utils';
 import { DashboardPanel, DashboardSectionTitle, SegmentedTabs } from '../ui';
+import { getTableContract } from '../../ui/table-contract';
 
 type ViewMode = 'realtime' | 'cohort';
 type RateMode = 'top' | 'step';
@@ -18,14 +19,15 @@ interface SortableHeaderProps {
 function SortableHeader({ field, title, sortConfig, onSort }: SortableHeaderProps) {
   const active = sortConfig.field === field;
   const Icon = active ? (sortConfig.direction === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown;
+  const denseTable = getTableContract('dense');
 
   return (
     <button
       type="button"
       onClick={() => onSort(field)}
-      className={`inline-flex items-center gap-0.5 text-[11px] font-semibold transition-colors whitespace-nowrap ${
+      className={`inline-flex items-center gap-0.5 transition-colors whitespace-nowrap ${
         active ? 'text-primary' : 'text-slate-500 hover:text-slate-700'
-      }`}
+      } ${denseTable.headerCell}`}
     >
       <span>{title}</span>
       <Icon className="h-3 w-3 flex-shrink-0" />
@@ -127,7 +129,8 @@ function safeDivide(n: number, d: number): number {
 
 function KpiTableRow({ row, isTotal, rateMode, index = 0 }: KpiTableRowProps) {
   const isEven = index % 2 === 0;
-  const cellBase = 'px-3 py-2 text-xs whitespace-nowrap';
+  const denseTable = getTableContract('dense');
+  const cellBase = denseTable.cell;
   const rowBg = isTotal ? 'bg-slate-50/50' : isEven ? 'bg-white/30' : 'bg-slate-50/20';
   const cellBg = isTotal ? 'bg-slate-50' : '';
   const cellStyle = isTotal ? `${cellBase} font-semibold ${cellBg}` : `${cellBase} text-slate-600`;
@@ -238,6 +241,7 @@ export const KpiTable = memo(function KpiTable({
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'date', direction: 'desc' });
   const [rateMode, setRateMode] = useState<RateMode>('top');
   const handleSort = useCallback((f: SortField) => setSortConfig((p) => handleSortClick(f, p)), []);
+  const denseTable = getTableContract('dense');
 
   useEffect(() => {
     if (viewMode === 'cohort' && rateMode === 'step') {
@@ -342,9 +346,9 @@ export const KpiTable = memo(function KpiTable({
         </div>
       </div>
 
-      <DashboardPanel className="overflow-hidden flex flex-col">
-        <div ref={headerScrollRef} onScroll={handleHeaderScroll} className="bg-slate-100 border-b border-slate-200 overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          <table className="w-full text-sm table-fixed min-w-[1680px]">
+      <DashboardPanel className={`${denseTable.shell} flex flex-col`}>
+        <div ref={headerScrollRef} onScroll={handleHeaderScroll} className={`${denseTable.headerRow} overflow-x-auto`} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <table className={`${denseTable.table} min-w-[1680px]`}>
             <colgroup>
               <col className="w-[100px]" />
               <col className="w-[100px]" />
@@ -377,40 +381,40 @@ export const KpiTable = memo(function KpiTable({
                   <SortableHeader field="sessions" title="Sessions" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
-                  <span className="text-[11px] font-semibold text-slate-500">CPSe</span>
+                  <span className={denseTable.headerCell}>CPSe</span>
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
                   <SortableHeader field="signups" title="Signups" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
-                  <span className="text-[11px] font-semibold text-slate-500">CPSi</span>
+                  <span className={denseTable.headerCell}>CPSi</span>
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
                   <SortableHeader field="opportunities" title="Opps" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
-                  <span className="text-[11px] font-semibold text-slate-500">CPOpp</span>
+                  <span className={denseTable.headerCell}>CPOpp</span>
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
                   <SortableHeader field="orders" title="Order" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
-                  <span className="text-[11px] font-semibold text-slate-500">CPOr</span>
+                  <span className={denseTable.headerCell}>CPOr</span>
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
-                  <span className="text-[11px] font-semibold text-slate-500">MQL (3 tiers)</span>
+                  <span className={denseTable.headerCell}>MQL (3 tiers)</span>
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
-                  <span className="text-[11px] font-semibold text-slate-500">Pre-PQL</span>
+                  <span className={denseTable.headerCell}>Pre-PQL</span>
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
-                  <span className="text-[11px] font-semibold text-slate-500">PQL</span>
+                  <span className={denseTable.headerCell}>PQL</span>
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
-                  <span className="text-[11px] font-semibold text-slate-500">Pre-SQL</span>
+                  <span className={denseTable.headerCell}>Pre-SQL</span>
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
-                  <span className="text-[11px] font-semibold text-slate-500">SQL</span>
+                  <span className={denseTable.headerCell}>SQL</span>
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
                   <SortableHeader field="revenue" title="Revenue" sortConfig={sortConfig} onSort={handleSort} />
@@ -419,7 +423,7 @@ export const KpiTable = memo(function KpiTable({
                   <SortableHeader field="roas" title="ROAS" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
                 <th className="px-3 py-2.5 text-right bg-slate-100">
-                  <span className="text-[11px] font-semibold text-slate-500">ME/RE</span>
+                  <span className={denseTable.headerCell}>ME/RE</span>
                 </th>
               </tr>
             </thead>
@@ -427,7 +431,7 @@ export const KpiTable = memo(function KpiTable({
         </div>
 
         <div ref={dataScrollRef} onScroll={handleDataScroll} className="overflow-auto max-h-[500px] flex-1">
-          <table className="w-full text-sm table-fixed min-w-[1680px]">
+          <table className={`${denseTable.table} min-w-[1680px]`}>
             <colgroup>
               <col className="w-[100px]" />
               <col className="w-[100px]" />
@@ -457,7 +461,7 @@ export const KpiTable = memo(function KpiTable({
         </div>
 
         <div ref={totalScrollRef} onScroll={handleTotalScroll} className="border-t-2 border-slate-200 bg-slate-50 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          <table className="w-full text-sm table-fixed min-w-[1680px]">
+          <table className={`${denseTable.table} min-w-[1680px]`}>
             <colgroup>
               <col className="w-[100px]" />
               <col className="w-[100px]" />
@@ -487,3 +491,4 @@ export const KpiTable = memo(function KpiTable({
     </section>
   );
 });
+

@@ -1,6 +1,6 @@
 # System Architecture
 
-> Last updated: 2026-04-22
+> Last updated: 2026-04-27
 
 ## Overview
 
@@ -102,3 +102,30 @@ The `totp-pending` JWT has `purpose: 'totp-pending'` in its payload. `requireAut
 - Request bodies validated with Zod schemas (`server/schemas/`)
 - Error responses: `{ error: string }`
 - Auth errors: HTTP 401; authorization errors: HTTP 403
+
+## Frontend UI Architecture
+
+### Shared Table UI Contract (added 2026-04-27)
+
+A shared table design contract now centralizes table presentation tokens for two variants:
+
+- `standard` — operational/business tables
+- `dense` — analytics/high-column-density tables
+
+Core primitives:
+
+- `src/components/ui/table-contract.ts` — variant class contract map (shell, header, body, row, cell, actions, empty state)
+- `src/components/ui/table-shell.tsx` — shell wrapper component applying contract classes per variant
+- `src/components/ui/table-date-format.ts` — unified helpers for date-only and date-time rendering
+
+Action controls:
+
+- `src/components/ui/table-row-actions.tsx` supports variant-aware behavior (including dense compact treatment)
+
+Rollout status (as of 2026-04-27):
+
+- **Phase 01 — Foundation + pilots:** `src/components/board/TaskTableView.tsx` (standard), `src/components/dashboard/overview/KpiTable.tsx` (dense)
+- **Phase 02 — Standard rollout:** operational module tables and modal-embedded tables fully migrated, including `src/components/modals/WeeklyCheckinModal.tsx` and `src/components/modals/ReportDetailDialog.tsx`; shared `formatTableDate` helper adopted across all standard tables
+- **Phase 03 — Dense rollout:** call-performance analytics tables migrated — `src/components/dashboard/call-performance/call-performance-ae-table.tsx` and `src/components/dashboard/call-performance/call-performance-conversion.tsx` both use `variant="dense"` with `getTableContract('dense')` tokens
+
+This architecture keeps table business logic in feature modules while consolidating visual shell behavior and formatting contracts in reusable UI primitives.

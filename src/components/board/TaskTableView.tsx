@@ -9,6 +9,9 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
 import { TableRowActions } from '../ui/table-row-actions';
+import { TableShell } from '../ui/table-shell';
+import { getTableContract } from '../ui/table-contract';
+import { formatTableDate } from '../ui/table-date-format';
 
 interface TaskTableViewProps {
   items: WorkItem[];
@@ -19,47 +22,14 @@ interface TaskTableViewProps {
   onViewDetails?: (item: WorkItem) => void;
 }
 
-export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete, onEdit, onViewDetails }: TaskTableViewProps) {
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [viewMode, setViewMode] = useState<'auto' | 'table' | 'card'>('auto');
-  const [isMobile, setIsMobile] = useState(false);
-  const { users } = useAuth();
+interface MobileCardViewProps {
+  items: WorkItem[];
+  users: ReturnType<typeof useAuth>['users'];
+  onViewDetails?: (item: WorkItem) => void;
+}
 
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  const effectiveView = viewMode === 'auto' ? (isMobile ? 'card' : 'table') : viewMode;
-
-  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      setSelectedIds(new Set(items.map(i => i.id)));
-    } else {
-      setSelectedIds(new Set());
-    }
-  };
-
-  const handleSelectOne = (id: string) => {
-    const newSelected = new Set(selectedIds);
-    if (newSelected.has(id)) {
-      newSelected.delete(id);
-    } else {
-      newSelected.add(id);
-    }
-    setSelectedIds(newSelected);
-  };
-
-  const handleBulkDelete = () => {
-    if (onBulkDelete) {
-      onBulkDelete(Array.from(selectedIds));
-      setSelectedIds(new Set());
-    }
-  };
-
-  const MobileCardView = () => (
+function MobileCardView({ items, users, onViewDetails }: MobileCardViewProps) {
+  return (
     <div className="space-y-3">
       {items.map(item => {
         const assignee = users.find(u => u.id === item.assigneeId);
@@ -112,7 +82,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
             {item.dueDate && (
               <div className="mt-2 text-xs text-error flex items-center gap-1">
                 <span className="material-symbols-outlined text-xs">calendar_today</span>
-                {new Date(item.dueDate).toLocaleDateString('vi-VN')}
+                {formatTableDate(item.dueDate)}
               </div>
             )}
           </div>
@@ -126,6 +96,48 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
       )}
     </div>
   );
+}
+
+export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete, onEdit, onViewDetails }: TaskTableViewProps) {
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<'auto' | 'table' | 'card'>('auto');
+  const [isMobile, setIsMobile] = useState(false);
+  const { users } = useAuth();
+  const standardTable = getTableContract('standard');
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const effectiveView = viewMode === 'auto' ? (isMobile ? 'card' : 'table') : viewMode;
+
+  const handleToggleAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(new Set(items.map(i => i.id)));
+      return;
+    }
+    setSelectedIds(new Set());
+  };
+
+  const handleSelectOne = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const handleBulkDelete = () => {
+    if (onBulkDelete) {
+      onBulkDelete(Array.from(selectedIds));
+      setSelectedIds(new Set());
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -179,137 +191,136 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
       </AnimatePresence>
 
       {effectiveView === 'card' ? (
-        <MobileCardView />
+        <MobileCardView items={items} users={users} onViewDetails={onViewDetails} />
       ) : (
-      <div className="bg-white rounded-3xl shadow-sm shadow-xl shadow-slate-200/20 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50/50 border-b border-outline-variant/10">
-              <th className="px-8 py-6 w-12">
-                <button
-                  onClick={() => handleSelectAll({ target: { checked: !(selectedIds.size === items.length && items.length > 0) } } as any)}
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                    selectedIds.size === items.length && items.length > 0
-                      ? 'bg-primary border-primary'
-                      : 'border-slate-300 hover:border-primary/50'
-                  }`}
-                >
-                  {selectedIds.size === items.length && items.length > 0 && (
-                    <span className="material-symbols-outlined text-white text-sm">check</span>
-                  )}
-                </button>
-              </th>
-              <th className="px-4 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400">Task Details</th>
-              <th className="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400">Assignee</th>
-              <th className="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400">Status</th>
-              <th className="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400">Priority</th>
-              <th className="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400">Deadline</th>
-              <th className="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400">Completion</th>
-              <th className="px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100/50">
-            {items.map(item => {
-              const assignee = users.find(u => u.id === item.assigneeId);
-              const children = item.children || [];
-              const progress = children.length > 0
-                ? Math.round((children.filter((c: any) => c.status === 'Done').length / children.length) * 100)
-                : item.status === 'Done' ? 100 : item.status === 'Active' || item.status === 'Doing' ? 50 : 0;
-              const isSelected = selectedIds.has(item.id);
+        <>
+          <TableShell variant="standard">
+            <thead>
+              <tr className={standardTable.headerRow}>
+                <th className="px-8 py-6 w-12">
+                  <button
+                    onClick={() => handleToggleAll(!(selectedIds.size === items.length && items.length > 0))}
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                      selectedIds.size === items.length && items.length > 0
+                        ? 'bg-primary border-primary'
+                        : 'border-slate-300 hover:border-primary/50'
+                    }`}
+                  >
+                    {selectedIds.size === items.length && items.length > 0 && (
+                      <span className="material-symbols-outlined text-white text-sm">check</span>
+                    )}
+                  </button>
+                </th>
+                <th className="px-4 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400">Task Details</th>
+                <th className={standardTable.headerCell}>Assignee</th>
+                <th className={standardTable.headerCell}>Status</th>
+                <th className={standardTable.headerCell}>Priority</th>
+                <th className={standardTable.headerCell}>Deadline</th>
+                <th className={standardTable.headerCell}>Completion</th>
+                <th className={standardTable.actionHeaderCell}>Actions</th>
+              </tr>
+            </thead>
+            <tbody className={standardTable.body}>
+              {items.map(item => {
+                const assignee = users.find(u => u.id === item.assigneeId);
+                const children = item.children || [];
+                const progress = children.length > 0
+                  ? Math.round((children.filter((c: any) => c.status === 'Done').length / children.length) * 100)
+                  : item.status === 'Done' ? 100 : item.status === 'Active' || item.status === 'Doing' ? 50 : 0;
+                const isSelected = selectedIds.has(item.id);
 
-              return (
-                <tr key={item.id} className={`hover:bg-primary/[0.02] transition-colors group ${isSelected ? 'bg-primary/[0.02]' : ''}`}>
-                  <td className="px-8 py-5">
-                    <button
-                      onClick={() => handleSelectOne(item.id)}
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                        isSelected
-                          ? 'bg-primary border-primary'
-                          : 'border-slate-300 hover:border-primary/50'
-                      }`}
-                    >
-                      {isSelected && (
-                        <span className="material-symbols-outlined text-white text-sm">check</span>
-                      )}
-                    </button>
-                  </td>
-                  <td className="px-4 py-5">
-                    <div className="flex flex-col">
-                      <span
-                        className="text-sm font-black text-on-surface group-hover:text-primary transition-colors cursor-pointer"
-                        onClick={() => onViewDetails?.(item)}
+                return (
+                  <tr key={item.id} className={`${standardTable.row} ${isSelected ? standardTable.rowSelected : ''}`}>
+                    <td className={standardTable.cell}>
+                      <button
+                        onClick={() => handleSelectOne(item.id)}
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                          isSelected
+                            ? 'bg-primary border-primary'
+                            : 'border-slate-300 hover:border-primary/50'
+                        }`}
                       >
-                        {item.title}
-                      </span>
-                      <span className="text-xs font-black text-slate-400 mt-1 uppercase tracking-widest">{item.type}</span>
-                    </div>
-                  </td>
-                  <td className="px-8 py-5">
-                    <span className="text-xs font-bold text-on-surface-variant">{assignee?.fullName || 'Unassigned'}</span>
-                  </td>
-                  <td className="px-8 py-5">
-                    <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border ${
-                      item.status === 'Done' || item.status === 'Won' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                      item.status === 'Active' || item.status === 'Doing' ? 'bg-primary/5 text-primary border-primary/10' :
-                      item.status === 'Void' ? 'bg-yellow-50 text-yellow-600 border-yellow-100' :
-                      'bg-slate-50 text-slate-500 border-slate-100'
-                    }`}>
-                      {item.status}
-                    </span>
-                  </td>
-                  <td className="px-8 py-5">
-                    {item.priority && (
-                      <span className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest w-fit border ${
-                        item.priority === 'Urgent' ? 'bg-error/5 text-error border-error/10' :
-                        item.priority === 'High' ? 'bg-orange-50 text-orange-600 border-orange-100' :
+                        {isSelected && (
+                          <span className="material-symbols-outlined text-white text-sm">check</span>
+                        )}
+                      </button>
+                    </td>
+                    <td className="px-4 py-5">
+                      <div className="flex flex-col">
+                        <span
+                          className="text-sm font-black text-on-surface group-hover:text-primary transition-colors cursor-pointer"
+                          onClick={() => onViewDetails?.(item)}
+                        >
+                          {item.title}
+                        </span>
+                        <span className="text-xs font-black text-slate-400 mt-1 uppercase tracking-widest">{item.type}</span>
+                      </div>
+                    </td>
+                    <td className={standardTable.cell}>
+                      <span className="text-xs font-bold text-on-surface-variant">{assignee?.fullName || 'Unassigned'}</span>
+                    </td>
+                    <td className={standardTable.cell}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border ${
+                        item.status === 'Done' || item.status === 'Won' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                        item.status === 'Active' || item.status === 'Doing' ? 'bg-primary/5 text-primary border-primary/10' :
+                        item.status === 'Void' ? 'bg-yellow-50 text-yellow-600 border-yellow-100' :
                         'bg-slate-50 text-slate-500 border-slate-100'
                       }`}>
-                        <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                        {item.priority}
+                        {item.status}
                       </span>
-                    )}
-                  </td>
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-2 text-xs font-bold text-on-surface-variant">
-                      <span className="material-symbols-outlined text-base text-slate-400">event</span>
-                      {item.dueDate ? new Date(item.dueDate).toLocaleDateString('vi-VN') : '-'}
-                    </div>
-                  </td>
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden min-w-[100px] relative">
-                        <div
-                          className={`h-full transition-all duration-700 ease-out ${progress === 100 ? 'bg-emerald-500' : 'bg-primary'}`}
-                          style={{ width: `${progress}%` }}
-                        ></div>
+                    </td>
+                    <td className={standardTable.cell}>
+                      {item.priority && (
+                        <span className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest w-fit border ${
+                          item.priority === 'Urgent' ? 'bg-error/5 text-error border-error/10' :
+                          item.priority === 'High' ? 'bg-orange-50 text-orange-600 border-orange-100' :
+                          'bg-slate-50 text-slate-500 border-slate-100'
+                        }`}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                          {item.priority}
+                        </span>
+                      )}
+                    </td>
+                    <td className={standardTable.cell}>
+                      <div className="flex items-center gap-2 text-xs font-bold text-on-surface-variant">
+                        <span className="material-symbols-outlined text-base text-slate-400">event</span>
+                        {formatTableDate(item.dueDate)}
                       </div>
-                      <span className="text-xs font-black text-on-surface-variant w-8">{progress}%</span>
-                    </div>
-                  </td>
-                  <td className="px-8 py-5 text-right relative">
-                    <TableRowActions
-                      onView={() => onViewDetails?.(item)}
-                      onEdit={() => onEdit?.(item)}
-                      onDelete={() => onDelete?.(item.id)}
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      {items.length === 0 && (
-        <div className="p-12 text-center">
-          <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 size={32} className="text-slate-300" />
-          </div>
-          <h3 className="text-sm font-bold text-slate-900">No tasks found</h3>
-          <p className="text-xs text-slate-500 mt-1">Try adjusting your filters or add a new task.</p>
-        </div>
-      )}
-      </div>
+                    </td>
+                    <td className={standardTable.cell}>
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden min-w-[100px] relative">
+                          <div
+                            className={`h-full transition-all duration-700 ease-out ${progress === 100 ? 'bg-emerald-500' : 'bg-primary'}`}
+                            style={{ width: `${progress}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-xs font-black text-on-surface-variant w-8">{progress}%</span>
+                      </div>
+                    </td>
+                    <td className={standardTable.actionCell}>
+                      <TableRowActions
+                        onView={() => onViewDetails?.(item)}
+                        onEdit={() => onEdit?.(item)}
+                        onDelete={() => onDelete?.(item.id)}
+                        variant="standard"
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </TableShell>
+          {items.length === 0 && (
+            <div className={standardTable.emptyState}>
+              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 size={32} className="text-slate-300" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900">No tasks found</h3>
+              <p className="text-xs text-slate-500 mt-1">Try adjusting your filters or add a new task.</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

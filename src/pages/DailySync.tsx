@@ -9,12 +9,14 @@ import DailySyncStatsBar from '../components/daily-report/DailySyncStatsBar';
 import { getTeamDisplayName } from '../utils/team-detection';
 import {
   exportReportsAsMarkdown,
-  findSprintForReport,
   getSprintWeek,
   ExportFilters,
 } from '../utils/export-daily-report';
 import { Card } from '../components/ui';
 import PrimaryActionButton from '../components/ui/PrimaryActionButton';
+import { TableShell } from '../components/ui/table-shell';
+import { getTableContract } from '../components/ui/table-contract';
+import { formatTableDate, formatTableDateTime } from '../components/ui/table-date-format';
 
 interface Sprint {
   id: string;
@@ -36,21 +38,11 @@ function getWeekRange() {
   };
 }
 
-function formatCreatedDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const year = d.getFullYear();
-  const hours = String(d.getHours()).padStart(2, '0');
-  const minutes = String(d.getMinutes()).padStart(2, '0');
-  return `${day}/${month}/${year} - ${hours}:${minutes}`;
-}
-
 function getSubmissionStatus(dateStr: string): { label: string; detail: string; type: 'early' | 'ontime' | 'late' } {
   const d = new Date(dateStr);
   const totalMinutes = d.getHours() * 60 + d.getMinutes();
-  const windowStart = 8 * 60 + 30; // 08:30
-  const windowEnd = 10 * 60;       // 10:00
+  const windowStart = 8 * 60 + 30;
+  const windowEnd = 10 * 60;
   if (totalMinutes < windowStart) {
     const diff = windowStart - totalMinutes;
     return { label: 'Early', detail: `${diff} min early`, type: 'early' };
@@ -88,7 +80,6 @@ export default function DailySync() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [dateRange, setDateRange] = useState(getWeekRange);
 
-  // Bulk action state
   const [exportMode, setExportMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
@@ -101,6 +92,7 @@ export default function DailySync() {
 
   const { currentUser } = useAuth();
   const canExport = currentUser?.isAdmin || currentUser?.role?.includes('Leader');
+  const standardTable = getTableContract('standard');
 
   const fetchReports = async () => {
     try {
@@ -180,7 +172,6 @@ export default function DailySync() {
     setSelectedIds(allSelected ? new Set() : new Set(ids));
   };
 
-  // Unique assignees from reports for filter dropdown
   const assigneeOptions = useMemo(() => {
     const map = new Map<string, string>();
     reports.forEach(r => {
@@ -189,7 +180,6 @@ export default function DailySync() {
     return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
   }, [reports]);
 
-  // Apply export filters to reports for table display
   const displayedReports = useMemo(() => {
     if (!exportMode) return reports;
     return reports.filter(r => {
@@ -251,7 +241,6 @@ export default function DailySync() {
 
   return (
     <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--space-md)] shrink-0">
         <div>
           <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
@@ -284,10 +273,8 @@ export default function DailySync() {
         </div>
       </div>
 
-      {/* Stats Bar */}
       <DailySyncStatsBar dateRange={dateRange} onDateRangeChange={setDateRange} />
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[var(--space-md)] shrink-0">
         <Card className="p-6">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Today's Reports</p>
@@ -307,7 +294,6 @@ export default function DailySync() {
         </Card>
       </div>
 
-      {/* Export Filter Panel */}
       {exportMode && (
         <div className="bg-white/70 backdrop-blur-md border border-white/20 rounded-3xl px-6 py-4 shadow-sm shrink-0">
           <div className="flex flex-wrap items-center gap-4">
@@ -315,7 +301,6 @@ export default function DailySync() {
               Bộ lọc:
             </span>
 
-            {/* Assign filter */}
             <select
               value={exportFilters.assignUserId}
               onChange={e => setExportFilters(f => ({ ...f, assignUserId: e.target.value }))}
@@ -327,7 +312,6 @@ export default function DailySync() {
               ))}
             </select>
 
-            {/* Sprint filter */}
             <select
               value={exportFilters.sprintId}
               onChange={e => setExportFilters(f => ({ ...f, sprintId: e.target.value, week: '' }))}
@@ -339,7 +323,6 @@ export default function DailySync() {
               ))}
             </select>
 
-            {/* Week filter - only if sprint selected */}
             {exportFilters.sprintId && (
               <select
                 value={exportFilters.week}
@@ -377,123 +360,116 @@ export default function DailySync() {
         </div>
       )}
 
-      {/* Reports Table */}
       <div className="flex-1 overflow-y-auto">
-        <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <div className="min-w-[700px]">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-slate-50/50 border-b border-outline-variant/10">
-                    {exportMode && (
-                      <th className="pl-6 pr-2 py-5 w-10">
-                        <input
-                          type="checkbox"
-                          checked={allDisplayedSelected}
-                          onChange={() => toggleSelectAll(displayedIds)}
-                          className="rounded accent-primary cursor-pointer"
-                        />
-                      </th>
-                    )}
-                    <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[160px]">Created Date</th>
-                    <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[130px]">Submission</th>
-                    <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[150px]">Reporter</th>
-                    <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[80px]">Team</th>
-                    <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[100px]">Status</th>
-                    <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left min-w-[120px]">Report Date</th>
-                    <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right min-w-[80px]">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100/50">
-                  {displayedReports.map(report => (
-                    <tr key={report.id} className="hover:bg-primary/[0.02] transition-colors">
-                      {exportMode && (
-                        <td className="pl-6 pr-2 py-5">
-                          <input
-                            type="checkbox"
-                            checked={selectedIds.has(report.id)}
-                            onChange={() => toggleSelectReport(report.id)}
-                            className="rounded accent-primary cursor-pointer"
-                          />
-                        </td>
-                      )}
-                      <td className="px-4 md:px-8 py-5">
-                        <div className="flex items-center gap-2 text-sm font-bold text-on-surface">
-                          <Calendar size={14} className="text-slate-400" />
-                          {formatCreatedDate(report.createdAt)}
-                        </div>
-                      </td>
-                      <td className="px-4 md:px-8 py-5">
-                        <SubmissionStatusBadge createdAt={report.createdAt} />
-                      </td>
-                      <td className="px-4 md:px-8 py-5">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-black">
-                            {report.user?.fullName?.split(' ').map(n => n[0]).join('') || '?'}
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-on-surface">{report.user?.fullName || 'Unknown'}</p>
-                            <p className="text-[10px] text-slate-400 uppercase tracking-widest">{report.user?.role}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 md:px-8 py-5">
-                        {report.teamType ? (
-                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                            report.teamType === 'tech' ? 'bg-indigo-100 text-indigo-700' :
-                            report.teamType === 'marketing' ? 'bg-orange-100 text-orange-700' :
-                            report.teamType === 'media' ? 'bg-pink-100 text-pink-700' :
-                            report.teamType === 'sale' ? 'bg-emerald-100 text-emerald-700' :
-                            'bg-slate-100 text-slate-500'
-                          }`}>
-                            {getTeamDisplayName(report.teamType as any)}
-                          </span>
-                        ) : (
-                          <span className="text-slate-400 text-sm">-</span>
-                        )}
-                      </td>
-                      <td className="px-4 md:px-8 py-5">
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                          report.status === 'Approved'
-                            ? 'bg-emerald-100 text-emerald-700'
-                            : 'bg-amber-100 text-amber-700'
-                        }`}>
-                          {report.status}
-                        </span>
-                      </td>
-                      <td className="px-4 md:px-8 py-5">
-                        <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                          <Calendar size={14} className="text-slate-400" />
-                          {new Date(report.reportDate).toLocaleDateString('vi-VN')}
-                        </div>
-                      </td>
-                      <td className="px-4 md:px-8 py-5 text-right">
-                        <TableRowActions
-                          onView={() => { setSelectedReport(report); setIsDetailOpen(true); }}
-                          size={16}
-                          buttonClassName="min-h-[44px] min-w-[44px]"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                  {displayedReports.length === 0 && (
-                    <tr>
-                      <td colSpan={exportMode ? 8 : 7} className="px-8 py-16 text-center">
-                        <p className="text-slate-400 font-medium">
-                          {exportMode ? 'Không có báo cáo nào khớp bộ lọc' : 'No daily reports yet'}
-                        </p>
-                      </td>
-                    </tr>
+        <TableShell variant="standard" className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm" scrollClassName="overflow-x-auto">
+          <thead>
+            <tr className={standardTable.headerRow}>
+              {exportMode && (
+                <th className={`${standardTable.headerCell} w-10 px-6 pr-2`}>
+                  <input
+                    type="checkbox"
+                    checked={allDisplayedSelected}
+                    onChange={() => toggleSelectAll(displayedIds)}
+                    className="rounded accent-primary cursor-pointer"
+                  />
+                </th>
+              )}
+              <th className={`${standardTable.headerCell} min-w-[160px]`}>Created Date</th>
+              <th className={`${standardTable.headerCell} min-w-[130px]`}>Submission</th>
+              <th className={`${standardTable.headerCell} min-w-[150px]`}>Reporter</th>
+              <th className={`${standardTable.headerCell} min-w-[80px]`}>Team</th>
+              <th className={`${standardTable.headerCell} min-w-[100px]`}>Status</th>
+              <th className={`${standardTable.headerCell} min-w-[120px]`}>Report Date</th>
+              <th className={standardTable.actionHeaderCell}>Actions</th>
+            </tr>
+          </thead>
+          <tbody className={standardTable.body}>
+            {displayedReports.map(report => (
+              <tr key={report.id} className={standardTable.row}>
+                {exportMode && (
+                  <td className={`${standardTable.cell} px-6 pr-2`}>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(report.id)}
+                      onChange={() => toggleSelectReport(report.id)}
+                      className="rounded accent-primary cursor-pointer"
+                    />
+                  </td>
+                )}
+                <td className={standardTable.cell}>
+                  <div className="flex items-center gap-2 text-sm font-bold text-on-surface">
+                    <Calendar size={14} className="text-slate-400" />
+                    {formatTableDateTime(report.createdAt)}
+                  </div>
+                </td>
+                <td className={standardTable.cell}>
+                  <SubmissionStatusBadge createdAt={report.createdAt} />
+                </td>
+                <td className={standardTable.cell}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-black">
+                      {report.user?.fullName?.split(' ').map(n => n[0]).join('') || '?'}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-on-surface">{report.user?.fullName || 'Unknown'}</p>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-widest">{report.user?.role}</p>
+                    </div>
+                  </div>
+                </td>
+                <td className={standardTable.cell}>
+                  {report.teamType ? (
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                      report.teamType === 'tech' ? 'bg-indigo-100 text-indigo-700' :
+                      report.teamType === 'marketing' ? 'bg-orange-100 text-orange-700' :
+                      report.teamType === 'media' ? 'bg-pink-100 text-pink-700' :
+                      report.teamType === 'sale' ? 'bg-emerald-100 text-emerald-700' :
+                      'bg-slate-100 text-slate-500'
+                    }`}>
+                      {getTeamDisplayName(report.teamType as any)}
+                    </span>
+                  ) : (
+                    <span className="text-slate-400 text-sm">-</span>
                   )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <p className="text-[10px] text-slate-400 text-center py-2 tablet:hidden">← Scroll horizontally →</p>
-        </div>
+                </td>
+                <td className={standardTable.cell}>
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                    report.status === 'Approved'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : 'bg-amber-100 text-amber-700'
+                  }`}>
+                    {report.status}
+                  </span>
+                </td>
+                <td className={standardTable.cell}>
+                  <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                    <Calendar size={14} className="text-slate-400" />
+                    {formatTableDate(report.reportDate)}
+                  </div>
+                </td>
+                <td className={standardTable.actionCell}>
+                  <TableRowActions
+                    onView={() => { setSelectedReport(report); setIsDetailOpen(true); }}
+                    size={16}
+                    buttonClassName="min-h-[44px] min-w-[44px]"
+                    variant="standard"
+                  />
+                </td>
+              </tr>
+            ))}
+            {displayedReports.length === 0 && (
+              <tr>
+                <td colSpan={exportMode ? 8 : 7} className={standardTable.emptyState}>
+                  <p className="text-slate-400 font-medium">
+                    {exportMode ? 'Không có báo cáo nào khớp bộ lọc' : 'No daily reports yet'}
+                  </p>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </TableShell>
+        <p className="text-[10px] text-slate-400 text-center py-2 tablet:hidden">← Scroll horizontally →</p>
       </div>
 
-      {/* Create Modal */}
       {isModalOpen && (
         <TeamFormSelector
           tasks={tasks}
@@ -502,7 +478,6 @@ export default function DailySync() {
         />
       )}
 
-      {/* Detail Modal */}
       {isDetailOpen && selectedReport && (
         <DailyReportDetailModal
           report={selectedReport}
@@ -519,7 +494,6 @@ export default function DailySync() {
   );
 }
 
-// ─── Detail Modal ─────────────────────────────────────────────────────────────
 function DailyReportDetailModal({
   report,
   onClose,
@@ -575,13 +549,12 @@ function DailyReportDetailModal({
         className="relative bg-white/80 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h3 className="text-xl font-black font-headline">{report.user?.fullName}</h3>
             <p className="text-sm text-slate-400">
-              {new Date(report.reportDate).toLocaleDateString("vi-VN", {
-                weekday: "long", day: "2-digit", month: "2-digit", year: "numeric",
+              {new Date(report.reportDate).toLocaleDateString('vi-VN', {
+                weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
               })}
             </p>
           </div>
@@ -604,7 +577,6 @@ function DailyReportDetailModal({
         </div>
 
         <div className="flex-1 overflow-y-auto p-8 space-y-6">
-          {/* Hoàn thành hôm qua */}
           <DetailTaskSection
             label="Hoàn thành hôm qua"
             icon={<ListChecks size={14} />}
@@ -615,7 +587,6 @@ function DailyReportDetailModal({
             teamType={report.teamType || undefined}
           />
 
-          {/* Vẫn đang làm */}
           <DetailTaskSection
             label="Vẫn đang làm"
             icon={<Zap size={14} />}
@@ -626,19 +597,16 @@ function DailyReportDetailModal({
             teamType={report.teamType || undefined}
           />
 
-          {/* Mục tiêu hôm nay */}
           <TodaySection
             todayPlans={richMetrics?.todayPlans || []}
             ids={todayIds}
             tasks={tasks}
           />
 
-          {/* Công việc phát sinh */}
           {richMetrics?.adHocTasks && richMetrics.adHocTasks.length > 0 && (
             <AdHocSection adHocTasks={richMetrics.adHocTasks} />
           )}
 
-          {/* Blockers */}
           {parsedBlockers.length > 0 && (
             <div>
               <h4 className="text-xs font-black uppercase text-red-500 tracking-widest mb-3 flex items-center gap-1.5">
@@ -693,7 +661,6 @@ function DailyReportDetailModal({
   );
 }
 
-// ─── Detail Task Section ──────────────────────────────────────────────────────
 const SECTION_STYLES: Record<string, { label: string; bg: string; text: string; border: string }> = {
   emerald: { label: 'text-emerald-600', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100' },
   amber: { label: 'text-amber-600', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
@@ -876,7 +843,6 @@ function DetailTaskSection({
   );
 }
 
-// ─── Today Plan Section ─────────────────────────────────────────────────────
 function TodaySection({
   todayPlans, ids, tasks,
 }: {
@@ -931,7 +897,6 @@ function TodaySection({
   );
 }
 
-// ─── Ad-hoc Tasks Display ────────────────────────────────────────────────────
 function AdHocSection({ adHocTasks }: { adHocTasks: AdHocTask[] }) {
   if (!adHocTasks?.length) return null;
   const IMPACT_STYLE: Record<string, string> = {

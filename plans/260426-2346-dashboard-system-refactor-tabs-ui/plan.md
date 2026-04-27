@@ -7,7 +7,7 @@ effort: 14h
 branch: main
 tags: [dashboard, analytics, ui-refactor, tabs, design-system]
 created: 2026-04-26
-blockedBy: []
+blockedBy: [260427-1143-unify-table-ui-design-system]
 blocks: []
 ---
 

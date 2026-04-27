@@ -1,6 +1,9 @@
 import { useEffect, useCallback, useState } from 'react';
 import { api } from '../../lib/api';
 import type { LeadDailyStat } from '../../types';
+import { TableShell } from '../ui/table-shell';
+import { getTableContract } from '../ui/table-contract';
+import { formatTableDate } from '../ui/table-date-format';
 
 function fmt(rate: number | null) {
   if (rate === null) return '-';
@@ -15,6 +18,7 @@ interface Props {
 export default function DailyStatsTab({ dateFrom, dateTo }: Props) {
   const [stats, setStats] = useState<LeadDailyStat[]>([]);
   const [loading, setLoading] = useState(true);
+  const standardTable = getTableContract('standard');
 
   const fetchStats = useCallback(async () => {
     setLoading(true);
@@ -38,62 +42,57 @@ export default function DailyStatsTab({ dateFrom, dateTo }: Props) {
 
   return (
     <div className="space-y-4">
-
       {loading ? (
         <div className="flex items-center justify-center py-16">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" />
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[800px]">
-              <thead>
-                <tr className="bg-slate-50/50">
-                  <th className="px-4 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-r border-slate-100/50" rowSpan={2}>Date</th>
-                  {aeList.map((ae) => (
-                    <th key={ae} colSpan={5} className="px-4 py-3 text-center text-xs font-black uppercase tracking-[0.2em] text-primary bg-primary/5 border-b border-r border-primary/10">
-                      {ae}
-                    </th>
-                  ))}
-                </tr>
-                <tr className="bg-slate-50/20 border-b border-slate-100">
-                  {aeList.flatMap((ae) => [
-                    <th key={`${ae}-add`} className="px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50">New</th>,
-                    <th key={`${ae}-proc`} className="px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50">Done</th>,
-                    <th key={`${ae}-rem`} className="px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50">Remaining</th>,
-                    <th key={`${ae}-dr`} className="px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50">Daily%</th>,
-                    <th key={`${ae}-tr`} className="px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-200">Total%</th>,
-                  ])}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {dateList.length === 0 && (
-                  <tr>
-                    <td colSpan={1 + aeList.length * 5} className="py-16 text-center opacity-30">
-                      <p className="font-black uppercase tracking-widest text-xs">No data for this period</p>
-                    </td>
-                  </tr>
-                )}
-                {dateList.map((date) => (
-                  <tr key={date} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 font-black text-slate-700 text-xs border-r border-slate-100/50 bg-slate-50/30">{date}</td>
-                    {aeList.flatMap((ae) => {
-                      const s = lookup.get(`${ae}|${date}`);
-                      const isHighRemaining = (s?.remaining ?? 0) > 10;
-                      return [
-                        <td key={`${ae}-${date}-add`} className="px-3 py-3 text-center text-xs font-bold text-slate-600 border-r border-slate-100/50">{s?.added ?? 0}</td>,
-                        <td key={`${ae}-${date}-proc`} className="px-3 py-3 text-center text-xs font-bold text-emerald-600 border-r border-slate-100/50">{s?.processed ?? 0}</td>,
-                        <td key={`${ae}-${date}-rem`} className={`px-3 py-3 text-center text-xs font-black border-r border-slate-100/50 ${isHighRemaining ? 'text-rose-500' : 'text-slate-900'}`}>{s?.remaining ?? 0}</td>,
-                        <td key={`${ae}-${date}-dr`} className="px-3 py-3 text-center text-xs font-bold text-slate-400 border-r border-slate-100/50 italic">{s ? fmt(s.dailyRate) : '-'}</td>,
-                        <td key={`${ae}-${date}-tr`} className="px-3 py-3 text-center text-xs font-bold text-primary/60 border-r border-slate-200 italic">{s ? fmt(s.totalRate) : '-'}</td>,
-                      ];
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <TableShell variant="standard" className="border border-slate-100" scrollClassName="overflow-x-auto custom-scrollbar">
+          <thead>
+            <tr className={standardTable.headerRow}>
+              <th className={`${standardTable.headerCell} border-r border-slate-100/50`} rowSpan={2}>Date</th>
+              {aeList.map((ae) => (
+                <th key={ae} colSpan={5} className="px-4 py-3 text-center text-xs font-black uppercase tracking-[0.2em] text-primary bg-primary/5 border-b border-r border-primary/10">
+                  {ae}
+                </th>
+              ))}
+            </tr>
+            <tr className="bg-slate-50/20 border-b border-slate-100">
+              {aeList.flatMap((ae) => [
+                <th key={`${ae}-add`} className="px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50">New</th>,
+                <th key={`${ae}-proc`} className="px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50">Done</th>,
+                <th key={`${ae}-rem`} className="px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50">Remaining</th>,
+                <th key={`${ae}-dr`} className="px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50">Daily%</th>,
+                <th key={`${ae}-tr`} className="px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-200">Total%</th>,
+              ])}
+            </tr>
+          </thead>
+          <tbody className={standardTable.body}>
+            {dateList.length === 0 && (
+              <tr>
+                <td colSpan={1 + aeList.length * 5} className={standardTable.emptyState}>
+                  <p className="font-black uppercase tracking-widest text-xs opacity-30">No data for this period</p>
+                </td>
+              </tr>
+            )}
+            {dateList.map((date) => (
+              <tr key={date} className={standardTable.row}>
+                <td className={`${standardTable.cell} font-black text-slate-700 text-xs border-r border-slate-100/50 bg-slate-50/30`}>{formatTableDate(date)}</td>
+                {aeList.flatMap((ae) => {
+                  const s = lookup.get(`${ae}|${date}`);
+                  const isHighRemaining = (s?.remaining ?? 0) > 10;
+                  return [
+                    <td key={`${ae}-${date}-add`} className="px-3 py-3 text-center text-xs font-bold text-slate-600 border-r border-slate-100/50">{s?.added ?? 0}</td>,
+                    <td key={`${ae}-${date}-proc`} className="px-3 py-3 text-center text-xs font-bold text-emerald-600 border-r border-slate-100/50">{s?.processed ?? 0}</td>,
+                    <td key={`${ae}-${date}-rem`} className={`px-3 py-3 text-center text-xs font-black border-r border-slate-100/50 ${isHighRemaining ? 'text-rose-500' : 'text-slate-900'}`}>{s?.remaining ?? 0}</td>,
+                    <td key={`${ae}-${date}-dr`} className="px-3 py-3 text-center text-xs font-bold text-slate-400 border-r border-slate-100/50 italic">{s ? fmt(s.dailyRate) : '-'}</td>,
+                    <td key={`${ae}-${date}-tr`} className="px-3 py-3 text-center text-xs font-bold text-primary/60 border-r border-slate-200 italic">{s ? fmt(s.totalRate) : '-'}</td>,
+                  ];
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </TableShell>
       )}
     </div>
   );

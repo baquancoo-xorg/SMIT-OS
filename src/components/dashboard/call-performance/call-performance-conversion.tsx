@@ -1,12 +1,16 @@
 import type { CallPerformanceConversionItem } from '../../../types/call-performance';
 import { formatNumber } from '../../../lib/formatters';
 import DashboardPanel from '../ui/dashboard-panel';
+import { TableShell } from '../../ui/table-shell';
+import { getTableContract } from '../../ui/table-contract';
 
 interface Props {
   data: CallPerformanceConversionItem[];
 }
 
 export default function CallPerformanceConversion({ data }: Props) {
+  const denseTable = getTableContract('dense');
+
   if (data.length === 0) {
     return (
       <DashboardPanel className="p-6 text-sm text-slate-500">
@@ -22,28 +26,26 @@ export default function CallPerformanceConversion({ data }: Props) {
         <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">Số cuộc gọi cần thiết trước khi lead Qualified / Unqualified</p>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-slate-100">
-        <table className="w-full text-sm min-w-[760px]">
-          <thead className="bg-slate-100/80 text-slate-600">
-            <tr>
-              <th className="px-4 py-3 text-left">AE</th>
-              <th className="px-4 py-3 text-right">Calls → Qualified</th>
-              <th className="px-4 py-3 text-right">Calls → Unqualified</th>
-              <th className="px-4 py-3 text-right">Avg Calls Before Close</th>
+      <TableShell variant="dense" className="rounded-2xl border border-slate-100" scrollClassName="overflow-x-auto" tableClassName="min-w-[760px]">
+        <thead>
+          <tr className={denseTable.headerRow}>
+            <th className={`${denseTable.headerCell} text-left`}>AE</th>
+            <th className={`${denseTable.headerCell} text-right`}>Calls → Qualified</th>
+            <th className={`${denseTable.headerCell} text-right`}>Calls → Unqualified</th>
+            <th className={`${denseTable.headerCell} text-right`}>Avg Calls Before Close</th>
+          </tr>
+        </thead>
+        <tbody className={denseTable.body}>
+          {data.map((row) => (
+            <tr key={row.aeUserId} className={denseTable.row}>
+              <td className={`${denseTable.cell} font-medium text-left`}>{row.aeName}</td>
+              <td className={`${denseTable.cell} text-right tabular-nums`}>{formatNumber(row.callsToQualified)}</td>
+              <td className={`${denseTable.cell} text-right tabular-nums`}>{formatNumber(row.callsToUnqualified)}</td>
+              <td className={`${denseTable.cell} text-right tabular-nums`}>{formatNumber(row.avgCallsBeforeClose)}</td>
             </tr>
-          </thead>
-          <tbody>
-            {data.map((row) => (
-              <tr key={row.aeUserId} className="border-t border-slate-100 text-slate-700">
-                <td className="px-4 py-3 font-medium">{row.aeName}</td>
-                <td className="px-4 py-3 text-right tabular-nums">{formatNumber(row.callsToQualified)}</td>
-                <td className="px-4 py-3 text-right tabular-nums">{formatNumber(row.callsToUnqualified)}</td>
-                <td className="px-4 py-3 text-right tabular-nums">{formatNumber(row.avgCallsBeforeClose)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </TableShell>
     </DashboardPanel>
   );
 }
