@@ -58,6 +58,13 @@ function getLeadSla(lead: Lead, now: Date) {
   };
 }
 
+const formatLeadDateTime = (value?: string | null) => {
+  if (!value) return '-';
+  const parsed = parseISO(value);
+  if (Number.isNaN(parsed.getTime())) return '-';
+  return format(parsed, 'dd/MM/yyyy - HH:mm');
+};
+
 const COLS = [
   { label: 'Customer', key: 'customerName' },
   { label: 'Source', key: 'source' },
@@ -70,6 +77,7 @@ const COLS = [
   { label: 'UQ Reason', key: 'unqualifiedType' },
   { label: 'Notes', key: 'notes' },
   { label: 'Modified', key: 'updatedAt' },
+  { label: 'Actions', key: 'actions' },
 ];
 
 interface LeadLogsTabProps {
@@ -313,7 +321,6 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                     {c.label}
                   </th>
                 ))}
-                <th className="px-4 py-5"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -351,14 +358,14 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                       </td>
                     )}
                     <td className={`${cellCls} font-black text-on-surface`}>
-                      <span className="cursor-pointer hover:text-primary hover:underline transition-colors" onClick={() => setDetailLead(lead)}>{lead.customerName}</span>
+                      <span>{lead.customerName}</span>
                     </td>
                     <td className={cellCls}>
                       <SourceBadge synced={lead.syncedFromCrm} />
                     </td>
                     <td className={`${cellCls} font-bold text-slate-600`}>{lead.ae}</td>
-                    <td className={`${cellCls} text-slate-500 font-medium`}>{lead.receivedDate.slice(0, 10)}</td>
-                    <td className={`${cellCls} text-slate-500`}>{lead.resolvedDate ? lead.resolvedDate.slice(0, 10) : '-'}</td>
+                    <td className={`${cellCls} text-slate-500 font-medium`}>{formatLeadDateTime(lead.receivedDate)}</td>
+                    <td className={`${cellCls} text-slate-500`}>{formatLeadDateTime(lead.resolvedDate)}</td>
                     <td className={cellCls}>
                       <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${STATUS_BADGE[lead.status] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}>
                         {toStatusLabel(lead.status)}
@@ -375,11 +382,15 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                       <span className="text-slate-400 truncate block">{lead.notes || '—'}</span>
                     </td>
                     <td className={`${cellCls} text-slate-400 text-[11px] font-medium whitespace-nowrap`}>
-                      {format(new Date(lead.updatedAt), 'dd/MM/yyyy - HH:mm')}
+                      {formatLeadDateTime(lead.updatedAt)}
                     </td>
-                    <td className={cellCls}>
-                      <div className="flex gap-1 items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <TableRowActions onEdit={() => { setDialogMode('edit'); setDialogLead(lead); }} size={14} />
+                    <td className={`${cellCls} whitespace-nowrap`}>
+                      <div className="flex gap-1 items-center">
+                        <TableRowActions
+                          onView={() => setDetailLead(lead)}
+                          onEdit={() => { setDialogMode('edit'); setDialogLead(lead); }}
+                          size={14}
+                        />
 
                         {hasPendingDelete ? (
                           isAdminOrLeaderSale ? (
