@@ -19,7 +19,6 @@ function canWriteLead(user: any): boolean {
 function canDelete(user: any): boolean {
   if (!user) return false;
   if (user.isAdmin || user.role === 'Admin') return true;
-  if (user.role === 'Leader' && user.departments?.includes('Sale')) return true;
   return false;
 }
 

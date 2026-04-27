@@ -25,8 +25,8 @@ const STANDARD_CONTRACT: TableVariantContract = {
   row: 'hover:bg-primary/[0.02] transition-colors group',
   rowSelected: 'bg-primary/[0.02]',
   cell: 'px-8 py-5',
-  actionHeaderCell: 'px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 text-right w-[120px]',
-  actionCell: 'px-8 py-5 text-right relative',
+  actionHeaderCell: 'px-5 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 text-right w-[104px]',
+  actionCell: 'px-5 py-5 text-right relative',
   emptyState: 'p-12 text-center',
 };
 
