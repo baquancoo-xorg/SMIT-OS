@@ -1,5 +1,5 @@
 import { memo, useMemo, useState, useCallback, useEffect, useRef } from 'react';
-import { ArrowUp, ArrowDown, ArrowUpDown, HelpCircle, Medal, Award, Trophy } from 'lucide-react';
+import { ArrowUp, ArrowDown, ArrowUpDown, Medal, Award, Trophy, Activity, Users, TrendingUp, Layers } from 'lucide-react';
 import { formatCurrency, formatNumber, formatPercent } from '../../../lib/formatters';
 import type { KpiMetricsResponse, KpiMetricsRow } from '../../../types/dashboard-overview';
 import { type SortConfig, type SortField, sortData, handleSortClick, formatDateVN } from './kpi-table-utils';
@@ -218,14 +218,14 @@ interface KpiTableProps {
   onViewModeChange: (mode: ViewMode) => void;
 }
 
-const VIEW_MODE_OPTIONS: Array<{ label: string; value: ViewMode }> = [
-  { label: 'Realtime', value: 'realtime' },
-  { label: 'Cohort', value: 'cohort' },
+const VIEW_MODE_OPTIONS: Array<{ label: string; value: ViewMode; icon: React.ReactNode }> = [
+  { label: 'Realtime', value: 'realtime', icon: <Activity size={10} /> },
+  { label: 'Cohort', value: 'cohort', icon: <Users size={10} /> },
 ];
 
-const RATE_MODE_OPTIONS: Array<{ label: string; value: RateMode }> = [
-  { label: 'Top', value: 'top' },
-  { label: 'Step', value: 'step' },
+const RATE_MODE_OPTIONS: Array<{ label: string; value: RateMode; icon: React.ReactNode }> = [
+  { label: 'Top', value: 'top', icon: <TrendingUp size={10} /> },
+  { label: 'Step', value: 'step', icon: <Layers size={10} /> },
 ];
 
 export const KpiTable = memo(function KpiTable({
@@ -310,10 +310,10 @@ export const KpiTable = memo(function KpiTable({
       <div className="flex items-center justify-between mb-3 gap-3">
         <DashboardSectionTitle>KPI Metrics</DashboardSectionTitle>
         <div className="flex items-center gap-2">
-          <div className="w-[210px] hidden md:block">
+          <div className="hidden md:block">
             <SegmentedTabs value={viewMode} onChange={onViewModeChange} options={VIEW_MODE_OPTIONS} />
           </div>
-          <div className={`w-[180px] hidden md:block ${isStepDisabled ? 'opacity-60' : ''}`} title={isStepDisabled ? 'Step mode không khả dụng trong Cohort view' : ''}>
+          <div className={`hidden md:block ${isStepDisabled ? 'opacity-60' : ''}`} title={isStepDisabled ? 'Step mode không khả dụng trong Cohort view' : ''}>
             <SegmentedTabs
               value={rateMode}
               onChange={(mode) => {
@@ -323,9 +323,6 @@ export const KpiTable = memo(function KpiTable({
               options={RATE_MODE_OPTIONS}
             />
           </div>
-          <button type="button" className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors" title="Hướng dẫn">
-            <HelpCircle className="h-4 w-4" />
-          </button>
         </div>
       </div>
 

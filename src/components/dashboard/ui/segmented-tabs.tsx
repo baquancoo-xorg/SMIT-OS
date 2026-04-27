@@ -1,6 +1,9 @@
+import type { ReactNode } from 'react';
+
 interface SegmentedTabOption<T extends string> {
   label: string;
   value: T;
+  icon?: ReactNode;
 }
 
 interface SegmentedTabsProps<T extends string> {
@@ -16,7 +19,7 @@ export default function SegmentedTabs<T extends string>({
 }: SegmentedTabsProps<T>) {
   return (
     <div className="overflow-x-auto">
-      <div className="inline-flex h-10 bg-surface-container-high rounded-full shadow-sm min-w-max" role="tablist" aria-label="Dashboard domains">
+      <div className="inline-flex bg-slate-100 rounded-full p-0.5 gap-0.5 min-w-max" role="tablist" aria-label="Dashboard domains">
         {options.map((option) => (
           <button
             key={option.value}
@@ -24,12 +27,13 @@ export default function SegmentedTabs<T extends string>({
             role="tab"
             aria-selected={value === option.value}
             onClick={() => onChange(option.value)}
-            className={`flex items-center justify-center gap-2 h-10 px-5 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${
+            className={`flex items-center justify-center gap-1.5 h-7 px-3.5 rounded-full text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${
               value === option.value
                 ? 'bg-white text-primary shadow-sm'
-                : 'text-slate-500 hover:text-primary'
+                : 'text-slate-400 hover:text-slate-600'
             }`}
           >
+            {option.icon}
             {option.label}
           </button>
         ))}
