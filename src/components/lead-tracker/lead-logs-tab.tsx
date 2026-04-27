@@ -348,13 +348,13 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                       </button>
                     </td>
                   )}
-                  <td className={`${standardTable.cell} font-black text-[13px] leading-5 text-on-surface`}>
+                  <td className={`${standardTable.cell} text-[11px] font-semibold leading-5 text-on-surface`}>
                     <span>{lead.customerName}</span>
                   </td>
                   <td className={`${standardTable.cell} text-[13px]`}>
                     <SourceBadge synced={lead.syncedFromCrm} className="!text-[9px] !tracking-[0.12em]" />
                   </td>
-                  <td className={`${standardTable.cell} text-[13px] font-bold text-slate-600`}>{lead.ae}</td>
+                  <td className={`${standardTable.cell} text-[11px] font-semibold text-slate-600`}>{lead.ae}</td>
                   <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500 whitespace-nowrap`}>{formatTableDateTime(lead.receivedDate)}</td>
                   <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500 whitespace-nowrap`}>{formatTableDateTime(lead.resolvedDate)}</td>
                   <td className={standardTable.cell}>
@@ -367,9 +367,9 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                       {sla.label}
                     </span>
                   </td>
-                  <td className={`${standardTable.cell} text-[13px] font-medium text-slate-500`}>{lead.leadType === 'Việt Nam' ? 'VN' : lead.leadType === 'Quốc Tế' ? 'QT' : (lead.leadType ?? '-')}</td>
-                  <td className={`${standardTable.cell} text-[13px] font-medium text-slate-500`}>{lead.unqualifiedType ?? '-'}</td>
-                  <td className={`${standardTable.cell} italic max-w-[150px]`}>
+                  <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500`}>{lead.leadType === 'Việt Nam' ? 'VN' : lead.leadType === 'Quốc Tế' ? 'QT' : (lead.leadType ?? '-')}</td>
+                  <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500`}>{lead.unqualifiedType ?? '-'}</td>
+                  <td className={`${standardTable.cell} text-[11px] italic max-w-[150px]`}>
                     <span className="text-slate-400 truncate block">{lead.notes || '—'}</span>
                   </td>
                   <td className={`${standardTable.cell} text-slate-400 text-[11px] font-medium whitespace-nowrap`}>

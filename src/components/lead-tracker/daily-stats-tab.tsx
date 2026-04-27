@@ -40,23 +40,23 @@ export default function DailyStatsTab({ dateFrom, dateTo }: Props) {
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" />
         </div>
       ) : (
-        <TableShell variant="standard" className="border border-slate-100" scrollClassName="overflow-x-auto custom-scrollbar">
+        <TableShell variant="standard" className="border border-slate-100" scrollClassName="max-h-[70vh] overflow-y-auto overflow-x-auto custom-scrollbar">
           <thead>
-            <tr className={standardTable.headerRow}>
-              <th className={`${standardTable.headerCell} border-r border-slate-100/50`} rowSpan={2}>Date</th>
+            <tr className={`${standardTable.headerRow} bg-white`}>
+              <th className={`${standardTable.headerCell} sticky top-0 z-30 border-r border-slate-100/50 bg-white`} rowSpan={2}>Date</th>
               {aeList.map((ae) => (
-                <th key={ae} colSpan={5} className="px-4 py-3 text-center text-xs font-black uppercase tracking-[0.2em] text-primary bg-primary/5 border-b border-r border-primary/10">
+                <th key={ae} colSpan={5} className="sticky top-0 z-30 px-4 py-3 text-center text-xs font-black uppercase tracking-[0.2em] text-primary bg-white border-b border-r border-slate-200">
                   {ae}
                 </th>
               ))}
             </tr>
-            <tr className="bg-slate-50/20 border-b border-slate-100">
+            <tr className="bg-white border-b border-slate-100">
               {aeList.flatMap((ae) => [
-                <th key={`${ae}-add`} className="px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50">New</th>,
-                <th key={`${ae}-proc`} className="px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50">Done</th>,
-                <th key={`${ae}-rem`} className="px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50">Remaining</th>,
-                <th key={`${ae}-dr`} className="px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50">Daily%</th>,
-                <th key={`${ae}-tr`} className="px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-200">Total%</th>,
+                <th key={`${ae}-add`} className="sticky top-[46px] z-30 px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50 bg-white">New</th>,
+                <th key={`${ae}-proc`} className="sticky top-[46px] z-30 px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50 bg-white">Done</th>,
+                <th key={`${ae}-rem`} className="sticky top-[46px] z-30 px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50 bg-white">Remaining</th>,
+                <th key={`${ae}-dr`} className="sticky top-[46px] z-30 px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-100/50 bg-white">Daily%</th>,
+                <th key={`${ae}-tr`} className="sticky top-[46px] z-30 px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-slate-400 border-r border-slate-200 bg-white">Total%</th>,
               ])}
             </tr>
           </thead>
