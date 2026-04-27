@@ -13,9 +13,12 @@ export default function Sidebar({ onLogout, onNavigate }: SidebarProps) {
 
   return (
     <aside className="h-full flex flex-col p-4 md:p-5 xl:p-5 bg-white/70 backdrop-blur-xl rounded-r-3xl w-60 xl:w-64 shadow-2xl z-50">
-      <div className="flex flex-col items-start mb-5 px-3">
-        <h1 className="text-xl font-bold tracking-tight text-primary font-headline leading-none">SMIT OS</h1>
-        <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest mt-1">The Kinetic Workspace</p>
+      <div className="flex flex-col items-start mb-8 px-3">
+        <div className="flex items-center gap-1.5">
+          <img src="/logo-icon.png" alt="" className="h-7 w-7" />
+          <h1 className="text-[22px] font-bold tracking-tight text-primary font-headline leading-none">SMIT OS</h1>
+        </div>
+        <p className="text-[9px] font-medium text-slate-500 uppercase tracking-[0.15em] mt-1">The Kinetic Workspace</p>
       </div>
 
       <nav className="flex-1 space-y-4 overflow-y-auto overflow-x-visible custom-scrollbar px-1">
