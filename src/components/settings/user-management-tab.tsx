@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Trash2, Save, Edit2, X, UserCog } from 'lucide-react';
+import { Save, X, UserCog } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { User } from '../../types';
 import { Input, Button, Card, Badge } from '../ui';
 import CustomSelect from '../ui/CustomSelect';
+import { TableRowActions } from '../ui/table-row-actions';
 
 const ALL_DEPARTMENTS = ['BOD', 'Tech', 'Marketing', 'Media', 'Sale'];
 const ROLE_OPTIONS = [
@@ -115,7 +116,7 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
             <Input label="Username" placeholder="nva_smit" value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} />
           </div>
           <Input type="password" label="Password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
-          
+
           <div>
             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Departments</label>
             <div className="flex flex-wrap gap-2">
@@ -168,7 +169,7 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
                 <Input label="Username" value={editFormData.username} onChange={e => setEditFormData({ ...editFormData, username: e.target.value })} />
               </div>
               <Input type="password" label="New Password" placeholder="••••••••" value={editFormData.password} onChange={e => setEditFormData({ ...editFormData, password: e.target.value })} />
-              
+
               <div>
                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Departments</label>
                 <div className="flex flex-wrap gap-2">
@@ -239,10 +240,12 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
                   <span className="text-xs font-bold text-slate-500">{user.scope || '-'}</span>
                 </td>
                 <td className="px-6 py-4 text-right">
-                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => openEditUser(user)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all" title="Edit User"><Edit2 size={16} /></button>
-                    <button onClick={() => onDeleteConfirm('user', user.id)} disabled={user.id === currentUser?.id} className="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-xl transition-all disabled:opacity-10" title="Delete User"><Trash2 size={16} /></button>
-                  </div>
+                  <TableRowActions
+                    onEdit={() => openEditUser(user)}
+                    onDelete={user.id !== currentUser?.id ? () => onDeleteConfirm('user', user.id) : undefined}
+                    size={16}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  />
                 </td>
               </tr>
             ))}
@@ -266,8 +269,11 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant={ROLE_BADGE_VARIANT[user.role] || 'neutral'}>{user.role}</Badge>
-                <button onClick={() => openEditUser(user)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all" title="Edit User"><Edit2 size={16} /></button>
-                <button onClick={() => onDeleteConfirm('user', user.id)} disabled={user.id === currentUser?.id} className="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-xl transition-all disabled:opacity-10" title="Delete User"><Trash2 size={16} /></button>
+                <TableRowActions
+                  onEdit={() => openEditUser(user)}
+                  onDelete={user.id !== currentUser?.id ? () => onDeleteConfirm('user', user.id) : undefined}
+                  size={16}
+                />
               </div>
             </div>
             {(user.departments?.length > 0 || user.scope) && (

@@ -1,5 +1,6 @@
 import React from 'react';
 import { WeeklyReport, Sprint } from '../../types';
+import { TableRowActions } from '../ui/table-row-actions';
 
 interface ReportTableViewProps {
   reports: WeeklyReport[];
@@ -85,6 +86,7 @@ export default function ReportTableView({
               <th className="px-4 md:px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Department</th>
               <th className="px-4 md:px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 min-w-[180px]">Week</th>
               <th className="px-4 md:px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 min-w-[100px]">Sprint</th>
+              <th className="px-4 md:px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400 text-right min-w-[80px]">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100/50">
@@ -187,6 +189,10 @@ export default function ReportTableView({
                         {sprint ? sprint.name : 'N/A'}
                       </span>
                     </div>
+                  </td>
+
+                  <td className="px-8 py-5 text-right" onClick={(e) => e.stopPropagation()}>
+                    <TableRowActions onView={() => onViewDetail(report)} />
                   </td>
                 </tr>
               );

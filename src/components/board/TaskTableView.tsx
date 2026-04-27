@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { WorkItem, Priority } from '../../types';
+import { WorkItem } from '../../types';
 import {
-  AlertCircle,
-  Clock,
   CheckCircle2,
-  MoreHorizontal,
-  User as UserIcon,
-  Calendar,
-  Trash2,
-  Edit2,
-  Eye,
   LayoutGrid,
-  List
+  List,
+  Trash2,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
+import { TableRowActions } from '../ui/table-row-actions';
 
 interface TaskTableViewProps {
   items: WorkItem[];
@@ -27,12 +21,10 @@ interface TaskTableViewProps {
 
 export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete, onEdit, onViewDetails }: TaskTableViewProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'auto' | 'table' | 'card'>('auto');
   const [isMobile, setIsMobile] = useState(false);
   const { users } = useAuth();
 
-  // C10: Detect mobile viewport
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -41,29 +33,6 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
   }, []);
 
   const effectiveView = viewMode === 'auto' ? (isMobile ? 'card' : 'table') : viewMode;
-  const priorityColors: Record<Priority, string> = {
-    Low: 'bg-blue-50 text-blue-600',
-    Medium: 'bg-amber-50 text-amber-600',
-    High: 'bg-orange-50 text-orange-600',
-    Urgent: 'bg-rose-50 text-rose-600',
-  };
-
-  const statusColors: Record<string, string> = {
-    'Todo': 'bg-slate-100 text-slate-600',
-    'Active': 'bg-blue-100 text-blue-600',
-    'Void': 'bg-yellow-50 text-yellow-600',
-    'Doing': 'bg-blue-100 text-blue-600',
-    'Code Review': 'bg-purple-100 text-purple-600',
-    'Review': 'bg-purple-100 text-purple-600',
-    'Done': 'bg-emerald-100 text-emerald-600',
-    'Won': 'bg-emerald-100 text-emerald-600',
-    'Lost': 'bg-rose-100 text-rose-600',
-    'Idea': 'bg-indigo-100 text-indigo-600',
-    'MQL': 'bg-blue-50 text-blue-600',
-    'SQL': 'bg-indigo-50 text-indigo-600',
-    'Demo': 'bg-purple-50 text-purple-600',
-    'Negotiation': 'bg-amber-50 text-amber-600',
-  };
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -90,7 +59,6 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
     }
   };
 
-  // C10: Mobile Card View Component
   const MobileCardView = () => (
     <div className="space-y-3">
       {items.map(item => {
@@ -131,7 +99,6 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
               </span>
             </div>
 
-            {/* Progress bar */}
             <div className="flex items-center gap-3">
               <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                 <div
@@ -162,7 +129,6 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
 
   return (
     <div className="space-y-4">
-      {/* C10: View toggle for mobile */}
       <div className="flex items-center gap-2 md:hidden">
         <button
           onClick={() => setViewMode('card')}
@@ -212,7 +178,6 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
         )}
       </AnimatePresence>
 
-      {/* C10: Conditional rendering - Card or Table view */}
       {effectiveView === 'card' ? (
         <MobileCardView />
       ) : (
@@ -271,7 +236,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
                   </td>
                   <td className="px-4 py-5">
                     <div className="flex flex-col">
-                      <span 
+                      <span
                         className="text-sm font-black text-on-surface group-hover:text-primary transition-colors cursor-pointer"
                         onClick={() => onViewDetails?.(item)}
                       >
@@ -314,7 +279,7 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-4">
                       <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden min-w-[100px] relative">
-                        <div 
+                        <div
                           className={`h-full transition-all duration-700 ease-out ${progress === 100 ? 'bg-emerald-500' : 'bg-primary'}`}
                           style={{ width: `${progress}%` }}
                         ></div>
@@ -323,42 +288,11 @@ export default function TaskTableView({ items, onUpdate, onDelete, onBulkDelete,
                     </div>
                   </td>
                   <td className="px-8 py-5 text-right relative">
-                    <button 
-                      onClick={() => setOpenMenuId(openMenuId === item.id ? null : item.id)}
-                      className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
-                    >
-                      <span className="material-symbols-outlined text-lg">more_horiz</span>
-                    </button>
-                    <AnimatePresence>
-                      {openMenuId === item.id && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          className="absolute right-8 top-12 w-48 bg-white rounded-2xl shadow-lg z-20 overflow-hidden"
-                        >
-                          <button 
-                            onClick={() => { onViewDetails?.(item); setOpenMenuId(null); }}
-                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors text-left"
-                          >
-                            <Eye size={16} /> View Details
-                          </button>
-                          <button 
-                            onClick={() => { onEdit?.(item); setOpenMenuId(null); }}
-                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors text-left"
-                          >
-                            <Edit2 size={16} /> Edit Task
-                          </button>
-                          <div className="h-px bg-slate-100"></div>
-                          <button 
-                            onClick={() => { onDelete?.(item.id); setOpenMenuId(null); }}
-                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-error hover:bg-error/5 transition-colors text-left"
-                          >
-                            <Trash2 size={16} /> Delete Task
-                          </button>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    <TableRowActions
+                      onView={() => onViewDetails?.(item)}
+                      onEdit={() => onEdit?.(item)}
+                      onDelete={() => onDelete?.(item.id)}
+                    />
                   </td>
                 </tr>
               );

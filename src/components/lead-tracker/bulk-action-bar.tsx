@@ -14,7 +14,7 @@ interface BulkActionBarProps {
   onToggleEdit: () => void;
   onFieldChange: (k: keyof BulkEditFields, v: string) => void;
   onApply: () => void;
-  onDelete: () => void;
+  onDelete?: () => void;
   onClear: () => void;
 }
 
@@ -49,14 +49,16 @@ export default function BulkActionBar({
             <Edit2 size={13} />
             Bulk Edit
           </button>
-          <button
-            onClick={onDelete}
-            disabled={saving}
-            className="flex items-center gap-2 px-5 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-xl text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50"
-          >
-            <Trash2 size={13} />
-            Xóa ({count})
-          </button>
+          {onDelete && (
+            <button
+              onClick={onDelete}
+              disabled={saving}
+              className="flex items-center gap-2 px-5 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-xl text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50"
+            >
+              <Trash2 size={13} />
+              Xóa ({count})
+            </button>
+          )}
           <button onClick={onClear} className="p-2 text-white/40 hover:text-white transition-colors">
             <X size={16} />
           </button>

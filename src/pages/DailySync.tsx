@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Calendar, CheckCircle, Eye, X, Download, AlertTriangle, Target, ListChecks, Zap, Trash2 } from 'lucide-react';
+import { Plus, Calendar, CheckCircle, X, Download, AlertTriangle, Target, ListChecks, Zap, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { TableRowActions } from '../components/ui/table-row-actions';
 import { DailyReport, WorkItem, DailyReportTasksData } from '../types';
 import { BlockerEntry, TodayPlanEntry, TaskEntry, AdHocTask } from '../types/daily-report-metrics';
 import TeamFormSelector from '../components/daily-report/TeamFormSelector';
@@ -467,12 +468,11 @@ export default function DailySync() {
                         </div>
                       </td>
                       <td className="px-4 md:px-8 py-5 text-right">
-                        <button
-                          onClick={() => { setSelectedReport(report); setIsDetailOpen(true); }}
-                          className="p-2 min-h-[44px] min-w-[44px] text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
-                        >
-                          <Eye size={16} />
-                        </button>
+                        <TableRowActions
+                          onView={() => { setSelectedReport(report); setIsDetailOpen(true); }}
+                          size={16}
+                          buttonClassName="min-h-[44px] min-w-[44px]"
+                        />
                       </td>
                     </tr>
                   ))}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, Edit2, Trash2, DollarSign, Save, X } from 'lucide-react';
+import { RefreshCw, DollarSign, Save, X } from 'lucide-react';
 import { Input, Button, Card, Badge } from '../ui';
+import { TableRowActions } from '../ui/table-row-actions';
 
 interface FbAccount {
   id: number;
@@ -281,8 +282,11 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button onClick={() => handleSync(acc.id)} disabled={syncingId === acc.id} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all disabled:animate-spin" title="Sync Now"><RefreshCw size={16} /></button>
-                      <button onClick={() => openEdit(acc)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all" title="Edit Account"><Edit2 size={16} /></button>
-                      <button onClick={() => handleDeleteAccount(acc.id)} className="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-xl transition-all" title="Delete Account"><Trash2 size={16} /></button>
+                      <TableRowActions
+                        onEdit={() => openEdit(acc)}
+                        onDelete={() => handleDeleteAccount(acc.id)}
+                        size={16}
+                      />
                     </div>
                   </td>
                 </tr>
@@ -322,7 +326,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
               </div>
             </div>
           </div>
-          
+
           <Button
             onClick={handleUpdateExchangeRate}
             variant="secondary"

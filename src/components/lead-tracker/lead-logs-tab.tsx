@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { addDays, differenceInCalendarDays, format, parseISO } from 'date-fns';
-import { Search, Check, Trash2, Edit2, X } from 'lucide-react';
+import { Search, Check, Trash2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { api } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -11,6 +11,7 @@ import BulkActionBar, { type BulkEditFields } from './bulk-action-bar';
 import LeadDetailModal from './lead-detail-modal';
 import LeadLogDialog from './lead-log-dialog';
 import SourceBadge from './source-badge';
+import { TableRowActions } from '../ui/table-row-actions';
 
 const STATUSES = ['Mới', 'Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'];
 
@@ -175,10 +176,6 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
   };
 
   const bulkDelete = async () => {
-    if (!isAdminOrLeaderSale) {
-      alert('Chỉ Admin hoặc Leader Sale mới có thể xóa hàng loạt');
-      return;
-    }
     if (!confirm(`Xóa ${selectedIds.size} lead đã chọn?`)) return;
     setBulkSaving(true);
     try {
@@ -382,10 +379,7 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                     </td>
                     <td className={cellCls}>
                       <div className="flex gap-1 items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => { setDialogMode('edit'); setDialogLead(lead); }}
-                          className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
-                        ><Edit2 size={16} /></button>
+                        <TableRowActions onEdit={() => { setDialogMode('edit'); setDialogLead(lead); }} size={14} />
 
                         {hasPendingDelete ? (
                           isAdminOrLeaderSale ? (
@@ -433,7 +427,7 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
             onToggleEdit={() => setBulkEditMode((v) => !v)}
             onFieldChange={(k, v) => setBulkEdit((b) => ({ ...b, [k]: v }))}
             onApply={applyBulkEdit}
-            onDelete={bulkDelete}
+            onDelete={isAdminOrLeaderSale ? bulkDelete : undefined}
             onClear={clearSelection}
           />
         )}

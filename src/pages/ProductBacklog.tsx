@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { WorkItem, WorkItemType, BACKLOG_TYPES } from '../types';
 import { motion } from 'motion/react';
 import {
-  Plus, Search, Filter, Trash2, Edit2, Eye,
+  Plus, Search, Filter, Trash2,
   ChevronDown, ChevronRight, Inbox, Calendar, User
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -11,6 +11,7 @@ import TaskDetailsModal from '../components/board/TaskDetailsModal';
 import CustomFilter from '../components/ui/CustomFilter';
 import ViewToggle from '../components/ui/ViewToggle';
 import PrimaryActionButton from '../components/ui/PrimaryActionButton';
+import { TableRowActions } from '../components/ui/table-row-actions';
 import EpicBoard from './EpicBoard';
 import EpicGraph from './EpicGraph';
 
@@ -449,11 +450,13 @@ function StoryTreeRow({
       {story.dueDate && (
         <span className="text-[10px] text-slate-400 shrink-0 flex items-center gap-1"><Calendar size={10} />{new Date(story.dueDate).toLocaleDateString()}</span>
       )}
-      <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button onClick={onViewDetails} className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"><Eye size={12} /></button>
-        <button onClick={onEdit} className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"><Edit2 size={12} /></button>
-        <button onClick={onDelete} className="p-1.5 text-slate-400 hover:text-error hover:bg-error/5 rounded-lg transition-all"><Trash2 size={12} /></button>
-      </div>
+      <TableRowActions
+        onView={onViewDetails}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        size={12}
+        compact
+      />
     </motion.div>
   );
 }
@@ -480,7 +483,7 @@ function EpicTreeGroup({
       {/* Epic header */}
       <div
         onClick={() => setExpanded(e => !e)}
-        className="p-4 flex items-center gap-3 cursor-pointer hover:bg-purple-50/40 transition-colors border-b border-outline-variant/5"
+        className="p-4 flex items-center gap-3 cursor-pointer hover:bg-purple-50/40 transition-colors border-b border-outline-variant/5 group"
       >
         <button
           onClick={(e) => { e.stopPropagation(); onToggleSelect(epic.id); }}
@@ -511,9 +514,13 @@ function EpicTreeGroup({
           >
             <Plus size={10} /> Story
           </button>
-          <button onClick={() => onViewDetails(epic)} className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"><Eye size={12} /></button>
-          <button onClick={() => onEdit(epic)} className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"><Edit2 size={12} /></button>
-          <button onClick={() => onDelete(epic.id)} className="p-1.5 text-slate-400 hover:text-error hover:bg-error/5 rounded-lg transition-all"><Trash2 size={12} /></button>
+          <TableRowActions
+            onView={() => onViewDetails(epic)}
+            onEdit={() => onEdit(epic)}
+            onDelete={() => onDelete(epic.id)}
+            size={12}
+            compact
+          />
         </div>
       </div>
       {/* Stories */}
@@ -685,26 +692,11 @@ function BacklogTableView({
                   <p className="text-xs text-on-surface-variant">{item.dueDate ? new Date(item.dueDate).toLocaleDateString() : '—'}</p>
                 </td>
                 <td className="p-4 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <button
-                      onClick={() => onViewDetails(item)}
-                      className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
-                    >
-                      <Eye size={14} />
-                    </button>
-                    <button
-                      onClick={() => onEdit(item)}
-                      className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
-                    >
-                      <Edit2 size={14} />
-                    </button>
-                    <button
-                      onClick={() => onDelete(item.id)}
-                      className="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-lg transition-all"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
+                  <TableRowActions
+                    onView={() => onViewDetails(item)}
+                    onEdit={() => onEdit(item)}
+                    onDelete={() => onDelete(item.id)}
+                  />
                 </td>
               </tr>
             );

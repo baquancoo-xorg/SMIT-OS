@@ -1,5 +1,14 @@
 # Project Changelog
 
+## [v2.1.10] - 2026-04-27
+
+### Added: Shared `TableRowActions` component and standardised table action buttons
+
+- Added `src/components/ui/table-row-actions.tsx` — reusable dropdown action component for table rows.
+- Replaced inline action buttons with `TableRowActions` across ProductBacklog, TaskTableView, DailySync, ReportTableView, LeadLogs, UserManagement, and FbConfig.
+- LeadLogs bulk delete: Delete button is now rendered only when the current user has `admin` or `leader_sale` role, eliminating runtime permission alerts.
+- UserManagement: Delete button is hidden for the currently logged-in user to prevent self-deletion.
+
 ## [v2.1.9] - 2026-04-26
 
 ### Added: CRM lead sync + Call Performance dashboard
