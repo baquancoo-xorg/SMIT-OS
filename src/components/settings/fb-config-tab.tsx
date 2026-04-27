@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, DollarSign, Save, X } from 'lucide-react';
+import { RefreshCw, Save, X } from 'lucide-react';
 import { Input, Button, Card, Badge } from '../ui';
 import { TableRowActions } from '../ui/table-row-actions';
 import { TableShell } from '../ui/table-shell';
@@ -297,33 +297,39 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
         </Card>
       </div>
 
-      <div className="space-y-6">
-        <Card variant="glass" className="p-6 space-y-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600">
-              <DollarSign size={20} />
-            </div>
-            <div>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Financial Settings</p>
-            </div>
-          </div>
+      <Card variant="glass" className="overflow-hidden shadow-sm">
+        <TableShell variant="standard">
+          <thead>
+            <tr className={standardTable.headerRow}>
+              <th className={standardTable.headerCell}>Tên loại quy đổi</th>
+              <th className={standardTable.headerCell}>Giá trị gốc</th>
+              <th className={standardTable.headerCell}>Giá trị quy đổi</th>
+            </tr>
+          </thead>
+          <tbody className={standardTable.body}>
+            <tr className={standardTable.row}>
+              <td className={standardTable.cell}>
+                <div className="text-sm font-bold text-on-surface">USD to VND Rate</div>
+              </td>
+              <td className={standardTable.cell}>
+                <div className="text-sm font-bold text-slate-500">1 USD</div>
+              </td>
+              <td className={standardTable.cell}>
+                <div className="max-w-xs">
+                  <input
+                    type="number"
+                    value={exchangeRate}
+                    onChange={e => setExchangeRate(Number(e.target.value))}
+                    className="w-full bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-2.5 text-sm font-black text-on-surface text-right outline-none transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary/40"
+                    placeholder="Nhập giá trị"
+                  />
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </TableShell>
 
-          <div className="space-y-2">
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">USD to VND Rate</label>
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-bold text-slate-400 shrink-0">1 USD =</span>
-              <div className="relative flex-1">
-                <input
-                  type="number"
-                  value={exchangeRate}
-                  onChange={e => setExchangeRate(Number(e.target.value))}
-                  className="w-full bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-lg font-black text-on-surface text-right outline-none transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary/40"
-                />
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary font-black text-xs opacity-20">VND</span>
-              </div>
-            </div>
-          </div>
-
+        <div className="p-6 pt-5 border-t border-outline-variant/10 space-y-3">
           <Button
             onClick={handleUpdateExchangeRate}
             variant="secondary"
@@ -338,8 +344,8 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
               {rateError || 'Rate updated successfully!'}
             </div>
           )}
-        </Card>
-      </div>
+        </div>
+      </Card>
     </div>
   );
 }
