@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
+import { Activity, Briefcase, Monitor, TrendingUp, Users } from 'lucide-react';
 import { format, startOfMonth } from 'date-fns';
 import { useSearchParams } from 'react-router-dom';
 import { DateRangePicker } from '../components/dashboard/overview/DateRangePicker';
@@ -7,22 +8,22 @@ import { KpiTable } from '../components/dashboard/overview/KpiTable';
 import { useOverviewAll } from '../hooks/use-overview-data';
 import CallPerformanceSection from '../components/dashboard/call-performance/call-performance-section';
 import DashboardTab from '../components/lead-tracker/dashboard-tab';
+import ViewToggle from '../components/ui/ViewToggle';
 import {
   DashboardEmptyState,
   DashboardPageHeader,
   DashboardSectionTitle,
-  SegmentedTabs,
 } from '../components/dashboard/ui';
 
 type ViewMode = 'realtime' | 'cohort';
 type DashboardDomainTab = 'overview' | 'sale' | 'product' | 'marketing' | 'media';
 
-const TAB_OPTIONS: Array<{ label: string; value: DashboardDomainTab }> = [
-  { label: 'Overview', value: 'overview' },
-  { label: 'Sale', value: 'sale' },
-  { label: 'Product', value: 'product' },
-  { label: 'Marketing', value: 'marketing' },
-  { label: 'Media', value: 'media' },
+const TAB_OPTIONS: Array<{ label: string; value: DashboardDomainTab; icon: ReactNode }> = [
+  { label: 'Overview', value: 'overview', icon: <Activity size={12} /> },
+  { label: 'Sale', value: 'sale', icon: <Users size={12} /> },
+  { label: 'Product', value: 'product', icon: <Briefcase size={12} /> },
+  { label: 'Marketing', value: 'marketing', icon: <TrendingUp size={12} /> },
+  { label: 'Media', value: 'media', icon: <Monitor size={12} /> },
 ];
 
 const VALID_TABS = new Set<DashboardDomainTab>(TAB_OPTIONS.map((item) => item.value));
@@ -74,7 +75,7 @@ export default function DashboardOverview() {
         rightControls={
           <div className="flex flex-wrap items-center justify-end gap-3 md:gap-4">
             <div className="max-w-full">
-              <SegmentedTabs value={selectedTab} onChange={handleTabChange} options={TAB_OPTIONS} />
+              <ViewToggle value={selectedTab} onChange={(v) => handleTabChange(v as DashboardDomainTab)} options={TAB_OPTIONS} />
             </div>
             <DateRangePicker value={range} onChange={setRange} />
           </div>
