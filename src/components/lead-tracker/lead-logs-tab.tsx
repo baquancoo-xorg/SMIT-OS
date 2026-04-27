@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { addDays, differenceInCalendarDays, parseISO } from 'date-fns';
 import { Search, Check, Trash2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Lead } from '../../types';
@@ -89,9 +90,7 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
     (currentUser?.role === 'Leader' && currentUser?.departments?.includes('Sale'))
   );
 
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [aeOptions, setAeOptions] = useState<{ id: string; fullName: string }[]>([]);
+  const queryClient = useQueryClient();
   const today = new Date().toISOString().slice(0, 10);
   const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
   const [filters, setFilters] = useState({
@@ -116,22 +115,30 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
 
   const sf = (k: string, v: string) => setFilters((f) => ({ ...f, [k]: v }));
 
-  const fetchLeads = useCallback(async () => {
-    setLoading(true);
-    try {
-      const p: Record<string, string> = {};
-      if (filters.ae) p.ae = filters.ae;
-      if (filters.status) p.status = filters.status;
-      if (filters.dateFrom) p.dateFrom = filters.dateFrom;
-      if (filters.dateTo) p.dateTo = filters.dateTo;
-      if (filters.hasNote) p.hasNote = filters.hasNote;
-      if (filters.noteDate) p.noteDate = filters.noteDate;
-      setLeads(await api.getLeads(Object.keys(p).length ? p : undefined));
-    } finally { setLoading(false); }
-  }, [filters.ae, filters.status, filters.dateFrom, filters.dateTo, filters.hasNote, filters.noteDate]);
+  const leadsQueryParams: Record<string, string> = {};
+  if (filters.ae) leadsQueryParams.ae = filters.ae;
+  if (filters.status) leadsQueryParams.status = filters.status;
+  if (filters.dateFrom) leadsQueryParams.dateFrom = filters.dateFrom;
+  if (filters.dateTo) leadsQueryParams.dateTo = filters.dateTo;
+  if (filters.hasNote) leadsQueryParams.hasNote = filters.hasNote;
+  if (filters.noteDate) leadsQueryParams.noteDate = filters.noteDate;
 
-  useEffect(() => { fetchLeads(); }, [fetchLeads]);
-  useEffect(() => { api.getLeadAeList().then(setAeOptions); }, []);
+  const leadsQuery = useQuery<Lead[]>({
+    queryKey: ['leads', leadsQueryParams],
+    queryFn: () => api.getLeads(Object.keys(leadsQueryParams).length ? leadsQueryParams : undefined),
+    staleTime: 30_000,
+  });
+  const leads = leadsQuery.data ?? [];
+  const loading = leadsQuery.isLoading;
+
+  const fetchLeads = () => void queryClient.invalidateQueries({ queryKey: ['leads'] });
+
+  const aeQuery = useQuery<{ id: string; fullName: string }[]>({
+    queryKey: ['lead-ae-list'],
+    queryFn: () => api.getLeadAeList(),
+    staleTime: 5 * 60_000,
+  });
+  const aeOptions = aeQuery.data ?? [];
 
   const allSelected = leads.length > 0 && selectedIds.size === leads.length;
   const toggleSelectAll = () => {

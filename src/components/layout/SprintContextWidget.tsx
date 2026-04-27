@@ -3,6 +3,7 @@ import { BarChart3, CheckCircle2, RefreshCw, ListTodo, Ban } from 'lucide-react'
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
+import { useSprintContext } from '../../contexts/SprintContext';
 
 interface WorkItemPreview {
   id: string;
@@ -12,24 +13,6 @@ interface WorkItemPreview {
   assignee?: { id: string; fullName: string; avatar: string };
 }
 
-interface SprintData {
-  sprint: {
-    id: string;
-    name: string;
-    startDate: string;
-    endDate: string;
-  } | null;
-  stats: {
-    total: number;
-    done: number;
-    inProgress: number;
-    todo: number;
-    blocked: number;
-    progress: number;
-  } | null;
-  daysLeft: number | null;
-}
-
 interface IncompleteData {
   incompleteItems: WorkItemPreview[];
   nextSprint: { id: string; name: string } | null;
@@ -37,28 +20,13 @@ interface IncompleteData {
 
 export default function SprintContextWidget() {
   const navigate = useNavigate();
+  const { activeSprint: data, isLoading: loading, refetch: refetchActiveSprint } = useSprintContext();
   const [isOpen, setIsOpen] = useState(false);
-  const [data, setData] = useState<SprintData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [endDialogLoading, setEndDialogLoading] = useState(false);
   const [showEndDialog, setShowEndDialog] = useState(false);
   const [incompleteData, setIncompleteData] = useState<IncompleteData | null>(null);
   const [completing, setCompleting] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
-  const fetchActiveSprint = () => {
-    setLoading(true);
-    fetch('/api/sprints/active', { credentials: 'include' })
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then(setData)
-      .catch(err => console.error('Failed to fetch sprint:', err))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => { fetchActiveSprint(); }, []);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -97,7 +65,7 @@ export default function SprintContextWidget() {
       }
       setShowEndDialog(false);
       setIncompleteData(null);
-      fetchActiveSprint();
+      refetchActiveSprint();
     } catch (err) {
       console.error('Failed to complete sprint:', err);
     } finally {

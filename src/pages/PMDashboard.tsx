@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Objective, WorkItem, User, Sprint, WeeklyReport, DailyReport } from '../types';
 import {
   AlertCircle,
@@ -22,59 +23,66 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
+const fetchJson = (url: string) =>
+  fetch(url, { credentials: 'include' }).then(res => {
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${url}`);
+    return res.json();
+  });
+
 export default function PMDashboard() {
   const { currentUser } = useAuth();
-  const [workItems, setWorkItems] = useState<WorkItem[]>([]);
-  const [objectives, setObjectives] = useState<Objective[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-  const [sprints, setSprints] = useState<Sprint[]>([]);
-  const [weeklyReports, setWeeklyReports] = useState<WeeklyReport[]>([]);
-  const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
-    try {
-      setError(null);
-      const [itemsRes, objsRes, usersRes, sprintsRes, reportsRes, dailyRes] = await Promise.all([
-        fetch('/api/work-items', { credentials: 'include' }),
-        fetch('/api/objectives', { credentials: 'include' }),
-        fetch('/api/users', { credentials: 'include' }),
-        fetch('/api/sprints', { credentials: 'include' }),
-        fetch('/api/reports', { credentials: 'include' }),
-        fetch('/api/daily-reports', { credentials: 'include' }),
-      ]);
+  const { data: workItems = [], isLoading: loadingItems, isError: errItems } =
+    useQuery<WorkItem[]>({
+      queryKey: ['pm-dashboard', 'work-items'],
+      queryFn: () => fetchJson('/api/work-items'),
+      staleTime: 60_000,
+    });
 
-      if (!itemsRes.ok || !objsRes.ok || !usersRes.ok || !sprintsRes.ok || !reportsRes.ok || !dailyRes.ok) {
-        throw new Error('Failed to fetch dashboard data');
-      }
+  const { data: objectives = [], isLoading: loadingObjs, isError: errObjs } =
+    useQuery<Objective[]>({
+      queryKey: ['pm-dashboard', 'objectives'],
+      queryFn: () => fetchJson('/api/objectives'),
+      staleTime: 60_000,
+    });
 
-      const [itemsData, objsData, usersData, sprintsData, reportsData, dailyData] = await Promise.all([
-        itemsRes.json(),
-        objsRes.json(),
-        usersRes.json(),
-        sprintsRes.json(),
-        reportsRes.json(),
-        dailyRes.json(),
-      ]);
+  const { data: users = [], isLoading: loadingUsers, isError: errUsers } =
+    useQuery<User[]>({
+      queryKey: ['pm-dashboard', 'users'],
+      queryFn: () => fetchJson('/api/users'),
+      staleTime: 60_000,
+    });
 
-      setWorkItems(itemsData);
-      setObjectives(objsData);
-      setUsers(usersData);
-      setSprints(sprintsData);
-      setWeeklyReports(reportsData);
-      setDailyReports(Array.isArray(dailyData) ? dailyData : (dailyData.data ?? []));
-    } catch (err) {
-      console.error('Failed to fetch dashboard data:', err);
-      setError('Failed to load dashboard data. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: sprints = [], isLoading: loadingSprints, isError: errSprints } =
+    useQuery<Sprint[]>({
+      queryKey: ['pm-dashboard', 'sprints'],
+      queryFn: () => fetchJson('/api/sprints'),
+      staleTime: 60_000,
+    });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const { data: weeklyReports = [], isLoading: loadingReports, isError: errReports } =
+    useQuery<WeeklyReport[]>({
+      queryKey: ['pm-dashboard', 'weekly-reports'],
+      queryFn: () => fetchJson('/api/reports'),
+      staleTime: 60_000,
+    });
+
+  const { data: dailyReportsRaw, isLoading: loadingDaily, isError: errDaily } =
+    useQuery<DailyReport[] | { data: DailyReport[] }>({
+      queryKey: ['pm-dashboard', 'daily-reports'],
+      queryFn: () => fetchJson('/api/daily-reports'),
+      staleTime: 60_000,
+    });
+
+  const dailyReports: DailyReport[] = Array.isArray(dailyReportsRaw)
+    ? dailyReportsRaw
+    : ((dailyReportsRaw as { data?: DailyReport[] })?.data ?? []);
+
+  const loading =
+    loadingItems || loadingObjs || loadingUsers || loadingSprints || loadingReports || loadingDaily;
+
+  const hasError =
+    errItems || errObjs || errUsers || errSprints || errReports || errDaily;
 
   // ==================== Shared ====================
   const now = new Date();
@@ -150,7 +158,7 @@ export default function PMDashboard() {
 
   // ==================== Tier 2: Charts Data ====================
 
-  // Department Progress: root-level objectives per department (parentId = null means top-level)
+  // Department Progress
   const deptColors: Record<string, string> = {
     'Tech': 'bg-[#0059B6]',
     'Marketing': 'bg-[#F54A00]',
@@ -237,17 +245,11 @@ export default function PMDashboard() {
     );
   }
 
-  if (error) {
+  if (hasError) {
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center p-8">
-          <p className="text-error font-bold mb-4">{error}</p>
-          <button
-            onClick={fetchData}
-            className="px-6 py-3 bg-primary text-white font-bold rounded-full hover:scale-95 transition-transform"
-          >
-            Retry
-          </button>
+          <p className="text-error font-bold mb-4">Failed to load dashboard data. Please try again.</p>
         </div>
       </div>
     );

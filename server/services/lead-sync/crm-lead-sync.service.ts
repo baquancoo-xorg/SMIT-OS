@@ -4,7 +4,7 @@ import { BATCH_SIZE, CRM_OWNED_FIELDS, CUTOFF_2026_04_01, LEAD_SYNC_LOCK_KEY } f
 import { withAdvisoryLock } from './advisory-lock';
 import { loadStatusMap } from './status-mapper';
 import { loadEmployeeMap } from './employee-mapper';
-import { deriveResolvedDate } from './derive-resolved-date';
+import { loadResolvedDateMap } from './derive-resolved-date';
 import { getLeadSyncPrisma } from './state';
 
 type SyncMode = 'cron' | 'manual' | 'backfill';
@@ -175,12 +175,38 @@ export async function syncLeadsFromCrm(options: SyncOptions): Promise<SyncSummar
           break;
         }
 
+        // Batch-fetch all existing leads for this batch to avoid N+1 query pattern
+        const batchIds = batch.map((s) => s.id);
+        const batchLeads = await prisma.lead.findMany({ where: { crmSubscriberId: { in: batchIds } } });
+        const existingMap = new Map<bigint, (typeof batchLeads)[number]>(batchLeads.map((l) => [l.crmSubscriberId!, l]));
+
+        const statusBySubscriber = new Map<bigint, string>();
+        for (const sub of batch) {
+          statusBySubscriber.set(sub.id, statusMap[sub.status ?? ''] ?? FALLBACK_STATUS);
+        }
+
+        const resolvedDateMap = await loadResolvedDateMap(
+          batch
+            .filter((sub) => {
+              const mappedStatus = statusBySubscriber.get(sub.id);
+              return mappedStatus === 'Qualified' || mappedStatus === 'Unqualified';
+            })
+            .map((sub) => sub.id)
+        );
+
         for (const sub of batch) {
           try {
-            const resolvedDate = await deriveResolvedDate(sub.id, statusMap[sub.status ?? ''] ?? FALLBACK_STATUS);
-            const payload = mapLeadPayload(sub, statusMap, employeeMap, resolvedDate, now, errors);
+            const resolvedDate = resolvedDateMap.get(sub.id) ?? null;
+            const payload = mapLeadPayload(
+              sub,
+              statusMap,
+              employeeMap,
+              resolvedDate,
+              now,
+              errors
+            );
 
-            const existing = await prisma.lead.findUnique({ where: { crmSubscriberId: sub.id } });
+            const existing = existingMap.get(sub.id) ?? null;
             if (existing?.deleteRequestedAt) {
               continue;
             }

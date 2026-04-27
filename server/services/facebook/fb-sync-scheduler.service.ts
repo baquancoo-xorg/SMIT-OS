@@ -1,8 +1,6 @@
 import cron from 'node-cron';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../lib/prisma';
 import { syncFbAdAccount } from './fb-sync.service';
-
-const prisma = new PrismaClient();
 
 function getTodayRange() {
   const today = new Date();

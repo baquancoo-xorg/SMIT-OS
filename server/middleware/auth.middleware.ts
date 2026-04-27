@@ -18,7 +18,7 @@ export function createAuthMiddleware(prisma: PrismaClient) {
     // Fetch fresh user data (role could have changed)
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
-      select: { id: true, role: true, isAdmin: true, departments: true }
+      select: { id: true, role: true, isAdmin: true, departments: true, fullName: true }
     });
 
     if (!user) {
@@ -30,6 +30,7 @@ export function createAuthMiddleware(prisma: PrismaClient) {
       role: user.role,
       isAdmin: user.isAdmin,
       departments: user.departments,
+      fullName: user.fullName,
     };
 
     next();

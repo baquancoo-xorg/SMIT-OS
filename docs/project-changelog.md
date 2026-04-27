@@ -1,5 +1,15 @@
 # Project Changelog
 
+## [v2.1.14] - 2026-04-28
+
+### Security / Performance / Cleanup
+
+- Introduced Prisma singleton at `server/lib/prisma.ts`; all server files now import from it. `server/lib/crm-db.ts` remains intentionally separate.
+- Hardened `server.ts`: 2 MB JSON body limit, Helmet CSP report-only header, CORS blank-origin restricted to non-production, general API rate limiter (200 req/min), `requireAdmin` gate on `/api/admin/*`.
+- Added 60 s in-memory TTL cache to `server/services/dashboard/overview-ad-spend.ts` for CRM aggregation queries.
+- Fixed N+1 query pattern in `server/services/lead-sync/crm-lead-sync.service.ts`: replaced per-lead `findUnique` loop with batch `findMany` + `Map` lookup.
+- Removed dead client-side hooks: `src/hooks/use-users.ts`, `src/hooks/use-objectives.ts`, `src/hooks/use-sprints.ts`.
+
 ## [v2.1.13] - 2026-04-27
 
 ### Updated: Unified Table UI Design System — Phase 03 dense rollout completed

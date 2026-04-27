@@ -5,6 +5,7 @@ declare global {
     interface Request {
       user?: JWTPayload & {
         departments?: string[];
+        fullName?: string;
       };
     }
   }

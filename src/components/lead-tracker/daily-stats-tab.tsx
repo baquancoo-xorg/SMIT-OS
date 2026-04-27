@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import type { LeadDailyStat } from '../../types';
 import { TableShell } from '../ui/table-shell';
@@ -16,24 +16,17 @@ interface Props {
 }
 
 export default function DailyStatsTab({ dateFrom, dateTo }: Props) {
-  const [stats, setStats] = useState<LeadDailyStat[]>([]);
-  const [loading, setLoading] = useState(true);
   const standardTable = getTableContract('standard');
 
-  const fetchStats = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params: Record<string, string> = {};
-      if (dateFrom) params.dateFrom = dateFrom;
-      if (dateTo) params.dateTo = dateTo;
-      const data = await api.getLeadDailyStats(params);
-      setStats(data);
-    } finally {
-      setLoading(false);
-    }
-  }, [dateFrom, dateTo]);
+  const params: Record<string, string> = {};
+  if (dateFrom) params.dateFrom = dateFrom;
+  if (dateTo) params.dateTo = dateTo;
 
-  useEffect(() => { fetchStats(); }, [fetchStats]);
+  const { data: stats = [], isLoading: loading } = useQuery<LeadDailyStat[]>({
+    queryKey: ['lead-daily-stats', params],
+    queryFn: () => api.getLeadDailyStats(params),
+    staleTime: 60_000,
+  });
 
   const aeList = [...new Set(stats.map((s) => s.ae))].sort();
   const dateList = [...new Set(stats.map((s) => s.date))].sort();

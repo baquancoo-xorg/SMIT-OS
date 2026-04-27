@@ -1,6 +1,6 @@
 # System Architecture
 
-> Last updated: 2026-04-27
+> Last updated: 2026-04-28
 
 ## Overview
 
@@ -95,6 +95,38 @@ The `totp-pending` JWT has `purpose: 'totp-pending'` in its payload. `requireAut
 - Primary DB: `smitos_db` (port 5435)
 - Secondary schema: `prisma/crm-schema.prisma` (CRM data via `server/lib/crm-db.ts`)
 - No raw SQL in application code; all queries via Prisma client
+
+### Prisma Client Singleton
+
+All application code imports the shared singleton from `server/lib/prisma.ts`:
+
+```ts
+import { prisma } from '../lib/prisma';
+```
+
+`server/lib/crm-db.ts` is intentionally a separate client pointing at the CRM database — do not consolidate. Every other server file must use the singleton; creating additional `new PrismaClient()` instances is a bug.
+
+## Server Security
+
+Configured in `server.ts` (hardened 2026-04-28):
+
+| Control | Configuration |
+|---------|---------------|
+| JSON body limit | `express.json({ limit: '2mb' })` — returns 413 on oversized payloads |
+| CSP | Helmet `contentSecurityPolicy` in **report-only** mode — adds `Content-Security-Policy-Report-Only` header without blocking assets |
+| CORS blank-origin | Allowed only when `NODE_ENV !== 'production'`; production requires origin to match `ALLOWED_ORIGINS` |
+| General API rate limit | 200 requests/minute on `/api/` (on top of existing auth-route limiter) |
+| Admin route auth | `/api/admin/*` is gated by `requireAdmin` middleware — returns 403 for non-admin requests |
+
+## Backend Performance
+
+### Dashboard Overview Cache
+
+`server/services/dashboard/overview-ad-spend.ts` wraps expensive CRM aggregation queries with an in-process TTL cache (60 s). Cache key is the query signature; cache is a module-level `Map` — no Redis dependency. Second request within TTL resolves in <50 ms.
+
+### Lead Sync Batch Query
+
+`server/services/lead-sync/crm-lead-sync.service.ts` pre-fetches all existing leads for a sync batch with a single `prisma.lead.findMany({ where: { crmSubscriberId: { in: batchIds } } })` before the processing loop, then uses an in-memory `Map` for O(1) lookups. This replaces the previous O(n) per-lead `findUnique` pattern.
 
 ## API Conventions
 

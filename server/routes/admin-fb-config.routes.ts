@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { encrypt } from '../lib/crypto';
 import { syncFbAdAccount } from '../services/facebook/fb-sync.service';
 import {
@@ -8,8 +8,6 @@ import {
   syncFbAccountSchema,
   updateExchangeRateSchema,
 } from '../schemas/admin-fb-config.schema';
-
-const prisma = new PrismaClient();
 
 function requireAdmin(req: Request, res: Response, next: NextFunction) {
   if (!req.user?.isAdmin) {

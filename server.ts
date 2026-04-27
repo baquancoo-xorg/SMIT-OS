@@ -1,7 +1,7 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./server/lib/prisma";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
@@ -40,7 +40,6 @@ import { initLeadSyncPrisma } from "./server/services/lead-sync/state";
 import { startLeadSyncCron } from "./server/cron/lead-sync.cron";
 import { createOKRService } from "./server/services/okr.service";
 
-const prisma = new PrismaClient();
 initFbSyncService(prisma);
 initLeadSyncPrisma(prisma);
 const app = express();
@@ -56,18 +55,24 @@ function requireAdmin(req: Request, res: Response, next: NextFunction) {
 
 // Global middleware
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
+const allowMissingOrigin = process.env.NODE_ENV !== 'production';
 app.use(cors({
   credentials: true,
   origin: (origin, callback) => {
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+    if ((!origin && allowMissingOrigin) || ALLOWED_ORIGINS.includes(origin ?? '')) {
       callback(null, true);
     } else {
       callback(new Error('CORS not allowed'));
     }
   }
 }));
-app.use(helmet({ contentSecurityPolicy: false }));
-app.use(express.json());
+app.use(helmet({
+  contentSecurityPolicy: {
+    useDefaults: true,
+    reportOnly: true,
+  },
+}));
+app.use(express.json({ limit: '2mb' }));
 app.use(cookieParser());
 
 if (process.env.NODE_ENV !== 'production') {
@@ -90,6 +95,16 @@ app.use('/api/auth/login/totp', authLimiter);
 app.use('/api/auth/2fa/disable', authLimiter);
 app.use('/api/auth/2fa/enable', authLimiter);
 app.use('/api/users/me/password', authLimiter);
+
+// General API rate limiter
+const generalApiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.path.startsWith('/auth/'),
+});
+app.use('/api/', generalApiLimiter);
 
 // Public routes
 app.use("/api/auth", createAuthRoutes(prisma));
@@ -114,7 +129,7 @@ app.use("/api/leads", createLeadSyncRoutes());
 app.use("/api/dashboard/overview", createDashboardOverviewRoutes());
 app.use("/api/dashboard", createDashboardCallPerformanceRoutes());
 app.use("/api/sync/facebook-ads", createFbSyncRoutes());
-app.use("/api/admin", createAdminFbConfigRoutes());
+app.use("/api/admin", requireAdmin, createAdminFbConfigRoutes());
 
 const sheetsExportService = initSheetsExportScheduler(prisma, googleOAuthService);
 app.use("/api/sheets-export", createSheetsExportRoutes(sheetsExportService));
@@ -127,6 +142,13 @@ app.post("/api/okrs/recalculate", requireAdmin, async (_req, res) => {
 
 // Error handler
 app.use((err: any, _req: any, res: any, _next: any) => {
+  const statusCode = typeof err?.status === 'number' ? err.status : 500;
+  if (statusCode !== 500) {
+    return res.status(statusCode).json({
+      error: err?.message || "Request failed"
+    });
+  }
+
   console.error(err);
   const isDev = process.env.NODE_ENV !== 'production';
   res.status(500).json({

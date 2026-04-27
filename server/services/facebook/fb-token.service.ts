@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../lib/prisma';
 import { decrypt } from '../../lib/crypto';
-
-const prisma = new PrismaClient();
 
 export async function getDecryptedToken(accountId: string): Promise<string | null> {
   const cfg = await prisma.fbAdAccountConfig.findUnique({ where: { accountId } });
