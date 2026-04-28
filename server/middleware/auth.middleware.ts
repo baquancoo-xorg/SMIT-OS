@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { authService } from '../services/auth.service';
+import { JWT_COOKIE_NAME, JWT_COOKIE_OPTIONS } from '../lib/cookie-options';
+
+const REFRESH_THRESHOLD_SECONDS = 60 * 60; // 1 hour
 
 export function createAuthMiddleware(prisma: PrismaClient) {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -15,6 +18,11 @@ export function createAuthMiddleware(prisma: PrismaClient) {
       return res.status(401).json({ error: 'Invalid or expired token' });
     }
 
+    // Block totp-pending tokens from accessing protected routes
+    if (payload.purpose === 'totp-pending') {
+      return res.status(401).json({ error: 'Complete 2FA login first' });
+    }
+
     // Fetch fresh user data (role could have changed)
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
@@ -23,6 +31,17 @@ export function createAuthMiddleware(prisma: PrismaClient) {
 
     if (!user) {
       return res.status(401).json({ error: 'User not found' });
+    }
+
+    // Sliding session: refresh token if < 1h remaining
+    const remaining = authService.getTokenRemaining(token);
+    if (remaining !== null && remaining < REFRESH_THRESHOLD_SECONDS) {
+      const newToken = authService.signToken({
+        userId: user.id,
+        role: user.role,
+        isAdmin: user.isAdmin,
+      });
+      res.cookie(JWT_COOKIE_NAME, newToken, JWT_COOKIE_OPTIONS);
     }
 
     req.user = {

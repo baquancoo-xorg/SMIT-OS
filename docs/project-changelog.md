@@ -1,5 +1,15 @@
 # Project Changelog
 
+## [v2.1.15] - 2026-04-28
+
+### Login Redesign + Sliding Session
+
+- **Login UI**: replaced Shield icon with real PNG logo (`/logo-only.png`, 256×256, 59KB); gradient changed from royal blue to deep navy (#0F2A44 → #1E4167 → #2A6498); floating orbs updated to cyan tones
+- **Sliding session**: JWT auto-refreshes when remaining time < 1h on any authenticated request — users active continuously never get logged out; idle > 4h = logout (security preserved)
+- **DRY refactor**: extracted shared cookie config to `server/lib/cookie-options.ts`, used by both `auth.routes.ts` and `auth.middleware.ts`
+- Added `getTokenRemaining()` helper in `auth.service.ts`
+- Quality gate: TypeScript 0 errors, code review 8.5/10
+
 ## [v2.1.14] - 2026-04-28
 
 ### Security / Performance / Cleanup

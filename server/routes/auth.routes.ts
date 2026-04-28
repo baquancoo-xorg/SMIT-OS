@@ -5,20 +5,7 @@ import { authService } from '../services/auth.service';
 import { totpService } from '../services/totp.service';
 import { validate } from '../middleware/validate.middleware';
 import { loginSchema, totpVerifySchema, totpEnableSchema, totpDisableSchema } from '../schemas/auth.schema';
-
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
-  maxAge: 4 * 60 * 60 * 1000, // 4 hours (matches JWT_EXPIRES_IN)
-};
-
-// clearCookie should NOT have maxAge
-const CLEAR_COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
-};
+import { JWT_COOKIE_NAME, JWT_COOKIE_OPTIONS, JWT_CLEAR_COOKIE_OPTIONS } from '../lib/cookie-options';
 
 export function createAuthRoutes(prisma: PrismaClient) {
   const router = Router();
@@ -59,7 +46,7 @@ export function createAuthRoutes(prisma: PrismaClient) {
       role: user.role,
       isAdmin: user.isAdmin,
     });
-    res.cookie('jwt', token, COOKIE_OPTIONS);
+    res.cookie(JWT_COOKIE_NAME, token, JWT_COOKIE_OPTIONS);
     const { password: _, totpSecret: __, totpBackupCodes: ___, ...safeUser } = user;
     res.json(safeUser);
   });
@@ -84,7 +71,7 @@ export function createAuthRoutes(prisma: PrismaClient) {
 
     if (totpService.verifyCode(decryptedSecret, code)) {
       const token = authService.signToken({ userId: user.id, role: user.role, isAdmin: user.isAdmin });
-      res.cookie('jwt', token, COOKIE_OPTIONS);
+      res.cookie(JWT_COOKIE_NAME, token, JWT_COOKIE_OPTIONS);
       const { password: _, totpSecret: __, totpBackupCodes: ___, ...safeUser } = user;
       return res.json(safeUser);
     }
@@ -105,7 +92,7 @@ export function createAuthRoutes(prisma: PrismaClient) {
         return res.status(401).json({ error: 'Backup code already used' });
       }
       const token = authService.signToken({ userId: user.id, role: user.role, isAdmin: user.isAdmin });
-      res.cookie('jwt', token, COOKIE_OPTIONS);
+      res.cookie(JWT_COOKIE_NAME, token, JWT_COOKIE_OPTIONS);
       const { password: _, totpSecret: __, totpBackupCodes: ___, ...safeUser } = user;
       return res.json({ ...safeUser, backupCodeUsed: true, lowBackupCodes: remaining.length <= 2 });
     }
@@ -115,7 +102,7 @@ export function createAuthRoutes(prisma: PrismaClient) {
 
   // Logout
   router.post('/logout', (_req, res) => {
-    res.clearCookie('jwt', CLEAR_COOKIE_OPTIONS);
+    res.clearCookie(JWT_COOKIE_NAME, JWT_CLEAR_COOKIE_OPTIONS);
     res.json({ success: true });
   });
 
@@ -128,7 +115,7 @@ export function createAuthRoutes(prisma: PrismaClient) {
 
     const payload = authService.verifyToken(token);
     if (!payload) {
-      res.clearCookie('jwt', CLEAR_COOKIE_OPTIONS);
+      res.clearCookie(JWT_COOKIE_NAME, JWT_CLEAR_COOKIE_OPTIONS);
       return res.status(401).json({ error: 'Invalid token' });
     }
 
@@ -148,7 +135,7 @@ export function createAuthRoutes(prisma: PrismaClient) {
     });
 
     if (!user) {
-      res.clearCookie('jwt', CLEAR_COOKIE_OPTIONS);
+      res.clearCookie(JWT_COOKIE_NAME, JWT_CLEAR_COOKIE_OPTIONS);
       return res.status(401).json({ error: 'User not found' });
     }
 

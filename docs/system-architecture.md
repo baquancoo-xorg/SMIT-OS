@@ -11,7 +11,7 @@ SMIT-OS is a full-stack monorepo. The frontend (React SPA) and backend (Express 
 | Frontend | React 19, TypeScript, TailwindCSS v4, Tanstack Query v5 |
 | Backend | Express 5, TypeScript, Prisma ORM |
 | Database | PostgreSQL 15 (Docker) |
-| Auth | HTTP-only cookie JWT (7d expiry) |
+| Auth | HTTP-only cookie JWT (4h expiry, sliding session) |
 | Build | Vite, tsx watch (dev) |
 
 ## Directory Structure
@@ -40,7 +40,9 @@ smit-os/
 ### JWT Cookie Strategy
 
 - Token stored as `jwt` HTTP-only cookie (`sameSite: strict`, `secure` in production)
-- Standard session token expires in **7 days**
+- Standard session token expires in **4 hours**
+- **Sliding session**: when remaining time < 1h on any authenticated request, token auto-refreshes to full 4h (user active continuously = never logout)
+- User idle > 4h = cookie expires = logout (security)
 - Token payload: `{ userId, role, isAdmin, purpose? }`
 - On every authenticated request, `auth.middleware.ts` fetches fresh user data from DB (role changes take effect immediately)
 
@@ -52,12 +54,12 @@ Opt-in per user. Login uses a two-step flow when 2FA is enabled.
 
 ```
 POST /api/auth/login
-  ├─ 2FA disabled → issue full JWT (7d) → done
+  ├─ 2FA disabled → issue full JWT (4h) → done
   └─ 2FA enabled  → issue totp-pending JWT (5 min)
                         ↓
                POST /api/auth/login/totp
-                 ├─ valid TOTP code   → issue full JWT (7d)
-                 └─ valid backup code → consume code, issue full JWT (7d)
+                 ├─ valid TOTP code   → issue full JWT (4h)
+                 └─ valid backup code → consume code, issue full JWT (4h)
 ```
 
 The `totp-pending` JWT has `purpose: 'totp-pending'` in its payload. `requireAuth` middleware rejects these tokens; they are only accepted by `POST /api/auth/login/totp`.

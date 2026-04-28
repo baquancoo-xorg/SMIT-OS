@@ -47,8 +47,8 @@ const GridPattern = () => (
       className="absolute inset-0"
       style={{
         backgroundImage: `
-          linear-gradient(to right, #2563EB 1px, transparent 1px),
-          linear-gradient(to bottom, #2563EB 1px, transparent 1px)
+          linear-gradient(to right, #4BB2CC 1px, transparent 1px),
+          linear-gradient(to bottom, #4BB2CC 1px, transparent 1px)
         `,
         backgroundSize: '60px 60px',
       }}
@@ -158,17 +158,17 @@ export default function LoginPage() {
     <div className="h-dvh w-full flex overflow-hidden">
       {/* Left Panel - Welcome Section */}
       <motion.div
-        className="hidden lg:flex lg:w-1/2 xl:w-[55%] relative bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-12 flex-col justify-between overflow-hidden"
+        className="hidden lg:flex lg:w-1/2 xl:w-[55%] relative bg-gradient-to-br from-[#0F2A44] via-[#1E4167] to-[#2A6498] p-12 flex-col justify-between overflow-hidden"
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <FloatingOrb size={400} color="rgba(99, 102, 241, 0.6)" initialX={-10} initialY={20} duration={20} />
-          <FloatingOrb size={300} color="rgba(59, 130, 246, 0.5)" initialX={60} initialY={60} duration={25} />
-          <FloatingOrb size={200} color="rgba(147, 197, 253, 0.4)" initialX={80} initialY={10} duration={18} />
-          <FloatingOrb size={150} color="rgba(199, 210, 254, 0.3)" initialX={30} initialY={80} duration={22} />
+          <FloatingOrb size={400} color="rgba(75, 178, 204, 0.5)" initialX={-10} initialY={20} duration={20} />
+          <FloatingOrb size={300} color="rgba(42, 100, 152, 0.5)" initialX={60} initialY={60} duration={25} />
+          <FloatingOrb size={200} color="rgba(30, 65, 103, 0.4)" initialX={80} initialY={10} duration={18} />
+          <FloatingOrb size={150} color="rgba(75, 178, 204, 0.3)" initialX={30} initialY={80} duration={22} />
         </div>
 
         <GridPattern />
@@ -195,9 +195,6 @@ export default function LoginPage() {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="flex items-center gap-3"
           >
-            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-              <Shield className="w-6 h-6 text-white" />
-            </div>
             <span className="text-white font-bold text-xl tracking-tight">SMIT OS</span>
           </motion.div>
         </div>
@@ -279,41 +276,18 @@ export default function LoginPage() {
           initial="hidden"
           animate="visible"
         >
-          {/* Logo & Branding - Responsive */}
+          {/* Logo - Real PNG */}
           <motion.div
             className="text-center mb-8"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <motion.div
-              className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-indigo-600 mb-5 shadow-xl shadow-primary/30 relative"
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              whileTap={{ scale: 0.95 }}
-              animate={{
-                boxShadow: [
-                  "0 20px 40px -10px rgba(37, 99, 235, 0.3)",
-                  "0 25px 50px -10px rgba(37, 99, 235, 0.4)",
-                  "0 20px 40px -10px rgba(37, 99, 235, 0.3)",
-                ],
-              }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <Shield className="w-10 h-10 text-white" />
-              {/* Glow ring */}
-              <motion.div
-                className="absolute inset-0 rounded-2xl border-2 border-white/20"
-                animate={{
-                  scale: [1, 1.15, 1],
-                  opacity: [0.5, 0, 0.5],
-                }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
-              />
-            </motion.div>
-            <h1 className="text-2xl lg:text-3xl font-black bg-gradient-to-r from-primary via-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              SMIT OS
-            </h1>
-            <p className="text-slate-500 mt-1 text-sm lg:hidden">The Kinetic Workspace</p>
+            <img
+              src="/logo-only.png"
+              alt="SMIT OS"
+              className="w-24 h-24 mx-auto drop-shadow-lg"
+            />
           </motion.div>
 
           {/* Login Card */}

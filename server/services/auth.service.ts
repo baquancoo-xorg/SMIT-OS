@@ -55,5 +55,16 @@ export const authService = {
 
     const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
+  },
+
+  getTokenRemaining(token: string): number | null {
+    try {
+      const payload = jwt.verify(token, JWT_SECRET) as JWTPayload & { exp?: number };
+      if (!payload.exp) return null;
+      const nowSec = Math.floor(Date.now() / 1000);
+      return Math.max(0, payload.exp - nowSec);
+    } catch {
+      return null;
+    }
   }
 };
