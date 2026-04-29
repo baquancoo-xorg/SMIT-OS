@@ -44,11 +44,11 @@ const LEGACY_AE_NAME_BY_EMPLOYEE_ID: Record<number, string> = {
   151150: 'Dương Chín',
 };
 
-function buildAeIdentity(employeeUserId: number | null, employeeMap: Map<number, { id: string; fullName: string }>) {
+function buildAeIdentity(employeeUserId: number | null, employeeMap: Map<number, { id?: string; fullName: string }>) {
   if (employeeUserId === null) return { aeUserId: 'unmapped:unknown', aeName: 'Unmapped (CRM ID: unknown)' };
 
   const mapped = employeeMap.get(employeeUserId);
-  if (mapped) return { aeUserId: mapped.id, aeName: mapped.fullName };
+  if (mapped) return { aeUserId: mapped.id ?? `crm-emp:${employeeUserId}`, aeName: mapped.fullName };
 
   const legacyName = LEGACY_AE_NAME_BY_EMPLOYEE_ID[employeeUserId];
   if (legacyName) {
@@ -60,7 +60,7 @@ function buildAeIdentity(employeeUserId: number | null, employeeMap: Map<number,
 
 export function aggregatePerAe(
   calls: CallPerformanceCallInput[],
-  employeeMap: Map<number, { id: string; fullName: string }>
+  employeeMap: Map<number, { id?: string; fullName: string }>
 ): CallPerformancePerAeItem[] {
   const group = new Map<string, {
     aeUserId: string;
@@ -132,7 +132,7 @@ export function aggregateHeatmap(calls: CallPerformanceCallInput[]): CallPerform
 
 export function aggregateConversion(
   calls: CallPerformanceCallInput[],
-  employeeMap: Map<number, { id: string; fullName: string }>,
+  employeeMap: Map<number, { id?: string; fullName: string }>,
   subscriberStatusMap: SubscriberStatusMap
 ): CallPerformanceConversionItem[] {
   const perAeSubs = new Map<string, {

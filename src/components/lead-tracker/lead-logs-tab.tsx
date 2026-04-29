@@ -39,6 +39,15 @@ const toStatusLabel = (status: string) => STATUS_LABEL[status] ?? status;
 
 const isClosedLead = (status: string) => status === 'Qualified' || status === 'Unqualified';
 
+/**
+ * SLA badge — derived UI-only, không persist xuống DB.
+ * Source: lead.status, lead.receivedDate.
+ * Logic:
+ *   - Closed: status ∈ {Qualified, Unqualified}
+ *   - else: deadline = receivedDate + 7 days
+ *     - daysLeft >= 0 → On-time (D-N)
+ *     - daysLeft < 0  → Overdue (+N)
+ */
 function getLeadSla(lead: Lead, now: Date) {
   if (isClosedLead(lead.status)) {
     return { label: 'Closed', className: 'bg-slate-100 text-slate-600 border-slate-200' };

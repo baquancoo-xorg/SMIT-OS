@@ -1,22 +1,37 @@
-import { getLeadSyncPrisma } from './state';
+import { getCrmClient, safeCrmQuery } from '../../lib/crm-db';
 
 export type EmployeeMapValue = {
-  id: string;
+  id?: string; // deprecated: không còn link SMIT-OS User
   fullName: string;
 };
 
-export async function loadEmployeeMap() {
-  const prisma = getLeadSyncPrisma();
+/**
+ * Load employee map từ CRM smit_employee trực tiếp.
+ * Fallback chain: lark_info.name → lark_info.en_name → zalo_pancake_info.name → CRM-emp-{id}
+ */
+export async function loadEmployeeMap(): Promise<Map<number, EmployeeMapValue>> {
+  const crm = getCrmClient();
+  if (!crm) return new Map();
 
-  const rows = await prisma.user.findMany({
-    where: { crmEmployeeId: { not: null } },
-    select: { id: true, fullName: true, crmEmployeeId: true },
-  });
+  const rows = await safeCrmQuery(
+    () =>
+      crm.smit_employee.findMany({
+        where: { PEERDB_IS_DELETED: false },
+        select: { user_id: true, lark_info: true, zalo_pancake_info: true },
+      }),
+    [],
+  );
 
-  return rows.reduce<Map<number, EmployeeMapValue>>((acc, row) => {
-    if (row.crmEmployeeId !== null) {
-      acc.set(row.crmEmployeeId, { id: row.id, fullName: row.fullName });
-    }
-    return acc;
-  }, new Map<number, EmployeeMapValue>());
+  const map = new Map<number, EmployeeMapValue>();
+  for (const row of rows ?? []) {
+    const lark = row.lark_info as { name?: string; en_name?: string } | null;
+    const pancake = row.zalo_pancake_info as { name?: string } | null;
+    const name =
+      lark?.name?.trim() ||
+      lark?.en_name?.trim() ||
+      pancake?.name?.trim() ||
+      `CRM-emp-${row.user_id}`;
+    map.set(row.user_id, { fullName: name });
+  }
+  return map;
 }
