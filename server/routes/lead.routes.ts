@@ -6,7 +6,7 @@ import { createLeadSchema, updateLeadSchema } from '../schemas/lead.schema';
 import { RBAC } from '../middleware/rbac.middleware';
 
 const TRACKED_FIELDS = ['status', 'ae', 'leadType', 'unqualifiedType', 'notes', 'resolvedDate', 'receivedDate'] as const;
-const CRM_LOCKED_FIELDS = ['customerName', 'ae', 'receivedDate', 'status', 'notes'] as const;
+const CRM_LOCKED_FIELDS = ['customerName', 'ae', 'receivedDate', 'resolvedDate', 'status', 'notes'] as const;
 
 // Check if user can write leads (Sale dept member or Admin)
 function canWriteLead(user: any): boolean {
@@ -278,8 +278,10 @@ export function createLeadRoutes(prisma: PrismaClient) {
         ...safeRest,
         ...(existing.syncedFromCrm
           ? {}
-          : { ...(receivedDate && { receivedDate: new Date(receivedDate) }) }),
-        ...(resolvedDate !== undefined && { resolvedDate: resolvedDate ? new Date(resolvedDate) : null }),
+          : {
+              ...(receivedDate && { receivedDate: new Date(receivedDate) }),
+              ...(resolvedDate !== undefined && { resolvedDate: resolvedDate ? new Date(resolvedDate) : null }),
+            }),
       },
     });
 

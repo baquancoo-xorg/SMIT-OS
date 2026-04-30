@@ -244,7 +244,10 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
                   value={form.resolvedDate}
                   onChange={(v) => set('resolvedDate', v)}
                   placeholder="Select date"
-                  className="!w-full !rounded-2xl !bg-white !border !border-slate-200 !h-[42px] !px-4"
+                  disabled={isCrmLocked}
+                  className={`!w-full !rounded-2xl !bg-white !border !border-slate-200 !h-[42px] !px-4 ${
+                    isCrmLocked ? '!bg-slate-100 !text-slate-400 pointer-events-none' : ''
+                  }`}
                 />
               </div>
             </Field>

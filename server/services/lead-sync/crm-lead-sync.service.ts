@@ -5,6 +5,7 @@ import { withAdvisoryLock } from './advisory-lock';
 import { loadStatusMap } from './status-mapper';
 import { loadEmployeeMap } from './employee-mapper';
 import { loadNotesMap } from './derive-notes';
+import { loadResolvedDateMap } from './derive-resolved-date';
 import { getLeadSyncPrisma } from './state';
 
 type SyncMode = 'cron' | 'manual' | 'backfill';
@@ -57,6 +58,7 @@ function mapLeadPayload(
   statusMap: Record<string, string>,
   employeeMap: Map<number, { id?: string; fullName: string }>,
   notes: string,
+  resolvedDate: Date | null,
   now: Date,
   errors: SyncErrorItem[]
 ): LeadWritePayload {
@@ -76,6 +78,7 @@ function mapLeadPayload(
     customerName: (sub.fullName ?? '').trim() || `CRM-${String(sub.id)}`,
     ae: mappedEmployee?.fullName ?? 'Unmapped',
     receivedDate: normalizeDateOnly(sub.createdAt),
+    resolvedDate,
     status: mappedStatus,
     notes,
     crmSubscriberId: sub.id,
@@ -182,14 +185,31 @@ export async function syncLeadsFromCrm(options: SyncOptions): Promise<SyncSummar
 
         const notesMap = await loadNotesMap(batch.map((s) => s.id));
 
+        const statusBySubscriber = new Map<bigint, string>();
+        for (const sub of batch) {
+          const crmStatus = sub.status ?? '';
+          const mappedStatus = crmStatus ? (statusMap[crmStatus] ?? FALLBACK_STATUS) : FALLBACK_STATUS;
+          statusBySubscriber.set(sub.id, mappedStatus);
+        }
+
+        const quSubIds = batch
+          .filter((s) => {
+            const st = statusBySubscriber.get(s.id);
+            return st === 'Qualified' || st === 'Unqualified';
+          })
+          .map((s) => s.id);
+        const resolvedDateMap = await loadResolvedDateMap(quSubIds);
+
         for (const sub of batch) {
           try {
             const notes = notesMap.get(sub.id) ?? '';
+            const resolvedDate = resolvedDateMap.get(sub.id) ?? null;
             const payload = mapLeadPayload(
               sub,
               statusMap,
               employeeMap,
               notes,
+              resolvedDate,
               now,
               errors
             );
@@ -205,6 +225,7 @@ export async function syncLeadsFromCrm(options: SyncOptions): Promise<SyncSummar
                   customerName: payload.customerName,
                   ae: payload.ae,
                   receivedDate: payload.receivedDate,
+                  resolvedDate: payload.resolvedDate,
                   status: payload.status,
                   notes: payload.notes,
                   crmSubscriberId: payload.crmSubscriberId,
@@ -236,6 +257,7 @@ export async function syncLeadsFromCrm(options: SyncOptions): Promise<SyncSummar
                 customerName: payload.customerName,
                 ae: payload.ae,
                 receivedDate: payload.receivedDate,
+                resolvedDate: payload.resolvedDate,
                 status: payload.status,
                 notes: payload.notes,
                 syncedFromCrm: true,

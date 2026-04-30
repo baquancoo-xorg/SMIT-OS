@@ -23,9 +23,10 @@ interface DatePickerProps {
   placeholder?: string;
   className?: string;
   variant?: 'default' | 'dark';
+  disabled?: boolean;
 }
 
-export default function DatePicker({ value, onChange, placeholder = 'Chọn ngày', className = '', variant = 'default' }: DatePickerProps) {
+export default function DatePicker({ value, onChange, placeholder = 'Chọn ngày', className = '', variant = 'default', disabled = false }: DatePickerProps) {
   const [open, setOpen] = useState(false);
   const [month, setMonth] = useState<Date>(() => {
     const d = value ? parseISO(value) : new Date();
@@ -90,7 +91,8 @@ export default function DatePicker({ value, onChange, placeholder = 'Chọn ngà
       <button
         ref={btnRef}
         type="button"
-        onClick={() => { reposition(); setOpen((v) => !v); }}
+        disabled={disabled}
+        onClick={() => { if (!disabled) { reposition(); setOpen((v) => !v); } }}
         className={isDark
           ? `flex items-center gap-2 h-9 px-3 rounded-full bg-black/20 border border-white/20
               hover:bg-black/30 hover:border-white/40 transition-all text-[11px] font-bold
