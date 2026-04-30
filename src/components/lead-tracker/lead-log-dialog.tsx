@@ -239,12 +239,12 @@ export default function LeadLogDialog({ mode, lead, aeOptions, onClose, onSaved 
             </Field>
 
             <Field label="Resolved Date">
-              <div className="relative" title="Synced from CRM">
+              <div className="relative">
                 <DatePicker
                   value={form.resolvedDate}
                   onChange={(v) => set('resolvedDate', v)}
                   placeholder="Select date"
-                  className="!w-full !rounded-2xl !bg-slate-100 !border !border-slate-200 !h-[42px] !px-4 !text-slate-400 pointer-events-none"
+                  className="!w-full !rounded-2xl !bg-white !border !border-slate-200 !h-[42px] !px-4"
                 />
               </div>
             </Field>
