@@ -3,9 +3,10 @@ import { getCrmClient, safeCrmQuery } from '../../lib/crm-db';
 import { BATCH_SIZE, CRM_OWNED_FIELDS, CUTOFF_2026_04_01, LEAD_SYNC_LOCK_KEY } from './constants';
 import { withAdvisoryLock } from './advisory-lock';
 import { loadStatusMap } from './status-mapper';
-import { loadEmployeeMap } from './employee-mapper';
+import { loadAeMapBySubscriber, type EmployeeMapValue } from './employee-mapper';
 import { loadNotesMap } from './derive-notes';
 import { loadResolvedDateMap } from './derive-resolved-date';
+import { deriveLeadType } from './derive-lead-type';
 import { getLeadSyncPrisma } from './state';
 
 type SyncMode = 'cron' | 'manual' | 'backfill';
@@ -35,7 +36,7 @@ type SyncSummary = {
 type CrmSubscriberRow = {
   id: bigint;
   fullName: string | null;
-  employee_id_modified: number | null;
+  phone: string | null;
   createdAt: Date;
   updatedAt: Date;
   status: string | null;
@@ -56,7 +57,7 @@ function normalizeDateOnly(date: Date) {
 function mapLeadPayload(
   sub: CrmSubscriberRow,
   statusMap: Record<string, string>,
-  employeeMap: Map<number, { id?: string; fullName: string }>,
+  aeMap: Map<bigint, EmployeeMapValue>,
   notes: string,
   resolvedDate: Date | null,
   now: Date,
@@ -72,7 +73,8 @@ function mapLeadPayload(
     });
   }
 
-  const mappedEmployee = sub.employee_id_modified !== null ? employeeMap.get(sub.employee_id_modified) : undefined;
+  const mappedEmployee = aeMap.get(sub.id);
+  const leadType = deriveLeadType(sub.phone);
 
   return {
     customerName: (sub.fullName ?? '').trim() || `CRM-${String(sub.id)}`,
@@ -81,6 +83,7 @@ function mapLeadPayload(
     resolvedDate,
     status: mappedStatus,
     notes,
+    leadType,
     crmSubscriberId: sub.id,
     syncedFromCrm: true,
     lastSyncedAt: now,
@@ -125,7 +128,7 @@ async function fetchSubscribersBatch(skip: number, take: number, from: Date, to:
         select: {
           id: true,
           fullName: true,
-          employee_id_modified: true,
+          phone: true,
           createdAt: true,
           updatedAt: true,
           status: true,
@@ -155,7 +158,6 @@ export async function syncLeadsFromCrm(options: SyncOptions): Promise<SyncSummar
 
     try {
       const statusMap = await loadStatusMap();
-      const employeeMap = await loadEmployeeMap();
 
       const lastSuccessfulRun = !options.from
         ? await prisma.leadSyncRun.findFirst({
@@ -183,6 +185,9 @@ export async function syncLeadsFromCrm(options: SyncOptions): Promise<SyncSummar
         const batchLeads = await prisma.lead.findMany({ where: { crmSubscriberId: { in: batchIds } } });
         const existingMap = new Map<bigint, (typeof batchLeads)[number]>(batchLeads.map((l) => [l.crmSubscriberId!, l]));
 
+        // Load AE map from crm_employee_supervisor for this batch
+        const aeMap = await loadAeMapBySubscriber(batchIds);
+
         const notesMap = await loadNotesMap(batch.map((s) => s.id));
 
         const statusBySubscriber = new Map<bigint, string>();
@@ -207,7 +212,7 @@ export async function syncLeadsFromCrm(options: SyncOptions): Promise<SyncSummar
             const payload = mapLeadPayload(
               sub,
               statusMap,
-              employeeMap,
+              aeMap,
               notes,
               resolvedDate,
               now,
@@ -228,6 +233,7 @@ export async function syncLeadsFromCrm(options: SyncOptions): Promise<SyncSummar
                   resolvedDate: payload.resolvedDate,
                   status: payload.status,
                   notes: payload.notes,
+                  leadType: payload.leadType,
                   crmSubscriberId: payload.crmSubscriberId,
                   syncedFromCrm: true,
                   lastSyncedAt: payload.lastSyncedAt,
@@ -260,6 +266,7 @@ export async function syncLeadsFromCrm(options: SyncOptions): Promise<SyncSummar
                 resolvedDate: payload.resolvedDate,
                 status: payload.status,
                 notes: payload.notes,
+                leadType: payload.leadType,
                 syncedFromCrm: true,
                 lastSyncedAt: payload.lastSyncedAt,
               },

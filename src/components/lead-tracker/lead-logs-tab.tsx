@@ -11,7 +11,6 @@ import DatePicker from '../ui/date-picker';
 import BulkActionBar, { type BulkEditFields } from './bulk-action-bar';
 import LeadDetailModal from './lead-detail-modal';
 import LeadLogDialog from './lead-log-dialog';
-import SourceBadge from './source-badge';
 import { TableRowActions } from '../ui/table-row-actions';
 import { TableShell } from '../ui/table-shell';
 import { getTableContract } from '../ui/table-contract';
@@ -73,7 +72,6 @@ function getLeadSla(lead: Lead, now: Date) {
 
 const COLS = [
   { label: 'Customer', key: 'customerName' },
-  { label: 'Source', key: 'source' },
   { label: 'AE', key: 'ae' },
   { label: 'Received', key: 'receivedDate' },
   { label: 'Resolved', key: 'resolvedDate' },
@@ -257,8 +255,8 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
               );
             });
             const c = (s: string) => filteredLeads.filter((l) => l.status === s).length;
-            const vn = filteredLeads.filter((l) => l.leadType === 'Việt Nam').length;
-            const intl = filteredLeads.filter((l) => l.leadType === 'Quốc Tế').length;
+            const vn = filteredLeads.filter((l) => l.leadType === 'Vietnam').length;
+            const intl = filteredLeads.filter((l) => l.leadType && l.leadType !== 'Vietnam' && l.leadType !== 'Unknown').length;
             const onTime = filteredLeads.filter((l) => {
               if (isClosedLead(l.status)) return false;
               const sla = getLeadSla(l, now);
@@ -360,9 +358,6 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                   <td className={`${standardTable.cell} text-[11px] font-semibold leading-5 text-on-surface`}>
                     <span>{lead.customerName}</span>
                   </td>
-                  <td className={`${standardTable.cell} text-[13px]`}>
-                    <SourceBadge synced={lead.syncedFromCrm} className="!text-[9px] !tracking-[0.12em]" />
-                  </td>
                   <td className={`${standardTable.cell} text-[11px] font-semibold text-slate-600`}>{lead.ae}</td>
                   <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500 whitespace-nowrap`}>{formatTableDateTime(lead.receivedDate)}</td>
                   <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500 whitespace-nowrap`}>{formatTableDateTime(lead.resolvedDate)}</td>
@@ -376,7 +371,7 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                       {sla.label}
                     </span>
                   </td>
-                  <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500`}>{lead.leadType === 'Việt Nam' ? 'VN' : lead.leadType === 'Quốc Tế' ? 'QT' : (lead.leadType ?? '-')}</td>
+                  <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500`}>{lead.leadType ?? '-'}</td>
                   <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500`}>{lead.unqualifiedType ?? '-'}</td>
                   <td className={`${standardTable.cell} text-[11px] italic max-w-[150px]`}>
                     <span className="text-slate-400 truncate block">{lead.notes || '—'}</span>

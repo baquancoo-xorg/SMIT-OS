@@ -9,4 +9,5 @@ export const CRM_OWNED_FIELDS = [
   'resolvedDate',
   'status',
   'notes',
+  'leadType',
 ] as const;
