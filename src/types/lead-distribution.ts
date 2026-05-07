@@ -10,7 +10,13 @@ export interface LeadDistributionByAeItem {
   total: number;
 }
 
+export interface LeadDistributionByCountryItem {
+  country: string;
+  count: number;
+}
+
 export interface LeadDistributionResponse {
   bySource: LeadDistributionBySourceItem[];
   byAe: LeadDistributionByAeItem[];
+  byCountry: LeadDistributionByCountryItem[];
 }

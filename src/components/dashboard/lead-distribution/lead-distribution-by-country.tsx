@@ -1,17 +1,14 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Globe } from 'lucide-react';
-import type { LeadDistributionBySourceItem } from '../../../types/lead-distribution';
+import type { LeadDistributionByCountryItem } from '../../../types/lead-distribution';
 
-const COLORS = [
-  '#0059b6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
-  '#06b6d4', '#ec4899', '#84cc16', '#94a3b8',
-];
+const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
 interface Props {
-  data?: LeadDistributionBySourceItem[];
+  data?: LeadDistributionByCountryItem[];
 }
 
-export function LeadDistributionBySource({ data }: Props) {
+export function LeadDistributionByCountry({ data }: Props) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 h-full flex items-center justify-center">
@@ -26,8 +23,8 @@ export function LeadDistributionBySource({ data }: Props) {
     <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 h-full">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Lead By Source</h3>
-          <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">Lead acquisition channels</p>
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Lead By Country</h3>
+          <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">Distribution by region</p>
         </div>
         <div className="size-7 bg-slate-50 text-slate-400 rounded-lg flex items-center justify-center">
           <Globe size={14} />
@@ -43,7 +40,7 @@ export function LeadDistributionBySource({ data }: Props) {
               innerRadius={45}
               outerRadius={80}
               dataKey="count"
-              nameKey="source"
+              nameKey="country"
               paddingAngle={2}
               label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
               labelLine={{ stroke: '#94a3b8', strokeWidth: 1 }}
@@ -75,8 +72,9 @@ export function LeadDistributionBySource({ data }: Props) {
               iconSize={8}
               wrapperStyle={{ fontSize: '9px', fontWeight: 'bold', paddingLeft: '8px', maxWidth: '45%' }}
               formatter={(value) => {
-                const item = data.find((d) => d.source === value);
-                return `${value} (${item?.count || 0})`;
+                const item = data.find((d) => d.country === value);
+                const pct = total > 0 && item ? ((item.count / total) * 100).toFixed(0) : '0';
+                return `${value} (${item?.count || 0}) - ${pct}%`;
               }}
             />
           </PieChart>

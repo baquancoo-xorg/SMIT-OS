@@ -192,7 +192,9 @@ function KpiTableRow({ row, isTotal, rateMode, index = 0 }: KpiTableRowProps) {
         {row.roas.toFixed(2)}x
       </td>
       <td className={`${cellStyle} ${rightAlign}`}>
-        {((row.revenue / Math.max(row.adSpend, 1) - 1) * 100).toFixed(1)}%
+        {row.revenue > 0
+          ? `${((row.adSpend / row.revenue) * 100).toFixed(1)}%`
+          : <span className="text-slate-400">-</span>}
       </td>
     </tr>
   );

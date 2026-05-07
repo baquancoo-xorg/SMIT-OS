@@ -1,5 +1,5 @@
 import { prisma } from '../../lib/prisma';
-import type { LeadDistributionResponse, LeadDistributionBySourceItem, LeadDistributionByAeItem } from '../../types/lead-distribution.types';
+import type { LeadDistributionResponse, LeadDistributionBySourceItem, LeadDistributionByAeItem, LeadDistributionByCountryItem } from '../../types/lead-distribution.types';
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const MAX_CACHE_KEYS = 100;
@@ -101,9 +101,25 @@ export async function getLeadDistribution(from: Date, to: Date, topSources = 8):
     })
     .sort((a, b) => b.total - a.total);
 
+  // Query C: Group by leadType (country)
+  const countryGroupRaw = await prisma.lead.groupBy({
+    by: ['leadType'],
+    _count: { _all: true },
+    where: {
+      receivedDate: { gte: from, lte: to },
+    },
+    orderBy: { _count: { leadType: 'desc' } },
+  });
+
+  const countryItems: LeadDistributionByCountryItem[] = countryGroupRaw.map((row) => ({
+    country: row.leadType?.trim() || 'Unknown',
+    count: row._count._all,
+  }));
+
   const data: LeadDistributionResponse = {
     bySource: sourceItems,
     byAe: aeItems,
+    byCountry: countryItems,
   };
 
   writeCache(key, data);
