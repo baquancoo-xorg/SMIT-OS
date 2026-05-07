@@ -8,6 +8,7 @@ import { KpiTable } from '../components/dashboard/overview/KpiTable';
 import { useOverviewAll } from '../hooks/use-overview-data';
 import CallPerformanceSection from '../components/dashboard/call-performance/call-performance-section';
 import DashboardTab from '../components/lead-tracker/dashboard-tab';
+import LeadTypeChart from '../components/lead-tracker/lead-type-chart';
 import ViewToggle from '../components/ui/ViewToggle';
 import {
   DashboardEmptyState,
@@ -109,6 +110,11 @@ export default function DashboardOverview() {
             <section className="space-y-3">
               <DashboardSectionTitle>Lead Flow & Clearance</DashboardSectionTitle>
               <DashboardTab dateFrom={range.from} dateTo={range.to} />
+            </section>
+
+            <section className="space-y-3">
+              <DashboardSectionTitle>Lead Distribution</DashboardSectionTitle>
+              <LeadTypeChart dateFrom={range.from} dateTo={range.to} />
             </section>
           </>
         )}
