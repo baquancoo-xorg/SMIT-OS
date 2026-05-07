@@ -9,6 +9,7 @@ import { useOverviewAll } from '../hooks/use-overview-data';
 import CallPerformanceSection from '../components/dashboard/call-performance/call-performance-section';
 import DashboardTab from '../components/lead-tracker/dashboard-tab';
 import { LeadDistributionSection } from '../components/dashboard/lead-distribution';
+import { ProductSection } from '../components/dashboard/product';
 import ViewToggle from '../components/ui/ViewToggle';
 import {
   DashboardEmptyState,
@@ -119,9 +120,7 @@ export default function DashboardOverview() {
           </>
         )}
 
-        {selectedTab === 'product' && (
-          <DashboardEmptyState description="Dashboard cho Product đang được chuẩn bị." />
-        )}
+        {selectedTab === 'product' && <ProductSection />}
 
         {selectedTab === 'marketing' && (
           <DashboardEmptyState description="Dashboard cho Marketing đang được chuẩn bị." />
