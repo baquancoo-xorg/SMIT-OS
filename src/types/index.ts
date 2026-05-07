@@ -156,6 +156,7 @@ export interface Lead {
   leadType?: string | null;
   unqualifiedType?: string | null;
   notes?: string | null;
+  source?: string | null;
   crmSubscriberId?: string | null;
   syncedFromCrm?: boolean;
   lastSyncedAt?: string | null;

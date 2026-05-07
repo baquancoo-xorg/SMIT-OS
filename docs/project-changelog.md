@@ -1,5 +1,15 @@
 # Project Changelog
 
+## [v2.1.16] - 2026-05-07
+
+### Dashboard Sale Tab Metrics Revamp
+
+- **New API endpoints:** `GET /api/dashboard/lead-flow` and `GET /api/dashboard/lead-distribution` for server-side aggregation
+- **Lead model:** added `source` field to track CRM vs manual lead provenance
+- **Metrics components:** refactored dashboard-tab.tsx to compute metrics server-side via new hooks, reducing frontend calculation overhead
+- **New visualizations:** Lead Distribution section with By Source donut chart and By AE Workload stacked bar chart
+- **Performance:** metrics now calculated at API layer, improving dashboard responsiveness
+
 ## [v2.1.15] - 2026-04-28
 
 ### Login Redesign + Sliding Session

@@ -198,6 +198,7 @@ model Lead {
   leadType          String? // "Viet Nam" | "Quoc Te"
   unqualifiedType   String?
   notes             String?
+  source            String? // CRM source: agency-create-business, original-website, etc.
   deleteRequestedBy String? // User.id người gửi yêu cầu xoá
   deleteRequestedAt DateTime?
   deleteReason      String? // Lý do yêu cầu xoá

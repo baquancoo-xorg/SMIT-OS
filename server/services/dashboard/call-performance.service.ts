@@ -154,13 +154,20 @@ export async function getCallPerformance(from: Date, to: Date, aeId?: string): P
 
   const employeeUserIds = [...new Set(calls.map((c) => c.employeeUserId).filter((id): id is number => id !== null))];
   const crmEmployeeNameMap = await loadCrmEmployeeNameMap(crm, employeeUserIds);
-  const mergedEmployeeMap = new Map(employeeMap);
 
-  for (const [employeeUserId, employee] of crmEmployeeNameMap.entries()) {
-    if (!mergedEmployeeMap.has(employeeUserId)) {
-      mergedEmployeeMap.set(employeeUserId, employee);
+  // CRM-first merge: CRM names are source-of-truth, SMIT adds ID for profile linking
+  const mergedEmployeeMap = new Map(crmEmployeeNameMap);
+  for (const [employeeUserId, smitEmployee] of employeeMap.entries()) {
+    const existing = mergedEmployeeMap.get(employeeUserId);
+    if (existing) {
+      mergedEmployeeMap.set(employeeUserId, { ...existing, id: smitEmployee.id });
+    } else {
+      mergedEmployeeMap.set(employeeUserId, smitEmployee);
     }
   }
+
+  // Filter calls with CRM subscriber link for Per-AE metrics
+  const crmLinkedCalls = calls.filter((c) => c.subscriberId !== null);
 
   const subscriberIds = [...new Set(calls.map((c) => c.subscriberId).filter((id): id is number => id !== null))];
   const statusesRaw = subscriberIds.length > 0
@@ -183,7 +190,7 @@ export async function getCallPerformance(from: Date, to: Date, aeId?: string): P
   }
 
   const data: CallPerformanceResponse = {
-    perAe: aggregatePerAe(calls, mergedEmployeeMap),
+    perAe: aggregatePerAe(crmLinkedCalls, mergedEmployeeMap),
     heatmap: aggregateHeatmap(calls),
     conversion: aggregateConversion(calls, mergedEmployeeMap, subscriberStatusMap),
     trend: aggregateTrend(calls),

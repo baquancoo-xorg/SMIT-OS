@@ -26,6 +26,7 @@
     "db:seed-tasks": "tsx scripts/seed-tasks.ts",
     "db:seed:lead-status": "tsx prisma/seeds/lead-status-mapping.seed.ts",
     "backfill:leads": "tsx scripts/backfill-crm-leads.ts",
+    "backfill:lead-source": "tsx scripts/backfill-lead-source.ts",
     "db:clear-seed-tasks": "tsx scripts/clear-and-seed-tasks.ts"
   },
   "dependencies": {

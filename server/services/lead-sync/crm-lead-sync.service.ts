@@ -40,6 +40,7 @@ type CrmSubscriberRow = {
   createdAt: Date;
   updatedAt: Date;
   status: string | null;
+  source: string | null;
 };
 
 type LeadWritePayload = Pick<Lead, (typeof CRM_OWNED_FIELDS)[number]> & {
@@ -84,6 +85,7 @@ function mapLeadPayload(
     status: mappedStatus,
     notes,
     leadType,
+    source: sub.source ?? null,
     crmSubscriberId: sub.id,
     syncedFromCrm: true,
     lastSyncedAt: now,
@@ -132,6 +134,7 @@ async function fetchSubscribersBatch(skip: number, take: number, from: Date, to:
           createdAt: true,
           updatedAt: true,
           status: true,
+          source: true,
         },
       }),
     [] as CrmSubscriberRow[]
@@ -234,6 +237,7 @@ export async function syncLeadsFromCrm(options: SyncOptions): Promise<SyncSummar
                   status: payload.status,
                   notes: payload.notes,
                   leadType: payload.leadType,
+                  source: payload.source,
                   crmSubscriberId: payload.crmSubscriberId,
                   syncedFromCrm: true,
                   lastSyncedAt: payload.lastSyncedAt,
@@ -267,6 +271,7 @@ export async function syncLeadsFromCrm(options: SyncOptions): Promise<SyncSummar
                 status: payload.status,
                 notes: payload.notes,
                 leadType: payload.leadType,
+                source: payload.source,
                 syncedFromCrm: true,
                 lastSyncedAt: payload.lastSyncedAt,
               },
