@@ -120,7 +120,7 @@ export default function DashboardOverview() {
           </>
         )}
 
-        {selectedTab === 'product' && <ProductSection />}
+        {selectedTab === 'product' && <ProductSection from={range.from} to={range.to} />}
 
         {selectedTab === 'marketing' && (
           <DashboardEmptyState description="Dashboard cho Marketing đang được chuẩn bị." />

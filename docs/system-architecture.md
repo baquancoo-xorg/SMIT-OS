@@ -120,6 +120,29 @@ Configured in `server.ts` (hardened 2026-04-28):
 | General API rate limit | 200 requests/minute on `/api/` (on top of existing auth-route limiter) |
 | Admin route auth | `/api/admin/*` is gated by `requireAdmin` middleware — returns 403 for non-admin requests |
 
+## Product Dashboard (Phase 2 — 2026-05-08)
+
+5-section scroll-down layout with sticky sub-nav (Executive · Funnel · Cohort · Channel · Operational). Replaces the Phase 1 KPI-only layout.
+
+| Layer | Files |
+|---|---|
+| Routes | `server/routes/dashboard-product.routes.ts` — 9 GET endpoints + 1 POST refresh |
+| Services | `server/services/posthog/product-{metrics,features,trends,heatmap,time-to-value,cohort,channel,operational,stuck}.service.ts` |
+| Schemas | `server/schemas/dashboard-product.schema.ts` — Zod single source of truth |
+| Cache | `server/services/posthog/posthog-cache.ts` — LRU TTL 5min default |
+| FE hooks | `src/hooks/use-product-dashboard.ts` — React Query staleTime 5min |
+| FE components | `src/components/dashboard/product/*.tsx` — 16 files |
+
+**Pre-PQL Rate** = `firstSyncCount / totalSignups × 100` is the Master Plan PLG Gate metric #1, surfaced as a KPI card with badge.
+
+**Channel attribution** uses CRM `crm_subscribers_utm` as primary source (8+ clean utm_source values after normalization in `normalizeSource()`); PostHog `$referring_domain` is secondary cross-validation only (94% noise per audit).
+
+**Cohort retention** runs a HogQL CTE bucketing by `toStartOfWeek(min(timestamp))`, with a 10s timeout wrapper that falls back to empty cohorts + user-facing message. Replaces the legacy `VITE_POSTHOG_RETENTION_INSIGHT_URL` iframe.
+
+**Stuck list** is TRACKING-ONLY (Master Plan §1.4 monitoring). Privacy contract: response items contain only `businessId`, `businessName`, `signupAt`, `daysStuck` — never email/phone. Threshold = 7 days hardcoded as `STUCK_THRESHOLD_DAYS`. Verified via `product-stuck.service.test.ts`.
+
+**Security:** `POSTHOG_PERSONAL_API_KEY` lives only in `server/services/posthog/posthog-client.ts`; verified absent from `src/` and from `dist/` after `npm run build`.
+
 ## Backend Performance
 
 ### Dashboard Overview Cache

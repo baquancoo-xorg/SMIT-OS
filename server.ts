@@ -25,6 +25,7 @@ import { createDashboardCallPerformanceRoutes } from "./server/routes/dashboard-
 import { createDashboardOverviewRoutes } from "./server/routes/dashboard-overview.routes";
 import { createDashboardLeadFlowRoutes } from "./server/routes/dashboard-lead-flow.routes";
 import { createDashboardLeadDistributionRoutes } from "./server/routes/dashboard-lead-distribution.routes";
+import { createDashboardProductRoutes } from "./server/routes/dashboard-product.routes";
 import { createFbSyncRoutes } from "./server/routes/fb-sync.routes";
 import { createAdminFbConfigRoutes } from "./server/routes/admin-fb-config.routes";
 import { createNotificationRoutes } from "./server/routes/notification.routes";
@@ -132,6 +133,7 @@ app.use("/api/dashboard/overview", createDashboardOverviewRoutes());
 app.use("/api/dashboard", createDashboardCallPerformanceRoutes());
 app.use("/api/dashboard", createDashboardLeadFlowRoutes());
 app.use("/api/dashboard", createDashboardLeadDistributionRoutes());
+app.use("/api/dashboard/product", createDashboardProductRoutes());
 app.use("/api/sync/facebook-ads", createFbSyncRoutes());
 app.use("/api/admin", requireAdmin, createAdminFbConfigRoutes());
 

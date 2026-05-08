@@ -1,5 +1,29 @@
 # Project Changelog
 
+## [v2.2.0] - 2026-05-08
+
+### Product Tab Full Revamp (Phase 2)
+
+Expand Dashboard → Product tab from 4 widgets to 5 sections (Executive · Funnel · Cohort · Channel · Operational) per Master Plan Sub-Plan 0.
+
+- **5-section layout:** sticky sub-nav (`product-section-nav.tsx`) with IntersectionObserver active highlight + smooth scroll
+- **§1 Executive:** 8 KPI cards including Pre-PQL Rate (PLG Gate metric #1), Pre-PQL Trend line chart, Activation Heatmap with 3-view dropdown (hour×day · cohort × days-since-signup · top 50 business)
+- **§2 Funnel:** Funnel-with-Time (avg days between steps), TTV Histogram with p50/p90 markers across 6 buckets
+- **§3 Cohort:** custom Cohort Retention Heatmap (replaces legacy `VITE_POSTHOG_RETENTION_INSIGHT_URL` iframe), Cohort Activation Curve. HogQL CTE with 10s timeout fallback.
+- **§4 Channel:** CRM `crm_subscribers_utm` primary breakdown + Pre-PQL Rate by Source + PostHog `$referring_domain` secondary cross-validation. `normalizeSource()` consolidates 8+ dirty values (Home/Homepage, fb/Facebook/Faceboookads).
+- **§5 Operational:** Online Time Table (7-day session_duration grid), Touchpoint Activity (top 50, sortable, paginated), Stuck Businesses List (TRACKING-ONLY, no PII fields, 7d threshold)
+- **Backend:** 7 new services under `server/services/posthog/` (trends, heatmap, time-to-value, cohort, channel, operational, stuck), 7 new GET endpoints
+- **Cache:** LRU TTL 5min default — second request <50ms
+- **Privacy:** Stuck list response shape verified to exclude email/phone via `product-stuck.service.test.ts`
+- **Security:** `POSTHOG_PERSONAL_API_KEY` confirmed server-only; absent from `src/` and from production bundle
+- **Tests:** 14 new tests (cohort aggregation, stuck contract, channel normalization) — all passing
+- **Quality gates:** TypeScript 0 errors, build 2.43s, all 15 tests pass
+
+### Deferred (post-audit)
+
+- ICP Filter — CRM lacks rental/running/hybrid classification column
+- UTM tracking fix — CRM `crm_subscribers_utm` already has clean source data, posthog-js init untouched
+
 ## [v2.1.16] - 2026-05-07
 
 ### Dashboard Sale Tab Metrics Revamp

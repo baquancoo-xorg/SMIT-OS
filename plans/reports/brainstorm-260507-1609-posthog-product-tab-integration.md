@@ -1,9 +1,9 @@
 # Brainstorm — PostHog Integration cho Tab Product (Dashboard)
 
-**Date:** 2026-05-07 16:09 (Asia/Saigon)
+**Date:** 2026-05-07 16:09 (Asia/Saigon) — updated 2026-05-07 22:19
 **Owner:** dominium
 **Scope:** Phase 1 — Build UI tab Product trong `DashboardOverview.tsx` để hiển thị data PostHog
-**Status:** Design proposed, awaiting approval
+**Status:** Design **APPROVED** — 5 unresolved questions chốt (xem §12)
 
 ---
 
@@ -214,10 +214,21 @@ User properties cần stitching:
    - Phase 2: Frontend (5 component + hook + types)
    - Phase 3: Wire-up + e2e test + docs
 
-## 12. Unresolved Questions
+## 12. Resolved Decisions (chốt 2026-05-07 22:19)
 
-1. **PostHog instance region:** US Cloud, EU Cloud, hay self-hosted? (cần admin chính confirm)
-2. **Funnel time window:** đo trong 7/30/90 ngày? Có cho user chọn date range giống tab Overview không?
-3. **Multi-tenant:** Tab Product có cần filter theo agency/tenant không, hay chỉ aggregate toàn hệ thống?
-4. **Permission:** Ai trong SMIT-OS được xem tab Product? Cần role check không?
-5. **Refresh frequency:** Real-time (polling), 5min cache, hay manual refresh button?
+| # | Question | Decision | Implication |
+|---|---|---|---|
+| 1 | PostHog instance region | **US Cloud** (`app.posthog.com`) | `POSTHOG_HOST=https://app.posthog.com`. Latency từ VN OK. |
+| 2 | Funnel time window | **30 ngày default + date picker** (preset 7/30/90 + custom) | Component cần `<DateRangePicker>`. Cache key phải include `range`. Đồng bộ với tab Overview nếu có. |
+| 3 | Multi-tenant scope | **Aggregate toàn hệ thống** (Phase 1) | Không cần `tenant_id` filter. HogQL query đơn giản. Mở rộng Phase 2+ nếu cần. |
+| 4 | Refresh frequency | **Cache 5min + manual refresh button** | React Query `staleTime: 5*60*1000`. Header tab có nút "↻ Refresh" → invalidate query. |
+| 5 | Permission | **Mọi user đăng nhập đều xem được** | Không thêm role guard mới. Chỉ cần auth middleware hiện tại bảo vệ `/api/dashboard/product/*`. ⚠️ **Risk:** insight chiến lược (funnel, retention) lộ cho mọi staff — accept rủi ro. |
+
+### Cập nhật vào Phase 0 checklist (§7)
+- [x] PostHog region: **US Cloud** (đã chốt, không cần hỏi admin)
+- [ ] Lấy `POSTHOG_PROJECT_ID` từ admin
+- [ ] Tạo Personal API Key
+- [ ] Audit event definitions hiện có
+- [ ] Chốt event taxonomy 6 funnel events với MKT
+- [ ] Verify cross-domain stitching e2e
+- [ ] Tạo saved insight Retention Cohort + lấy share URL
