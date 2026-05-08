@@ -10,5 +10,6 @@ logs/
 .claude/session-state/
 .claude/worktrees/
 prisma/dev.db
+metadata.json
 CREDENTIALS.md
 repomix-output.xml
