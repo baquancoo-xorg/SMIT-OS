@@ -1,26 +1,19 @@
 import { Router } from 'express';
 import { overviewQuerySchema, kpiQuerySchema } from '../schemas/dashboard-overview.schema';
+import { validateQuery } from '../middleware/validate.middleware';
 import { getSummaryMetrics } from '../services/dashboard/overview-summary.service';
 import { getKpiMetrics } from '../services/dashboard/overview-kpi.service';
 import { getCohortKpiMetrics } from '../services/dashboard/overview-cohort.service';
 import { previousPeriod, parseFromTo } from '../lib/date-utils';
 
+const dashboardOpts = { errorShape: 'dashboard' as const };
+
 export function createDashboardOverviewRoutes() {
   const router = Router();
 
-  router.get('/summary', async (req, res) => {
+  router.get('/summary', validateQuery(overviewQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const parsed = overviewQuerySchema.safeParse(req.query);
-      if (!parsed.success) {
-        return res.status(400).json({
-          success: false,
-          data: null,
-          error: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
-          timestamp: new Date().toISOString(),
-        });
-      }
-
-      const q = parsed.data;
+      const q = req.query as any;
       const { from, to } = parseFromTo(q.from, q.to);
       let prevFrom: Date, prevTo: Date;
 
@@ -47,20 +40,11 @@ export function createDashboardOverviewRoutes() {
     }
   });
 
-  router.get('/kpi-metrics', async (req, res) => {
+  router.get('/kpi-metrics', validateQuery(kpiQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const parsed = kpiQuerySchema.safeParse(req.query);
-      if (!parsed.success) {
-        return res.status(400).json({
-          success: false,
-          data: null,
-          error: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
-          timestamp: new Date().toISOString(),
-        });
-      }
-
-      const { from, to } = parseFromTo(parsed.data.from, parsed.data.to);
-      const viewMode = parsed.data.viewMode ?? 'realtime';
+      const q = req.query as any;
+      const { from, to } = parseFromTo(q.from, q.to);
+      const viewMode = q.viewMode ?? 'realtime';
       const data = viewMode === 'cohort'
         ? await getCohortKpiMetrics(from, to)
         : await getKpiMetrics(from, to);
@@ -76,19 +60,9 @@ export function createDashboardOverviewRoutes() {
     }
   });
 
-  router.get('/', async (req, res) => {
+  router.get('/', validateQuery(overviewQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const parsed = overviewQuerySchema.safeParse(req.query);
-      if (!parsed.success) {
-        return res.status(400).json({
-          success: false,
-          data: null,
-          error: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
-          timestamp: new Date().toISOString(),
-        });
-      }
-
-      const q = parsed.data;
+      const q = req.query as any;
       const { from, to } = parseFromTo(q.from, q.to);
       let prevFrom: Date, prevTo: Date;
 

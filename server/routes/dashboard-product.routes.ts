@@ -5,6 +5,7 @@ import {
   trendsQuerySchema,
   heatmapQuerySchema,
 } from '../schemas/dashboard-product.schema';
+import { validateQuery } from '../middleware/validate.middleware';
 import { getProductMetrics, getBusinessFunnel } from '../services/posthog/product-metrics.service';
 import { getProductTopFeatures } from '../services/posthog/product-features.service';
 import { getProductTrends } from '../services/posthog/product-trends.service';
@@ -17,27 +18,19 @@ import { getProductStuck } from '../services/posthog/product-stuck.service';
 import { cacheKey, getCached, setCached, invalidateAll } from '../services/posthog/posthog-cache';
 import { PostHogError } from '../services/posthog/posthog-client';
 
+const dashboardOpts = { errorShape: 'dashboard' as const };
+
 export function createDashboardProductRoutes() {
   const router = Router();
 
-  router.get('/summary', async (req, res) => {
+  router.get('/summary', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const parsed = dateRangeQuerySchema.safeParse(req.query);
-      if (!parsed.success) {
-        return res.status(400).json({
-          success: false,
-          data: null,
-          error: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
-        });
-      }
-
-      const { from, to } = parsed.data;
+      const { from, to } = req.query as { from: string; to: string };
       const key = cacheKey('summary', from, to);
       const cached = getCached(key);
       if (cached) {
         return res.json({ success: true, data: cached, cached: true });
       }
-
       const data = await getProductMetrics(from, to);
       setCached(key, data);
       res.json({ success: true, data, cached: false });
@@ -46,24 +39,14 @@ export function createDashboardProductRoutes() {
     }
   });
 
-  router.get('/funnel', async (req, res) => {
+  router.get('/funnel', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const parsed = dateRangeQuerySchema.safeParse(req.query);
-      if (!parsed.success) {
-        return res.status(400).json({
-          success: false,
-          data: null,
-          error: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
-        });
-      }
-
-      const { from, to } = parsed.data;
+      const { from, to } = req.query as { from: string; to: string };
       const key = cacheKey('funnel', from, to);
       const cached = getCached(key);
       if (cached) {
         return res.json({ success: true, data: cached, cached: true });
       }
-
       const data = await getBusinessFunnel(from, to);
       setCached(key, data);
       res.json({ success: true, data, cached: false });
@@ -72,24 +55,14 @@ export function createDashboardProductRoutes() {
     }
   });
 
-  router.get('/top-features', async (req, res) => {
+  router.get('/top-features', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const parsed = dateRangeQuerySchema.safeParse(req.query);
-      if (!parsed.success) {
-        return res.status(400).json({
-          success: false,
-          data: null,
-          error: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
-        });
-      }
-
-      const { from, to } = parsed.data;
+      const { from, to } = req.query as { from: string; to: string };
       const key = cacheKey('top-features', from, to);
       const cached = getCached(key);
       if (cached) {
         return res.json({ success: true, data: cached, cached: true });
       }
-
       const data = await getProductTopFeatures(from, to);
       setCached(key, data);
       res.json({ success: true, data, cached: false });
@@ -99,25 +72,15 @@ export function createDashboardProductRoutes() {
   });
 
   // Phase 2 — Trends (line chart Pre-PQL Rate / Signup / FirstSync / Activation)
-  router.get('/trends', async (req, res) => {
+  router.get('/trends', validateQuery(trendsQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const parsed = trendsQuerySchema.safeParse(req.query);
-      if (!parsed.success) {
-        return res.status(400).json({
-          success: false,
-          data: null,
-          error: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
-        });
-      }
-
-      const { from, to, metric } = parsed.data;
+      const { from, to, metric } = req.query as { from: string; to: string; metric: string };
       const key = cacheKey(`trends:${metric}`, from, to);
       const cached = getCached(key);
       if (cached) {
         return res.json({ success: true, data: cached, cached: true });
       }
-
-      const data = await getProductTrends(from, to, metric);
+      const data = await getProductTrends(from, to, metric as any);
       setCached(key, data);
       res.json({ success: true, data, cached: false });
     } catch (err) {
@@ -162,24 +125,14 @@ export function createDashboardProductRoutes() {
   });
 
   // Phase 2 — Time-to-Value histogram (Created→FirstSync, FirstSync→PQL)
-  router.get('/ttv', async (req, res) => {
+  router.get('/ttv', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const parsed = dateRangeQuerySchema.safeParse(req.query);
-      if (!parsed.success) {
-        return res.status(400).json({
-          success: false,
-          data: null,
-          error: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
-        });
-      }
-
-      const { from, to } = parsed.data;
+      const { from, to } = req.query as { from: string; to: string };
       const key = cacheKey('ttv', from, to);
       const cached = getCached(key);
       if (cached) {
         return res.json({ success: true, data: cached, cached: true });
       }
-
       const data = await getProductTtv(from, to);
       setCached(key, data);
       res.json({ success: true, data, cached: false });
@@ -189,24 +142,14 @@ export function createDashboardProductRoutes() {
   });
 
   // Phase 2 Sprint 2 — Cohort Retention (replace iframe)
-  router.get('/cohort', async (req, res) => {
+  router.get('/cohort', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const parsed = dateRangeQuerySchema.safeParse(req.query);
-      if (!parsed.success) {
-        return res.status(400).json({
-          success: false,
-          data: null,
-          error: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
-        });
-      }
-
-      const { from, to } = parsed.data;
+      const { from, to } = req.query as { from: string; to: string };
       const key = cacheKey('cohort', from, to);
       const cached = getCached(key);
       if (cached) {
         return res.json({ success: true, data: cached, cached: true });
       }
-
       const data = await getProductCohort(from, to);
       setCached(key, data);
       res.json({ success: true, data, cached: false });
@@ -216,24 +159,14 @@ export function createDashboardProductRoutes() {
   });
 
   // Phase 2 Sprint 2 — Channel attribution (CRM + PostHog)
-  router.get('/channel', async (req, res) => {
+  router.get('/channel', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const parsed = dateRangeQuerySchema.safeParse(req.query);
-      if (!parsed.success) {
-        return res.status(400).json({
-          success: false,
-          data: null,
-          error: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
-        });
-      }
-
-      const { from, to } = parsed.data;
+      const { from, to } = req.query as { from: string; to: string };
       const key = cacheKey('channel', from, to);
       const cached = getCached(key);
       if (cached) {
         return res.json({ success: true, data: cached, cached: true });
       }
-
       const data = await getProductChannel(from, to);
       setCached(key, data);
       res.json({ success: true, data, cached: false });
@@ -243,24 +176,14 @@ export function createDashboardProductRoutes() {
   });
 
   // Phase 2 Sprint 3 — Operational (online time table + touchpoints top 50)
-  router.get('/operational', async (req, res) => {
+  router.get('/operational', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const parsed = dateRangeQuerySchema.safeParse(req.query);
-      if (!parsed.success) {
-        return res.status(400).json({
-          success: false,
-          data: null,
-          error: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
-        });
-      }
-
-      const { from, to } = parsed.data;
+      const { from, to } = req.query as { from: string; to: string };
       const key = cacheKey('operational', from, to);
       const cached = getCached(key);
       if (cached) {
         return res.json({ success: true, data: cached, cached: true });
       }
-
       const data = await getProductOperational(from, to);
       setCached(key, data);
       res.json({ success: true, data, cached: false });
@@ -270,9 +193,9 @@ export function createDashboardProductRoutes() {
   });
 
   // Phase 2 Sprint 3 — Stuck businesses TRACKING-ONLY (Master Plan §1.4)
+  // Note: keeps inline parse (optional from/to, falls back to all-time)
   router.get('/stuck', async (req, res) => {
     try {
-      // Accept optional from/to date range to filter stuck businesses by signup window
       const parsed = dateRangeQuerySchema.safeParse(req.query);
       const from = parsed.success ? parsed.data.from : undefined;
       const to = parsed.success ? parsed.data.to : undefined;
