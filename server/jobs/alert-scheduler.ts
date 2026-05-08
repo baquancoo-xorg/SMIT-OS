@@ -1,6 +1,9 @@
 import cron from 'node-cron';
 import { PrismaClient } from '@prisma/client';
 import { NotificationService } from '../services/notification.service';
+import { childLogger } from '../lib/logger';
+
+const log = childLogger('alert-scheduler');
 
 async function checkDeadlines(prisma: PrismaClient, notificationService: NotificationService) {
   const tomorrow = new Date();
@@ -34,7 +37,7 @@ async function checkDeadlines(prisma: PrismaClient, notificationService: Notific
     await prisma.notification.createMany({ data: deadlineNotifications });
   }
 
-  console.log(`[AlertScheduler] Sent ${deadlineNotifications.length} deadline warnings`);
+  log.info({ count: deadlineNotifications.length }, 'sent deadline warnings');
 }
 
 async function checkSprintEndings(prisma: PrismaClient, notificationService: NotificationService) {
@@ -61,7 +64,7 @@ async function checkSprintEndings(prisma: PrismaClient, notificationService: Not
     }
   }
 
-  console.log(`[AlertScheduler] Notified ${endingSprints.length} ending sprints`);
+  log.info({ count: endingSprints.length }, 'notified ending sprints');
 }
 
 async function checkOKRRisks(prisma: PrismaClient, notificationService: NotificationService) {
@@ -97,22 +100,22 @@ async function checkOKRRisks(prisma: PrismaClient, notificationService: Notifica
     }
   }
 
-  console.log(`[AlertScheduler] Flagged ${atRiskObjectives.length} at-risk OKRs`);
+  log.info({ count: atRiskObjectives.length }, 'flagged at-risk OKRs');
 }
 
 export function initAlertScheduler(prisma: PrismaClient, notificationService: NotificationService) {
   cron.schedule('0 8 * * *', async () => {
-    console.log('[AlertScheduler] Running daily checks...');
+    log.info('running daily checks');
     try {
       await checkDeadlines(prisma, notificationService);
       await checkSprintEndings(prisma, notificationService);
       await checkOKRRisks(prisma, notificationService);
     } catch (error) {
-      console.error('[AlertScheduler] Error:', error);
+      log.error({ err: error }, 'error during daily checks');
     }
   }, {
     timezone: 'Asia/Ho_Chi_Minh',
   });
 
-  console.log('[AlertScheduler] Initialized - runs daily at 8:00 AM');
+  log.info('initialized - runs daily at 8:00 AM');
 }

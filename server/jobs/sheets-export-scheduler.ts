@@ -2,6 +2,9 @@ import cron from 'node-cron';
 import { PrismaClient } from '@prisma/client';
 import { SheetsExportService } from '../services/sheets-export.service';
 import { GoogleOAuthService } from '../services/google-oauth.service';
+import { childLogger } from '../lib/logger';
+
+const log = childLogger('sheets-export-scheduler');
 
 export function initSheetsExportScheduler(
   prisma: PrismaClient,
@@ -11,22 +14,22 @@ export function initSheetsExportScheduler(
 
   // Run at 11:00 AM Vietnam time every day
   cron.schedule('0 11 * * *', async () => {
-    console.log('[SheetsExportScheduler] Starting daily export...');
+    log.info('starting daily export');
     try {
       const result = await exportService.export();
       if (result.success) {
-        console.log(`[SheetsExportScheduler] Export complete: ${result.spreadsheetUrl}`);
+        log.info({ spreadsheetUrl: result.spreadsheetUrl }, 'export complete');
       } else {
-        console.error('[SheetsExportScheduler] Export failed:', result.error);
+        log.error({ error: result.error }, 'export failed');
       }
     } catch (error) {
-      console.error('[SheetsExportScheduler] Unexpected error:', error);
+      log.error({ err: error }, 'unexpected error');
     }
   }, {
     timezone: 'Asia/Ho_Chi_Minh',
   });
 
-  console.log('[SheetsExportScheduler] Initialized - runs daily at 11:00 AM');
+  log.info('initialized - runs daily at 11:00 AM');
 
   return exportService;
 }
