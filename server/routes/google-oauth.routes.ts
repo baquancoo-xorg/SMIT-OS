@@ -126,8 +126,3 @@ export function createGoogleOAuthAdminRoutes(googleOAuthService: GoogleOAuthServ
 
   return router;
 }
-
-/** @deprecated Use createGoogleOAuthPublicRoutes + createGoogleOAuthAdminRoutes instead */
-export function createGoogleOAuthRoutes(googleOAuthService: GoogleOAuthService) {
-  return createGoogleOAuthAdminRoutes(googleOAuthService);
-}
