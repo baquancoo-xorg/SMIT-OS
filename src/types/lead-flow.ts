@@ -1,18 +1,3 @@
-export interface LeadFlowSummary {
-  inflow: number;
-  cleared: number;
-  activeBacklog: number;
-  clearanceRate: number | null;
-}
+// Re-export shared types for backward compatibility
+export * from '@shared/types/lead-flow';
 
-export interface LeadFlowDailyItem {
-  date: string;
-  inflow: number;
-  cleared: number;
-  activeBacklog: number;
-}
-
-export interface LeadFlowResponse {
-  summary: LeadFlowSummary;
-  daily: LeadFlowDailyItem[];
-}
