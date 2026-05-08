@@ -1,12 +1,13 @@
 ---
 title: "Codebase Cleanup & Security Audit Implementation"
 description: "4-phase plan fix P0-P3 findings từ brainstorm audit: rotate creds, remove rác, refactor, tech debt"
-status: pending
+status: mostly-complete
 priority: P0
 effort: ~60h (P0 <1h, P1 ~3h, P2 ~16h, P3 ~40h)
 branch: main
 tags: [security, cleanup, refactor, tech-debt]
 created: 2026-05-08
+completed: 2026-05-09
 ---
 
 # Codebase Cleanup & Security Audit — Implementation Plan
@@ -23,10 +24,10 @@ Triển khai findings từ brainstorm audit ngày 2026-05-08. Ưu tiên đóng c
 
 | # | Phase | Severity | Effort | Status | File |
 |---|---|---|---|---|---|
-| 1 | P0 Critical Security Hotfix | 🔴 P0 | <1h | pending | [phase-01](./phase-01-p0-critical-security-hotfix.md) |
-| 2 | P1 Cleanup + CSP Enforce | 🟠 P1 | ~3h | pending | [phase-02](./phase-02-p1-cleanup-and-csp-enforce.md) |
-| 3 | P2 Sprint Refactor | 🟡 P2 | ~16h | pending | [phase-03](./phase-03-p2-sprint-refactor.md) |
-| 4 | P3 Long-term Tech Debt | 🟢 P3 | ~40h | pending | [phase-04](./phase-04-p3-tech-debt-longterm.md) |
+| 1 | P0 Critical Security Hotfix | 🔴 P0 | <1h | partial (rotate skipped per user) | [phase-01](./phase-01-p0-critical-security-hotfix.md) |
+| 2 | P1 Cleanup + CSP Enforce | 🟠 P1 | ~3h | ✅ complete | [phase-02](./phase-02-p1-cleanup-and-csp-enforce.md) |
+| 3 | P2 Sprint Refactor | 🟡 P2 | ~16h | ✅ complete (admin-fb-config kept inline) | [phase-03](./phase-03-p2-sprint-refactor.md) |
+| 4 | P3 Long-term Tech Debt | 🟢 P3 | ~40h | partial (logger + tests done, page refactor + any reduction deferred) | [phase-04](./phase-04-p3-tech-debt-longterm.md) |
 
 ## Dependencies
 
@@ -51,3 +52,32 @@ Mỗi phase có rollback riêng (xem phase files). Tổng quát:
 - Phase 2: `git checkout package*.json` + `npm install` để khôi phục deps
 - Phase 3: PR-based, revert commit nếu break
 - Phase 4: Progressive migration, không big-bang
+
+## Execution Summary (2026-05-09)
+
+**Completed:**
+- ✅ chmod 600 .env, removed orphan `com.smitos.server.plist`
+- ✅ npm audit: 3 moderate CVE → 0
+- ✅ Removed unused deps: `@google/genai`, `posthog-node`
+- ✅ Cleaned 70 agent worktrees (205MB → 3.2MB)
+- ✅ Removed 3 legacy log files + `prisma/dev.db` + `metadata.json`
+- ✅ CSP enforce in production (reportOnly only in dev)
+- ✅ Archived 11 one-time scripts → `scripts/archive/`
+- ✅ Renamed 3 ui components to PascalCase
+- ✅ Consolidated 5 domain types into `shared/types/`
+- ✅ Validation pattern: refactored 13 endpoints (dashboard-product + dashboard-overview)
+- ✅ Removed 3 confirmed dead exports (170 → 167)
+- ✅ Pino structured logger + 3 cron jobs migrated
+- ✅ 9 auth/TOTP smoke tests (25/25 pass)
+
+**Skipped (per user / scope reduction):**
+- ⏸️ CRM password rotation (skipped per user — needs CRM admin access)
+- ⏸️ admin-fb-config validation refactor (response shape `{success, error}` differs)
+- ⏸️ Refactor 3 large pages (OKRsManagement 1544 LOC, DailySync 937, ProductBacklog 711) — high UI risk, needs manual smoke test
+- ⏸️ Reduce 144 `any` occurrences — ongoing, foundation set
+
+**Verification:**
+- `npm run typecheck` ✓
+- `npm run build` ✓
+- `npm test` 25/25 pass
+- `npm audit` 0 vulnerabilities
