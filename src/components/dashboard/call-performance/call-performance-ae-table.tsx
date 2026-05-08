@@ -1,7 +1,7 @@
 import type { CallPerformancePerAeItem } from '../../../types/call-performance';
 import { formatDecimal, formatNumber, formatPercent } from '../../../lib/formatters';
 import DashboardPanel from '../ui/dashboard-panel';
-import { TableShell } from '../../ui/table-shell';
+import { TableShell } from '../../ui/TableShell';
 import { getTableContract } from '../../ui/table-contract';
 
 interface Props {

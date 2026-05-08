@@ -7,12 +7,12 @@ import { api } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Lead } from '../../types';
 import CustomFilter from '../ui/CustomFilter';
-import DatePicker from '../ui/date-picker';
+import DatePicker from '../ui/DatePicker';
 import BulkActionBar, { type BulkEditFields } from './bulk-action-bar';
 import LeadDetailModal from './lead-detail-modal';
 import LeadLogDialog from './lead-log-dialog';
-import { TableRowActions } from '../ui/table-row-actions';
-import { TableShell } from '../ui/table-shell';
+import { TableRowActions } from '../ui/TableRowActions';
+import { TableShell } from '../ui/TableShell';
 import { getTableContract } from '../ui/table-contract';
 import { formatTableDateTime } from '../ui/table-date-format';
 

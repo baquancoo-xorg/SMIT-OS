@@ -1,9 +1,9 @@
-import DatePicker from '../ui/date-picker';
+import DatePicker from '../ui/DatePicker';
 import { useState, useEffect } from 'react';
 import { Trash2, Save, Edit2, X } from 'lucide-react';
 import { Sprint } from '../../types';
 import { Input, Button } from '../ui';
-import { TableShell } from '../ui/table-shell';
+import { TableShell } from '../ui/TableShell';
 import { getTableContract } from '../ui/table-contract';
 import { formatTableDate } from '../ui/table-date-format';
 

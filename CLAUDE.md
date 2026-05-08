@@ -40,6 +40,23 @@ npm run db:setup     # Setup initial admin user
 postgresql://postgres:password@localhost:5435/smitos_db
 ```
 
+## Cloudflare Tunnel
+
+Domain `qdashboard.smitbox.com` → `localhost:3000` qua launchd daemon `com.cloudflare.cloudflared`. Auto-start on boot, auto-restart on crash.
+
+### Quick commands
+- `npm run tunnel:status` — check daemon PID
+- `npm run tunnel:restart` — restart daemon (sau network change nếu cần)
+- `npm run tunnel:logs` — stream logs
+
+### Setup mới hoặc full reset
+Xem `docs/cloudflare-tunnel-setup.md`.
+
+### Khi 502/521/1033
+1. App `:3000` đang chạy? → `npm run dev`
+2. Tunnel up? → `npm run tunnel:status`
+3. Vẫn fail? → `npm run tunnel:restart` + đợi 30s
+
 ## After Code Changes
 
 Server hot-reload handles restart automatically. If server is not running:

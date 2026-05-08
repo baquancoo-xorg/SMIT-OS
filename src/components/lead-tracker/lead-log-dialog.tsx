@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, UserCircle, FileText } from 'lucide-react';
 import { api } from '../../lib/api';
 import type { Lead } from '../../types';
-import DatePicker from '../ui/date-picker';
+import DatePicker from '../ui/DatePicker';
 import CustomSelect from '../ui/CustomSelect';
 
 const STATUS_OPTIONS = [

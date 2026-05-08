@@ -4,8 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { User } from '../../types';
 import { Input, Button, Card, Badge } from '../ui';
 import CustomSelect from '../ui/CustomSelect';
-import { TableRowActions } from '../ui/table-row-actions';
-import { TableShell } from '../ui/table-shell';
+import { TableRowActions } from '../ui/TableRowActions';
+import { TableShell } from '../ui/TableShell';
 import { getTableContract } from '../ui/table-contract';
 
 const ALL_DEPARTMENTS = ['BOD', 'Tech', 'Marketing', 'Media', 'Sale'];

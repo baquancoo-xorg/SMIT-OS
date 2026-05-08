@@ -1,4 +1,4 @@
-import DatePicker from '../ui/date-picker';
+import DatePicker from '../ui/DatePicker';
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, AlertCircle, TrendingUp, Calendar, Target, CheckCircle2, Briefcase } from 'lucide-react';
 import { Objective, KeyResult } from '../../types';
@@ -7,7 +7,7 @@ import { motion } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
 import CustomSelect from '../ui/CustomSelect';
 import AdHocTasksSection from '../daily-report/components/AdHocTasksSection';
-import { TableShell } from '../ui/table-shell';
+import { TableShell } from '../ui/TableShell';
 import { getTableContract } from '../ui/table-contract';
 
 interface WeeklyCheckinModalProps {

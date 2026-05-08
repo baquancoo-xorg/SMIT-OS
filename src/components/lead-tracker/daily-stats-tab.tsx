@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import type { LeadDailyStat } from '../../types';
-import { TableShell } from '../ui/table-shell';
+import { TableShell } from '../ui/TableShell';
 import { getTableContract } from '../ui/table-contract';
 import { formatTableDate } from '../ui/table-date-format';
 

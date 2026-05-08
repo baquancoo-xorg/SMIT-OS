@@ -8,8 +8,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
-import { TableRowActions } from '../ui/table-row-actions';
-import { TableShell } from '../ui/table-shell';
+import { TableRowActions } from '../ui/TableRowActions';
+import { TableShell } from '../ui/TableShell';
 import { getTableContract } from '../ui/table-contract';
 import { formatTableDate } from '../ui/table-date-format';
 

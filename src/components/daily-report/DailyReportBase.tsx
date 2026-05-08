@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Send, History, AlertOctagon, Target } from 'lucide-react';
-import DatePicker from '../ui/date-picker';
+import DatePicker from '../ui/DatePicker';
 import { TeamType } from '../../types/daily-report-metrics';
 import { getTeamColors, getTeamDisplayName } from '../../utils/team-detection';
 

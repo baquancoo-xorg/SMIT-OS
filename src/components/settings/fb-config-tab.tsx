@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { RefreshCw, Save, X } from 'lucide-react';
 import { Input, Button, Card, Badge } from '../ui';
-import { TableRowActions } from '../ui/table-row-actions';
-import { TableShell } from '../ui/table-shell';
+import { TableRowActions } from '../ui/TableRowActions';
+import { TableShell } from '../ui/TableShell';
 import { getTableContract } from '../ui/table-contract';
 import { formatTableDateTime } from '../ui/table-date-format';
 

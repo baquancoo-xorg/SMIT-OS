@@ -2,7 +2,7 @@ import React from 'react';
 import { X, CheckCircle } from 'lucide-react';
 import { WeeklyReport } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
-import { TableShell } from '../ui/table-shell';
+import { TableShell } from '../ui/TableShell';
 import { getTableContract } from '../ui/table-contract';
 import { formatTableDate } from '../ui/table-date-format';
 

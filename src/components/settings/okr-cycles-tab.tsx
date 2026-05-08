@@ -1,12 +1,12 @@
-import DatePicker from '../ui/date-picker';
+import DatePicker from '../ui/DatePicker';
 import { useState, useEffect } from 'react';
 import { Save, X } from 'lucide-react';
 import { OkrCycle } from '../../types';
 import { Input, Button } from '../ui';
-import { TableShell } from '../ui/table-shell';
+import { TableShell } from '../ui/TableShell';
 import { getTableContract } from '../ui/table-contract';
 import { formatTableDate } from '../ui/table-date-format';
-import { TableRowActions } from '../ui/table-row-actions';
+import { TableRowActions } from '../ui/TableRowActions';
 
 interface OkrCyclesTabProps {
   onDeleteConfirm: (type: 'cycle', id: string) => void;

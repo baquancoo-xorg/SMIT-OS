@@ -1,7 +1,7 @@
 import { Plus, Trash2, Briefcase, Clock } from 'lucide-react';
 import { AdHocTask } from '../../../types/daily-report-metrics';
 import CustomSelect, { SelectOption } from '../../ui/CustomSelect';
-import { TableShell } from '../../ui/table-shell';
+import { TableShell } from '../../ui/TableShell';
 import { getTableContract } from '../../ui/table-contract';
 
 interface AdHocTasksSectionProps {

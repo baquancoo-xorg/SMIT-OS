@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Calendar, CheckCircle, X, Download, AlertTriangle, Target, ListChecks, Zap, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { TableRowActions } from '../components/ui/table-row-actions';
+import { TableRowActions } from '../components/ui/TableRowActions';
 import { DailyReport, WorkItem, DailyReportTasksData } from '../types';
 import { BlockerEntry, TodayPlanEntry, TaskEntry, AdHocTask } from '../types/daily-report-metrics';
 import TeamFormSelector from '../components/daily-report/TeamFormSelector';
@@ -14,7 +14,7 @@ import {
 } from '../utils/export-daily-report';
 import { Card } from '../components/ui';
 import PrimaryActionButton from '../components/ui/PrimaryActionButton';
-import { TableShell } from '../components/ui/table-shell';
+import { TableShell } from '../components/ui/TableShell';
 import { getTableContract } from '../components/ui/table-contract';
 import { formatTableDate, formatTableDateTime } from '../components/ui/table-date-format';
 

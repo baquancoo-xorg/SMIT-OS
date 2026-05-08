@@ -1,7 +1,7 @@
 import React from 'react';
 import { WeeklyReport, Sprint } from '../../types';
-import { TableRowActions } from '../ui/table-row-actions';
-import { TableShell } from '../ui/table-shell';
+import { TableRowActions } from '../ui/TableRowActions';
+import { TableShell } from '../ui/TableShell';
 import { getTableContract } from '../ui/table-contract';
 import { formatTableDate } from '../ui/table-date-format';
 

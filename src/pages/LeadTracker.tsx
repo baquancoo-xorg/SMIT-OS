@@ -4,7 +4,7 @@ import { List, BarChart2, Download } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import LeadLogsTab from '../components/lead-tracker/lead-logs-tab';
 import DailyStatsTab from '../components/lead-tracker/daily-stats-tab';
-import DatePicker from '../components/ui/date-picker';
+import DatePicker from '../components/ui/DatePicker';
 import { exportAllLeadsToCsv } from '../components/lead-tracker/csv-export';
 import SyncFromCrmButton from '../components/lead-tracker/sync-from-crm-button';
 import LastSyncIndicator from '../components/lead-tracker/last-sync-indicator';
