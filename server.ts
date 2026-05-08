@@ -69,10 +69,19 @@ app.use(cors({
     }
   }
 }));
+const isDev = process.env.NODE_ENV !== 'production';
 app.use(helmet({
   contentSecurityPolicy: {
     useDefaults: true,
-    reportOnly: true,
+    directives: {
+      'default-src': ["'self'"],
+      'script-src': ["'self'", "'unsafe-inline'"],
+      'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      'font-src': ["'self'", 'https://fonts.gstatic.com', 'data:'],
+      'img-src': ["'self'", 'data:', 'https:'],
+      'connect-src': ["'self'", ...(isDev ? ['ws://localhost:*', 'http://localhost:*'] : [])],
+    },
+    reportOnly: isDev,
   },
 }));
 app.use(express.json({ limit: '2mb' }));
