@@ -24,7 +24,7 @@ export default function Sidebar({ onLogout, onNavigate }: SidebarProps) {
       <nav className="flex-1 space-y-4 overflow-y-auto overflow-x-visible custom-scrollbar px-1">
         <div className="space-y-2">
           <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Analytics</p>
-          <NavItem icon="monitoring" label="Dashboard" to="/ads-overview" onNavigate={onNavigate} />
+          <NavItem icon="monitoring" label="Dashboard" to="/dashboard" onNavigate={onNavigate} />
         </div>
 
         <div className="space-y-2">

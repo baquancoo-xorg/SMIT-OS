@@ -44,15 +44,15 @@ function AppContent() {
     <AppLayout onLogout={logout}>
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          <Route path="/" element={<Navigate to="/ads-overview" replace />} />
-          <Route path="/ads-overview" element={<DashboardOverview />} />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<DashboardOverview />} />
           <Route path="/okrs" element={<OKRsManagement />} />
           <Route path="/daily-sync" element={<DailySync />} />
           <Route path="/checkin" element={<WeeklyCheckin />} />
           <Route path="/lead-tracker" element={<LeadTracker />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="*" element={<Navigate to="/ads-overview" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Suspense>
     </AppLayout>

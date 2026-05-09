@@ -9,7 +9,7 @@ interface AppLayoutProps {
   onLogout: () => void;
 }
 
-const SCROLLABLE_PATHS = new Set(['/okrs', '/settings', '/profile', '/checkin', '/daily-sync', '/ads-overview', '/lead-tracker']);
+const SCROLLABLE_PATHS = new Set(['/okrs', '/settings', '/profile', '/checkin', '/daily-sync', '/dashboard', '/lead-tracker']);
 
 export default function AppLayout({ children, onLogout }: AppLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
