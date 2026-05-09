@@ -159,6 +159,30 @@ Configured in `server.ts` (hardened 2026-04-28):
 
 `server/services/lead-sync/crm-lead-sync.service.ts` pre-fetches all existing leads for a sync batch with a single `prisma.lead.findMany({ where: { crmSubscriberId: { in: batchIds } } })` before the processing loop, then uses an in-memory `Map` for O(1) lookups. This replaces the previous O(n) per-lead `findUnique` pattern.
 
+## Notification System & Alerts
+
+**Active notification types (as of v2.3.1):**
+
+| Type | Trigger | Recipients | Service Method |
+|------|---------|-----------|-----------------|
+| `report_approved` | Weekly report approved by lead | Report owner | (built-in) |
+| `daily_new` | Daily report submitted | Leaders + admins | `notifyDailyNew()` |
+| `daily_late` | Daily report due but not submitted (10:30 ICT) | Leaders + admins (by team) | `notifyDailyLate()` |
+| `weekly_late` | Weekly report due but not submitted (09:00 ICT Monday) | Leaders + admins (by team) | `notifyWeeklyLate()` |
+
+**Deduplication:** `Notification` model uses `@@unique([userId, type, entityType, entityId])` constraint + atomic `createMany({skipDuplicates:true})` to prevent duplicate notifications in a single check run.
+
+**Alert crons** (all timezone: `Asia/Ho_Chi_Minh`, configured in `server/jobs/alert-scheduler.ts`):
+
+| Cron | Schedule | Handler | Purpose |
+|------|----------|---------|---------|
+| `30 10 * * 1-5` | Mon–Fri 10:30 ICT | `checkDailyLate()` | Find teams with unpublished daily reports, notify leaders |
+| `0 9 * * 1` | Monday 09:00 ICT | `checkWeeklyLate()` | Find teams with unpublished weekly reports, notify leaders |
+
+**Daily report flow:** POST `/api/daily-reports` fans out `daily_new` notifications to leaders + admins (excluding submitter). Notification service failures are caught and logged; they never block the report creation response.
+
+**Dropped (v2.3.0–v2.3.1):** OKR risk monitoring (`checkOKRRisks` cron + handler), sheets-export failure alerts (`notifyFailure`), deadline + sprint watchers (`notifyDeadlineWarning`, `notifySprintEnding`).
+
 ## API Conventions
 
 - All routes prefixed `/api/`
@@ -170,7 +194,7 @@ Configured in `server.ts` (hardened 2026-04-28):
 
 ### Route Map (as of 2026-05-10)
 
-Final routes: `/`, `/ads-overview` (landing), `/okrs`, `/daily-sync`, `/checkin`, `/lead-tracker`, `/settings`, `/profile`. Wildcard routes redirect to `/ads-overview`.
+Final routes: `/`, `/dashboard` (landing), `/okrs`, `/daily-sync`, `/checkin`, `/lead-tracker`, `/settings`, `/profile`. Wildcard routes redirect to `/dashboard` (changed from `/ads-overview` in v2.3.1).
 
 **Dropped pages (2026-05-10 slim-down):** PMDashboard, TechBoard, ProductBacklog, MarketingBoard, MediaBoard, SaleBoard, SprintBoard, EpicBoard, EpicGraph.
 

@@ -1,5 +1,33 @@
 # Project Changelog
 
+## [v2.3.1] - 2026-05-10
+
+### URL Rename + Notification Overhaul + Topbar Enrich
+
+**URL routing:**
+- `/ads-overview` → `/dashboard` (hard cut, no legacy redirect)
+- Wildcard routes now redirect to `/dashboard` instead of `/ads-overview`
+
+**Notification refactor:**
+- Truncated legacy Notification table (154 rows removed)
+- **Dropped:** notifyFailure (sheets-export-failed alerts), entire OKR risk monitoring cron (`checkOKRRisks` handler + cron job), legacy types `notifyDeadlineWarning`, `notifySprintEnding`
+- **Active types (4):** `report_approved` (kept), `daily_new`, `daily_late`, `weekly_late`
+- **New service methods:** `notifyDailyNew`, `notifyDailyLate`, `notifyWeeklyLate`, `findLeadersAndAdminsFor` in `notification.service.ts`
+- **Schema:** Added `@@unique([userId, type, entityType, entityId])` dedup constraint + new index on `(type, entityType, entityId)` to Notification model. Migrated with `prisma db push --accept-data-loss` (safe: table emptied before migration)
+- **Dedup mechanism:** Atomic `createMany({skipDuplicates:true})` replaces prior TOCTOU pattern, eliminating race conditions
+- **Alert crons (2, timezone Asia/Ho_Chi_Minh):**
+  - `30 10 * * 1-5` (Mon–Fri 10:30 ICT) → `checkDailyLate` handler
+  - `0 9 * * 1` (Monday 09:00 ICT) → `checkWeeklyLate` handler
+- **Daily report creation:** POST `/api/daily-reports` now fans out `daily_new` notifications to leaders + admins (excluding submitter); wrapped try/catch prevents notification failure from blocking report creation
+- **Frontend:** NotificationCenter icon map + click routing updated for 4 types (directs to `/daily-sync` or `/checkin` based on entityType)
+
+**Topbar enhancements:**
+- New `use-active-okr-cycle.ts` hook (React Query, GET `/api/okr-cycles/active`, staleTime 1h) computes `daysLeft` + color band (green >30d, amber 7–30d, red <7d)
+- New `OkrCycleCountdown.tsx` component: pill widget in header, hidden on mobile/loading/error, click routes to `/okrs`
+- Header.tsx refactored: ROUTE_BREADCRUMBS map (7 routes) with resolveBreadcrumb fallback, integrated OkrCycleCountdown + NotificationCenter
+
+**QA:** typecheck + build pass, hot-reload verified, dedup smoke test (2× run = same row count), `/dashboard` 200 OK
+
 ## [v2.3.0] - 2026-05-10
 
 ### Major Slim-Down Refactor
@@ -12,7 +40,8 @@ Architecture streamlined from 10 pages + 4 Prisma models + sprint-oriented board
 - 2 backend routes: `/api/work-items`, `/api/sprints`
 - Settings "Sprints" tab, daily-report folder (12 team-specific form files), board task components (TaskCard, TaskModal, TaskTableView, EpicCard, etc.)
 - 3 sheets-export extractors: planning, workspace, analytics-dashboard
-- 2 notification services: notifyDeadlineWarning, notifySprintEnding
+- 3 notification handlers: `notifyDeadlineWarning`, `notifySprintEnding`, `notifyFailure` (removed in v2.3.1)
+- OKR risk monitoring: dropped `checkOKRRisks` cron job (removed in v2.3.1)
 - src/components/sprint/, src/components/work-item/, SprintContextWidget, SprintContext
 
 **Schema changes:**
@@ -21,17 +50,14 @@ Architecture streamlined from 10 pages + 4 Prisma models + sprint-oriented board
 - `WeeklyReport`: repurposed for Wodtke 5-block JSON: `krProgress`, `progress`, `plans`, `blockers`; dropped score, confidenceScore, adHocTasks
 - `User`: added `ownedKRs` relation
 
-**Route changes:**
-- `/` → redirects to `/ads-overview` (no PMDashboard landing)
+**Route changes (superseded by v2.3.1):**
+- `/` → redirects to `/ads-overview` (changed to `/dashboard` in v2.3.1)
 - `/sync` → renamed to `/checkin`
-- `/tech`, `/backlog`, `/mkt`, `/media`, `/sale`, `/sprint` → 404 (wildcard redirects to `/ads-overview`)
-- Final routes: `/ads-overview`, `/okrs`, `/daily-sync`, `/checkin`, `/lead-tracker`, `/settings`, `/profile`
+- `/tech`, `/backlog`, `/mkt`, `/media`, `/sale`, `/sprint` → 404 (wildcard redirects to `/ads-overview`, changed to `/dashboard` in v2.3.1)
 
 **Backend routes (final 19):** auth, user, objective, key-result (now supports `?ownerId=`), okr-cycle, daily-report, report, notification, lead, lead-sync, google-oauth, sheets-export, dashboard-overview, dashboard-product, dashboard-call-performance, dashboard-lead-distribution, dashboard-lead-flow, admin-fb-config, fb-sync
 
 **Active models (15):** Lead, LeadAuditLog, OkrCycle, FbAdAccountConfig, RawAdsFacebook, ExchangeRateSetting, EtlErrorLog, GoogleIntegration, SheetsExportRun, LeadSyncRun, LeadStatusMapping, User, Notification, Objective, KeyResult, DailyReport, WeeklyReport
-
-**Notification service changes:** Dropped deadline/sprint watchers. Added notifyDailyReportApproved. alert-scheduler now only checks OKR risks.
 
 **Settings tabs (final 5):** profile, users, okrs, fb-config, export
 
