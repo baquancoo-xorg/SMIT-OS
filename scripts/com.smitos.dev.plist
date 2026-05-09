@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.smitos.dev</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/dominium/Documents/Project/SMIT-OS/scripts/start-dev-daemon.sh</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/dominium/Documents/Project/SMIT-OS</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- Restart only when the wrapper exits non-zero (crash / DB-wait timeout).
+         Manual `launchctl bootout` exits cleanly and will NOT respawn. -->
+    <key>KeepAlive</key>
+    <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+    </dict>
+
+    <!-- Wait at least 30s between spawns so failed retries do not spam launchd. -->
+    <key>ThrottleInterval</key>
+    <integer>30</integer>
+
+    <key>StandardOutPath</key>
+    <string>/Users/dominium/Library/Logs/smit-os-dev.out.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/dominium/Library/Logs/smit-os-dev.err.log</string>
+
+    <!-- launchd context lacks user PATH; declare it explicitly so node/npm are found. -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+        <key>NODE_ENV</key>
+        <string>development</string>
+    </dict>
+</dict>
+</plist>

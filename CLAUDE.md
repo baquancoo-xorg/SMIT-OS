@@ -7,6 +7,10 @@
 - **Database:** localhost:5435 (PostgreSQL via Docker)
 
 ### Start Development
+
+Dev server tự chạy qua LaunchAgent `com.smitos.dev` sau khi login (xem `docs/dev-daemon-setup.md`). User chỉ cần bật **Docker Desktop** (đã set auto-start) và **Tailscale**.
+
+Manual chỉ khi debug hoặc daemon đã uninstall:
 ```bash
 # Start DB container first (if not running)
 docker-compose up -d
@@ -14,6 +18,13 @@ docker-compose up -d
 # Start dev server with hot-reload
 npm run dev
 ```
+
+### Daemon commands
+- `npm run daemon:status` — kiểm tra state + pid
+- `npm run daemon:logs` — tail log (`~/Library/Logs/smit-os-dev.{out,err}.log`)
+- `npm run daemon:restart` — restart sau khi sửa script
+- `npm run daemon:install` / `npm run daemon:uninstall` — cài / gỡ
+- Setup chi tiết: `docs/dev-daemon-setup.md`
 
 ### Hot-Reload Behavior
 - Server uses `tsx watch` with ignore patterns (logs, dist, node_modules, .claude)
