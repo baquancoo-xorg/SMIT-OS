@@ -2,16 +2,35 @@ import { useEffect, useRef, useState } from 'react';
 import { Bell, CheckCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatDistanceToNow } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../../hooks/use-notifications';
 
 const ICONS: Record<string, string> = {
   report_approved: '✓',
-  okr_risk: '📊',
+  daily_new: '🆕',
+  daily_late: '⏰',
+  weekly_late: '📅',
 };
+
+type NotificationItem = {
+  id: string;
+  type: string;
+  entityType?: string | null;
+};
+
+function routeForNotification(noti: NotificationItem): string | null {
+  if (noti.type === 'daily_new' || noti.type === 'daily_late') return '/daily-sync';
+  if (noti.type === 'weekly_late') return '/checkin';
+  if (noti.type === 'report_approved') {
+    return noti.entityType === 'WeeklyReport' ? '/checkin' : '/daily-sync';
+  }
+  return null;
+}
 
 export default function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   useEffect(() => {
@@ -69,7 +88,14 @@ export default function NotificationCenter() {
                 notifications.map(n => (
                   <div
                     key={n.id}
-                    onClick={() => !n.isRead && markAsRead(n.id)}
+                    onClick={() => {
+                      if (!n.isRead) markAsRead(n.id);
+                      const target = routeForNotification(n);
+                      if (target) {
+                        setIsOpen(false);
+                        navigate(target);
+                      }
+                    }}
                     className={`p-4 border-t border-slate-50 cursor-pointer hover:bg-slate-50 transition-colors ${!n.isRead ? 'bg-primary/5' : ''}`}
                   >
                     <div className="flex gap-3">

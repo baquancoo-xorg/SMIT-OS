@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 interface CreateNotificationInput {
   userId: string;
@@ -11,6 +11,8 @@ interface CreateNotificationInput {
   expiresAt?: Date;
 }
 
+type RecipientUser = { id: string; departments: string[] };
+
 export function createNotificationService(prisma: PrismaClient) {
   const testNotificationFilter = {
     OR: [
@@ -20,7 +22,33 @@ export function createNotificationService(prisma: PrismaClient) {
     ],
   };
 
+  // Returns leader/admin user ids whose dept overlaps targetUser.
+  // If excludeSelf, drop targetUser.id from the result.
+  async function findLeadersAndAdminsFor(
+    targetUser: RecipientUser,
+    opts?: { excludeSelf?: boolean }
+  ): Promise<string[]> {
+    const where: Prisma.UserWhereInput = {
+      OR: [
+        { isAdmin: true },
+        {
+          role: { contains: 'Leader' },
+          departments: targetUser.departments?.length
+            ? { hasSome: targetUser.departments }
+            : undefined,
+        },
+      ],
+    };
+    if (opts?.excludeSelf) {
+      where.NOT = { id: targetUser.id };
+    }
+    const users = await prisma.user.findMany({ where, select: { id: true } });
+    return Array.from(new Set(users.map(u => u.id)));
+  }
+
   return {
+    findLeadersAndAdminsFor,
+
     async create(data: CreateNotificationInput) {
       return prisma.notification.create({ data });
     },
@@ -89,6 +117,73 @@ export function createNotificationService(prisma: PrismaClient) {
         message: `Your daily report was approved by ${approverName}`,
         entityType: 'DailyReport',
         entityId: report.id,
+      });
+    },
+
+    // New: emit when a Member submits a daily report.
+    // Recipients = leaders of same dept + admins (excluding submitter).
+    async notifyDailyNew(
+      report: { id: string; userId: string },
+      submitterName: string,
+      recipientIds: string[]
+    ) {
+      if (!recipientIds.length) return;
+      await prisma.notification.createMany({
+        data: recipientIds.map(userId => ({
+          userId,
+          type: 'daily_new',
+          title: 'New Daily Report',
+          message: `${submitterName} just submitted a daily report`,
+          entityType: 'DailyReport',
+          entityId: report.id,
+        })),
+      });
+    },
+
+    // New: emit when a Member is late on daily sync.
+    // Dedup via Notification @@unique(userId,type,entityType,entityId) + skipDuplicates.
+    // Idempotent: re-running on same day = 0 new rows.
+    async notifyDailyLate(
+      lateUser: { id: string; fullName: string },
+      dateISO: string,
+      recipientIds: string[]
+    ) {
+      if (!recipientIds.length) return;
+      const dedupKey = `${lateUser.id}:${dateISO}`;
+      await prisma.notification.createMany({
+        data: recipientIds.map(userId => ({
+          userId,
+          type: 'daily_late',
+          title: 'Daily Sync Missing',
+          message: `${lateUser.fullName} hasn't submitted today's daily report`,
+          entityType: 'DailyLateMarker',
+          entityId: dedupKey,
+          priority: 'high',
+        })),
+        skipDuplicates: true,
+      });
+    },
+
+    // New: emit when a Member is late on weekly check-in.
+    // Dedup key = `${lateUserId}:${weekEndingISO}` (a Friday in ICT) stored in entityId.
+    async notifyWeeklyLate(
+      lateUser: { id: string; fullName: string },
+      weekEndingISO: string,
+      recipientIds: string[]
+    ) {
+      if (!recipientIds.length) return;
+      const dedupKey = `${lateUser.id}:${weekEndingISO}`;
+      await prisma.notification.createMany({
+        data: recipientIds.map(userId => ({
+          userId,
+          type: 'weekly_late',
+          title: 'Weekly Check-in Missing',
+          message: `${lateUser.fullName} hasn't submitted last week's check-in (ending ${weekEndingISO})`,
+          entityType: 'WeeklyLateMarker',
+          entityId: dedupKey,
+          priority: 'high',
+        })),
+        skipDuplicates: true,
       });
     },
   };

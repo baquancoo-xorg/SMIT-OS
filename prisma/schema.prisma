@@ -39,10 +39,10 @@ model Notification {
   id         String    @id @default(uuid())
   userId     String
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type       String // report_approved, deadline_warning, okr_risk, mention, assignment
+  type       String // report_approved, daily_new, daily_late, weekly_late
   title      String
   message    String
-  entityType String? // WeeklyReport, DailyReport, Objective, Lead
+  entityType String? // WeeklyReport, DailyReport, DailyLateMarker, WeeklyLateMarker
   entityId   String?
   isRead     Boolean   @default(false)
   readAt     DateTime?
@@ -50,8 +50,10 @@ model Notification {
   createdAt  DateTime  @default(now())
   expiresAt  DateTime?
 
+  @@unique([userId, type, entityType, entityId], name: "notification_dedup")
   @@index([userId, isRead])
   @@index([userId, createdAt])
+  @@index([type, entityType, entityId])
 }
 
 model Objective {

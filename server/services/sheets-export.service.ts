@@ -147,8 +147,6 @@ export class SheetsExportService {
     this.currentJob.completedAt = new Date();
     this.currentJob.error = lastError?.message;
 
-    await this.notifyFailure(lastError?.message || 'Unknown error');
-
     return { success: false, error: lastError?.message, sheetsCreated: 0, exportDate };
   }
 
@@ -187,25 +185,6 @@ export class SheetsExportService {
     await client.deleteDefaultSheet(spreadsheetId);
 
     return { success: true, spreadsheetId, spreadsheetUrl: url, sheetsCreated };
-  }
-
-  private async notifyFailure(error: string): Promise<void> {
-    const admins = await this.prisma.user.findMany({
-      where: { isAdmin: true },
-      select: { id: true },
-    });
-
-    if (admins.length > 0) {
-      await this.prisma.notification.createMany({
-        data: admins.map(admin => ({
-          userId: admin.id,
-          type: 'export_failed',
-          title: 'Google Sheets Export Failed',
-          message: `Export failed after ${MAX_RETRIES} retries: ${error}`,
-          priority: 'high',
-        })),
-      });
-    }
   }
 
   private delay(ms: number): Promise<void> {

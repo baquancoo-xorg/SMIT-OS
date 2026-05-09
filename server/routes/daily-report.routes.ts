@@ -6,6 +6,9 @@ import { validate } from '../middleware/validate.middleware';
 import { createDailyReportSchema } from '../schemas/report.schema';
 import { createOwnershipMiddleware } from '../middleware/ownership.middleware';
 import { createNotificationService } from '../services/notification.service';
+import { childLogger } from '../lib/logger';
+
+const log = childLogger('daily-report');
 
 export function createDailyReportRoutes(prisma: PrismaClient) {
   const router = Router();
@@ -68,6 +71,22 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
         },
         include: { user: true },
       });
+
+      // Fanout notification to leaders + admins (excluding submitter).
+      // Skip silently if no recipients (e.g. solo admin org).
+      try {
+        const recipientIds = await notificationService.findLeadersAndAdminsFor(
+          { id: userId, departments: report.user.departments ?? [] },
+          { excludeSelf: true }
+        );
+        if (recipientIds.length > 0) {
+          await notificationService.notifyDailyNew(report, report.user.fullName, recipientIds);
+        }
+      } catch (notifyErr) {
+        // Notification failure must not block the create response.
+        log.error({ err: notifyErr, userId, reportId: report.id }, 'notifyDailyNew failed');
+      }
+
       res.json(report);
     } catch (err: any) {
       if (err.code === 'P2002') {
