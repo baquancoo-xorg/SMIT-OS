@@ -45,9 +45,10 @@ postgresql://postgres:password@localhost:5435/smitos_db
 Domain `qdashboard.smitbox.com` → `localhost:3000` qua launchd daemon `com.cloudflare.cloudflared`. Auto-start on boot, auto-restart on crash.
 
 ### Quick commands
-- `npm run tunnel:status` — check daemon PID
+- `npm run tunnel:status` — check daemon load state
 - `npm run tunnel:restart` — restart daemon (sau network change nếu cần)
 - `npm run tunnel:logs` — stream logs
+- `npm run tunnel:start` / `npm run tunnel:stop` — bootstrap / bootout
 
 ### Setup mới hoặc full reset
 Xem `docs/cloudflare-tunnel-setup.md`.
@@ -56,6 +57,7 @@ Xem `docs/cloudflare-tunnel-setup.md`.
 1. App `:3000` đang chạy? → `npm run dev`
 2. Tunnel up? → `npm run tunnel:status`
 3. Vẫn fail? → `npm run tunnel:restart` + đợi 30s
+4. Counter `total_requests` = 0 (xem metrics `127.0.0.1:20241`) → vấn đề Dashboard, xem docs
 
 ## After Code Changes
 
