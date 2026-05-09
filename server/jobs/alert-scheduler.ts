@@ -5,68 +5,6 @@ import { childLogger } from '../lib/logger';
 
 const log = childLogger('alert-scheduler');
 
-async function checkDeadlines(prisma: PrismaClient, notificationService: NotificationService) {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
-
-  const dayAfter = new Date(tomorrow);
-  dayAfter.setDate(dayAfter.getDate() + 1);
-
-  const dueTomorrow = await prisma.workItem.findMany({
-    where: {
-      dueDate: { gte: tomorrow, lt: dayAfter },
-      status: { not: 'Done' },
-      assigneeId: { not: null },
-    },
-  });
-
-  const deadlineNotifications = dueTomorrow
-    .filter(item => item.assigneeId)
-    .map(item => ({
-      userId: item.assigneeId!,
-      type: 'deadline_warning',
-      title: 'Deadline Approaching',
-      message: `"${item.title}" is due tomorrow`,
-      entityType: 'WorkItem',
-      entityId: item.id,
-      priority: 'high' as const,
-    }));
-
-  if (deadlineNotifications.length > 0) {
-    await prisma.notification.createMany({ data: deadlineNotifications });
-  }
-
-  log.info({ count: deadlineNotifications.length }, 'sent deadline warnings');
-}
-
-async function checkSprintEndings(prisma: PrismaClient, notificationService: NotificationService) {
-  const twoDaysFromNow = new Date();
-  twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2);
-  twoDaysFromNow.setHours(0, 0, 0, 0);
-
-  const dayAfter = new Date(twoDaysFromNow);
-  dayAfter.setDate(dayAfter.getDate() + 1);
-
-  const endingSprints = await prisma.sprint.findMany({
-    where: {
-      endDate: { gte: twoDaysFromNow, lt: dayAfter },
-    },
-    include: {
-      workItems: { select: { assigneeId: true }, where: { assigneeId: { not: null } } },
-    },
-  });
-
-  for (const sprint of endingSprints) {
-    const userIds = [...new Set(sprint.workItems.map(w => w.assigneeId!))];
-    if (userIds.length > 0) {
-      await notificationService.notifySprintEnding(sprint, userIds, 2);
-    }
-  }
-
-  log.info({ count: endingSprints.length }, 'notified ending sprints');
-}
-
 async function checkOKRRisks(prisma: PrismaClient, notificationService: NotificationService) {
   const activeCycle = await prisma.okrCycle.findFirst({ where: { isActive: true } });
   if (!activeCycle) return;
@@ -107,8 +45,6 @@ export function initAlertScheduler(prisma: PrismaClient, notificationService: No
   cron.schedule('0 8 * * *', async () => {
     log.info('running daily checks');
     try {
-      await checkDeadlines(prisma, notificationService);
-      await checkSprintEndings(prisma, notificationService);
       await checkOKRRisks(prisma, notificationService);
     } catch (error) {
       log.error({ err: error }, 'error during daily checks');

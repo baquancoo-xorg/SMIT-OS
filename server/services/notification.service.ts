@@ -81,26 +81,14 @@ export function createNotificationService(prisma: PrismaClient) {
       });
     },
 
-    async notifyDeadlineWarning(workItem: any) {
-      if (!workItem.assigneeId) return;
+    async notifyDailyReportApproved(report: any, approverName: string) {
       return this.create({
-        userId: workItem.assigneeId,
-        type: 'deadline_warning',
-        title: 'Deadline Approaching',
-        message: `"${workItem.title}" is due tomorrow`,
-        entityType: 'WorkItem',
-        entityId: workItem.id,
-        priority: 'high',
-      });
-    },
-
-    async notifySprintEnding(sprint: any, userIds: string[], daysLeft: number) {
-      return this.createMany(userIds, {
-        type: 'sprint_ending',
-        title: 'Sprint Ending Soon',
-        message: `${sprint.name} ends in ${daysLeft} day${daysLeft > 1 ? 's' : ''}`,
-        entityType: 'Sprint',
-        entityId: sprint.id,
+        userId: report.userId,
+        type: 'report_approved',
+        title: 'Daily Report Approved',
+        message: `Your daily report was approved by ${approverName}`,
+        entityType: 'DailyReport',
+        entityId: report.id,
       });
     },
   };

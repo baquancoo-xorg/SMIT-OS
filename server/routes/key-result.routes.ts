@@ -10,9 +10,19 @@ export function createKeyResultRoutes(prisma: PrismaClient) {
   const router = Router();
   const okrService = createOKRService(prisma);
 
-  router.get('/', handleAsync(async (_req: any, res: any) => {
+  router.get('/', handleAsync(async (req: any, res: any) => {
+    const { ownerId } = req.query;
+    const where: any = {};
+    if (typeof ownerId === 'string' && ownerId) {
+      where.ownerId = ownerId;
+    }
+
     const keyResults = await prisma.keyResult.findMany({
-      include: { objective: true },
+      where,
+      include: {
+        objective: true,
+        owner: { select: { id: true, fullName: true, avatar: true } },
+      },
     });
     res.json(keyResults);
   }));
@@ -20,7 +30,7 @@ export function createKeyResultRoutes(prisma: PrismaClient) {
   router.post('/', RBAC.leaderOrAdmin, validate(createKeyResultSchema), handleAsync(async (req: any, res: any) => {
     const keyResult = await prisma.keyResult.create({
       data: req.body,
-      include: { objective: true },
+      include: { objective: true, owner: { select: { id: true, fullName: true, avatar: true } } },
     });
     res.json(keyResult);
   }));
@@ -29,7 +39,7 @@ export function createKeyResultRoutes(prisma: PrismaClient) {
     const keyResult = await prisma.keyResult.update({
       where: { id: req.params.id },
       data: req.body,
-      include: { objective: true },
+      include: { objective: true, owner: { select: { id: true, fullName: true, avatar: true } } },
     });
     await okrService.recalculateObjectiveProgress();
     res.json(keyResult);

@@ -5,10 +5,12 @@ import { handleAsync } from '../utils/async-handler';
 import { validate } from '../middleware/validate.middleware';
 import { createDailyReportSchema } from '../schemas/report.schema';
 import { createOwnershipMiddleware } from '../middleware/ownership.middleware';
+import { createNotificationService } from '../services/notification.service';
 
 export function createDailyReportRoutes(prisma: PrismaClient) {
   const router = Router();
   const checkOwnership = createOwnershipMiddleware(prisma);
+  const notificationService = createNotificationService(prisma);
 
   router.get('/', handleAsync(async (req: any, res: any) => {
     const user = req.user;
@@ -17,7 +19,6 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
     if (user.role === 'Member') {
       where.userId = user.userId;
     } else if (user.role?.includes('Leader')) {
-      // Get user's departments from req.user (populated by auth middleware)
       const userDepts = user.departments || [];
       where.OR = [
         { userId: user.userId },
@@ -50,48 +51,25 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
   }));
 
   router.post('/', RBAC.authenticated, validate(createDailyReportSchema), handleAsync(async (req: any, res: any) => {
-    // Force userId from authenticated user - prevent impersonation
     const userId = req.user!.userId;
-    const { reportDate, tasksData, blockers, impactLevel, teamType, teamMetrics, adHocTasks } = req.body;
+    const { reportDate, completedYesterday, doingYesterday, blockers, planToday, rawData } = req.body;
 
     try {
       const report = await prisma.dailyReport.create({
         data: {
           userId,
           reportDate: new Date(reportDate),
-          tasksData: typeof tasksData === 'string' ? tasksData : JSON.stringify(tasksData),
-          blockers,
-          impactLevel,
-          teamType: teamType || null,
-          teamMetrics: teamMetrics || null,
-          adHocTasks: adHocTasks && typeof adHocTasks === 'string' ? adHocTasks : null,
+          completedYesterday: completedYesterday ?? '',
+          doingYesterday: doingYesterday ?? '',
+          blockers: blockers ?? '',
+          planToday: planToday ?? '',
+          rawData: rawData ?? null,
           status: 'Review',
         },
         include: { user: true },
       });
-
-      // FIX: Auto-update WorkItem status for completed tasks
-      try {
-        const parsedTasksData = typeof tasksData === 'string' ? JSON.parse(tasksData) : tasksData;
-        if (parsedTasksData?.completedYesterday?.length > 0) {
-          await prisma.workItem.updateMany({
-            where: {
-              id: { in: parsedTasksData.completedYesterday },
-              status: { not: 'Done' }
-            },
-            data: {
-              status: 'Done',
-              updatedAt: new Date()
-            }
-          });
-        }
-      } catch (parseErr) {
-        console.error('Failed to update WorkItem statuses:', parseErr);
-      }
-
       res.json(report);
     } catch (err: any) {
-      // Handle unique constraint violation (P2002) - duplicate report for same user+date
       if (err.code === 'P2002') {
         return res.status(409).json({ error: 'Report for this date already exists' });
       }
@@ -101,7 +79,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
 
   router.put('/:id', handleAsync(async (req: any, res: any) => {
     const { id } = req.params;
-    const { currentUserId, tasksData, adHocTasks, ...updateData } = req.body;
+    const { completedYesterday, doingYesterday, blockers, planToday, rawData } = req.body;
     const currentUser = req.user;
 
     const report = await prisma.dailyReport.findUnique({
@@ -117,7 +95,6 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
 
     const isOwner = report.userId === currentUser.userId;
     const isAdmin = currentUser.isAdmin;
-    // Leader can only edit reports from same department members
     let isLeaderOfUser = false;
     if (currentUser.role?.includes('Leader') && report.user.role === 'Member') {
       const sharedDepts = report.user.departments?.filter(d => currentUser.departments?.includes(d)) || [];
@@ -131,15 +108,11 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
     const updated = await prisma.dailyReport.update({
       where: { id },
       data: {
-        ...updateData,
-        tasksData: tasksData
-          ? typeof tasksData === 'string'
-            ? tasksData
-            : JSON.stringify(tasksData)
-          : undefined,
-        adHocTasks: adHocTasks !== undefined
-          ? (adHocTasks && typeof adHocTasks === 'string' ? adHocTasks : null)
-          : undefined,
+        ...(completedYesterday !== undefined ? { completedYesterday } : {}),
+        ...(doingYesterday !== undefined ? { doingYesterday } : {}),
+        ...(blockers !== undefined ? { blockers } : {}),
+        ...(planToday !== undefined ? { planToday } : {}),
+        ...(rawData !== undefined ? { rawData } : {}),
         updatedAt: new Date(),
       },
       include: { user: true },
@@ -161,7 +134,6 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
     }
 
     if (!user.isAdmin && user.role?.includes('Leader')) {
-      // Check if leader shares at least one department with the report user
       const sharedDepts = report.user.departments.filter(d => user.departments?.includes(d));
       if (sharedDepts.length === 0 || report.user.role !== 'Member') {
         return res.status(403).json({ error: "Can only approve your team members' reports" });
@@ -177,47 +149,10 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
       },
       include: { user: true },
     });
+
+    await notificationService.notifyDailyReportApproved(updated, user.fullName);
+
     res.json(updated);
-  }));
-
-  // PM Dashboard: Aggregate stats by team
-  router.get('/stats/team-summary', RBAC.leaderOrAdmin, handleAsync(async (req: any, res: any) => {
-    const { startDate, endDate } = req.query;
-    const start = startDate ? new Date(startDate as string) : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const end = endDate ? new Date(endDate as string) : new Date();
-
-    const reports = await prisma.dailyReport.findMany({
-      where: {
-        reportDate: { gte: start, lte: end },
-        teamType: { not: null },
-      },
-      include: { user: { select: { id: true, fullName: true, departments: true } } },
-    });
-
-    const teamStats: Record<string, any> = { tech: { count: 0, blockers: 0, metrics: {} }, marketing: { count: 0, blockers: 0, metrics: {} }, media: { count: 0, blockers: 0, metrics: {} }, sale: { count: 0, blockers: 0, metrics: {} } };
-
-    for (const report of reports) {
-      const team = report.teamType as string;
-      if (!teamStats[team]) continue;
-
-      teamStats[team].count++;
-      if (report.impactLevel === 'high') teamStats[team].blockers++;
-
-      const metrics = report.teamMetrics as any;
-      // Guard against non-array metrics (BUG-011)
-      if (!metrics?.yesterdayTasks || !Array.isArray(metrics.yesterdayTasks)) continue;
-
-      for (const task of metrics.yesterdayTasks) {
-        if (!task.metrics) continue;
-        for (const [key, value] of Object.entries(task.metrics)) {
-          if (typeof value === 'number') {
-            teamStats[team].metrics[key] = (teamStats[team].metrics[key] || 0) + value;
-          }
-        }
-      }
-    }
-
-    res.json({ period: { start, end }, stats: teamStats, totalReports: reports.length });
   }));
 
   router.delete('/:id', checkOwnership('dailyReport'), handleAsync(async (req: any, res: any) => {

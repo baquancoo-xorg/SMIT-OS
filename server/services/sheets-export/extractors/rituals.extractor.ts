@@ -1,4 +1,4 @@
-import { ExtractorContext, Extractor } from './types';
+import { Extractor } from './types';
 import { SheetData } from '../../../types/sheets-export.types';
 
 export const ritualsDailySync: Extractor = async (ctx): Promise<SheetData> => {
@@ -12,34 +12,23 @@ export const ritualsDailySync: Extractor = async (ctx): Promise<SheetData> => {
   });
 
   const headers = [
-    'Created Date', 'Submission Status', 'Reporter', 'Team', 'Status', 'Report Date',
-    'Completed Tasks', 'Completed Metrics', 'Doing Tasks', 'Doing Metrics',
-    'Today Plans', 'Priority Items', 'Blockers', 'Blocker Impact', 'Ad-hoc Tasks'
+    'Created At', 'Reporter', 'Status', 'Report Date',
+    'Completed Yesterday', 'Doing Yesterday', 'Blockers', 'Plan Today',
+    'Approved By', 'Approved At',
   ];
 
-  const rows = reports.map(r => {
-    const tasks = JSON.parse(r.tasksData || '{}');
-    const metrics = r.teamMetrics as Record<string, unknown> || {};
-    const adHoc = r.adHocTasks ? JSON.parse(r.adHocTasks) : [];
-
-    return [
-      r.createdAt.toISOString(),
-      r.status,
-      r.user.fullName,
-      r.teamType || '',
-      r.status,
-      r.reportDate.toISOString().split('T')[0],
-      Array.isArray(tasks.completedYesterday) ? tasks.completedYesterday.join('; ') : '',
-      JSON.stringify(metrics.completed || {}),
-      Array.isArray(tasks.doingYesterday) ? tasks.doingYesterday.join('; ') : '',
-      JSON.stringify(metrics.doing || {}),
-      Array.isArray(tasks.doingToday) ? tasks.doingToday.join('; ') : '',
-      '', // Priority items not in schema
-      r.blockers || '',
-      r.impactLevel || '',
-      Array.isArray(adHoc) ? adHoc.map((t: { name: string }) => t.name).join('; ') : '',
-    ];
-  });
+  const rows = reports.map(r => [
+    r.createdAt.toISOString(),
+    r.user.fullName,
+    r.status,
+    r.reportDate.toISOString().split('T')[0],
+    r.completedYesterday,
+    r.doingYesterday,
+    r.blockers,
+    r.planToday,
+    r.approver?.fullName || '',
+    r.approvedAt?.toISOString() || '',
+  ]);
 
   return { sheetName: 'Rituals-DailySync', headers, rows };
 };
@@ -55,28 +44,22 @@ export const ritualsWeeklyReport: Extractor = async (ctx): Promise<SheetData> =>
   });
 
   const headers = [
-    'Reporter', 'Week Ending', 'Status', 'Score', 'Confidence',
-    'Progress', 'Plans', 'Blockers', 'KR Progress', 'Ad-hoc Tasks',
-    'Approved By', 'Approved At'
+    'Reporter', 'Week Ending', 'Status',
+    'KR Progress (JSON)', 'Last Week Priorities (JSON)', 'Top 3 Next Week (JSON)', 'Risks/Help (JSON)',
+    'Approved By', 'Approved At',
   ];
 
-  const rows = reports.map(r => {
-    const adHoc = r.adHocTasks ? JSON.parse(r.adHocTasks) : [];
-    return [
-      r.user.fullName,
-      r.weekEnding.toISOString().split('T')[0],
-      r.status,
-      r.score,
-      r.confidenceScore,
-      r.progress,
-      r.plans,
-      r.blockers,
-      r.krProgress || '',
-      Array.isArray(adHoc) ? adHoc.map((t: { name: string }) => t.name).join('; ') : '',
-      r.approver?.fullName || '',
-      r.approvedAt?.toISOString() || '',
-    ];
-  });
+  const rows = reports.map(r => [
+    r.user.fullName,
+    r.weekEnding.toISOString().split('T')[0],
+    r.status,
+    r.krProgress,
+    r.progress,
+    r.plans,
+    r.blockers,
+    r.approver?.fullName || '',
+    r.approvedAt?.toISOString() || '',
+  ]);
 
-  return { sheetName: 'Rituals-WeeklyReport', headers, rows };
+  return { sheetName: 'Rituals-WeeklyCheckin', headers, rows };
 };

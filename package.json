@@ -30,14 +30,10 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed-exchange": "tsx scripts/seed-exchange-rate.ts",
-    "db:reset": "tsx scripts/reset-data.ts",
     "db:seed-okrs": "tsx scripts/seed-okrs.ts",
-    "db:seed-members": "tsx scripts/seed-members-sprints.ts",
-    "db:seed-tasks": "tsx scripts/seed-tasks.ts",
     "db:seed:lead-status": "tsx prisma/seeds/lead-status-mapping.seed.ts",
     "backfill:leads": "tsx scripts/backfill-crm-leads.ts",
-    "backfill:lead-source": "tsx scripts/backfill-lead-source.ts",
-    "db:clear-seed-tasks": "tsx scripts/clear-and-seed-tasks.ts"
+    "backfill:lead-source": "tsx scripts/backfill-lead-source.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

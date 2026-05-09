@@ -31,6 +31,7 @@ export const createKeyResultSchema = z.object({
   targetValue: z.number().min(0).default(100),
   currentValue: z.number().min(0).default(0),
   unit: z.string().max(20).optional(),
+  ownerId: z.string().uuid().nullable().optional(),
 });
 
 export const updateKeyResultSchema = createKeyResultSchema.omit({ objectiveId: true }).partial();

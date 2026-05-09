@@ -1,26 +1,29 @@
 import { z } from 'zod';
 
+// Weekly Check-in (Wodtke 5-block) — JSON columns stored as strings.
+//   krProgress: JSON string of [{krId, currentValue, confidence0to10, note}]
+//   progress  : JSON string of {priorities: [{text, done}]} (last week)
+//   plans     : JSON string of {topThree: string[]}
+//   blockers  : JSON string of {risks: string, helpNeeded: string}
 export const createWeeklyReportSchema = z.object({
   userId: z.string().uuid(),
   weekEnding: z.string(),
-  progress: z.string().default('[]'),
-  plans: z.string().default('[]'),
-  blockers: z.string().default(''),
-  score: z.number().int().default(0),
-  confidenceScore: z.number().int().default(0),
-  krProgress: z.string().optional().nullable(),
-  adHocTasks: z.string().optional().nullable(),
+  krProgress: z.string().default('[]'),
+  progress: z.string().default('{"priorities":[]}'),
+  plans: z.string().default('{"topThree":[]}'),
+  blockers: z.string().default('{"risks":"","helpNeeded":""}'),
+  rawData: z.record(z.string(), z.any()).optional().nullable(),
 });
 
+// Daily Sync — 4 plain text fields.
 export const createDailyReportSchema = z.object({
   userId: z.string().uuid(),
   reportDate: z.string(),
-  tasksData: z.union([z.string(), z.array(z.any())]),
-  blockers: z.string().max(2000).optional().nullable(),
-  impactLevel: z.enum(['none', 'low', 'medium', 'high']).default('none'),
-  teamType: z.string().optional().nullable(),
-  teamMetrics: z.record(z.string(), z.any()).optional().nullable(),
-  adHocTasks: z.string().optional().nullable(),
+  completedYesterday: z.string().max(4000).default(''),
+  doingYesterday: z.string().max(4000).default(''),
+  blockers: z.string().max(4000).default(''),
+  planToday: z.string().max(4000).default(''),
+  rawData: z.record(z.string(), z.any()).optional().nullable(),
 });
 
 export const updateWeeklyReportSchema = createWeeklyReportSchema.partial();

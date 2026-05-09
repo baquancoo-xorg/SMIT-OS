@@ -40,13 +40,17 @@ export function createReportRoutes(prisma: PrismaClient) {
   router.post('/', RBAC.authenticated, validate(createWeeklyReportSchema), handleAsync(async (req: any, res: any) => {
     // Force userId from authenticated user - prevent impersonation
     const userId = req.user!.userId;
-    const { userId: _ignoredUserId, ...bodyData } = req.body;
+    const { userId: _ignoredUserId, weekEnding, krProgress, progress, plans, blockers, rawData } = req.body;
 
     const report = await prisma.weeklyReport.create({
       data: {
-        ...bodyData,
         userId,
-        weekEnding: new Date(req.body.weekEnding),
+        weekEnding: new Date(weekEnding),
+        krProgress: krProgress ?? '[]',
+        progress: progress ?? '{"priorities":[]}',
+        plans: plans ?? '{"topThree":[]}',
+        blockers: blockers ?? '{"risks":"","helpNeeded":""}',
+        rawData: rawData ?? null,
         status: 'Review',
       },
       include: { user: true },

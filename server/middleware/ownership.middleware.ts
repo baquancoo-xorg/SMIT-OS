@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 
-type ResourceType = 'weeklyReport' | 'dailyReport' | 'workItem' | 'sprint' | 'okrCycle';
+type ResourceType = 'weeklyReport' | 'dailyReport' | 'okrCycle';
 
 export function createOwnershipMiddleware(prisma: PrismaClient) {
   return (resourceType: ResourceType) => async (req: Request, res: Response, next: NextFunction) => {
@@ -18,8 +18,6 @@ export function createOwnershipMiddleware(prisma: PrismaClient) {
     const resourceMap: Record<ResourceType, () => Promise<any>> = {
       weeklyReport: () => prisma.weeklyReport.findUnique({ where: { id }, select: { userId: true } }),
       dailyReport: () => prisma.dailyReport.findUnique({ where: { id }, select: { userId: true } }),
-      workItem: () => prisma.workItem.findUnique({ where: { id }, select: { assigneeId: true } }),
-      sprint: async () => null, // Admin only - always fail ownership check
       okrCycle: async () => null, // Admin only - always fail ownership check
     };
 
@@ -29,7 +27,7 @@ export function createOwnershipMiddleware(prisma: PrismaClient) {
     }
 
     // Check ownership
-    const ownerId = resource.userId || resource.assigneeId;
+    const ownerId = resource.userId;
     if (!ownerId) {
       // Unassigned resource - only admin can modify
       return res.status(403).json({ error: 'Not authorized to modify this resource' });
