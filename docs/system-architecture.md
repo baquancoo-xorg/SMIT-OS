@@ -1,6 +1,6 @@
 # System Architecture
 
-> Last updated: 2026-04-28
+> Last updated: 2026-05-10
 
 ## Overview
 
@@ -98,6 +98,12 @@ The `totp-pending` JWT has `purpose: 'totp-pending'` in its payload. `requireAut
 - Secondary schema: `prisma/crm-schema.prisma` (CRM data via `server/lib/crm-db.ts`)
 - No raw SQL in application code; all queries via Prisma client
 
+### Active Models (as of 2026-05-10)
+
+Lead, LeadAuditLog, OkrCycle, FbAdAccountConfig, RawAdsFacebook, ExchangeRateSetting, EtlErrorLog, GoogleIntegration, SheetsExportRun, LeadSyncRun, LeadStatusMapping, User, Notification, Objective, KeyResult, DailyReport, WeeklyReport.
+
+**Dropped models (2026-05-10 slim-down):** WorkItem, WorkItemKrLink, WorkItemDependency, Sprint.
+
 ### Prisma Client Singleton
 
 All application code imports the shared singleton from `server/lib/prisma.ts`:
@@ -162,6 +168,12 @@ Configured in `server.ts` (hardened 2026-04-28):
 
 ## Frontend UI Architecture
 
+### Route Map (as of 2026-05-10)
+
+Final routes: `/`, `/ads-overview` (landing), `/okrs`, `/daily-sync`, `/checkin`, `/lead-tracker`, `/settings`, `/profile`. Wildcard routes redirect to `/ads-overview`.
+
+**Dropped pages (2026-05-10 slim-down):** PMDashboard, TechBoard, ProductBacklog, MarketingBoard, MediaBoard, SaleBoard, SprintBoard, EpicBoard, EpicGraph.
+
 ### Shared Table UI Contract (added 2026-04-27)
 
 A shared table design contract now centralizes table presentation tokens for two variants:
@@ -179,10 +191,12 @@ Action controls:
 
 - `src/components/ui/table-row-actions.tsx` supports variant-aware behavior (including dense compact treatment)
 
-Rollout status (as of 2026-04-27):
+Rollout status (as of 2026-05-10):
 
-- **Phase 01 — Foundation + pilots:** `src/components/board/TaskTableView.tsx` (standard), `src/components/dashboard/overview/KpiTable.tsx` (dense)
+- **Phase 01 — Foundation + pilots:** `src/components/dashboard/overview/KpiTable.tsx` (dense) — TaskTableView removed with board components
 - **Phase 02 — Standard rollout:** operational module tables and modal-embedded tables fully migrated, including `src/components/modals/WeeklyCheckinModal.tsx` and `src/components/modals/ReportDetailDialog.tsx`; shared `formatTableDate` helper adopted across all standard tables
 - **Phase 03 — Dense rollout:** call-performance analytics tables migrated — `src/components/dashboard/call-performance/call-performance-ae-table.tsx` and `src/components/dashboard/call-performance/call-performance-conversion.tsx` both use `variant="dense"` with `getTableContract('dense')` tokens
+
+**Dropped UI components (2026-05-10):** src/components/sprint/, src/components/work-item/, TaskCard, TaskModal, TaskTableView, EpicCard, board task components. ReportTableView retained.
 
 This architecture keeps table business logic in feature modules while consolidating visual shell behavior and formatting contracts in reusable UI primitives.

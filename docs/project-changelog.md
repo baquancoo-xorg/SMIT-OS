@@ -1,5 +1,40 @@
 # Project Changelog
 
+## [v2.3.0] - 2026-05-10
+
+### Major Slim-Down Refactor
+
+Architecture streamlined from 10 pages + 4 Prisma models + sprint-oriented boards to a single OKR-centric focus.
+
+**Dropped:**
+- 4 Prisma models: `WorkItem`, `WorkItemKrLink`, `WorkItemDependency`, `Sprint`
+- 9 frontend pages: PMDashboard, TechBoard, ProductBacklog, MarketingBoard, MediaBoard, SaleBoard, SprintBoard, EpicBoard, EpicGraph
+- 2 backend routes: `/api/work-items`, `/api/sprints`
+- Settings "Sprints" tab, daily-report folder (12 team-specific form files), board task components (TaskCard, TaskModal, TaskTableView, EpicCard, etc.)
+- 3 sheets-export extractors: planning, workspace, analytics-dashboard
+- 2 notification services: notifyDeadlineWarning, notifySprintEnding
+- src/components/sprint/, src/components/work-item/, SprintContextWidget, SprintContext
+
+**Schema changes:**
+- `KeyResult`: added `ownerId` (FK User, nullable)
+- `DailyReport`: 4 plain text fields (completedYesterday, doingYesterday, blockers, planToday); dropped tasksData, teamMetrics, teamType, impactLevel, adHocTasks
+- `WeeklyReport`: repurposed for Wodtke 5-block JSON: `krProgress`, `progress`, `plans`, `blockers`; dropped score, confidenceScore, adHocTasks
+- `User`: added `ownedKRs` relation
+
+**Route changes:**
+- `/` → redirects to `/ads-overview` (no PMDashboard landing)
+- `/sync` → renamed to `/checkin`
+- `/tech`, `/backlog`, `/mkt`, `/media`, `/sale`, `/sprint` → 404 (wildcard redirects to `/ads-overview`)
+- Final routes: `/ads-overview`, `/okrs`, `/daily-sync`, `/checkin`, `/lead-tracker`, `/settings`, `/profile`
+
+**Backend routes (final 19):** auth, user, objective, key-result (now supports `?ownerId=`), okr-cycle, daily-report, report, notification, lead, lead-sync, google-oauth, sheets-export, dashboard-overview, dashboard-product, dashboard-call-performance, dashboard-lead-distribution, dashboard-lead-flow, admin-fb-config, fb-sync
+
+**Active models (15):** Lead, LeadAuditLog, OkrCycle, FbAdAccountConfig, RawAdsFacebook, ExchangeRateSetting, EtlErrorLog, GoogleIntegration, SheetsExportRun, LeadSyncRun, LeadStatusMapping, User, Notification, Objective, KeyResult, DailyReport, WeeklyReport
+
+**Notification service changes:** Dropped deadline/sprint watchers. Added notifyDailyReportApproved. alert-scheduler now only checks OKR risks.
+
+**Settings tabs (final 5):** profile, users, okrs, fb-config, export
+
 ## [v2.2.0] - 2026-05-08
 
 ### Product Tab Full Revamp (Phase 2)
