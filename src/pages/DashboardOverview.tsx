@@ -68,10 +68,6 @@ export default function DashboardOverview() {
   return (
     <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
       <DashboardPageHeader
-        breadcrumb={[
-          { label: 'Analytics' },
-          { label: 'Dashboard', active: true },
-        ]}
         title="Overview"
         accent="Dashboard"
         rightControls={

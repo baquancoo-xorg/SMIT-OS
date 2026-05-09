@@ -30,7 +30,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant/5">
-      <div className="w-full h-full px-[var(--content-px-mobile)] md:px-[var(--content-px-tablet)] xl:pl-64 xl:pr-[var(--content-px-desktop)] flex items-center justify-between">
+      <div className="w-full h-full px-[var(--content-px-mobile)] md:px-[var(--content-px-tablet)] xl:pl-[calc(16rem+var(--content-px-desktop))] xl:pr-[var(--content-px-desktop)] flex items-center justify-between">
         <div className="flex items-center gap-4 flex-1 min-w-0">
           <button
             onClick={onMenuClick}
