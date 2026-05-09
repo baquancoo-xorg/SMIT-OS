@@ -7,6 +7,12 @@ interface ValidateOptions {
   errorShape?: ErrorShape;
 }
 
+declare module 'express-serve-static-core' {
+  interface Request {
+    validatedQuery?: unknown;
+  }
+}
+
 function formatError(error: ZodError, shape: ErrorShape, kind: 'body' | 'query') {
   if (shape === 'dashboard') {
     return {
@@ -45,7 +51,9 @@ export function validateQuery(schema: ZodSchema, opts?: ValidateOptions) {
   const shape = opts?.errorShape ?? 'standard';
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      req.query = schema.parse(req.query) as any;
+      // Express 5: req.query is a getter-only property. Store parsed result on
+      // a custom field so handlers can read the validated/coerced shape.
+      req.validatedQuery = schema.parse(req.query);
       next();
     } catch (error) {
       if (error instanceof ZodError) {

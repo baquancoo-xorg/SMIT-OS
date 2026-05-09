@@ -25,7 +25,7 @@ export function createDashboardProductRoutes() {
 
   router.get('/summary', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const { from, to } = req.query as { from: string; to: string };
+      const { from, to } = req.validatedQuery as { from: string; to: string };
       const key = cacheKey('summary', from, to);
       const cached = getCached(key);
       if (cached) {
@@ -41,7 +41,7 @@ export function createDashboardProductRoutes() {
 
   router.get('/funnel', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const { from, to } = req.query as { from: string; to: string };
+      const { from, to } = req.validatedQuery as { from: string; to: string };
       const key = cacheKey('funnel', from, to);
       const cached = getCached(key);
       if (cached) {
@@ -57,7 +57,7 @@ export function createDashboardProductRoutes() {
 
   router.get('/top-features', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const { from, to } = req.query as { from: string; to: string };
+      const { from, to } = req.validatedQuery as { from: string; to: string };
       const key = cacheKey('top-features', from, to);
       const cached = getCached(key);
       if (cached) {
@@ -74,7 +74,7 @@ export function createDashboardProductRoutes() {
   // Phase 2 — Trends (line chart Pre-PQL Rate / Signup / FirstSync / Activation)
   router.get('/trends', validateQuery(trendsQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const { from, to, metric } = req.query as { from: string; to: string; metric: string };
+      const { from, to, metric } = req.validatedQuery as { from: string; to: string; metric: string };
       const key = cacheKey(`trends:${metric}`, from, to);
       const cached = getCached(key);
       if (cached) {
@@ -127,7 +127,7 @@ export function createDashboardProductRoutes() {
   // Phase 2 — Time-to-Value histogram (Created→FirstSync, FirstSync→PQL)
   router.get('/ttv', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const { from, to } = req.query as { from: string; to: string };
+      const { from, to } = req.validatedQuery as { from: string; to: string };
       const key = cacheKey('ttv', from, to);
       const cached = getCached(key);
       if (cached) {
@@ -144,7 +144,7 @@ export function createDashboardProductRoutes() {
   // Phase 2 Sprint 2 — Cohort Retention (replace iframe)
   router.get('/cohort', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const { from, to } = req.query as { from: string; to: string };
+      const { from, to } = req.validatedQuery as { from: string; to: string };
       const key = cacheKey('cohort', from, to);
       const cached = getCached(key);
       if (cached) {
@@ -161,7 +161,7 @@ export function createDashboardProductRoutes() {
   // Phase 2 Sprint 2 — Channel attribution (CRM + PostHog)
   router.get('/channel', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const { from, to } = req.query as { from: string; to: string };
+      const { from, to } = req.validatedQuery as { from: string; to: string };
       const key = cacheKey('channel', from, to);
       const cached = getCached(key);
       if (cached) {
@@ -178,7 +178,7 @@ export function createDashboardProductRoutes() {
   // Phase 2 Sprint 3 — Operational (online time table + touchpoints top 50)
   router.get('/operational', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const { from, to } = req.query as { from: string; to: string };
+      const { from, to } = req.validatedQuery as { from: string; to: string };
       const key = cacheKey('operational', from, to);
       const cached = getCached(key);
       if (cached) {

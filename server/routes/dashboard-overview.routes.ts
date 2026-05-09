@@ -13,7 +13,7 @@ export function createDashboardOverviewRoutes() {
 
   router.get('/summary', validateQuery(overviewQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const q = req.query as any;
+      const q = req.validatedQuery as any;
       const { from, to } = parseFromTo(q.from, q.to);
       let prevFrom: Date, prevTo: Date;
 
@@ -42,7 +42,7 @@ export function createDashboardOverviewRoutes() {
 
   router.get('/kpi-metrics', validateQuery(kpiQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const q = req.query as any;
+      const q = req.validatedQuery as any;
       const { from, to } = parseFromTo(q.from, q.to);
       const viewMode = q.viewMode ?? 'realtime';
       const data = viewMode === 'cohort'
@@ -62,7 +62,7 @@ export function createDashboardOverviewRoutes() {
 
   router.get('/', validateQuery(overviewQuerySchema, dashboardOpts), async (req, res) => {
     try {
-      const q = req.query as any;
+      const q = req.validatedQuery as any;
       const { from, to } = parseFromTo(q.from, q.to);
       let prevFrom: Date, prevTo: Date;
 
