@@ -1,5 +1,4 @@
-import React from 'react';
-import { WeeklyReport, Sprint } from '../../types';
+import { WeeklyReport } from '../../types';
 import { TableRowActions } from '../ui/TableRowActions';
 import { TableShell } from '../ui/TableShell';
 import { getTableContract } from '../ui/table-contract';
@@ -8,7 +7,6 @@ import { formatTableDate } from '../ui/table-date-format';
 interface ReportTableViewProps {
   reports: WeeklyReport[];
   onViewDetail: (report: WeeklyReport) => void;
-  sprints?: Sprint[];
   // Quick action props
   exportMode?: boolean;
   selectedIds?: Set<string>;
@@ -16,7 +14,7 @@ interface ReportTableViewProps {
   onToggleSelectAll?: (ids: string[]) => void;
 }
 
-// Helper to get week number from date
+// ISO week number for a given date.
 function getWeekNumber(date: Date): number {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const dayNum = d.getUTCDay() || 7;
@@ -25,29 +23,14 @@ function getWeekNumber(date: Date): number {
   return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 }
 
-// Helper to get sprint name for a given date
-function getSprintForDate(date: Date, sprints: Sprint[]): Sprint | null {
-  const reportDate = new Date(date);
-  for (const sprint of sprints) {
-    const startDate = new Date(sprint.startDate);
-    const endDate = new Date(sprint.endDate);
-    if (reportDate >= startDate && reportDate <= endDate) {
-      return sprint;
-    }
-  }
-  return null;
-}
-
 export default function ReportTableView({
   reports,
   onViewDetail,
-  sprints = [],
   exportMode = false,
   selectedIds,
   onToggleSelect,
   onToggleSelectAll,
 }: ReportTableViewProps) {
-  // Sort reports by week (most recent first)
   const sortedReports = [...reports].sort((a, b) => {
     const dateA = new Date(a.weekEnding).getTime();
     const dateB = new Date(b.weekEnding).getTime();
@@ -61,7 +44,6 @@ export default function ReportTableView({
   return (
     <TableShell variant="standard" className="border border-white/20">
       <thead>
-        {/* Column order: [Checkbox] → Created at → Reporter → Status → Department → Week → Sprint */}
         <tr className={standardTable.headerRow}>
           {exportMode && (
             <th className="pl-6 pr-2 py-6 w-10">
@@ -78,7 +60,6 @@ export default function ReportTableView({
           <th className={standardTable.headerCell}>Status</th>
           <th className={standardTable.headerCell}>Department</th>
           <th className={standardTable.headerCell}>Week</th>
-          <th className={standardTable.headerCell}>Sprint</th>
           <th className={standardTable.actionHeaderCell}>Actions</th>
         </tr>
       </thead>
@@ -89,7 +70,6 @@ export default function ReportTableView({
           const weekNumber = getWeekNumber(weekEnding);
           const weekStart = new Date(weekEnding);
           weekStart.setDate(weekStart.getDate() - 6);
-          const sprint = getSprintForDate(weekEnding, sprints);
 
           return (
             <tr
@@ -164,15 +144,6 @@ export default function ReportTableView({
                   </span>
                   <span className="text-xs font-bold text-slate-400 ml-1">
                     (W{weekNumber})
-                  </span>
-                </div>
-              </td>
-
-              <td className={standardTable.cell}>
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-base text-primary">track_changes</span>
-                  <span className="text-sm font-bold text-on-surface">
-                    {sprint ? sprint.name : 'N/A'}
                   </span>
                 </div>
               </td>

@@ -1,14 +1,9 @@
-import DatePicker from '../ui/DatePicker';
-import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, AlertCircle, TrendingUp, Calendar, Target, CheckCircle2, Briefcase } from 'lucide-react';
-import { Objective, KeyResult } from '../../types';
-import { AdHocTask } from '../../types/daily-report-metrics';
+import { useEffect, useState } from 'react';
+import { X, Calendar, Target, CheckCircle2, AlertCircle, HelpCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
-import CustomSelect from '../ui/CustomSelect';
-import AdHocTasksSection from '../daily-report/components/AdHocTasksSection';
-import { TableShell } from '../ui/TableShell';
-import { getTableContract } from '../ui/table-contract';
+import { KeyResult, KrCheckin } from '../../types';
+import KrCheckinRow from '../checkin/KrCheckinRow';
 
 interface WeeklyCheckinModalProps {
   isOpen: boolean;
@@ -16,181 +11,123 @@ interface WeeklyCheckinModalProps {
   onSuccess?: () => void;
 }
 
-const confidenceLabels: Record<number, string> = {
-  1: 'Rất thấp',
-  2: 'Thấp',
-  3: 'Hơi thấp',
-  4: 'Dưới trung bình',
-  5: 'Trung bình',
-  6: 'Khá',
-  7: 'Tự tin',
-  8: 'Khá tự tin',
-  9: 'Rất tự tin',
-  10: 'Cực kỳ tự tin'
-};
+interface PriorityRow {
+  text: string;
+  done: boolean;
+}
+
+function isoWeekNumber(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+}
+
+function fridayOfThisWeek(now: Date): Date {
+  const friday = new Date(now);
+  const day = now.getDay();
+  const diff = day <= 5 ? 5 - day : 6;
+  friday.setDate(now.getDate() + diff);
+  return friday;
+}
 
 export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: WeeklyCheckinModalProps) {
   const { currentUser } = useAuth();
-  const [selectedTeam, setSelectedTeam] = useState(currentUser?.departments?.[0] || 'Tech');
-  const [confidenceScore, setConfidenceScore] = useState<number | ''>('');
-  const [blockers, setBlockers] = useState('');
-  const [adHocTasks, setAdHocTasks] = useState<AdHocTask[]>([]);
+  const [krs, setKrs] = useState<KeyResult[]>([]);
+  const [krCheckins, setKrCheckins] = useState<KrCheckin[]>([]);
+  const [lastWeekPriorities, setLastWeekPriorities] = useState<PriorityRow[]>([{ text: '', done: false }]);
+  const [topThree, setTopThree] = useState<string[]>(['', '', '']);
+  const [risks, setRisks] = useState('');
+  const [helpNeeded, setHelpNeeded] = useState('');
   const [loading, setLoading] = useState(false);
-  const [objectives, setObjectives] = useState<Objective[]>([]);
 
-  // Computed: can switch teams if admin or leader
-  const canSwitchTeam = currentUser?.isAdmin || currentUser?.role?.includes('Leader');
-
-  // Weekly info - computed from current date
   const now = new Date();
-  const startOfYear = new Date(now.getFullYear(), 0, 1);
-  const weekNumber = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
-  const month = now.getMonth() + 1;
-  const year = now.getFullYear();
-
-  // Calculate Friday of current week for weekEnding
-  const weekEnding = new Date(now);
-  const dayOfWeek = now.getDay();
-  const daysToFriday = dayOfWeek <= 5 ? 5 - dayOfWeek : 6;
-  weekEnding.setDate(now.getDate() + daysToFriday);
-
-  // Update selectedTeam when currentUser changes
-  useEffect(() => {
-    if (currentUser?.departments?.[0]) {
-      setSelectedTeam(currentUser.departments[0]);
-    }
-  }, [currentUser?.departments]);
+  const weekNumber = isoWeekNumber(now);
+  const weekEnding = fridayOfThisWeek(now);
 
   useEffect(() => {
-    const fetchObjectives = async () => {
+    if (!isOpen || !currentUser) return;
+    (async () => {
       try {
-        const res = await fetch('/api/objectives', { credentials: 'include' });
-        const data = await res.json();
-        const teamObjectives = data.filter((obj: Objective) => obj.department === selectedTeam);
-        setObjectives(teamObjectives);
-
-        const teamKRs = teamObjectives.flatMap((obj: Objective) => obj.keyResults);
-        setKrReviews(teamKRs.map((kr: KeyResult) => ({
-          kr_id: kr.id,
-          title: kr.title,
-          currentProgress: kr.progressPercentage,
-          targetValue: kr.targetValue || 100,
-          currentValue: kr.currentValue || 0,
-          what_we_did: '',
-          impact_assessment: '',
-          progress_added: 0
+        const res = await fetch(`/api/key-results?ownerId=${currentUser.id}`, { credentials: 'include' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data: KeyResult[] = await res.json();
+        setKrs(data);
+        setKrCheckins(data.map(kr => ({
+          krId: kr.id,
+          currentValue: kr.currentValue ?? 0,
+          confidence0to10: 7,
+          note: '',
         })));
-      } catch (error) {
-        console.error('Failed to fetch objectives:', error);
+      } catch (err) {
+        console.error('Failed to load KRs:', err);
+        setKrs([]);
+        setKrCheckins([]);
       }
-    };
-    if (isOpen) fetchObjectives();
-  }, [selectedTeam, isOpen]);
+    })();
+  }, [isOpen, currentUser]);
 
-  const [krReviews, setKrReviews] = useState<any[]>([]);
-  const standardTable = getTableContract('standard');
+  function updateKrCheckin(idx: number, next: KrCheckin) {
+    setKrCheckins(prev => prev.map((c, i) => (i === idx ? next : c)));
+  }
 
-  // Next Week Plans state
-  const [nextWeekPlans, setNextWeekPlans] = useState([
-    { id: crypto.randomUUID(), item_name: '', expected_output: '', deadline: '' }
-  ]);
+  function addPriorityRow() {
+    setLastWeekPriorities(prev => [...prev, { text: '', done: false }]);
+  }
 
-  const addPlanRow = () => {
-    setNextWeekPlans([...nextWeekPlans, { id: crypto.randomUUID(), item_name: '', expected_output: '', deadline: '' }]);
-  };
+  function updatePriorityRow(idx: number, patch: Partial<PriorityRow>) {
+    setLastWeekPriorities(prev => prev.map((p, i) => (i === idx ? { ...p, ...patch } : p)));
+  }
 
-  const removePlanRow = (id: string) => {
-    if (nextWeekPlans.length > 1) {
-      setNextWeekPlans(nextWeekPlans.filter(p => p.id !== id));
-    }
-  };
+  function removePriorityRow(idx: number) {
+    setLastWeekPriorities(prev => prev.filter((_, i) => i !== idx));
+  }
 
-  const handleSubmit = async () => {
-    if (confidenceScore === '') {
-      alert('Please select a Confidence Score');
-      return;
-    }
-
+  async function handleSubmit() {
+    if (!currentUser) return;
     setLoading(true);
     try {
-      // Build krProgress in format expected by server syncOKRProgress
-      const krProgressData = krReviews.map(r => {
-        const newProgressPct = Math.min(100, r.currentProgress + r.progress_added);
-        const newCurrentValue = r.targetValue * newProgressPct / 100;
-        return {
-          krId: r.kr_id,
-          progressPct: newProgressPct,
-          currentValue: newCurrentValue
-        };
-      });
-
       const payload = {
-        userId: currentUser?.id,
+        userId: currentUser.id,
         weekEnding: weekEnding.toISOString(),
-        confidenceScore: Number(confidenceScore),
-        // FIX: Wrap in { keyResults: [] } to match ReportDetailDialog format
-        progress: JSON.stringify({
-          keyResults: krReviews.map(r => ({
-            krId: r.kr_id,
-            title: r.title,
-            previousProgress: r.currentProgress,
-            currentProgress: Math.min(100, r.currentProgress + r.progress_added),
-            progressChange: r.progress_added,
-            activities: r.what_we_did.split('\n').filter(Boolean),
-            impact: r.impact_assessment
-          }))
-        }),
-        // FIX: Wrap in { items: [] } with correct field names
-        plans: JSON.stringify({
-          items: nextWeekPlans.map((p, idx) => ({
-            stt: idx + 1,
-            item: p.item_name,
-            output: p.expected_output,
-            deadline: p.deadline
-          }))
-        }),
-        // FIX: Convert plain text to { items: [] }
-        blockers: JSON.stringify({
-          items: blockers.trim() ? [{ difficulty: blockers.trim(), supportRequest: '' }] : []
-        }),
-        score: Number(confidenceScore),
-        krProgress: JSON.stringify(krProgressData),
-        adHocTasks: adHocTasks.length > 0 ? JSON.stringify(adHocTasks) : null
+        krProgress: JSON.stringify(krCheckins),
+        progress: JSON.stringify({ priorities: lastWeekPriorities.filter(p => p.text.trim()) }),
+        plans: JSON.stringify({ topThree: topThree.filter(t => t.trim()) }),
+        blockers: JSON.stringify({ risks, helpNeeded }),
       };
 
       const res = await fetch('/api/reports', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
-      if (res.ok) {
-        alert('Report submitted successfully!');
-        onClose();
-        if (onSuccess) onSuccess();
-      } else {
-        const err = await res.json();
-        alert(`Error: ${err.error || 'Failed to submit report'}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(`Lỗi: ${err.error || 'Submit thất bại'}`);
+        return;
       }
-    } catch (error) {
-      console.error('Failed to submit report:', error);
-      alert('Failed to submit report. Please try again.');
+      onClose();
+      onSuccess?.();
+    } catch (err) {
+      console.error(err);
+      alert('Submit thất bại. Thử lại sau.');
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
       >
-        {/* Header */}
         <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-3xl bg-primary/10 flex items-center justify-center text-primary">
@@ -198,277 +135,137 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
             </div>
             <div>
               <h2 className="text-2xl font-black font-headline text-slate-800">Weekly Check-in</h2>
-              <p className="text-sm text-slate-500 font-medium">Tuần {weekNumber} - Tháng {month}/{year}</p>
+              <p className="text-sm text-slate-500 font-medium">Tuần {weekNumber} • End: {weekEnding.toLocaleDateString('vi-VN')}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 md:gap-4">
-            {canSwitchTeam && (
-              <>
-                {/* C6: Mobile dropdown */}
-                <div className="md:hidden">
-                  <CustomSelect
-                    value={selectedTeam}
-                    onChange={setSelectedTeam}
-                    options={['Tech', 'Marketing', 'Media', 'Sale'].map(team => ({ value: team, label: team }))}
-                  />
-                </div>
-                {/* Desktop buttons */}
-                <div className="hidden md:flex bg-slate-200/50 p-1 rounded-xl border border-slate-200">
-                  {(['Tech', 'Marketing', 'Media', 'Sale'] as const).map(team => (
-                    <button
-                      key={team}
-                      onClick={() => setSelectedTeam(team)}
-                      className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${selectedTeam === team ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                    >
-                      {team}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-            <button onClick={onClose} className="p-2 min-h-[44px] min-w-[44px] text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded-full transition-colors">
-              <X size={20} />
-            </button>
-          </div>
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded-full">
+            <X size={20} />
+          </button>
         </div>
 
-        {/* Body - C6: Responsive padding */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-10">
-          {/* Confidence Score */}
-          <section className="bg-slate-50 p-6 rounded-3xl border border-slate-200 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                <TrendingUp size={20} />
-              </div>
-              <div>
-                <h3 className="font-bold text-slate-800">Confidence Score</h3>
-                <p className="text-xs text-slate-500 font-medium">Mức độ tự tin hoàn thành mục tiêu Quý</p>
-              </div>
-            </div>
-            <CustomSelect
-              value={confidenceScore === '' ? '' : String(confidenceScore)}
-              onChange={(val) => setConfidenceScore(val ? Number(val) : '')}
-              options={[
-                { value: '', label: 'Chọn mức độ (1-10)' },
-                ...[1,2,3,4,5,6,7,8,9,10].map(n => ({ value: String(n), label: `${n} - ${confidenceLabels[n]}` }))
-              ]}
-              placeholder="Chọn mức độ (1-10)"
-            />
-          </section>
-
-          {/* Section 1: KR Reviews */}
-          <section className="space-y-6">
+        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8">
+          {/* Block 1: KR Check-in */}
+          <section className="space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
               <Target className="text-primary" size={20} />
-              <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">Tiến độ Key Results</h3>
+              <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">① OKR Check-in</h3>
             </div>
-            <div className="space-y-8">
-              {krReviews.map((review, idx) => (
-                <div key={review.kr_id} className="bg-slate-50 rounded-3xl p-6 border border-slate-200 space-y-6">
-                  <div className="flex items-start justify-between">
-                    <div className="max-w-2xl">
-                      <h4 className="font-bold text-slate-800 leading-tight mb-2">{review.title}</h4>
-                      <div className="flex items-center gap-4">
-                        <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden w-64">
-                          <div 
-                            className="h-full bg-primary transition-all duration-500" 
-                            style={{ width: `${Math.min(100, review.currentProgress + review.progress_added)}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm font-bold text-primary">
-                          {review.currentProgress}% 
-                          {review.progress_added !== 0 && (
-                            <span className={review.progress_added > 0 ? 'text-emerald-500' : 'text-rose-500'}>
-                              {review.progress_added > 0 ? ` +${review.progress_added}%` : ` ${review.progress_added}%`}
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Thay đổi %</label>
-                      <input 
-                        type="number"
-                        value={review.progress_added}
-                        onChange={(e) => {
-                          const val = Number(e.target.value);
-                          const newReviews = [...krReviews];
-                          newReviews[idx].progress_added = val;
-                          setKrReviews(newReviews);
-                        }}
-                        className="w-20 bg-white border border-slate-200 rounded-3xl px-3 py-2 text-center text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                      />
-                    </div>
-                  </div>
+            {krs.length === 0 ? (
+              <p className="text-sm text-slate-500 italic">Bạn chưa được gán Key Result nào. Liên hệ Leader/Admin để được gán.</p>
+            ) : (
+              <div className="space-y-4">
+                {krs.map((kr, idx) => (
+                  <KrCheckinRow
+                    key={kr.id}
+                    kr={kr}
+                    value={krCheckins[idx]}
+                    onChange={(next) => updateKrCheckin(idx, next)}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
 
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Đã làm gì tuần qua?</label>
-                      <textarea 
-                        value={review.what_we_did}
-                        onChange={(e) => {
-                          const newReviews = [...krReviews];
-                          newReviews[idx].what_we_did = e.target.value;
-                          setKrReviews(newReviews);
-                        }}
-                        placeholder="Liệt kê các task/epic đã hoàn thành..."
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-3xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Đánh giá mức độ ảnh hưởng</label>
-                      <textarea 
-                        value={review.impact_assessment}
-                        onChange={(e) => {
-                          const newReviews = [...krReviews];
-                          newReviews[idx].impact_assessment = e.target.value;
-                          setKrReviews(newReviews);
-                        }}
-                        placeholder="Phân tích xem việc đã làm giúp ích gì cho KR..."
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-3xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
-                      />
-                    </div>
-                  </div>
+          {/* Block 2: Last week priorities */}
+          <section className="space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="text-primary" size={20} />
+                <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">② Ưu tiên tuần trước (kết quả)</h3>
+              </div>
+              <button onClick={addPriorityRow} className="text-primary text-xs font-bold hover:bg-primary/5 px-3 py-1.5 rounded-lg">
+                + Thêm
+              </button>
+            </div>
+            <div className="space-y-2">
+              {lastWeekPriorities.map((row, idx) => (
+                <div key={idx} className="flex items-center gap-3 bg-slate-50 rounded-2xl px-4 py-2 border border-slate-200">
+                  <input
+                    type="checkbox"
+                    checked={row.done}
+                    onChange={(e) => updatePriorityRow(idx, { done: e.target.checked })}
+                    className="rounded accent-primary"
+                  />
+                  <input
+                    type="text"
+                    value={row.text}
+                    onChange={(e) => updatePriorityRow(idx, { text: e.target.value })}
+                    placeholder="Mô tả ưu tiên + kết quả..."
+                    className={`flex-1 bg-transparent border-none focus:ring-0 text-sm font-medium outline-none ${row.done ? 'line-through text-slate-400' : ''}`}
+                  />
+                  {lastWeekPriorities.length > 1 && (
+                    <button onClick={() => removePriorityRow(idx)} className="text-slate-400 hover:text-rose-500 text-xs">
+                      Xoá
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
           </section>
 
-          {/* Section: Ad-hoc Tasks */}
-          <section className="space-y-4">
+          {/* Block 3: Top 3 next week */}
+          <section className="space-y-3">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-              <Briefcase className="text-primary" size={20} />
-              <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">
-                Công việc phát sinh
-              </h3>
-              {adHocTasks.length > 0 && (
-                <span className="bg-primary/10 text-primary text-xs font-bold px-2 py-0.5 rounded-full">
-                  {adHocTasks.reduce((sum, t) => sum + (t.hoursSpent || 0), 0)}h
-                </span>
-              )}
+              <Target className="text-primary" size={20} />
+              <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">③ Top 3 ưu tiên tuần tới</h3>
             </div>
-            <AdHocTasksSection
-              tasks={adHocTasks}
-              onTasksChange={setAdHocTasks}
-              teamColor="primary"
+            <div className="space-y-2">
+              {[0, 1, 2].map(i => (
+                <input
+                  key={i}
+                  type="text"
+                  value={topThree[i]}
+                  onChange={(e) => {
+                    const next = [...topThree];
+                    next[i] = e.target.value;
+                    setTopThree(next);
+                  }}
+                  placeholder={`Ưu tiên #${i + 1}`}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                />
+              ))}
+            </div>
+          </section>
+
+          {/* Block 4: Risks */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="text-rose-500" size={20} />
+              <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">④ Rủi ro & Blockers</h3>
+            </div>
+            <textarea
+              value={risks}
+              onChange={(e) => setRisks(e.target.value)}
+              placeholder="Khó khăn, blocker, rủi ro..."
+              className="w-full px-4 py-3 bg-rose-50/50 border border-rose-100 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-200 min-h-[100px] resize-none"
             />
           </section>
 
-          {/* Section 2: Next Week Plan */}
-          <section className="space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="text-primary" size={20} />
-                <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">Cam kết tuần tới</h3>
-              </div>
-              <button 
-                onClick={addPlanRow}
-                className="flex items-center gap-1 text-primary text-xs font-bold hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-all"
-              >
-                <Plus size={16} />
-                Thêm công việc
-              </button>
-            </div>
-            
-            {/* M17: Scroll wrapper for mobile */}
-            <div className="overflow-hidden border border-slate-200 rounded-3xl">
-              <TableShell variant="standard" className="rounded-none border-0 shadow-none" scrollClassName="overflow-x-auto" tableClassName="min-w-[500px]">
-                <thead>
-                  <tr className={standardTable.headerRow}>
-                    <th className={`${standardTable.headerCell} min-w-[150px]`}>Hạng mục (Item)</th>
-                    <th className={`${standardTable.headerCell} min-w-[150px]`}>Cam kết đầu ra (Output)</th>
-                    <th className={`${standardTable.headerCell} w-36 md:w-48`}>Deadline</th>
-                    <th className={standardTable.actionHeaderCell}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody className={standardTable.body}>
-                  {nextWeekPlans.map((plan, idx) => (
-                    <tr key={plan.id} className={standardTable.row}>
-                      <td className={standardTable.cell}>
-                        <input
-                          type="text"
-                          value={plan.item_name}
-                          onChange={(e) => {
-                            const newPlans = [...nextWeekPlans];
-                            newPlans[idx].item_name = e.target.value;
-                            setNextWeekPlans(newPlans);
-                          }}
-                          placeholder="Tên công việc..."
-                          className="w-full bg-transparent border-none focus:ring-0 text-sm font-medium outline-none"
-                        />
-                      </td>
-                      <td className={standardTable.cell}>
-                        <input
-                          type="text"
-                          value={plan.expected_output}
-                          onChange={(e) => {
-                            const newPlans = [...nextWeekPlans];
-                            newPlans[idx].expected_output = e.target.value;
-                            setNextWeekPlans(newPlans);
-                          }}
-                          placeholder="Kết quả cụ thể..."
-                          className="w-full bg-transparent border-none focus:ring-0 text-sm font-medium outline-none"
-                        />
-                      </td>
-                      <td className={standardTable.cell}>
-                        <DatePicker
-                          value={plan.deadline}
-                          onChange={(v) => {
-                            const newPlans = [...nextWeekPlans];
-                            newPlans[idx].deadline = v;
-                            setNextWeekPlans(newPlans);
-                          }}
-                          className="w-full"
-                        />
-                      </td>
-                      <td className={standardTable.actionCell}>
-                        {nextWeekPlans.length > 1 && (
-                          <button
-                            onClick={() => removePlanRow(plan.id)}
-                            className="text-slate-400 hover:text-rose-500 hover:bg-rose-50 p-1.5 rounded-lg transition-colors"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </TableShell>
-            </div>
-          </section>
-
-          {/* Section 3: Blockers */}
-          <section className="space-y-4">
+          {/* Block 5: Help needed */}
+          <section className="space-y-3">
             <div className="flex items-center gap-2">
-              <AlertCircle className="text-rose-500" size={20} />
-              <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">Rào cản & Yêu cầu hỗ trợ</h3>
+              <HelpCircle className="text-amber-500" size={20} />
+              <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">⑤ Cần hỗ trợ</h3>
             </div>
-            <div className="bg-rose-50 border border-rose-100 rounded-3xl p-6">
-              <textarea 
-                value={blockers}
-                onChange={(e) => setBlockers(e.target.value)}
-                placeholder="Nêu rõ các khó khăn đang gặp phải (nếu có)..."
-                className="w-full px-4 py-3 bg-white border border-rose-200 rounded-3xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-300 transition-all min-h-[120px] resize-none text-rose-900 placeholder:text-rose-300"
-              />
-            </div>
+            <textarea
+              value={helpNeeded}
+              onChange={(e) => setHelpNeeded(e.target.value)}
+              placeholder="Cần ai hỗ trợ điều gì..."
+              className="w-full px-4 py-3 bg-amber-50/50 border border-amber-100 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-200 min-h-[100px] resize-none"
+            />
           </section>
         </div>
 
-        {/* Footer */}
         <div className="px-8 py-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50">
-          <button
-            onClick={onClose}
-            className="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200/50 rounded-full transition-all"
-          >
-            Hủy
+          <button onClick={onClose} className="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200/50 rounded-full">
+            Huỷ
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="px-8 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-full shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
+            className="px-8 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-full shadow-lg shadow-primary/20 disabled:opacity-50"
           >
-            {loading ? 'Đang gửi...' : 'Gửi báo cáo'}
+            {loading ? 'Đang gửi...' : 'Gửi check-in'}
           </button>
         </div>
       </motion.div>

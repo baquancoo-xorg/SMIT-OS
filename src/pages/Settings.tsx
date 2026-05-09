@@ -4,7 +4,6 @@ import { Download, RefreshCw } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { SettingsTabs, SettingsTabId } from '../components/settings/settings-tabs';
 import { UserManagementTab } from '../components/settings/user-management-tab';
-import { SprintCyclesTab } from '../components/settings/sprint-cycles-tab';
 import { OkrCyclesTab } from '../components/settings/okr-cycles-tab';
 import { FbConfigTab } from '../components/settings/fb-config-tab';
 import { ProfileTab } from '../components/settings/profile-tab';
@@ -13,7 +12,7 @@ import { SheetsExportTab } from '../components/settings/sheets-export-tab';
 import { Card, Button } from '../components/ui';
 import PrimaryActionButton from '../components/ui/PrimaryActionButton';
 
-type DeleteConfirmType = { type: 'user' | 'sprint' | 'cycle'; id: string } | null;
+type DeleteConfirmType = { type: 'user' | 'cycle'; id: string } | null;
 
 export default function Settings() {
   const { isAdmin, refreshUsers } = useAuth();
@@ -24,7 +23,6 @@ export default function Settings() {
   }
   const [deleteConfirm, setDeleteConfirm] = useState<DeleteConfirmType>(null);
   const [isAddingUser, setIsAddingUser] = useState(false);
-  const [isAddingSprint, setIsAddingSprint] = useState(false);
   const [isAddingCycle, setIsAddingCycle] = useState(false);
   const [isAddingFb, setIsAddingFb] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -35,11 +33,7 @@ export default function Settings() {
     const { type, id } = deleteConfirm;
 
     try {
-      let url = '';
-      if (type === 'user') url = `/api/users/${id}`;
-      else if (type === 'sprint') url = `/api/sprints/${id}`;
-      else url = `/api/okr-cycles/${id}`;
-
+      const url = type === 'user' ? `/api/users/${id}` : `/api/okr-cycles/${id}`;
       const res = await fetch(url, { method: 'DELETE' });
       if (res.ok) {
         if (type === 'user') await refreshUsers();
@@ -55,7 +49,7 @@ export default function Settings() {
     }
   };
 
-  const handleDeleteConfirm = (type: 'user' | 'sprint' | 'cycle', id: string) => {
+  const handleDeleteConfirm = (type: 'user' | 'cycle', id: string) => {
     setDeleteConfirm({ type, id });
   };
 
@@ -64,11 +58,6 @@ export default function Settings() {
     if (activeTab === 'users') return (
       <PrimaryActionButton onClick={() => setIsAddingUser(true)}>
         Add User
-      </PrimaryActionButton>
-    );
-    if (activeTab === 'sprints') return (
-      <PrimaryActionButton onClick={() => setIsAddingSprint(true)}>
-        New Sprint
       </PrimaryActionButton>
     );
     if (activeTab === 'okrs') return (
@@ -82,8 +71,8 @@ export default function Settings() {
       </PrimaryActionButton>
     );
     if (activeTab === 'export') return (
-      <PrimaryActionButton 
-        onClick={() => setExportTrigger(v => v + 1)} 
+      <PrimaryActionButton
+        onClick={() => setExportTrigger(v => v + 1)}
         disabled={exporting}
         icon={exporting ? <RefreshCw className="animate-spin" size={14} /> : <Download size={14} />}
       >
@@ -106,7 +95,7 @@ export default function Settings() {
             {isAdmin ? 'Workspace' : 'User'} <span className="text-primary italic">Settings</span>
           </h2>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} isAdmin={isAdmin} />
           {headerAction}
@@ -123,13 +112,6 @@ export default function Settings() {
               setIsAddingUser={setIsAddingUser}
             />
           )}
-          {activeTab === 'sprints' && isAdmin && (
-            <SprintCyclesTab
-              onDeleteConfirm={handleDeleteConfirm}
-              isAddingSprint={isAddingSprint}
-              setIsAddingSprint={setIsAddingSprint}
-            />
-          )}
           {activeTab === 'okrs' && isAdmin && (
             <OkrCyclesTab
               onDeleteConfirm={handleDeleteConfirm}
@@ -144,7 +126,7 @@ export default function Settings() {
             />
           )}
           {activeTab === 'export' && isAdmin && (
-            <SheetsExportTab 
+            <SheetsExportTab
               exportTrigger={exportTrigger}
               onExportingChange={setExporting}
             />

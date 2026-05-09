@@ -1,7 +1,7 @@
 import React from 'react';
-import { Users, Calendar, Target, Facebook, UserCircle, FileSpreadsheet } from 'lucide-react';
+import { Users, Target, Facebook, UserCircle, FileSpreadsheet } from 'lucide-react';
 
-export type SettingsTabId = 'users' | 'sprints' | 'okrs' | 'fb-config' | 'profile' | 'export';
+export type SettingsTabId = 'users' | 'okrs' | 'fb-config' | 'profile' | 'export';
 
 interface Tab {
   id: SettingsTabId;
@@ -12,7 +12,6 @@ interface Tab {
 const ADMIN_TABS: Tab[] = [
   { id: 'profile', label: 'Profile', icon: UserCircle },
   { id: 'users', label: 'Users', icon: Users },
-  { id: 'sprints', label: 'Sprints', icon: Calendar },
   { id: 'okrs', label: 'OKRs', icon: Target },
   { id: 'fb-config', label: 'FB Config', icon: Facebook },
   { id: 'export', label: 'Export', icon: FileSpreadsheet },
@@ -36,7 +35,7 @@ export function SettingsTabs({ activeTab, onTabChange, isAdmin }: SettingsTabsPr
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         const Icon = tab.icon;
-        
+
         return (
           <button
             key={tab.id}

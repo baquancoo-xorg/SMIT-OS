@@ -13,13 +13,6 @@ export interface User {
   totpEnabled?: boolean;
 }
 
-export interface Sprint {
-  id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-}
-
 export interface OkrCycle {
   id: string;
   name: string;
@@ -35,6 +28,8 @@ export interface KeyResult {
   title: string;
   progressPercentage: number;
   objectiveId: string;
+  ownerId?: string | null;
+  owner?: { id: string; fullName: string; avatar?: string } | null;
   currentValue?: number;
   targetValue?: number;
   unit?: string;
@@ -56,58 +51,17 @@ export interface Objective {
   children?: Objective[]; // For L1 objectives with child L2 objectives
 }
 
-export type WorkItemType = 'Epic' | 'UserStory' | 'TechTask' | 'Campaign' | 'MediaTask' | 'MktTask' | 'Deal' | 'SaleTask' | 'Task';
-
-export type Priority = 'Low' | 'Medium' | 'High' | 'Urgent';
-
-// Task types for Workspace boards
-export const TASK_TYPES: WorkItemType[] = ['TechTask', 'MktTask', 'MediaTask', 'SaleTask', 'Deal', 'Campaign'];
-
-// Epic/Story types for Team Backlog
-export const BACKLOG_TYPES: WorkItemType[] = ['Epic', 'UserStory'];
-
-// Type guards
-export const isTaskType = (type: string): boolean => TASK_TYPES.includes(type as WorkItemType);
-export const isBacklogType = (type: string): boolean => BACKLOG_TYPES.includes(type as WorkItemType);
-
-export interface WorkItemKrLink {
-  id: string;
-  workItemId: string;
-  keyResultId: string;
-  keyResult?: KeyResult & {
-    objective?: { id: string; title: string; department: string };
-  };
-  createdAt: string;
+// Wodtke 5-block weekly check-in payload (stringified JSON in DB columns).
+export interface KrCheckin {
+  krId: string;
+  currentValue: number;
+  confidence0to10: number;
+  note?: string;
 }
 
-export interface WorkItem {
-  id: string;
-  type: string;
-  title: string;
-  description?: string;
-  priority: string;
-  status: string;
-  assigneeId?: string;
-  sprintId?: string;
-
-  // Hierarchy: Epic -> Story -> Task
-  parentId?: string;
-  parent?: { id: string; title: string; type: string };
-  children?: { id: string; title: string; type: string; status: string }[];
-
-  // KR links via junction table
-  krLinks?: WorkItemKrLink[];
-
-  startDate?: string;
-  dueDate?: string;
-  estimatedTime?: string;
-  subtasks?: any[];
-  createdAt: string;
-  updatedAt: string;
-
-  // Relations (optional for frontend display)
-  assignee?: User;
-  sprint?: Sprint;
+export interface WeeklyPriority {
+  text: string;
+  done: boolean;
 }
 
 export interface WeeklyReport {
@@ -115,16 +69,16 @@ export interface WeeklyReport {
   userId: string;
   user?: User;
   weekEnding: string;
-  progress: string; // JSON string
-  plans: string;    // JSON string
-  blockers: string; // JSON string
-  score: number;
-  confidenceScore?: number;
+  // Stored as JSON strings in DB; parsed on read.
+  krProgress: string; // JSON: KrCheckin[]
+  progress: string;   // JSON: {priorities: WeeklyPriority[]}
+  plans: string;      // JSON: {topThree: string[]}
+  blockers: string;   // JSON: {risks: string, helpNeeded: string}
   status: 'Review' | 'Approved';
   approvedBy?: string;
   approver?: { id: string; fullName: string };
   approvedAt?: string;
-  krProgress?: string; // JSON: [{krId, currentValue, progressPct}]
+  rawData?: Record<string, unknown> | null;
   createdAt: string;
 }
 
@@ -134,11 +88,12 @@ export interface DailyReport {
   user?: User;
   reportDate: string;
   status: 'Review' | 'Approved';
-  tasksData: string; // JSON: {completedYesterday: string[], doingYesterday: string[], doingToday: string[]}
-  blockers?: string;
-  impactLevel?: 'none' | 'low' | 'high';
-  teamType?: 'tech' | 'marketing' | 'media' | 'sale';
-  teamMetrics?: Record<string, unknown>; // JSONB team-specific metrics
+  // 4 plain text fields.
+  completedYesterday: string;
+  doingYesterday: string;
+  blockers: string;
+  planToday: string;
+  rawData?: Record<string, unknown> | null;
   approvedBy?: string;
   approver?: { id: string; fullName: string };
   approvedAt?: string;
@@ -183,36 +138,3 @@ export interface LeadDailyStat {
   dailyRate: number | null;
   totalRate: number | null;
 }
-
-export interface DailyReportTasksData {
-  completedYesterday: string[];
-  doingYesterday: string[];
-  doingToday: string[];
-}
-
-// Epic dependency graph types
-export interface EpicGraphNode {
-  id: string;
-  title: string;
-  status: string;
-  priority: string;
-  primaryTeam: string;
-  teams: string[];
-  progress: number;
-  taskCount: number;
-  storyCount: number;
-}
-
-export interface EpicDependencyLink {
-  id: string;
-  fromId: string;
-  toId: string;
-}
-
-export interface EpicGraphData {
-  epics: EpicGraphNode[];
-  links: EpicDependencyLink[];
-}
-
-// Re-export team-specific types
-export * from './daily-report-metrics';

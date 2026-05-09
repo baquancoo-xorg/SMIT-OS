@@ -1,7 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { addDays, isSameDay } from 'date-fns';
-import { WorkItem } from '../types';
-import { useAuth } from '../contexts/AuthContext';
+import { useCallback, useEffect, useState } from 'react';
 
 interface Notification {
   id: string;
@@ -14,31 +11,20 @@ interface Notification {
   entityId?: string;
 }
 
-const DISMISSED_DEADLINES_KEY_PREFIX = 'dismissed_deadline_ids';
-
-const isTestNotification = (notification: Notification) => {
-  const type = (notification.type || '').toLowerCase();
-  const title = (notification.title || '').toLowerCase();
-  const message = (notification.message || '').toLowerCase();
-
+const isTestNotification = (n: Notification): boolean => {
+  const type = (n.type || '').toLowerCase();
+  const title = (n.title || '').toLowerCase();
+  const message = (n.message || '').toLowerCase();
   return type === 'test'
     || type === 'test_notification'
     || title.includes('test notification')
     || message.includes('testing notification');
 };
 
-export function useNotifications(workItems: WorkItem[] = []) {
-  const { currentUser } = useAuth();
-  const dismissedStorageKey = useMemo(
-    () => `${DISMISSED_DEADLINES_KEY_PREFIX}:${currentUser?.id ?? 'anonymous'}`,
-    [currentUser?.id]
-  );
-
+export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [dismissedDeadlineIds, setDismissedDeadlineIds] = useState<string[]>([]);
-  const [dismissedReady, setDismissedReady] = useState(false);
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -67,9 +53,7 @@ export function useNotifications(workItems: WorkItem[] = []) {
   const markAsRead = useCallback(async (id: string) => {
     const res = await fetch(`/api/notifications/${id}/read`, { method: 'PATCH', credentials: 'include' });
     if (!res.ok) return;
-    setNotifications(prev =>
-      prev.map(n => n.id === id ? { ...n, isRead: true } : n)
-    );
+    setNotifications(prev => prev.map(n => (n.id === id ? { ...n, isRead: true } : n)));
     setUnreadCount(prev => Math.max(0, prev - 1));
   }, []);
 
@@ -81,102 +65,26 @@ export function useNotifications(workItems: WorkItem[] = []) {
   }, []);
 
   useEffect(() => {
-    setDismissedReady(false);
-    try {
-      const raw = localStorage.getItem(dismissedStorageKey);
-      if (!raw) {
-        setDismissedDeadlineIds([]);
-        setDismissedReady(true);
-        return;
-      }
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        setDismissedDeadlineIds(parsed.filter((id): id is string => typeof id === 'string'));
-      } else {
-        setDismissedDeadlineIds([]);
-      }
-    } catch {
-      setDismissedDeadlineIds([]);
-    } finally {
-      setDismissedReady(true);
-    }
-  }, [dismissedStorageKey]);
-
-  const persistDismissedDeadlines = useCallback((ids: string[]) => {
-    setDismissedDeadlineIds(ids);
-    try {
-      localStorage.setItem(dismissedStorageKey, JSON.stringify(ids));
-    } catch {
-      // Ignore localStorage write issues
-    }
-  }, [dismissedStorageKey]);
-
-  const dismissDeadline = (workItemId: string) => {
-    setDismissedDeadlineIds(prev => {
-      if (prev.includes(workItemId)) return prev;
-      const next = [...prev, workItemId];
-      try {
-        localStorage.setItem(dismissedStorageKey, JSON.stringify(next));
-      } catch {
-        // Ignore localStorage write issues
-      }
-      return next;
-    });
-  };
-
-  const activeWorkItemIds = useMemo(() => new Set(workItems.map(item => item.id)), [workItems]);
-
-  useEffect(() => {
-    if (!dismissedReady || workItems.length === 0) return;
-    const filtered = dismissedDeadlineIds.filter(id => activeWorkItemIds.has(id));
-    if (filtered.length !== dismissedDeadlineIds.length) {
-      persistDismissedDeadlines(filtered);
-    }
-  }, [activeWorkItemIds, dismissedDeadlineIds, dismissedReady, persistDismissedDeadlines, workItems.length]);
-
-  const deadlineItems = useMemo(() => {
-    const now = new Date();
-    const maxDate = addDays(now, 3);
-    const dismissedSet = new Set(dismissedDeadlineIds);
-
-    return workItems
-      .filter(item => item.dueDate && item.status !== 'Done')
-      .filter(item => {
-        const due = new Date(item.dueDate!);
-        return isSameDay(due, now) || (due > now && due <= maxDate);
-      })
-      .filter(item => !dismissedSet.has(item.id))
-      .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime());
-  }, [workItems, dismissedDeadlineIds]);
-
-  useEffect(() => {
     fetchNotifications();
     fetchUnreadCount();
 
     let interval: ReturnType<typeof setInterval> | null = null;
-
     const startPolling = () => {
-      if (!interval) {
-        interval = setInterval(fetchUnreadCount, 30000);
-      }
+      if (!interval) interval = setInterval(fetchUnreadCount, 30000);
     };
-
     const stopPolling = () => {
       if (interval) {
         clearInterval(interval);
         interval = null;
       }
     };
-
     const onVisibilityChange = () => {
-      if (document.hidden) {
-        stopPolling();
-      } else {
+      if (document.hidden) stopPolling();
+      else {
         fetchUnreadCount();
         startPolling();
       }
     };
-
     if (!document.hidden) startPolling();
     document.addEventListener('visibilitychange', onVisibilityChange);
 
@@ -193,8 +101,5 @@ export function useNotifications(workItems: WorkItem[] = []) {
     markAsRead,
     markAllAsRead,
     refresh: fetchNotifications,
-    deadlineItems,
-    dismissDeadline,
-    dismissedDeadlineCount: dismissedDeadlineIds.length,
   };
 }

@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Inbox, LogOut, Settings } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -24,29 +24,18 @@ export default function Sidebar({ onLogout, onNavigate }: SidebarProps) {
       <nav className="flex-1 space-y-4 overflow-y-auto overflow-x-visible custom-scrollbar px-1">
         <div className="space-y-2">
           <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Analytics</p>
-          <NavItem icon="grid_view" label="Overview" to="/" onNavigate={onNavigate} />
           <NavItem icon="monitoring" label="Dashboard" to="/ads-overview" onNavigate={onNavigate} />
-        </div>
-
-        <div className="space-y-2">
-          <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Workspaces</p>
-          <NavItem icon="terminal" label="Tech & Product" to="/tech" onNavigate={onNavigate} />
-          <NavItem icon="layers" label="Marketing" to="/mkt" onNavigate={onNavigate} />
-          <NavItem icon="video_library" label="Media" to="/media" onNavigate={onNavigate} />
-          <NavItem icon="payments" label="Sales" to="/sale" onNavigate={onNavigate} />
         </div>
 
         <div className="space-y-2">
           <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Planning</p>
           <NavItem icon="track_changes" label="OKRs" to="/okrs" onNavigate={onNavigate} />
-          <NavItem icon={<Inbox size={18} />} label="Team Backlog" to="/backlog" onNavigate={onNavigate} />
-          <NavItem icon="sprint" label="Sprint Board" to="/sprint" onNavigate={onNavigate} />
         </div>
 
         <div className="space-y-2">
           <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Rituals</p>
           <NavItem icon="event_note" label="Daily Sync" to="/daily-sync" onNavigate={onNavigate} />
-          <NavItem icon="event_repeat" label="Weekly Report" to="/sync" onNavigate={onNavigate} />
+          <NavItem icon="event_repeat" label="Weekly Checkin" to="/checkin" onNavigate={onNavigate} />
         </div>
 
         <div className="space-y-2">
