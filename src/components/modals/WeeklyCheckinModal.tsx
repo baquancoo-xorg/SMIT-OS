@@ -151,7 +151,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
               <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">① OKR Check-in</h3>
             </div>
             {krs.length === 0 ? (
-              <p className="text-sm text-slate-500 italic">Bạn chưa được gán Key Result nào. Liên hệ Leader/Admin để được gán.</p>
+              <p className="text-sm text-slate-500 italic">Bạn chưa được gán Key Result nào. Liên hệ Admin để được gán.</p>
             ) : (
               <div className="space-y-4">
                 {krs.map((kr, idx) => (

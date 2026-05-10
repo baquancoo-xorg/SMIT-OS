@@ -11,12 +11,10 @@ import { getTableContract } from '../ui/table-contract';
 const ALL_DEPARTMENTS = ['BOD', 'Tech', 'Marketing', 'Media', 'Sale'];
 const ROLE_OPTIONS = [
   { value: 'Admin', label: 'Admin' },
-  { value: 'Leader', label: 'Leader' },
   { value: 'Member', label: 'Member' }
 ];
 const ROLE_BADGE_VARIANT: Record<string, 'info' | 'warning' | 'neutral'> = {
   Admin: 'info',
-  Leader: 'warning',
   Member: 'neutral',
 };
 

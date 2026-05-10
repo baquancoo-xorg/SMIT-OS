@@ -15,7 +15,8 @@ type ActiveTab = 'logs' | 'stats';
 export default function LeadTracker() {
   const { currentUser } = useAuth();
   const isSale = currentUser?.departments?.includes('Sale');
-  const canManageLeads = currentUser?.isAdmin || currentUser?.role?.includes('Leader');
+  // CRM sync + admin actions = admin only (matches backend admin gates).
+  const canManageLeads = !!currentUser?.isAdmin;
   const [activeTab, setActiveTab] = useState<ActiveTab>('logs');
   const [statsDateFrom, setStatsDateFrom] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
   const [statsDateTo, setStatsDateTo] = useState(format(new Date(), 'yyyy-MM-dd'));

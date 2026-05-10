@@ -44,7 +44,8 @@ export default function WeeklyCheckin() {
   const [reports, setReports] = useState<WeeklyReport[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const isLeaderOrAdmin = !!currentUser && (currentUser.isAdmin || currentUser.role?.includes('Leader'));
+  // Approve = admin only (matches backend RBAC.adminOnly).
+  const canApprove = !!currentUser?.isAdmin;
 
   async function fetchReports() {
     setLoading(true);
@@ -111,7 +112,7 @@ export default function WeeklyCheckin() {
         <ReportDetail
           report={selectedReport}
           onClose={() => setSelectedReport(null)}
-          onApprove={isLeaderOrAdmin ? handleApprove : undefined}
+          onApprove={canApprove ? handleApprove : undefined}
         />
       )}
     </div>

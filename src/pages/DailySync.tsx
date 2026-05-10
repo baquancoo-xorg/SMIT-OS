@@ -72,7 +72,8 @@ export default function DailySync() {
   const [submitting, setSubmitting] = useState(false);
   const standardTable = getTableContract('standard');
 
-  const isLeaderOrAdmin = !!currentUser && (currentUser.isAdmin || currentUser.role?.includes('Leader'));
+  // Approve = admin only (matches backend RBAC.adminOnly).
+  const canApprove = !!currentUser?.isAdmin;
 
   async function fetchReports() {
     setLoading(true);
@@ -292,7 +293,7 @@ export default function DailySync() {
               <DetailBlock title="④ Sẽ thực hiện hôm nay" body={selectedReport.planToday} />
             </div>
             <div className="px-8 py-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50">
-              {isLeaderOrAdmin && selectedReport.status === 'Review' && (
+              {canApprove && selectedReport.status === 'Review' && (
                 <button
                   onClick={() => handleApprove(selectedReport.id)}
                   className="px-8 py-2.5 text-sm font-bold text-white bg-emerald-500 hover:bg-emerald-600 rounded-full shadow-lg"

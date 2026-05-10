@@ -6,7 +6,7 @@ export interface User {
   username: string;
   password?: string;
   departments: string[];  // Multiple departments supported
-  role: string; // Admin, Leader, Member
+  role: string; // Admin, Member
   scope?: string; // Vị trí công việc
   avatar: string;
   isAdmin: boolean;
