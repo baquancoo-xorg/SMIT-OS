@@ -99,6 +99,69 @@ class ApiClient {
   triggerLeadSyncNow() { return this.post<{ accepted: boolean; mode: string }>('/leads/sync-now', {}); }
 
   getLeadSyncStatus() { return this.get<LeadSyncStatus | null>('/leads/sync-status'); }
+
+  // Ads Tracker (Phase 3 acquisition)
+  getAdsCampaigns(params?: Record<string, string>) {
+    const qs = params ? `?${new URLSearchParams(params)}` : '';
+    return this.get<{ success: boolean; data: { campaigns: import('../types').AdsCampaignSummary[] } }>(
+      `/ads-tracker/campaigns${qs}`
+    );
+  }
+
+  getAdsCampaignDetail(id: string) {
+    return this.get<{ success: boolean; data: { campaign: import('../types').AdsCampaignDetail; dailySpend: import('../types').AdsDailySpendPoint[] } }>(
+      `/ads-tracker/campaigns/${id}`
+    );
+  }
+
+  getAdsAttribution(params?: Record<string, string>) {
+    const qs = params ? `?${new URLSearchParams(params)}` : '';
+    return this.get<{ success: boolean; data: { campaigns: import('../types').AdsAttribution[] } }>(
+      `/ads-tracker/attribution${qs}`
+    );
+  }
+
+  getAdsAttributionUnmatched(params?: Record<string, string>) {
+    const qs = params ? `?${new URLSearchParams(params)}` : '';
+    return this.get<{ success: boolean; data: { unmatched: { source: string; count: number }[] } }>(
+      `/ads-tracker/attribution/unmatched${qs}`
+    );
+  }
+
+  triggerAdsSync(accountId?: string) {
+    return this.post<{ success: boolean; data: { accepted: boolean; accountId: string } }>(
+      '/ads-tracker/sync',
+      accountId ? { accountId } : {}
+    );
+  }
+
+  // Media Tracker (Phase 4 acquisition)
+  getMediaPosts(params?: Record<string, string>) {
+    const qs = params ? `?${new URLSearchParams(params)}` : '';
+    return this.get<{ success: boolean; data: { posts: import('../types').MediaPost[] } }>(
+      `/media-tracker/posts${qs}`
+    );
+  }
+
+  createMediaPost(data: unknown) {
+    return this.post<{ success: boolean; data: import('../types').MediaPost }>('/media-tracker/posts', data);
+  }
+
+  updateMediaPost(id: string, data: unknown) {
+    return this.put<{ success: boolean; data: import('../types').MediaPost }>(`/media-tracker/posts/${id}`, data);
+  }
+
+  deleteMediaPost(id: string) {
+    return this.delete(`/media-tracker/posts/${id}`);
+  }
+
+  // Acquisition Overview / Dashboard tabs
+  getAcquisitionJourney(params?: Record<string, string>) {
+    const qs = params ? `?${new URLSearchParams(params)}` : '';
+    return this.get<{ success: boolean; data: import('../types').AcquisitionJourney }>(
+      `/acquisition/journey${qs}`
+    );
+  }
 }
 
 export const api = new ApiClient();

@@ -39,6 +39,10 @@ import { initAlertScheduler } from "./server/jobs/alert-scheduler";
 import { initSheetsExportScheduler } from "./server/jobs/sheets-export-scheduler";
 import { initLeadSyncPrisma } from "./server/services/lead-sync/state";
 import { startLeadSyncCron } from "./server/cron/lead-sync.cron";
+import { startAdsSyncCron } from "./server/cron/ads-sync.cron";
+import { createAdsTrackerRoutes } from "./server/routes/ads-tracker.routes";
+import { createMediaTrackerRoutes } from "./server/routes/media-tracker.routes";
+import { createAcquisitionRoutes } from "./server/routes/acquisition.routes";
 import { createOKRService } from "./server/services/okr.service";
 
 initFbSyncService(prisma);
@@ -140,6 +144,9 @@ app.use("/api/dashboard", createDashboardLeadFlowRoutes());
 app.use("/api/dashboard", createDashboardLeadDistributionRoutes());
 app.use("/api/dashboard/product", createDashboardProductRoutes());
 app.use("/api/sync/facebook-ads", createFbSyncRoutes());
+app.use("/api/ads-tracker", createAdsTrackerRoutes());
+app.use("/api/media-tracker", createMediaTrackerRoutes());
+app.use("/api/acquisition", createAcquisitionRoutes());
 app.use("/api/admin", requireAdmin, createAdminFbConfigRoutes());
 
 const sheetsExportService = initSheetsExportScheduler(prisma, googleOAuthService);
@@ -189,6 +196,7 @@ async function startServer() {
     const notificationService = createNotificationService(prisma);
     initAlertScheduler(prisma, notificationService);
     startLeadSyncCron();
+    startAdsSyncCron();
   });
 }
 

@@ -39,7 +39,9 @@ export default function Sidebar({ onLogout, onNavigate }: SidebarProps) {
         </div>
 
         <div className="space-y-2">
-          <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">CRM</p>
+          <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Acquisition</p>
+          <NavItem icon="campaign" label="Media Tracker" to="/media-tracker" onNavigate={onNavigate} />
+          <NavItem icon="ads_click" label="Ads Tracker" to="/ads-tracker" onNavigate={onNavigate} />
           <NavItem icon="person_search" label="Lead Tracker" to="/lead-tracker" onNavigate={onNavigate} />
         </div>
       </nav>

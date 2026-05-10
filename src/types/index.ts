@@ -138,3 +138,104 @@ export interface LeadDailyStat {
   dailyRate: number | null;
   totalRate: number | null;
 }
+
+// Acquisition trackers (Phase 3+4 — plan 260510-0237)
+export type AdPlatform = 'META';
+export type MediaPlatform = 'FACEBOOK' | 'INSTAGRAM' | 'YOUTUBE' | 'BLOG' | 'PR' | 'OTHER';
+export type MediaPostType = 'ORGANIC' | 'KOL' | 'KOC' | 'PR';
+
+export interface AdsCampaignSummary {
+  id: string;
+  platform: AdPlatform;
+  externalId: string;
+  name: string;
+  status: string;
+  utmCampaign: string | null;
+  startedAt: string | null;
+  endedAt: string | null;
+  spendTotal: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  currency: string;
+  ctr: number;
+}
+
+export interface AdsCampaignDetail {
+  id: string;
+  platform: AdPlatform;
+  externalId: string;
+  name: string;
+  status: string;
+  utmCampaign: string | null;
+  startedAt: string | null;
+  endedAt: string | null;
+  meta: Record<string, unknown> | null;
+}
+
+export interface AdsDailySpendPoint {
+  date: string;
+  spend: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  currency: string;
+}
+
+export interface AdsAttribution {
+  campaignId: string;
+  campaignName: string;
+  utmCampaign: string | null;
+  spendTotal: number;
+  currency: string;
+  leadCount: number;
+  qualifiedCount: number;
+  cpl: number | null;
+  leadIds: string[];
+}
+
+export interface MediaPost {
+  id: string;
+  platform: MediaPlatform;
+  externalId: string | null;
+  url: string | null;
+  title: string | null;
+  publishedAt: string;
+  reach: number;
+  engagement: number;
+  utmCampaign: string | null;
+  type: MediaPostType;
+  cost: number | null;
+  createdById: string | null;
+  meta: Record<string, unknown> | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AcquisitionJourneyStage {
+  label: string;
+  steps: Array<{
+    name: string;
+    value: number;
+    conversionFromPrev: number | null; // 0..1
+  }>;
+}
+
+export interface AcquisitionJourney {
+  range: { from: string; to: string };
+  stages: {
+    pre: AcquisitionJourneyStage;
+    in: AcquisitionJourneyStage;
+    post: AcquisitionJourneyStage;
+  };
+  totals: {
+    reach: number;
+    clicks: number;
+    visits: number;
+    leads: number;
+    trials: number;
+    activeUsers: number;
+    paidCustomers: number;
+    revenue: number;
+  };
+}

@@ -102,9 +102,40 @@ The `totp-pending` JWT has `purpose: 'totp-pending'` in its payload. `requireAut
 
 ### Active Models (as of 2026-05-10)
 
-Lead, LeadAuditLog, OkrCycle, FbAdAccountConfig, RawAdsFacebook, ExchangeRateSetting, EtlErrorLog, GoogleIntegration, SheetsExportRun, LeadSyncRun, LeadStatusMapping, User, Notification, Objective, KeyResult, DailyReport, WeeklyReport.
+Lead, LeadAuditLog, OkrCycle, FbAdAccountConfig, RawAdsFacebook, ExchangeRateSetting, EtlErrorLog, GoogleIntegration, SheetsExportRun, LeadSyncRun, LeadStatusMapping, User, Notification, Objective, KeyResult, DailyReport, WeeklyReport, **AdCampaign, AdSpendRecord, MediaPost** (Phase 2 acquisition).
 
 **Dropped models (2026-05-10 slim-down):** WorkItem, WorkItemKrLink, WorkItemDependency, Sprint.
+
+### Acquisition Tracking (2026-05-10, plan `260510-0237-acquisition-trackers`)
+
+**Complete MVP shipped** across 6 phases: Sidebar restructure → Schema → Ads Tracker (Meta) + Media Tracker (manual) → Dashboard integration (Marketing/Media/Overview-funnel tabs) → CSV export + RBAC.
+
+Two-layer Meta-ads pipeline keeps existing raw layer untouched and adds a normalized layer for UI/aggregate queries:
+
+| Layer | Models | Source |
+|---|---|---|
+| Raw (existing) | `RawAdsFacebook` | Meta Graph API insights, ad-level granularity |
+| Normalized (Phase 3) | `AdCampaign`, `AdSpendRecord` | Daily sync via `ads-sync.cron.ts` (02:00 UTC), cached in `AdCampaign` + `AdSpendRecord` |
+| Owned/earned media (Phase 4) | `MediaPost` | Manual entry for all 3 platforms (FB/IG/YT/Blog/PR); auto-sync deferred |
+
+**Services (Phase 3-5):**
+- `ads-sync.service.ts` — Meta campaign ETL, upserts `AdCampaign` + `AdSpendRecord`
+- `meta-ads-normalize.ts` — Raw → normalized transformer
+- `attribution.service.ts` — Join `Lead.source` ↔ `AdCampaign.utmCampaign` (case-insensitive trim), calculates CPL/ROAS
+- `journey-funnel.service.ts` — 3-stage funnel aggregator (Pre/In/Post-product), 5-min cache + in-flight de-dup
+- `csv-export.ts` — Shared CSV utility for Ads + Media export
+
+**Enums:** `AdPlatform` (META only), `MediaPlatform` (FACEBOOK/INSTAGRAM/YOUTUBE/BLOG/PR/OTHER), `MediaPostType` (ORGANIC/KOL/KOC/PR).
+
+**Attribution key:** `AdCampaign.utmCampaign` (and `MediaPost.utmCampaign`) match `Lead.source` via case-insensitive trim.
+
+**RBAC:** `MediaPost.createdById` enables read-shared/write-own pattern (Member edits own records, Admin edits any) per `260510-0318-role-simplification`.
+
+**Performance:** Sync mutex (409 if in-flight prevents double-click), all currency normalized to VND, N+1 queries eliminated via batch fetches.
+
+**Seed:** `npm run db:seed:acquisition` populates 1 Meta campaign + 7 daily spend records + 5 media posts (2 ORGANIC, 1 KOL, 1 KOC, 1 PR).
+
+**Deferred to follow-up:** Facebook/Instagram/YouTube auto-sync (OAuth not available), Sankey drill-down, weekly digest email (SMTP unverified), audit log for token rotate, CRM retention deep-dive.
 
 ### Prisma Client Singleton
 

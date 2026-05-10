@@ -32,6 +32,7 @@
     "db:seed-exchange": "tsx scripts/seed-exchange-rate.ts",
     "db:seed-okrs": "tsx scripts/seed-okrs.ts",
     "db:seed:lead-status": "tsx prisma/seeds/lead-status-mapping.seed.ts",
+    "db:seed:acquisition": "tsx prisma/seeds/acquisition.seed.ts",
     "backfill:leads": "tsx scripts/backfill-crm-leads.ts",
     "backfill:lead-source": "tsx scripts/backfill-lead-source.ts"
   },

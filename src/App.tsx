@@ -16,6 +16,8 @@ const Settings = lazy(() => import('./pages/Settings'));
 const Profile = lazy(() => import('./pages/Profile'));
 const DashboardOverview = lazy(() => import('./pages/DashboardOverview'));
 const LeadTracker = lazy(() => import('./pages/LeadTracker'));
+const MediaTracker = lazy(() => import('./pages/MediaTracker'));
+const AdsTracker = lazy(() => import('./pages/AdsTracker'));
 
 function PageLoader() {
   return (
@@ -50,6 +52,8 @@ function AppContent() {
           <Route path="/daily-sync" element={<DailySync />} />
           <Route path="/checkin" element={<WeeklyCheckin />} />
           <Route path="/lead-tracker" element={<LeadTracker />} />
+          <Route path="/media-tracker" element={<MediaTracker />} />
+          <Route path="/ads-tracker" element={<AdsTracker />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

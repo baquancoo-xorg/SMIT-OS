@@ -1,5 +1,57 @@
 # Project Changelog
 
+## [v2.3.3] - 2026-05-10
+
+### Acquisition Trackers MVP — Full 6-phase deployment
+
+**Sidebar (Phase 1):**
+- Renamed `CRM` group to `ACQUISITION` with 3 trackers: Media Tracker, Ads Tracker, Lead Tracker
+- 2 lazy-loaded stub pages replaced with full implementations
+- Breadcrumb updated across trackers
+
+**Database (Phase 2):**
+- Added 3 models: `AdCampaign` (Meta campaigns), `AdSpendRecord` (daily spend), `MediaPost` (owned/earned/KOL/PR content)
+- Added 3 enums: `AdPlatform` (META), `MediaPlatform` (FB/IG/YT/Blog/PR/Other), `MediaPostType` (Organic/KOL/KOC/PR)
+- Created seed file `prisma/seeds/acquisition-seed.ts` with 1 campaign + 7 spend records + 5 media posts
+- Added `npm run db:seed:acquisition` script
+
+**Ads Tracker (Phase 3):**
+- Meta Graph API integration: `facebook-api.ts` extended with campaign + insights endpoints
+- Backend services: `ads-sync.service.ts` (ETL), `meta-ads-normalize.ts` (raw→normalized), `attribution.service.ts` (Lead join), `ads-sync.cron.ts` (daily 02:00 UTC)
+- Post-review fixes: Currency normalization (USD→VND via `currency-helper.ts`), Sync mutex (409 if in-flight), N+1 query elimination (batch fetches), 5-min cache with in-flight dedup
+- UI: 3 tabs (Campaigns/Performance/Attribution), 4 KPI cards, charts, export CSV
+- Documentation: `docs/utm-guideline.md` published
+
+**Media Tracker (Phase 4):**
+- Manual entry forms for Facebook, Instagram, YouTube, Blog, PR posts
+- Services: `media-post.service.ts` (CRUD), `media-tracker.routes.ts` (endpoints)
+- UI: 3 tabs (Owned/KOL-KOC/PR), 4 KPI cards, tables with filters, export CSV
+- RBAC: read-shared/write-own via `MediaPost.createdById` (Admin/Member per role-simplification)
+- Deferred to follow-up: Auto-sync for FB/IG/YT (OAuth not available)
+
+**Dashboard Integration (Phase 5):**
+- Marketing tab: 4 KPI cards (Total Spend, Campaigns, Leads, CPL), 30d spend trend, top 5 campaigns
+- Media tab: 4 KPI cards (Posts, Reach, KOL Spend, PR Mentions), posts trend by platform, recent PR sentiment
+- Overview tab redesigned: 3-stage journey funnel (Pre→In→Post product), 10 KPI cards, funnel visualization, shared date range
+- Services: `journey-funnel.service.ts` (3-stage aggregation, 5-min cache), dropoff diagnostic (deferred), sankey builder (deferred)
+- Routes: `acquisition.routes.ts` (GET campaigns, GET funnel, GET sankey placeholder)
+
+**Polish & Permissions (Phase 6):**
+- RBAC verified: Admin/Member only (Leader removed per `260510-0318-role-simplification`). Sidebar Acquisition group gated to Admin/Member.
+- CSV export: Shared `src/lib/csv-export.ts` utility; Ads Tracker + Media Tracker export buttons implemented
+- Deferred: Weekly digest email (SMTP unverified), audit log for token rotate, Settings UI for digest recipients
+
+**Verification:**
+- `npx tsc --noEmit` clean
+- `npm run build` succeeded (production bundle generated)
+- DB schema synced via `npx prisma db push`
+- Seed `npm run db:seed:acquisition` executes successfully
+- 3 endpoints reachable on dev server (return 401 unauthenticated, expected per auth-gating)
+
+**Plan:** `plans/260510-0237-acquisition-trackers/`
+
+**Architecture updated:** `docs/system-architecture.md` Acquisition Tracking section extended with service descriptions, performance notes, deferred features
+
 ## [v2.3.2] - 2026-05-10
 
 ### Role Simplification — Admin + Member only

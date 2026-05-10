@@ -12,10 +12,12 @@ import { LeadDistributionSection } from '../components/dashboard/lead-distributi
 import { ProductSection } from '../components/dashboard/product';
 import ViewToggle from '../components/ui/ViewToggle';
 import {
-  DashboardEmptyState,
   DashboardPageHeader,
   DashboardSectionTitle,
 } from '../components/dashboard/ui';
+import MarketingTab from '../components/dashboard/marketing/marketing-tab';
+import MediaTab from '../components/dashboard/media/media-tab';
+import AcquisitionOverviewTab from '../components/dashboard/acquisition-overview/acquisition-overview-tab';
 
 type ViewMode = 'realtime' | 'cohort';
 type DashboardDomainTab = 'overview' | 'sale' | 'product' | 'marketing' | 'media';
@@ -83,20 +85,26 @@ export default function DashboardOverview() {
       <div className="flex-1 overflow-y-auto pb-8 space-y-[var(--space-lg)]">
         {selectedTab === 'overview' && (
           <>
-            <SummaryCards
-              data={data?.summary}
-              isLoading={isLoading}
-              error={error as Error | null}
-              compareEnabled={true}
-            />
+            {searchParams.get('legacy') === 'true' ? (
+              <>
+                <SummaryCards
+                  data={data?.summary}
+                  isLoading={isLoading}
+                  error={error as Error | null}
+                  compareEnabled={true}
+                />
 
-            <KpiTable
-              data={data?.kpiMetrics}
-              isLoading={isLoading}
-              error={error as Error | null}
-              viewMode={viewMode}
-              onViewModeChange={setViewMode}
-            />
+                <KpiTable
+                  data={data?.kpiMetrics}
+                  isLoading={isLoading}
+                  error={error as Error | null}
+                  viewMode={viewMode}
+                  onViewModeChange={setViewMode}
+                />
+              </>
+            ) : (
+              <AcquisitionOverviewTab from={range.from} to={range.to} />
+            )}
           </>
         )}
 
@@ -118,13 +126,9 @@ export default function DashboardOverview() {
 
         {selectedTab === 'product' && <ProductSection from={range.from} to={range.to} />}
 
-        {selectedTab === 'marketing' && (
-          <DashboardEmptyState description="Dashboard cho Marketing đang được chuẩn bị." />
-        )}
+        {selectedTab === 'marketing' && <MarketingTab from={range.from} to={range.to} />}
 
-        {selectedTab === 'media' && (
-          <DashboardEmptyState description="Dashboard cho Media đang được chuẩn bị." />
-        )}
+        {selectedTab === 'media' && <MediaTab from={range.from} to={range.to} />}
       </div>
     </div>
   );

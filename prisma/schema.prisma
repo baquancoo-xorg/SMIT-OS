@@ -326,3 +326,89 @@ model LeadStatusMapping {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
+
+// ============================================
+// Acquisition Tracking — Phase 2 (260510-0237-acquisition-trackers)
+// MVP: Meta Ads only. Google/TikTok deferred. Media multi-platform.
+// ============================================
+
+enum AdPlatform {
+  META // MVP only — Google/TikTok added later
+}
+
+enum MediaPlatform {
+  FACEBOOK
+  INSTAGRAM
+  YOUTUBE
+  BLOG
+  PR
+  OTHER
+  // TIKTOK: deferred (chưa launch platform)
+}
+
+enum MediaPostType {
+  ORGANIC
+  KOL
+  KOC
+  PR
+}
+
+model AdCampaign {
+  id          String     @id @default(uuid())
+  platform    AdPlatform
+  externalId  String // campaign_id từ platform API
+  name        String
+  utmCampaign String? // matching key với Lead.source (utm_campaign value)
+  status      String // ACTIVE | PAUSED | ARCHIVED
+  startedAt   DateTime?
+  endedAt     DateTime?
+  meta        Json? // platform-specific extras
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  spendRecords AdSpendRecord[]
+
+  @@unique([platform, externalId])
+  @@index([utmCampaign])
+  @@index([platform, status])
+}
+
+model AdSpendRecord {
+  id          String   @id @default(uuid())
+  campaignId  String
+  date        DateTime @db.Date
+  spend       Decimal  @db.Decimal(12, 2)
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+  conversions Int      @default(0) // tracked tại platform side
+  currency    String   @default("VND")
+
+  campaign AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, date])
+  @@index([date])
+}
+
+model MediaPost {
+  id          String        @id @default(uuid())
+  platform    MediaPlatform
+  externalId  String? // post id từ platform (nếu có API)
+  url         String?
+  title       String?
+  publishedAt DateTime
+  reach       Int           @default(0)
+  engagement  Int           @default(0)
+  utmCampaign String?
+  type        MediaPostType @default(ORGANIC)
+  cost        Decimal?      @db.Decimal(12, 2) // cho KOL/PR
+  createdById String? // owner cho RBAC read-shared/write-own (Member sửa được record do mình tạo)
+  meta        Json? // KOL name, PR outlet, sentiment, deliverable links
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([platform, type])
+  @@index([utmCampaign])
+  @@index([publishedAt])
+  @@index([createdById])
+}
+
