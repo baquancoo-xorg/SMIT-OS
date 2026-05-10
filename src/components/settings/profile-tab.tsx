@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Check, ShieldCheck, ShieldOff, QrCode, Copy, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Input, Button, Card } from '../ui';
+import { Input, Button, GlassCard as Card } from '../ui/v2';
 
 type SetupState = 'idle' | 'setup' | 'backup-codes';
 
@@ -88,7 +88,7 @@ export function ProfileTab() {
 
   return (
     <div className="max-w-5xl space-y-6">
-      <Card variant="glass" className="p-6 space-y-6">
+      <Card variant="surface" className="p-6 space-y-6">
         <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Profile Information</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <Input
@@ -109,7 +109,7 @@ export function ProfileTab() {
         </div>
       </Card>
 
-      <Card variant="glass" className="p-6 space-y-6">
+      <Card variant="surface" className="p-6 space-y-6">
         <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Two-Factor Authentication</p>
 
         {setupState === 'backup-codes' && (
@@ -136,7 +136,7 @@ export function ProfileTab() {
             <div className="flex gap-3">
               <Button
                 onClick={copyBackupCodes}
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 className="gap-2"
               >
@@ -183,7 +183,7 @@ export function ProfileTab() {
             <div className="flex gap-3">
               <Button
                 onClick={() => { setSetupState('idle'); setTwoFaError(''); }}
-                variant="outline"
+                variant="secondary"
               >
                 Cancel
               </Button>
@@ -252,14 +252,14 @@ export function ProfileTab() {
                 <div className="flex gap-3">
                   <Button
                     onClick={() => { setShowDisable(false); setDisablePassword(''); setTwoFaError(''); }}
-                    variant="outline"
+                    variant="secondary"
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleDisable2FA}
                     disabled={!disablePassword || twoFaLoading}
-                    variant="danger"
+                    variant="destructive"
                     className="flex-1"
                   >
                     {twoFaLoading ? 'Disabling...' : 'Confirm disable 2FA'}

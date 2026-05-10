@@ -8,7 +8,7 @@ import {
   Search,
   Unlink,
 } from 'lucide-react';
-import { Badge, Button, Card } from '../ui';
+import { Badge, Button, GlassCard as Card } from '../ui/v2';
 
 interface GoogleStatus {
   connected: boolean;
@@ -217,7 +217,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
     <div className="max-w-6xl space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-2">
-          <Card variant="glass" className="p-6 space-y-6 h-full">
+          <Card variant="surface" className="p-6 space-y-6 h-full">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-2">
                 <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Google Account</p>
@@ -325,7 +325,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
         </div>
 
         <div className="lg:col-span-1">
-          <Card variant="glass" className="p-5 space-y-2 h-full">
+          <Card variant="surface" className="p-5 space-y-2 h-full">
             <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Scheduled Export</p>
             <p className="text-sm font-bold text-on-surface">Daily at 11:00 AM</p>
             <Badge variant={googleStatus?.connected ? 'success' : 'neutral'}>
@@ -335,7 +335,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
         </div>
 
         <div className="lg:col-span-1">
-          <Card variant="glass" className="p-5 space-y-2 h-full">
+          <Card variant="surface" className="p-5 space-y-2 h-full">
             <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Sheets Created</p>
             <p className="text-sm font-bold text-on-surface">Per export cycle</p>
             <p className="text-4xl font-black font-headline text-primary">13</p>

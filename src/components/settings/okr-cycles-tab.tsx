@@ -2,7 +2,7 @@ import DatePicker from '../ui/DatePicker';
 import { useState, useEffect } from 'react';
 import { Save, X } from 'lucide-react';
 import { OkrCycle } from '../../types';
-import { Input, Button } from '../ui';
+import { Input, Button } from '../ui/v2';
 import { TableShell } from '../ui/TableShell';
 import { getTableContract } from '../ui/table-contract';
 import { formatTableDate } from '../ui/table-date-format';

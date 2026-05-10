@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { RefreshCw, Save, X } from 'lucide-react';
-import { Input, Button, Card, Badge } from '../ui';
+import { Input, Button, GlassCard as Card, Badge } from '../ui/v2';
 import { TableRowActions } from '../ui/TableRowActions';
 import { TableShell } from '../ui/TableShell';
 import { getTableContract } from '../ui/table-contract';
@@ -188,7 +188,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
     <div className="space-y-8 max-w-5xl">
       <div className="space-y-8">
         {(isAdding || editingId) && (
-          <Card variant="glass" className="p-6 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+          <Card variant="surface" className="p-6 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-black text-on-surface uppercase tracking-wider">{isAdding ? 'New Ad Account' : 'Edit Ad Account'}</h4>
               <button onClick={resetForm} className="p-2 hover:bg-surface-container-low rounded-xl transition-colors"><X size={18} /></button>
@@ -247,7 +247,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
           </Card>
         )}
 
-        <Card variant="glass" className="overflow-hidden shadow-sm">
+        <Card variant="surface" className="overflow-hidden shadow-sm">
           <TableShell variant="standard">
             <thead>
               <tr className={standardTable.headerRow}>
@@ -297,7 +297,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
         </Card>
       </div>
 
-      <Card variant="glass" className="overflow-hidden shadow-sm">
+      <Card variant="surface" className="overflow-hidden shadow-sm">
         <TableShell variant="standard">
           <thead>
             <tr className={standardTable.headerRow}>

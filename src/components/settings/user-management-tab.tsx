@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Save, X, UserCog } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { User } from '../../types';
-import { Input, Button, Card, Badge } from '../ui';
+import { Input, Button, GlassCard as Card, Badge } from '../ui/v2';
 import CustomSelect from '../ui/CustomSelect';
 import { TableRowActions } from '../ui/TableRowActions';
 import { TableShell } from '../ui/TableShell';
@@ -195,7 +195,7 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
 
               <div className="flex gap-3 pt-4">
                 <Button onClick={handleUpdateUser} className="flex-1 gap-2"><Save size={16} /> Save Changes</Button>
-                <Button onClick={() => setEditingUser(null)} variant="outline">Cancel</Button>
+                <Button onClick={() => setEditingUser(null)} variant="secondary">Cancel</Button>
               </div>
             </div>
           </Card>
@@ -256,7 +256,7 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
       {/* Tablet/Mobile: card list */}
       <div className="lg:hidden space-y-3">
         {users.map(user => (
-          <Card key={user.id} variant="flat" className="p-4">
+          <Card key={user.id} variant="outlined" className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xs font-black text-primary shrink-0">

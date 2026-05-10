@@ -245,13 +245,13 @@ export default function OKRsManagementV2() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <TabPill<ActiveTab> label="OKR level tabs" value={activeTab} onChange={setActiveTab} items={TABS} />
         <div className="flex flex-wrap items-center gap-3">
-          <FilterChip
+          <FilterChip<string>
             value={departmentFilter}
             onChange={setDepartmentFilter}
             options={DEPT_FILTER_OPTIONS}
             icon={<Filter size={14} />}
           />
-          <FilterChip
+          <FilterChip<string>
             value={statusFilter}
             onChange={setStatusFilter}
             options={STATUS_FILTER_OPTIONS}
