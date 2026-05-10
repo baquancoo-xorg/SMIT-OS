@@ -153,6 +153,15 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Sub-component migration — Batch 4 done 2026-05-10
+
+1 component migrated (table):
+- [x] `ads-tracker/campaigns-table.tsx` (173 LOC) → v2 DataTable (sortable spend/impressions/clicks/conversions/CTR + name) + v2 Badge cho status (ACTIVE→success, PAUSED→warning, ARCHIVED→neutral, DELETED→error) + EmptyState. Default sort: spendTotal desc.
+
+Removed: custom `SortableTh` helper component (replaced bằng DataTable built-in sort).
+
+vite build clean 2.24s ✓
+
 ### Sub-component migration — Batch 3 done 2026-05-10
 
 1 component migrated (table) + 1 skipped (out of scope):

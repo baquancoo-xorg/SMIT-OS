@@ -1,18 +1,28 @@
-import { useMemo, useState } from 'react';
+import { Megaphone } from 'lucide-react';
 import type { AdsCampaignSummary } from '../../types';
+import { DataTable, EmptyState, Badge } from '../ui/v2';
+import type { DataTableColumn } from '../ui/v2';
 
-type SortKey = 'spendTotal' | 'impressions' | 'clicks' | 'conversions' | 'name';
+/**
+ * Meta ad campaigns table — spend / impressions / clicks / conversions / CTR.
+ *
+ * Phase 8 follow-up batch 4 (2026-05-10): migrated to v2 DataTable primitive
+ * (built-in sort), v2 Badge cho status, v2 EmptyState. API identical
+ * (`<CampaignsTable campaigns={...} onSelect={...} />`).
+ *
+ * Default sort: spendTotal desc.
+ */
 
 interface Props {
   campaigns: AdsCampaignSummary[];
   onSelect?: (campaign: AdsCampaignSummary) => void;
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: 'bg-tertiary/10 text-tertiary border-tertiary/20',
-  PAUSED: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-  ARCHIVED: 'bg-slate-200 text-slate-500 border-slate-300',
-  DELETED: 'bg-error/10 text-error border-error/20',
+const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'error' | 'neutral'> = {
+  ACTIVE: 'success',
+  PAUSED: 'warning',
+  ARCHIVED: 'neutral',
+  DELETED: 'error',
 };
 
 function fmtNumber(n: number) {
@@ -24,150 +34,94 @@ function fmtMoney(n: number, currency: string) {
 }
 
 export default function CampaignsTable({ campaigns, onSelect }: Props) {
-  const [sortKey, setSortKey] = useState<SortKey>('spendTotal');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const columns: DataTableColumn<AdsCampaignSummary>[] = [
+    {
+      key: 'name',
+      label: 'Campaign',
+      sortable: true,
+      sort: (a, b) => a.name.localeCompare(b.name),
+      render: (c) => <span className="font-medium text-on-surface">{c.name}</span>,
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (c) => (
+        <Badge variant={STATUS_VARIANT[c.status] ?? 'neutral'}>{c.status}</Badge>
+      ),
+    },
+    {
+      key: 'utm',
+      label: 'UTM',
+      hideBelow: 'md',
+      render: (c) =>
+        c.utmCampaign ? (
+          <span className="font-mono text-[length:var(--text-caption)] text-on-surface-variant">{c.utmCampaign}</span>
+        ) : (
+          <span className="text-on-surface-variant/60">—</span>
+        ),
+    },
+    {
+      key: 'spendTotal',
+      label: 'Spend',
+      align: 'right',
+      sortable: true,
+      sort: (a, b) => a.spendTotal - b.spendTotal,
+      render: (c) => <span className="font-headline font-bold">{fmtMoney(c.spendTotal, c.currency)}</span>,
+    },
+    {
+      key: 'impressions',
+      label: 'Impr.',
+      align: 'right',
+      hideBelow: 'lg',
+      sortable: true,
+      sort: (a, b) => a.impressions - b.impressions,
+      render: (c) => <span className="font-semibold">{fmtNumber(c.impressions)}</span>,
+    },
+    {
+      key: 'clicks',
+      label: 'Clicks',
+      align: 'right',
+      sortable: true,
+      sort: (a, b) => a.clicks - b.clicks,
+      render: (c) => <span className="font-semibold">{fmtNumber(c.clicks)}</span>,
+    },
+    {
+      key: 'conversions',
+      label: 'Conv.',
+      align: 'right',
+      sortable: true,
+      sort: (a, b) => a.conversions - b.conversions,
+      render: (c) => <span className="font-semibold">{fmtNumber(c.conversions)}</span>,
+    },
+    {
+      key: 'ctr',
+      label: 'CTR',
+      align: 'right',
+      hideBelow: 'lg',
+      sortable: true,
+      sort: (a, b) => a.ctr - b.ctr,
+      render: (c) => <span className="font-semibold">{(c.ctr * 100).toFixed(2)}%</span>,
+    },
+  ];
 
-  const sorted = useMemo(() => {
-    const arr = [...campaigns];
-    arr.sort((a, b) => {
-      const av = sortKey === 'name' ? a.name : (a[sortKey] as number);
-      const bv = sortKey === 'name' ? b.name : (b[sortKey] as number);
-      if (typeof av === 'string' && typeof bv === 'string') {
-        return sortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+  return (
+    <DataTable<AdsCampaignSummary>
+      label="Ad campaigns"
+      data={campaigns}
+      columns={columns}
+      rowKey={(c) => c.id}
+      density="comfortable"
+      sort={{ key: 'spendTotal', direction: 'desc' }}
+      onSortChange={() => {}}
+      onRowClick={onSelect}
+      empty={
+        <EmptyState
+          icon={<Megaphone />}
+          title="No campaigns yet"
+          description="Run sync from admin to import Meta ad campaigns."
+          variant="inline"
+        />
       }
-      return sortDir === 'asc' ? (av as number) - (bv as number) : (bv as number) - (av as number);
-    });
-    return arr;
-  }, [campaigns, sortKey, sortDir]);
-
-  function toggleSort(key: SortKey) {
-    if (sortKey === key) setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
-    else {
-      setSortKey(key);
-      setSortDir('desc');
-    }
-  }
-
-  return (
-    <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-white/40">
-              <SortableTh active={sortKey === 'name'} dir={sortDir} onClick={() => toggleSort('name')}>
-                Campaign
-              </SortableTh>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">UTM</th>
-              <SortableTh
-                active={sortKey === 'spendTotal'}
-                dir={sortDir}
-                onClick={() => toggleSort('spendTotal')}
-                align="right"
-              >
-                Spend
-              </SortableTh>
-              <SortableTh
-                active={sortKey === 'impressions'}
-                dir={sortDir}
-                onClick={() => toggleSort('impressions')}
-                align="right"
-              >
-                Impr.
-              </SortableTh>
-              <SortableTh
-                active={sortKey === 'clicks'}
-                dir={sortDir}
-                onClick={() => toggleSort('clicks')}
-                align="right"
-              >
-                Clicks
-              </SortableTh>
-              <SortableTh
-                active={sortKey === 'conversions'}
-                dir={sortDir}
-                onClick={() => toggleSort('conversions')}
-                align="right"
-              >
-                Conv.
-              </SortableTh>
-              <th className="px-4 py-3 text-right">CTR</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="text-center py-12 text-slate-400 font-black uppercase tracking-widest text-[10px]">
-                  No campaigns yet — run sync from admin
-                </td>
-              </tr>
-            ) : (
-              sorted.map((c) => (
-                <tr
-                  key={c.id}
-                  onClick={() => onSelect?.(c)}
-                  className="border-b border-white/30 hover:bg-white/40 transition-colors cursor-pointer"
-                >
-                  <td className="px-4 py-3 font-medium text-on-surface">{c.name}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-black uppercase tracking-widest ${
-                        STATUS_COLORS[c.status] ?? 'bg-slate-100 text-slate-500 border-slate-200'
-                      }`}
-                    >
-                      {c.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-xs font-mono text-on-surface-variant">
-                    {c.utmCampaign ?? <span className="text-slate-300">—</span>}
-                  </td>
-                  <td className="px-4 py-3 text-right font-headline font-black">
-                    {fmtMoney(c.spendTotal, c.currency)}
-                  </td>
-                  <td className="px-4 py-3 text-right text-xs font-bold">{fmtNumber(c.impressions)}</td>
-                  <td className="px-4 py-3 text-right text-xs font-bold">{fmtNumber(c.clicks)}</td>
-                  <td className="px-4 py-3 text-right text-xs font-bold">{fmtNumber(c.conversions)}</td>
-                  <td className="px-4 py-3 text-right text-xs font-bold">
-                    {(c.ctr * 100).toFixed(2)}%
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function SortableTh({
-  active,
-  dir,
-  onClick,
-  align,
-  children,
-}: {
-  active: boolean;
-  dir: 'asc' | 'desc';
-  onClick: () => void;
-  align?: 'right';
-  children: React.ReactNode;
-}) {
-  return (
-    <th
-      onClick={onClick}
-      className={`px-4 py-3 cursor-pointer select-none ${align === 'right' ? 'text-right' : ''} ${
-        active ? 'text-primary' : ''
-      }`}
-    >
-      <span className="inline-flex items-center gap-1">
-        {children}
-        {active && (
-          <span className="material-symbols-outlined text-[12px]">
-            {dir === 'asc' ? 'arrow_upward' : 'arrow_downward'}
-          </span>
-        )}
-      </span>
-    </th>
+    />
   );
 }
