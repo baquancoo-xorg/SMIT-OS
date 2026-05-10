@@ -131,6 +131,27 @@ Strategic roadmap tracking completed features, active initiatives, and planned w
 | CRM DB query performance (cross-DB) | 🟡 Medium | 5-15min cache, indexed tables, paginated responses | Acceptable |
 | Sankey lib bundle bloat | 🟢 Low | Deferred to follow-up (lazy-load on-demand) | Resolved via scope cut |
 
+## Planned Work — In Progress
+
+### UI System Redesign (2026-05-10 onwards)
+
+**Phase 1 (Complete):** UX audit & research — 14 audit reports + Top 10 insights.
+
+**Phases 2–8:**
+- Phase 2: Design Token Foundation (spacing, color, typography, radius)
+- Phase 3: Mockups (page-level redesigns per Top 10 insights)
+- Phase 4: Component Library (Card, Form, Button primitives)
+- Phase 5: Design system docs + Storybook
+- Phase 6: Apply redesign to DailySync + WeeklyCheckin (mobile-critical)
+- Phase 7: Rollout across remaining pages
+- Phase 8: Rewrite `docs/ui-style-guide.md` with final design system
+
+**Audit reports:** `plans/260510-0358-ui-system-redesign/reports/`
+
+**Plan reference:** `plans/260510-0358-ui-system-redesign/`
+
+---
+
 ## Next Up
 
 1. **Post-launch monitoring:** Measure leadership engagement (Dashboard views, tab switching, drill-down clicks)

@@ -1,5 +1,21 @@
 # Project Changelog
 
+## [Unreleased]
+
+### UI System Redesign — Phase 1 (UX Audit & Research) completed
+
+**Phase 1 deliverables:**
+- 14 page-level UX audit reports (Dashboard, OKRs, Lead/Ads/Media Trackers, Daily Sync, Weekly Checkin, Settings, Profile, LoginPage, Layout components, Mobile)
+- Nielsen heuristic evaluation (10 criteria)
+- Cross-page drift inventory (spacing, card patterns, form patterns, header fragmentation, color/typography inconsistency)
+- Top 10 insights synthesis (5.5% design token adoption, 39 card variants, form abstraction missing, etc.)
+
+**No code changes in Phase 1 — audit-only research stage.** Findings inform Phases 2–8 (Design Tokens, Mockups, Component Library, Integration). `docs/ui-style-guide.md` currently source-of-truth but deferred for full rewrite post-Phase 8.
+
+**Audit reports:** `plans/260510-0358-ui-system-redesign/reports/`
+
+**Plan:** `plans/260510-0358-ui-system-redesign/plan.md`
+
 ## [v2.3.3] - 2026-05-10
 
 ### Acquisition Trackers MVP — Full 6-phase deployment

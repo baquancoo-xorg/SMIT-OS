@@ -257,3 +257,19 @@ Rollout status (as of 2026-05-10):
 **Dropped UI components (2026-05-10):** src/components/sprint/, src/components/work-item/, TaskCard, TaskModal, TaskTableView, EpicCard, board task components. ReportTableView retained.
 
 This architecture keeps table business logic in feature modules while consolidating visual shell behavior and formatting contracts in reusable UI primitives.
+
+### UI System Redesign (Phase 1 — 2026-05-10)
+
+**UX audit findings** identify systematic UI drift across 8/10 pages. Key metrics:
+
+| Finding | Status | Audit Location |
+|---------|--------|-----------------|
+| Design token adoption (spacing) | 5.5% only (292 raw `p-*` values vs 17 token uses) | Top 10 Insights #1 |
+| Card primitive variants | 39 distinct patterns; 91 `rounded-2xl` wrong vs 69 `rounded-3xl` correct | Top 10 Insights #2 |
+| Form abstraction missing | Alert() errors, no autosave, validation missing | Top 10 Insights #3 |
+| Cross-page drift | Spacing, header, color, typography inconsistent | Cross-page drift report |
+| Design system source | `docs/ui-style-guide.md` is canonical but only covers OKRs page | Will deprecate post-Phase 8 |
+
+Full audit reports (14 files): `plans/260510-0358-ui-system-redesign/reports/`
+
+Phases 2–8 roadmap tracks design token foundation, mockups, component library, and docs rewrite. No breaking UI changes in current release.
