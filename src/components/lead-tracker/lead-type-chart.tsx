@@ -3,6 +3,15 @@ import { Globe } from 'lucide-react';
 import { api } from '../../lib/api';
 import type { Lead } from '../../types';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { GlassCard, Spinner } from '../ui/v2';
+
+/**
+ * Pie chart visualizing leads distribution by leadType (e.g. Việt Nam vs Quốc Tế).
+ *
+ * Phase 8 follow-up batch 5 (2026-05-10): wrapper migrated to v2 GlassCard
+ * (`rounded-2xl` drift fixed → `rounded-card` token) + Spinner v2 + token
+ * typography. Recharts internals giữ nguyên (chart-specific brand colors).
+ */
 
 const COLORS = [
   '#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
@@ -46,20 +55,24 @@ export default function LeadTypeChart({ dateFrom, dateTo }: Props) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" />
-      </div>
+      <GlassCard variant="surface" padding="lg" className="flex items-center justify-center py-16">
+        <Spinner size="lg" />
+      </GlassCard>
     );
   }
 
   return (
-    <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-      <div className="flex items-center justify-between mb-4">
+    <GlassCard variant="surface" padding="md">
+      <div className="mb-4 flex items-center justify-between">
         <div>
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Leads by Country</h3>
-          <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">Distribution across countries</p>
+          <h3 className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">
+            Leads by Country
+          </h3>
+          <p className="mt-0.5 text-[length:var(--text-caption)] font-medium italic text-on-surface-variant">
+            Distribution across countries
+          </p>
         </div>
-        <div className="size-7 bg-slate-50 text-slate-400 rounded-lg flex items-center justify-center">
+        <div className="flex size-7 items-center justify-center rounded-button bg-surface-container text-on-surface-variant">
           <Globe size={14} />
         </div>
       </div>
@@ -100,7 +113,7 @@ export default function LeadTypeChart({ dateFrom, dateTo }: Props) {
               iconType="circle"
               iconSize={8}
               wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingLeft: '16px' }}
-              formatter={(value, entry) => {
+              formatter={(value) => {
                 const item = chartData.find((d) => d.name === value);
                 return `${value} (${item?.value || 0})`;
               }}
@@ -108,6 +121,6 @@ export default function LeadTypeChart({ dateFrom, dateTo }: Props) {
           </PieChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </GlassCard>
   );
 }

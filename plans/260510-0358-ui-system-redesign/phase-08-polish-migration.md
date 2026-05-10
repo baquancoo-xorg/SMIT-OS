@@ -153,6 +153,13 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Sub-component migration — Batch 5 done 2026-05-10
+
+1 component migrated (chart wrapper):
+- [x] `lead-tracker/lead-type-chart.tsx` (113 LOC) → wrapper migrated to v2 GlassCard (fix `rounded-2xl` drift → `rounded-card` token) + Spinner v2 + token typography. Recharts internals giữ nguyên (chart-specific brand colors).
+
+vite build clean 2.23s ✓
+
 ### Sub-component migration — Batch 4 done 2026-05-10
 
 1 component migrated (table):
