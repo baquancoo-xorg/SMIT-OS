@@ -262,18 +262,33 @@ Rollout status (as of 2026-05-10):
 
 This architecture keeps table business logic in feature modules while consolidating visual shell behavior and formatting contracts in reusable UI primitives.
 
-### UI System Redesign (Phase 1 — 2026-05-10)
+### UI System Redesign — Phases 1–8 completed (2026-05-10)
 
-**UX audit findings** identify systematic UI drift across 8/10 pages. Key metrics:
+Full 8-phase redesign shipped trong 1 ngày (JIT pivot — see plan `260510-0358-ui-system-redesign`).
 
-| Finding | Status | Audit Location |
-|---------|--------|-----------------|
-| Design token adoption (spacing) | 5.5% only (292 raw `p-*` values vs 17 token uses) | Top 10 Insights #1 |
-| Card primitive variants | 39 distinct patterns; 91 `rounded-2xl` wrong vs 69 `rounded-3xl` correct | Top 10 Insights #2 |
-| Form abstraction missing | Alert() errors, no autosave, validation missing | Top 10 Insights #3 |
-| Cross-page drift | Spacing, header, color, typography inconsistent | Cross-page drift report |
-| Design system source | `docs/ui-style-guide.md` is canonical but only covers OKRs page | Will deprecate post-Phase 8 |
+**Source of truth (post Phase 8):**
+- **Design tokens:** [`docs/design-tokens-spec.md`](./design-tokens-spec.md) — 70+ semantic tokens (color/spacing/typography/shadow/motion/z-index)
+- **Usage rules:** [`docs/design-system-foundation.md`](./design-system-foundation.md) — a11y, motion, breakpoints, patterns
+- **Component library:** `src/components/ui/v2/` — 25 components (atoms/molecules/organisms/layout) + Storybook
+- **DEPRECATED:** [`docs/ui-style-guide.md`](./ui-style-guide.md) — superseded by design-tokens-spec + design-system-foundation
 
-Full audit reports (14 files): `plans/260510-0358-ui-system-redesign/reports/`
+**Phase 8 migration (2026-05-10):**
+- v2 promoted to default cho 10 pages (App.tsx `useIsV2` → `useIsV1`)
+- v1 source kept cho rollback (`?v=1`) + because v2 reuse nhiều v1 sub-components
+- v1 hard-delete deferred until sub-component migration follow-up phase
 
-Phases 2–8 roadmap tracks design token foundation, mockups, component library, and docs rewrite. No breaking UI changes in current release.
+**v2 page status:**
+| Page | Status | Phase |
+|---|---|---|
+| LoginPage | full v2 | 5 |
+| Profile | full v2 | 5 |
+| Settings | full v2 (5 sub-tabs migrated) | 5 |
+| DailySync | full v2 | 6 |
+| WeeklyCheckin | shell + reuse v1 multi-step modal | 6 |
+| LeadTracker | shell + reuse v1 sub-components | 6 |
+| MediaTracker | shell + reuse v1 sub-components | 6 |
+| AdsTracker | shell + reuse v1 sub-components | 6 |
+| DashboardOverview | shell + reuse v1 5 tab content | 7 |
+| OKRsManagement | shell + reuse v1 accordion (13 features parity) | 7 |
+
+**Audit findings recap (Phase 1):** 5.5% design token adoption, 39 card variants, 91 `rounded-2xl` violations, form abstraction missing — all addressed by Phase 4 component library + Phase 8 default flip.

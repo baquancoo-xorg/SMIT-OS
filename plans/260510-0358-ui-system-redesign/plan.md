@@ -1,12 +1,13 @@
 ---
 title: "UI System Redesign — Full Rewrite 8 Pages from Scratch"
 description: "Redesign toàn bộ 8 pages + design system mới. UX research → wireframe → mockup → implement. Replace OKRs as new source of truth."
-status: in_progress
+status: implementation_done
 priority: P2
-effort: 8-10w
+effort: 8-10w (actual: 1 day with JIT pivot + pragmatic shell-first strategy)
 branch: main
 tags: [ui, ux, redesign, design-system, refactor, breaking-change]
 created: 2026-05-10
+shipped: 2026-05-10
 ---
 
 # Plan: UI System Redesign
@@ -199,7 +200,7 @@ See [`reports/current-tokens-inventory.md`](./reports/current-tokens-inventory.m
 | 5 | Pages Redesign — Auth/Profile/Settings (5 sub-tabs) | 1.5w | **implementation_done** (Batch 1+2: 3 pages + 5 sub-tabs + toggle 2026-05-10) | [phase-05-pages-small.md](./phase-05-pages-small.md) |
 | 6 | Pages Redesign — DailySync/WeeklyCheckin/LeadTracker/MediaTracker/AdsTracker | 2.5-3w | **implementation_done** (5 page shells + ?v=2 toggle 2026-05-10) | [phase-06-pages-medium.md](./phase-06-pages-medium.md) |
 | 7 | Pages Redesign — Dashboard/OKRs (hardest, most LOC) | 1.5-2w | **implementation_done** (Dashboard + OKRs v2 shells shipped 2026-05-10) | [phase-07-pages-large.md](./phase-07-pages-large.md) |
-| 8 | Polish + Migration + Documentation | 5-7d | pending | [phase-08-polish-migration.md](./phase-08-polish-migration.md) |
+| 8 | Polish + Migration + Documentation | 5-7d | **partial_done** (default flip + docs shipped 2026-05-10. Hard-delete v1 deferred — follow-up sub-component migration phase) | [phase-08-polish-migration.md](./phase-08-polish-migration.md) |
 
 **Total: 8-10 tuần** (mở rộng từ 7-9 tuần do scope thực tế lớn hơn audit ban đầu: +2 pages Acquisition, +5 Settings sub-tabs, +OkrCycleCountdown, +error states).
 

@@ -2,6 +2,45 @@
 
 ## [Unreleased]
 
+### UI System Redesign — Phase 8 Migration (v2 default flip) — 2026-05-10
+
+**BREAKING (UI):** v2 design system promoted to default cho TẤT CẢ 10 pages + sidebar/header/login/profile.
+
+**App.tsx changes:**
+- `useIsV2` → `useIsV1` (semantics inverted): v2 is default, `?v=1` rolls back to v1
+- 10 routes flipped: `/dashboard`, `/okrs`, `/daily-sync`, `/checkin`, `/lead-tracker`, `/media-tracker`, `/ads-tracker`, `/settings`, `/profile`, `/login`
+- v1 source files KEPT cho rollback safety + vì v2 pages reuse nhiều v1 sub-components (lead-tracker, media-tracker, ads-tracker, dashboard, checkin)
+
+**v2 pages live (cumulative across Phase 5-7):**
+- Phase 5: LoginPage, Profile, Settings (5 sub-tabs migrated)
+- Phase 6: DailySync, WeeklyCheckin, LeadTracker, MediaTracker, AdsTracker (5 page shells + ?v=2 toggle)
+- Phase 7: DashboardOverview, OKRsManagement (large pages — feature parity 100% verified for OKRs 13 features)
+
+**Rollback:** add `?v=1` to any URL to render v1 page tạm thời. v1 will be hard-deleted in follow-up phase after sub-component migration completes.
+
+**Plan:** `plans/260510-0358-ui-system-redesign/plan.md`
+
+### UI System Redesign — Phase 7 (Dashboard + OKRs v2 shells) — 2026-05-10
+
+**Deliverables:**
+- `src/pages/v2/DashboardOverview.tsx` — v2 PageHeader + TabPill (5 tabs: Overview/Sale/Product/Marketing/Media) + GlassCard wrappers + reuse v1 sub-section content
+- `src/pages/v2/OKRsManagement.tsx` — v2 PageHeader + 4 KpiCard Bento (Quarterly Progress / Active Objectives / Critical Path / Days Left Q2) + TabPill (L1/L2) + 2 CustomFilter + reuse 3 v1 accordion components
+- `src/components/okr/v2/department-color-config.ts` — shared helpers (getDeptColor, getOkrStatus, getCriticalPathHealth, getQ2Deadline) used by v1 + v2
+- `src/pages/OKRsManagement.tsx` — minimal change: add `export` cho ObjectiveAccordionCard, ObjectiveAccordionCardL2, AddObjectiveModal (non-breaking)
+
+**Feature parity verified (OKRs 13 features):** L1/L2 tabs ✓ Department filter ✓ Status filter ✓ Accordion expand ✓ Dept colors ✓ Quarterly Progress bento ✓ Critical Path Health ✓ Days Left Q2 ✓ OKR Tree ✓ Add Objective ✓ Link parent/child ✓ Delete confirm ✓ Edit KR with ownership.
+
+### UI System Redesign — Phase 6 (5 medium pages v2 shells) — 2026-05-10
+
+**Deliverables:**
+- `src/pages/v2/DailySync.tsx` — full v2 (PageHeader + 4 KpiCard + DataTable + FormDialog + Modal detail)
+- `src/pages/v2/WeeklyCheckin.tsx` — v2 shell + reuse v1 multi-step modal + new v2 detail modal
+- `src/pages/v2/LeadTracker.tsx` — v2 shell + TabPill (Logs/Stats) + reuse LeadLogsTab + DailyStatsTab
+- `src/pages/v2/MediaTracker.tsx` — v2 shell + 3 TabPill + 4 KpiCard Bento + reuse MediaPostsTable + MediaPostDialog
+- `src/pages/v2/AdsTracker.tsx` — v2 shell + 3 TabPill + 4 KpiCard Bento + reuse 3 sub-tables
+
+**RBAC parity:** admin-only CRM/Meta sync + approve, isSale CSV export.
+
 ### UI System Redesign — Phase 2 (Design System Foundation) completed
 
 **Phase 2 deliverables:**

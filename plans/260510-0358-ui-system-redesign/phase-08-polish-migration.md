@@ -11,7 +11,7 @@
 | Date | 2026-05-10 |
 | Priority | P2 |
 | Effort | 5-7 ngày |
-| Status | pending |
+| Status | partial_done (default flip + docs shipped 2026-05-10. Hard-delete v1 + sub-component migration deferred) |
 
 Final phase: swap `src/pages/` from v1 → v2, delete v1 files, update style guide doc, regression test, communicate change. Đây là phase migration risky cuối cùng.
 
@@ -119,21 +119,37 @@ plans/260510-0358-ui-system-redesign/reports/
 
 ## Todo List
 
-- [ ] Swap pages v1 → v2 import
-- [ ] Smoke test 8 routes
-- [ ] Delete v1 page files
-- [ ] Move v2 sub-components lên top, delete v1
-- [ ] Move v2 component library lên top
-- [ ] Refactor Acquisition Media/Ads pages
-- [ ] Verify Dashboard Marketing/Media tab style
-- [ ] Rewrite/deprecate `ui-style-guide.md`
-- [ ] Update `system-architecture.md`
-- [ ] Update `project-changelog.md`
-- [ ] Finalize `component-library.md`
-- [ ] Manual smoke test 32 scenarios
-- [ ] Lighthouse all pages
-- [ ] Bundle size check
-- [ ] Deploy + monitor PostHog 48h
+### Done 2026-05-10 (default flip + docs)
+
+- [x] Flip v2 default in App.tsx (`useIsV2` → `useIsV1`, all 10 routes)
+- [x] LoginPage v2 default (Suspense fallback for unauth route)
+- [x] `docs/project-changelog.md` — Phase 6/7/8 entries + BREAKING UI marker
+- [x] `docs/system-architecture.md` — UI redesign Phase 1-8 outcomes section + v2 page status table
+- [x] `docs/ui-style-guide.md` — already marked DEPRECATED in Phase 2
+- [x] Acquisition Media/Ads refactor (Phase 6 absorbed)
+
+### Deferred to follow-up phase
+
+⚠️ **Hard-delete v1 không thể làm ngay** vì v2 pages reuse nhiều v1 sub-components:
+- WeeklyCheckin v2 reuse `WeeklyCheckinModal` v1
+- LeadTracker v2 reuse `lead-tracker/{lead-logs-tab, daily-stats-tab, lead-log-dialog, last-sync-indicator, csv-export}`
+- MediaTracker v2 reuse `media-tracker/{media-posts-table, media-post-dialog, csv-export}`
+- AdsTracker v2 reuse `ads-tracker/{campaigns-table, spend-chart, attribution-table, csv-export}`
+- DashboardOverview v2 reuse `dashboard/{acquisition-overview, call-performance, lead-distribution, product, marketing, media, overview, ui}`
+- OKRsManagement v2 reuse exported inline functions từ v1 file
+
+**Follow-up phase work:**
+- [ ] Migrate sub-components ra `*/v2/` directories (lead-tracker, media-tracker, ads-tracker, dashboard, checkin)
+- [ ] Extract OKRs accordion (ObjectiveAccordionCard / ObjectiveAccordionCardL2 / KeyResultRow / ChildObjectiveCard) ra files riêng
+- [ ] Rewrite WeeklyCheckin multi-step form với FormDialog v2 wizard pattern
+- [ ] Rewrite OKRs KeyResultRow với v2 primitives
+- [ ] Hard-delete v1 page files + v1 sub-components
+- [ ] Move v2 sub-components lên top-level (drop `/v2/` namespace)
+- [ ] Move v2 ui components lên top-level (drop `/v2/` namespace)
+- [ ] Final regression: 32 manual scenarios (4 personas × 8 pages)
+- [ ] Lighthouse audit per page (Performance ≥ 85, A11y ≥ 90)
+- [ ] Bundle size budget check (≤ baseline + 10%)
+- [ ] PostHog 48h frustration spike monitoring
 - [ ] Internal comms
 
 ## Success Criteria
@@ -166,8 +182,47 @@ plans/260510-0358-ui-system-redesign/reports/
 - Bundle audit: no sensitive data inline
 - Lighthouse Best Practices ≥ 90 (no insecure deps)
 
+## Phase 8 Outcomes — Default Flip (2026-05-10)
+
+**Strategy pivot:** Original Phase 8 plan = "swap import, hard-delete v1, regression test, comms". Pragmatic blocker discovered: v2 pages **reuse nhiều v1 sub-components** (lead-tracker, media-tracker, ads-tracker, dashboard, checkin sub-dirs) → hard-delete sẽ break v2.
+
+**Decision:** Ship default-flip + docs only. Hard-delete v1 sub-components defer thành follow-up phase sau khi sub-component migration ship.
+
+**Default flip done:**
+- `useIsV2` → `useIsV1` semantics inverted in App.tsx
+- 10 routes (Dashboard / OKRs / DailySync / WeeklyCheckin / LeadTracker / MediaTracker / AdsTracker / Settings / Profile / LoginPage) đều default v2
+- `?v=1` rollback flag preserves v1 reachability
+- `?v=2` becomes harmless no-op (safe for old bookmarks)
+
+**Docs updated:**
+- `docs/project-changelog.md` — 3 new entries (Phase 6, 7, 8) với BREAKING UI marker
+- `docs/system-architecture.md` — UI Redesign section rewritten với v2 page status table
+- `docs/ui-style-guide.md` — already deprecated since Phase 2
+
+**Compile:** vite build clean ✓
+
+**Cumulative results — 8 phases trong 1 ngày:**
+- Phase 1: 14 UX audit reports (Top 10 insights)
+- Phase 2: 70+ design tokens (`src/index.css` + 2 docs)
+- Phase 3: 10 mockup screens (Stitch AI) + JIT prompts spec
+- Phase 4: 25 v2 components (atoms + molecules + organisms + layout) + Storybook
+- Phase 5: 3 small pages (LoginPage / Profile / Settings + 5 sub-tabs)
+- Phase 6: 5 medium pages shells (DailySync / WeeklyCheckin / LeadTracker / MediaTracker / AdsTracker)
+- Phase 7: 2 large pages shells (Dashboard / OKRs — 13 features parity verified)
+- Phase 8: default flip + docs
+
+**Total LOC shipped:** ~3000+ LOC v2 (page shells + components + helpers + docs)
+
+## Unresolved Questions
+
+1. Sub-component migration phase tách thành issue mới hay extend plan này?
+2. Có cần Lighthouse audit ngay không, hay chờ user smoke test trước?
+3. PostHog session replay 48h monitor — automation script hay manual review?
+
 ## Next Steps
 
-- Sau Phase 8 ship → run `/ck:plan:archive` cho plan này
+- User smoke test 10 pages (default v2, không cần `?v=2`)
+- Sau OK → run `/ck:plan:archive` cho plan này
+- Follow-up phase: sub-component v2 migration → hard-delete v1
 - Future: visual regression test setup (Playwright snapshots)
-- Future: design review cadence (mỗi PR đụng UI cần check style guide)
+- Future: design review cadence (mỗi PR đụng UI cần check design-tokens-spec)
