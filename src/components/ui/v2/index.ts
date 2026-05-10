@@ -56,6 +56,9 @@ export type { ConfirmDialogProps, ConfirmTone } from './confirm-dialog';
 export { DropdownMenu, DropdownTriggerChevron } from './dropdown-menu';
 export type { DropdownMenuProps, DropdownMenuItem } from './dropdown-menu';
 
+export { FilterChip } from './filter-chip';
+export type { FilterChipProps, FilterChipOption, FilterChipSize } from './filter-chip';
+
 export { ToastProvider, useToast, NotificationToast } from './notification-toast';
 export type { ToastTone, ToastOptions } from './notification-toast';
 

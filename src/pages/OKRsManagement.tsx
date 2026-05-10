@@ -28,9 +28,9 @@ import {
   KpiCard,
   EmptyState,
   GlassCard,
+  FilterChip,
 } from '../components/ui/v2';
 import type { TabPillItem } from '../components/ui/v2';
-import CustomFilter from '../components/ui/CustomFilter';
 
 type ActiveTab = 'L1' | 'L2';
 
@@ -245,13 +245,13 @@ export default function OKRsManagementV2() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <TabPill<ActiveTab> label="OKR level tabs" value={activeTab} onChange={setActiveTab} items={TABS} />
         <div className="flex flex-wrap items-center gap-3">
-          <CustomFilter
+          <FilterChip
             value={departmentFilter}
             onChange={setDepartmentFilter}
             options={DEPT_FILTER_OPTIONS}
             icon={<Filter size={14} />}
           />
-          <CustomFilter
+          <FilterChip
             value={statusFilter}
             onChange={setStatusFilter}
             options={STATUS_FILTER_OPTIONS}

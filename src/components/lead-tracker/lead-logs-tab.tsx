@@ -6,7 +6,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Lead } from '../../types';
-import CustomFilter from '../ui/CustomFilter';
 import DatePicker from '../ui/DatePicker';
 import BulkActionBar, { type BulkEditFields } from './bulk-action-bar';
 import LeadDetailModal from './lead-detail-modal';
@@ -15,7 +14,7 @@ import { TableRowActions } from '../ui/TableRowActions';
 import { TableShell } from '../ui/TableShell';
 import { getTableContract } from '../ui/table-contract';
 import { formatTableDateTime } from '../ui/table-date-format';
-import { GlassCard, Badge, Input, Button, EmptyState } from '../ui/v2';
+import { GlassCard, Badge, Input, Button, EmptyState, FilterChip } from '../ui/v2';
 import type { BadgeVariant } from '../ui/v2';
 
 const STATUSES = ['Mới', 'Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'];
@@ -215,9 +214,10 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
           <span className="text-on-surface-variant/60 text-xs">&#8212;</span>
           <DatePicker value={filters.dateTo} onChange={(v) => sf('dateTo', v)} placeholder="Đến ngày" />
         </div>
-        <CustomFilter value={filters.ae} onChange={(v) => sf('ae', v)} options={[{ value: '', label: 'All AE' }, ...aeOptions.map((a) => ({ value: a.fullName, label: a.fullName }))]} buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case" />
-        <CustomFilter value={filters.status} onChange={(v) => sf('status', v)} options={[{ value: '', label: 'All Status' }, ...STATUSES.map((s) => ({ value: s, label: toStatusLabel(s) }))]} buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case" />
-        <CustomFilter
+        <FilterChip size="sm" value={filters.ae} onChange={(v) => sf('ae', v)} options={[{ value: '', label: 'All AE' }, ...aeOptions.map((a) => ({ value: a.fullName, label: a.fullName }))]} />
+        <FilterChip size="sm" value={filters.status} onChange={(v) => sf('status', v)} options={[{ value: '', label: 'All Status' }, ...STATUSES.map((s) => ({ value: s, label: toStatusLabel(s) }))]} />
+        <FilterChip
+          size="sm"
           value={filters.hasNote}
           onChange={(v) => sf('hasNote', v)}
           options={[
@@ -225,7 +225,6 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
             { value: 'yes', label: 'With note' },
             { value: 'no', label: 'Without note' },
           ]}
-          buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case"
         />
         <DatePicker value={filters.noteDate} onChange={(v) => sf('noteDate', v)} placeholder="Note changed" />
         <Input
