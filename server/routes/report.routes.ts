@@ -73,18 +73,9 @@ export function createReportRoutes(prisma: PrismaClient) {
       return res.status(400).json({ error: 'Cannot edit approved report' });
     }
 
-    // Authorization check - Leader can only edit same-department members' reports
+    // Authorization: own-only or admin (read-shared, write-own pattern).
     const isOwner = report.userId === user.userId;
-    let isLeaderOfUser = false;
-    if (user.role?.includes('Leader') && report.user.role === 'Member') {
-      const reportUserDepts = await prisma.user.findUnique({
-        where: { id: report.userId },
-        select: { departments: true }
-      });
-      const sharedDepts = reportUserDepts?.departments?.filter(d => user.departments?.includes(d)) || [];
-      isLeaderOfUser = sharedDepts.length > 0;
-    }
-    if (!isOwner && !isLeaderOfUser && !user.isAdmin) {
+    if (!isOwner && !user.isAdmin) {
       return res.status(403).json({ error: 'Not authorized' });
     }
 
@@ -99,7 +90,7 @@ export function createReportRoutes(prisma: PrismaClient) {
     res.json(updated);
   }));
 
-  router.post('/:id/approve', RBAC.leaderOrAdmin, handleAsync(async (req: any, res: any) => {
+  router.post('/:id/approve', RBAC.adminOnly, handleAsync(async (req: any, res: any) => {
     const { id } = req.params;
     const user = req.user!;
 
@@ -110,14 +101,6 @@ export function createReportRoutes(prisma: PrismaClient) {
 
     if (!report) {
       return res.status(404).json({ error: 'Report not found' });
-    }
-
-    if (!user.isAdmin && user.role?.includes('Leader')) {
-      // Check if leader shares at least one department with the report user
-      const sharedDepts = report.user.departments.filter(d => user.departments?.includes(d));
-      if (sharedDepts.length === 0 || report.user.role !== 'Member') {
-        return res.status(403).json({ error: "Can only approve your team members' reports" });
-      }
     }
 
     const updated = await prisma.weeklyReport.update({

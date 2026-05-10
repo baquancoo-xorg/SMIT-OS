@@ -154,12 +154,11 @@ export function createLeadRoutes(prisma: PrismaClient) {
   router.post('/:id/delete-request', RBAC.authenticated, handleAsync(async (req: any, res: any) => {
     const existing = await prisma.lead.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ error: 'Not found' });
-    // Only the AE of this lead, or Leader/Admin can request deletion
+    // Only the AE of this lead or an Admin can request deletion
     const user = req.user!;
     const isAeOfLead = existing.ae === user.fullName || existing.ae === user.username;
-    const isLeaderOrAdmin = user.isAdmin || user.role?.includes('Leader');
-    if (!isAeOfLead && !isLeaderOrAdmin) {
-      return res.status(403).json({ error: 'Only the AE of this lead or Leader/Admin can request deletion' });
+    if (!isAeOfLead && !user.isAdmin) {
+      return res.status(403).json({ error: 'Only the AE of this lead or Admin can request deletion' });
     }
     if (existing.deleteRequestedBy) {
       return res.status(409).json({ error: 'Delete request already pending' });

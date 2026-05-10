@@ -15,23 +15,23 @@ export function createObjectiveRoutes(prisma: PrismaClient) {
     res.json(objectives);
   }));
 
-  router.post('/', RBAC.leaderOrAdmin, validate(createObjectiveSchema), handleAsync(async (req: any, res: any) => {
+  router.post('/', RBAC.adminOnly, validate(createObjectiveSchema), handleAsync(async (req: any, res: any) => {
     const objective = await okrService.createObjective(req.body);
     res.json(objective);
   }));
 
-  router.put('/:id', RBAC.leaderOrAdmin, validate(updateObjectiveSchema), handleAsync(async (req: any, res: any) => {
+  router.put('/:id', RBAC.adminOnly, validate(updateObjectiveSchema), handleAsync(async (req: any, res: any) => {
     const objective = await okrService.updateObjective(req.params.id, req.body);
     res.json(objective);
   }));
 
-  router.delete('/:id', RBAC.leaderOrAdmin, handleAsync(async (req: any, res: any) => {
+  router.delete('/:id', RBAC.adminOnly, handleAsync(async (req: any, res: any) => {
     await okrService.deleteObjective(req.params.id);
     res.status(204).send();
   }));
 
-  // Recalculate progress endpoint (Leader+ can trigger)
-  router.post('/recalculate', RBAC.leaderOrAdmin, handleAsync(async (_req: any, res: any) => {
+  // Recalculate progress endpoint (Admin only)
+  router.post('/recalculate', RBAC.adminOnly, handleAsync(async (_req: any, res: any) => {
     await okrService.recalculateObjectiveProgress();
     res.json({ success: true });
   }));

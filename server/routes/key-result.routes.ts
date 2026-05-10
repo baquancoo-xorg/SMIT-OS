@@ -27,7 +27,8 @@ export function createKeyResultRoutes(prisma: PrismaClient) {
     res.json(keyResults);
   }));
 
-  router.post('/', RBAC.leaderOrAdmin, validate(createKeyResultSchema), handleAsync(async (req: any, res: any) => {
+  // Create KR: admin only (Objective L1 structure changes are admin-only per RBAC matrix).
+  router.post('/', RBAC.adminOnly, validate(createKeyResultSchema), handleAsync(async (req: any, res: any) => {
     const keyResult = await prisma.keyResult.create({
       data: req.body,
       include: { objective: true, owner: { select: { id: true, fullName: true, avatar: true } } },
@@ -35,7 +36,20 @@ export function createKeyResultRoutes(prisma: PrismaClient) {
     res.json(keyResult);
   }));
 
-  router.put('/:id', RBAC.leaderOrAdmin, validate(updateKeyResultSchema), handleAsync(async (req: any, res: any) => {
+  // Update KR: owner of KR or admin (read-shared, write-own pattern).
+  router.put('/:id', validate(updateKeyResultSchema), handleAsync(async (req: any, res: any) => {
+    const user = req.user!;
+    const existing = await prisma.keyResult.findUnique({
+      where: { id: req.params.id },
+      select: { ownerId: true },
+    });
+    if (!existing) return res.status(404).json({ error: 'Not found' });
+
+    const isOwner = !!existing.ownerId && existing.ownerId === user.userId;
+    if (!user.isAdmin && !isOwner) {
+      return res.status(403).json({ error: 'Forbidden — only KR owner or admin can edit' });
+    }
+
     const keyResult = await prisma.keyResult.update({
       where: { id: req.params.id },
       data: req.body,
@@ -45,7 +59,8 @@ export function createKeyResultRoutes(prisma: PrismaClient) {
     res.json(keyResult);
   }));
 
-  router.delete('/:id', RBAC.leaderOrAdmin, handleAsync(async (req: any, res: any) => {
+  // Delete KR: admin only (structural change to OKR tree).
+  router.delete('/:id', RBAC.adminOnly, handleAsync(async (req: any, res: any) => {
     await prisma.keyResult.delete({ where: { id: req.params.id } });
     await okrService.recalculateObjectiveProgress();
     res.status(204).send();

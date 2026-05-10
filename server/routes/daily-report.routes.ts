@@ -15,23 +15,10 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
   const checkOwnership = createOwnershipMiddleware(prisma);
   const notificationService = createNotificationService(prisma);
 
-  router.get('/', handleAsync(async (req: any, res: any) => {
-    const user = req.user;
-    let where: any = {};
-
-    if (user.role === 'Member') {
-      where.userId = user.userId;
-    } else if (user.role?.includes('Leader')) {
-      const userDepts = user.departments || [];
-      where.OR = [
-        { userId: user.userId },
-        { user: { departments: { hasSome: userDepts } } }
-      ];
-    }
-    // Admin sees all (no where filter)
-
+  router.get('/', handleAsync(async (_req: any, res: any) => {
+    // Read-shared: every authenticated user sees all daily reports.
+    // Mutation/approve are still gated below (own-only / admin-only).
     const reports = await prisma.dailyReport.findMany({
-      where,
       include: {
         user: { select: { id: true, fullName: true, departments: true, role: true, avatar: true } },
         approver: { select: { id: true, fullName: true } },
@@ -72,10 +59,10 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
         include: { user: true },
       });
 
-      // Fanout notification to leaders + admins (excluding submitter).
+      // Fanout notification to admins (excluding submitter).
       // Skip silently if no recipients (e.g. solo admin org).
       try {
-        const recipientIds = await notificationService.findLeadersAndAdminsFor(
+        const recipientIds = await notificationService.findAdminRecipientsFor(
           { id: userId, departments: report.user.departments ?? [] },
           { excludeSelf: true }
         );
@@ -114,13 +101,8 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
 
     const isOwner = report.userId === currentUser.userId;
     const isAdmin = currentUser.isAdmin;
-    let isLeaderOfUser = false;
-    if (currentUser.role?.includes('Leader') && report.user.role === 'Member') {
-      const sharedDepts = report.user.departments?.filter(d => currentUser.departments?.includes(d)) || [];
-      isLeaderOfUser = sharedDepts.length > 0;
-    }
 
-    if (!isOwner && !isLeaderOfUser && !isAdmin) {
+    if (!isOwner && !isAdmin) {
       return res.status(403).json({ error: 'Not authorized' });
     }
 
@@ -139,7 +121,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
     res.json(updated);
   }));
 
-  router.post('/:id/approve', RBAC.leaderOrAdmin, handleAsync(async (req: any, res: any) => {
+  router.post('/:id/approve', RBAC.adminOnly, handleAsync(async (req: any, res: any) => {
     const { id } = req.params;
     const user = req.user!;
 
@@ -150,13 +132,6 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
 
     if (!report) {
       return res.status(404).json({ error: 'Report not found' });
-    }
-
-    if (!user.isAdmin && user.role?.includes('Leader')) {
-      const sharedDepts = report.user.departments.filter(d => user.departments?.includes(d));
-      if (sharedDepts.length === 0 || report.user.role !== 'Member') {
-        return res.status(403).json({ error: "Can only approve your team members' reports" });
-      }
     }
 
     const updated = await prisma.dailyReport.update({
