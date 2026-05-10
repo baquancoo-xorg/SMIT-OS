@@ -64,8 +64,8 @@ async function checkDailyLate(prisma: PrismaClient, notificationService: Notific
   let emitted = 0;
   for (const member of members) {
     if (submittedSet.has(member.id)) continue;
-    const leadersAdmins = await notificationService.findLeadersAndAdminsFor(member);
-    const recipients = Array.from(new Set([member.id, ...leadersAdmins]));
+    const admins = await notificationService.findAdminRecipientsFor(member);
+    const recipients = Array.from(new Set([member.id, ...admins]));
     if (!recipients.length) continue;
     await notificationService.notifyDailyLate(member, todayISO, recipients);
     emitted++;
@@ -95,8 +95,8 @@ async function checkWeeklyLate(prisma: PrismaClient, notificationService: Notifi
   let emitted = 0;
   for (const member of members) {
     if (submittedSet.has(member.id)) continue;
-    const leadersAdmins = await notificationService.findLeadersAndAdminsFor(member);
-    const recipients = Array.from(new Set([member.id, ...leadersAdmins]));
+    const admins = await notificationService.findAdminRecipientsFor(member);
+    const recipients = Array.from(new Set([member.id, ...admins]));
     if (!recipients.length) continue;
     await notificationService.notifyWeeklyLate(member, weekEndingISO, recipients);
     emitted++;

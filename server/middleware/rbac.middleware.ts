@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-type Role = 'Admin' | 'Leader' | 'Member';
+type Role = 'Admin' | 'Member';
 
 interface RBACOptions {
   allowedRoles?: Role[];
@@ -28,10 +28,9 @@ export function rbac(options: RBACOptions = {}) {
 
     // Check allowed roles
     if (options.allowedRoles) {
-      const userRole = user.isAdmin ? 'Admin' :
-        user.role?.includes('Leader') ? 'Leader' : 'Member';
+      const userRole: Role = user.isAdmin ? 'Admin' : 'Member';
 
-      if (!options.allowedRoles.includes(userRole as Role)) {
+      if (!options.allowedRoles.includes(userRole)) {
         return res.status(403).json({ error: 'Insufficient permissions' });
       }
     }
@@ -50,6 +49,5 @@ export function rbac(options: RBACOptions = {}) {
 export const RBAC = {
   adminOnly: rbac({ adminOnly: true }),
   authenticated: rbac({}),
-  leaderOrAdmin: rbac({ allowedRoles: ['Admin', 'Leader'] }),
   selfOrAdmin: rbac({ allowSelf: true }),
 };

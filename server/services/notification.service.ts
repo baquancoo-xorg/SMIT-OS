@@ -22,23 +22,13 @@ export function createNotificationService(prisma: PrismaClient) {
     ],
   };
 
-  // Returns leader/admin user ids whose dept overlaps targetUser.
-  // If excludeSelf, drop targetUser.id from the result.
-  async function findLeadersAndAdminsFor(
+  // Returns admin user ids. Leader role removed (plan 260510-0318);
+  // escalation flows now go straight to admins.
+  async function findAdminRecipientsFor(
     targetUser: RecipientUser,
     opts?: { excludeSelf?: boolean }
   ): Promise<string[]> {
-    const where: Prisma.UserWhereInput = {
-      OR: [
-        { isAdmin: true },
-        {
-          role: { contains: 'Leader' },
-          departments: targetUser.departments?.length
-            ? { hasSome: targetUser.departments }
-            : undefined,
-        },
-      ],
-    };
+    const where: Prisma.UserWhereInput = { isAdmin: true };
     if (opts?.excludeSelf) {
       where.NOT = { id: targetUser.id };
     }
@@ -47,7 +37,7 @@ export function createNotificationService(prisma: PrismaClient) {
   }
 
   return {
-    findLeadersAndAdminsFor,
+    findAdminRecipientsFor,
 
     async create(data: CreateNotificationInput) {
       return prisma.notification.create({ data });
