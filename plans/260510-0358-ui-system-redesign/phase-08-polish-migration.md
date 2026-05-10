@@ -153,6 +153,14 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Sub-component migration — Batch 3 done 2026-05-10
+
+1 component migrated (table) + 1 skipped (out of scope):
+- [x] `media-tracker/media-posts-table.tsx` (160 LOC) → v2 DataTable (sortable Type/Title/Date/Reach/Engagement/Cost) + Badge variants for sentiment + Button (ghost actions). Type badges (KOL/KOC/PR/ORGANIC) keep brand colors (token-driven shape).
+- [ ] `lead-tracker/daily-stats-tab.tsx` — SKIPPED. Pivot table với multi-row header (rowSpan/colSpan + sticky positioning AE×Date). v2 DataTable không support nested column groups. ROI low cho token modernization. Defer cho deep redesign session.
+
+vite build clean 2.18s ✓
+
 ### Sub-component migration — Batch 2 done 2026-05-10
 
 2 components migrated (modal + table):

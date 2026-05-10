@@ -1,7 +1,19 @@
-import { Edit3, ExternalLink, Trash2 } from 'lucide-react';
+import { Edit3, ExternalLink, Trash2, Newspaper } from 'lucide-react';
 import { format } from 'date-fns';
 import type { MediaPost } from '../../types';
 import PlatformBadge from './platform-badge';
+import { DataTable, EmptyState, Badge, Button } from '../ui/v2';
+import type { DataTableColumn } from '../ui/v2';
+
+/**
+ * Media posts table — owned/KOL/PR posts với reach, engagement, optional cost + sentiment.
+ *
+ * Phase 8 follow-up batch 3 (2026-05-10): migrated to v2 DataTable + Badge variants
+ * + Button (ghost actions) + EmptyState. API identical.
+ *
+ * Type/sentiment use brand-specific colors (KOL pink, KOC orange, PR blue) — kept
+ * inline since they map to fixed business taxonomy không phải v2 Badge semantic.
+ */
 
 interface Props {
   posts: MediaPost[];
@@ -20,11 +32,22 @@ const TYPE_BADGE: Record<string, string> = {
   PR: 'bg-[#0059B6]/10 text-[#0059B6] border-[#0059B6]/20',
 };
 
-const SENTIMENT_BADGE: Record<string, string> = {
-  positive: 'bg-tertiary/10 text-tertiary border-tertiary/20',
-  neutral: 'bg-slate-100 text-slate-500 border-slate-200',
-  negative: 'bg-error/10 text-error border-error/20',
-};
+function TypeBadge({ type }: { type: string }) {
+  return (
+    <span
+      className={`inline-flex h-5 items-center rounded-chip border px-2 text-[length:var(--text-caption)] font-medium tracking-[var(--tracking-wide)] whitespace-nowrap ${
+        TYPE_BADGE[type] ?? 'bg-surface-container text-on-surface-variant border-outline-variant'
+      }`}
+    >
+      {type}
+    </span>
+  );
+}
+
+function SentimentBadge({ sentiment }: { sentiment: string }) {
+  const variant = sentiment === 'positive' ? 'success' : sentiment === 'negative' ? 'error' : 'neutral';
+  return <Badge variant={variant}>{sentiment}</Badge>;
+}
 
 function fmtNumber(n: number) {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
@@ -41,120 +64,156 @@ export default function MediaPostsTable({
   showCost,
   showSentiment,
 }: Props) {
-  return (
-    <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-white/40">
-              <th className="px-4 py-3">Platform</th>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">Title</th>
-              <th className="px-4 py-3">Date</th>
-              <th className="px-4 py-3 text-right">Reach</th>
-              <th className="px-4 py-3 text-right">Engagement</th>
-              {showCost && <th className="px-4 py-3 text-right">Cost</th>}
-              {showSentiment && <th className="px-4 py-3">Sentiment</th>}
-              <th className="px-4 py-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {posts.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={showCost && showSentiment ? 9 : showCost || showSentiment ? 8 : 7}
-                  className="text-center py-12 text-slate-400 font-black uppercase tracking-widest text-[10px]"
-                >
-                  No posts yet — click <span className="text-primary">Add post</span> to start
-                </td>
-              </tr>
-            ) : (
-              posts.map((p) => {
-                const meta = (p.meta ?? {}) as Record<string, any>;
-                const sentiment = String(meta.sentiment ?? 'neutral') as keyof typeof SENTIMENT_BADGE;
-                const canEdit = isAdmin || p.createdById === currentUserId;
-                return (
-                  <tr key={p.id} className="border-b border-white/30 hover:bg-white/40 transition-colors">
-                    <td className="px-4 py-3">
-                      <PlatformBadge platform={p.platform} />
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-black uppercase tracking-widest ${
-                          TYPE_BADGE[p.type] ?? 'bg-slate-100 text-slate-500 border-slate-200'
-                        }`}
-                      >
-                        {p.type}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-on-surface">
-                        {p.title ?? <span className="text-slate-300">Untitled</span>}
-                      </div>
-                      {p.url && (
-                        <a
-                          href={p.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-primary hover:underline inline-flex items-center gap-1"
-                        >
-                          <ExternalLink size={10} />
-                          link
-                        </a>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-xs text-on-surface-variant">
-                      {format(new Date(p.publishedAt), 'yyyy-MM-dd')}
-                    </td>
-                    <td className="px-4 py-3 text-right font-headline font-black">{fmtNumber(p.reach)}</td>
-                    <td className="px-4 py-3 text-right font-headline font-black">{fmtNumber(p.engagement)}</td>
-                    {showCost && (
-                      <td className="px-4 py-3 text-right text-xs font-bold">
-                        {p.cost != null ? p.cost.toLocaleString('en-US') + ' VND' : '—'}
-                      </td>
-                    )}
-                    {showSentiment && (
-                      <td className="px-4 py-3">
-                        {p.type === 'PR' ? (
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-black uppercase tracking-widest ${SENTIMENT_BADGE[sentiment]}`}
-                          >
-                            {sentiment}
-                          </span>
-                        ) : (
-                          <span className="text-slate-300">—</span>
-                        )}
-                      </td>
-                    )}
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        {canEdit && onEdit && (
-                          <button
-                            onClick={() => onEdit(p)}
-                            className="p-1.5 hover:bg-slate-100 rounded-full transition"
-                            title="Edit"
-                          >
-                            <Edit3 size={13} />
-                          </button>
-                        )}
-                        {canEdit && onDelete && (
-                          <button
-                            onClick={() => onDelete(p)}
-                            className="p-1.5 hover:bg-error/10 text-error rounded-full transition"
-                            title="Delete"
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
+  const columns: DataTableColumn<MediaPost>[] = [
+    {
+      key: 'platform',
+      label: 'Platform',
+      render: (p) => <PlatformBadge platform={p.platform} />,
+    },
+    {
+      key: 'type',
+      label: 'Type',
+      sortable: true,
+      sort: (a, b) => a.type.localeCompare(b.type),
+      render: (p) => <TypeBadge type={p.type} />,
+    },
+    {
+      key: 'title',
+      label: 'Title',
+      sortable: true,
+      sort: (a, b) => (a.title ?? '').localeCompare(b.title ?? ''),
+      render: (p) => (
+        <div className="flex flex-col gap-0.5">
+          <span className="font-medium text-on-surface">
+            {p.title ?? <span className="italic text-on-surface-variant/60">Untitled</span>}
+          </span>
+          {p.url && (
+            <a
+              href={p.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[length:var(--text-caption)] text-primary hover:underline w-fit"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ExternalLink className="size-3" aria-hidden="true" />
+              link
+            </a>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'publishedAt',
+      label: 'Date',
+      hideBelow: 'md',
+      sortable: true,
+      sort: (a, b) => new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime(),
+      render: (p) => format(new Date(p.publishedAt), 'yyyy-MM-dd'),
+    },
+    {
+      key: 'reach',
+      label: 'Reach',
+      align: 'right',
+      sortable: true,
+      sort: (a, b) => a.reach - b.reach,
+      render: (p) => <span className="font-headline font-bold">{fmtNumber(p.reach)}</span>,
+    },
+    {
+      key: 'engagement',
+      label: 'Engagement',
+      align: 'right',
+      sortable: true,
+      sort: (a, b) => a.engagement - b.engagement,
+      render: (p) => <span className="font-headline font-bold">{fmtNumber(p.engagement)}</span>,
+    },
+    ...(showCost
+      ? [
+          {
+            key: 'cost',
+            label: 'Cost',
+            align: 'right' as const,
+            hideBelow: 'lg' as const,
+            sortable: true,
+            sort: (a: MediaPost, b: MediaPost) => (a.cost ?? 0) - (b.cost ?? 0),
+            render: (p: MediaPost) =>
+              p.cost != null ? <span className="font-semibold">{p.cost.toLocaleString('en-US')} VND</span> : <span className="text-on-surface-variant/60">—</span>,
+          },
+        ]
+      : []),
+    ...(showSentiment
+      ? [
+          {
+            key: 'sentiment',
+            label: 'Sentiment',
+            hideBelow: 'lg' as const,
+            render: (p: MediaPost) => {
+              const meta = (p.meta ?? {}) as Record<string, any>;
+              const sentiment = String(meta.sentiment ?? 'neutral');
+              return p.type === 'PR' ? (
+                <SentimentBadge sentiment={sentiment} />
+              ) : (
+                <span className="text-on-surface-variant/60">—</span>
+              );
+            },
+          },
+        ]
+      : []),
+    {
+      key: 'actions',
+      label: 'Actions',
+      align: 'right',
+      width: 'w-24',
+      render: (p) => {
+        const canEdit = isAdmin || p.createdById === currentUserId;
+        if (!canEdit) return null;
+        return (
+          <div className="flex items-center justify-end gap-1">
+            {onEdit && (
+              <Button
+                variant="ghost"
+                size="sm"
+                iconLeft={<Edit3 />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(p);
+                }}
+                aria-label="Edit post"
+              />
             )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="sm"
+                iconLeft={<Trash2 />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(p);
+                }}
+                aria-label="Delete post"
+                className="text-error hover:bg-error-container"
+              />
+            )}
+          </div>
+        );
+      },
+    },
+  ];
+
+  return (
+    <DataTable<MediaPost>
+      label="Media posts"
+      data={posts}
+      columns={columns}
+      rowKey={(p) => p.id}
+      density="comfortable"
+      empty={
+        <EmptyState
+          icon={<Newspaper />}
+          title="No posts yet"
+          description="Click 'Add post' to start tracking media performance."
+          variant="inline"
+        />
+      }
+    />
   );
 }
