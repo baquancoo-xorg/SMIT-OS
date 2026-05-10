@@ -153,6 +153,17 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Sub-component migration — Batch 2 done 2026-05-10
+
+2 components migrated (modal + table):
+- [x] `lead-tracker/lead-detail-modal.tsx` (131 → 145 LOC) → v2 Modal primitive + Badge variant + token-driven typography
+- [x] `ads-tracker/attribution-table.tsx` (93 → 105 LOC) → v2 DataTable + EmptyState + GlassCard (warning) + Badge
+
+Skipped (intentional UX, defer for redesign):
+- `lead-tracker/bulk-action-bar.tsx` — dark-toolbar floating popup design intentional. v2 Button variants (light) sẽ phá UX. Defer cho dedicated redesign session.
+
+vite build clean 2.24s ✓
+
 ### Sub-component migration — remaining (deferred)
 
 - [ ] Tables: `media-posts-table` (160 LOC), `campaigns-table` (173), `attribution-table` (93), `daily-stats-tab` (92) → migrate sang v2 DataTable
