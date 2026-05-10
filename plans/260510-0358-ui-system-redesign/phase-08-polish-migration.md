@@ -153,6 +153,13 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Sub-component migration — Batch 6 done 2026-05-10
+
+1 component migrated (form dialog):
+- [x] `media-tracker/media-post-dialog.tsx` (294 → 234 LOC, -60 LOC) → v2 FormDialog primitive + v2 Input + native select với token-driven styling. Removed inline `<style>` block (`.input-field` class). Type-aware fields preserved (KOL/KOC name + cost; PR outlet + cost + sentiment).
+
+vite build clean 2.37s ✓
+
 ### Sub-component migration — Batch 5 done 2026-05-10
 
 1 component migrated (chart wrapper):

@@ -1,7 +1,20 @@
 import { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { Newspaper } from 'lucide-react';
 import { format } from 'date-fns';
 import type { MediaPlatform, MediaPost, MediaPostType } from '../../types';
+import { FormDialog, Input } from '../ui/v2';
+
+/**
+ * Add/Edit media post dialog — supports ORGANIC / KOL / KOC / PR types.
+ *
+ * Phase 8 follow-up batch 6 (2026-05-10): migrated to v2 FormDialog + Input
+ * primitives (in-place, API identical). Removed inline `<style>` block (replaced
+ * bằng v2 Input + native select với token-driven styling).
+ *
+ * Type-aware fields:
+ *  - KOL/KOC → metaName (KOL/KOC name) + cost
+ *  - PR → metaName (outlet) + cost + sentiment
+ */
 
 interface Props {
   open: boolean;
@@ -15,6 +28,26 @@ interface Props {
 const PLATFORM_OPTIONS: MediaPlatform[] = ['FACEBOOK', 'INSTAGRAM', 'YOUTUBE', 'BLOG', 'PR', 'OTHER'];
 const TYPE_OPTIONS: MediaPostType[] = ['ORGANIC', 'KOL', 'KOC', 'PR'];
 
+const SELECT_CLS =
+  'h-10 w-full rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body)] text-on-surface focus-visible:outline-none focus-visible:border-primary';
+
+function FieldLabel({
+  label,
+  children,
+  full,
+}: {
+  label: string;
+  children: React.ReactNode;
+  full?: boolean;
+}) {
+  return (
+    <div className={`flex flex-col gap-1.5 ${full ? 'md:col-span-2' : ''}`}>
+      <span className="text-[length:var(--text-label)] font-medium text-on-surface-variant">{label}</span>
+      {children}
+    </div>
+  );
+}
+
 export default function MediaPostDialog({ open, onClose, onSubmit, initial, defaultType }: Props) {
   const [platform, setPlatform] = useState<MediaPlatform>('FACEBOOK');
   const [type, setType] = useState<MediaPostType>('ORGANIC');
@@ -25,8 +58,7 @@ export default function MediaPostDialog({ open, onClose, onSubmit, initial, defa
   const [engagement, setEngagement] = useState('');
   const [utmCampaign, setUtmCampaign] = useState('');
   const [cost, setCost] = useState('');
-  // Free-form metadata fields, surfaced as plain text columns
-  const [metaName, setMetaName] = useState(''); // KOL/KOC name OR PR outlet
+  const [metaName, setMetaName] = useState('');
   const [metaSentiment, setMetaSentiment] = useState<'positive' | 'neutral' | 'negative'>('neutral');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,13 +95,10 @@ export default function MediaPostDialog({ open, onClose, onSubmit, initial, defa
     setError(null);
   }, [open, initial, defaultType]);
 
-  if (!open) return null;
-
   const isKolKoc = type === 'KOL' || type === 'KOC';
   const isPR = type === 'PR';
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError(null);
     setSubmitting(true);
     try {
@@ -100,195 +129,128 @@ export default function MediaPostDialog({ open, onClose, onSubmit, initial, defa
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-      >
-        <div className="flex items-center justify-between p-6 border-b border-slate-100">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Media Tracker</p>
-            <h3 className="text-2xl font-black font-headline text-on-surface">
-              {initial ? 'Edit' : 'Add'} <span className="text-primary italic">post</span>
-            </h3>
-          </div>
-          <button type="button" onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition">
-            <X size={20} />
-          </button>
-        </div>
+    <FormDialog
+      open={open}
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      title={initial ? 'Edit post' : 'Add post'}
+      description="Media tracker — track owned, KOL/KOC, PR posts với reach, engagement, spend."
+      icon={<Newspaper />}
+      size="xl"
+      submitLabel={submitting ? 'Saving…' : initial ? 'Update' : 'Add post'}
+      isSubmitting={submitting}
+      footerLeft={error ? <span className="text-error font-medium">{error}</span> : undefined}
+    >
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <FieldLabel label="Type">
+          <select value={type} onChange={(e) => setType(e.target.value as MediaPostType)} className={SELECT_CLS}>
+            {TYPE_OPTIONS.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+        </FieldLabel>
 
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="Type">
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value as MediaPostType)}
-              className="input-field"
-            >
-              {TYPE_OPTIONS.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Platform">
-            <select
-              value={platform}
-              onChange={(e) => setPlatform(e.target.value as MediaPlatform)}
-              className="input-field"
-            >
-              {PLATFORM_OPTIONS.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </Field>
+        <FieldLabel label="Platform">
+          <select
+            value={platform}
+            onChange={(e) => setPlatform(e.target.value as MediaPlatform)}
+            className={SELECT_CLS}
+          >
+            {PLATFORM_OPTIONS.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+        </FieldLabel>
 
-          <Field label="Title" full>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Post title or headline"
-              className="input-field"
+        <Input
+          label="Title"
+          containerClassName="md:col-span-2"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Post title or headline"
+        />
+
+        <Input
+          label="URL"
+          containerClassName="md:col-span-2"
+          type="url"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://..."
+        />
+
+        <FieldLabel label="Published date">
+          <input
+            type="date"
+            value={publishedAt}
+            onChange={(e) => setPublishedAt(e.target.value)}
+            required
+            className={SELECT_CLS}
+          />
+        </FieldLabel>
+
+        <Input
+          label="utm_campaign"
+          value={utmCampaign}
+          onChange={(e) => setUtmCampaign(e.target.value.trim())}
+          placeholder="summer_sale_2026"
+          className="font-mono"
+        />
+
+        <Input
+          label="Reach"
+          type="number"
+          min={0}
+          value={reach}
+          onChange={(e) => setReach(e.target.value)}
+        />
+
+        <Input
+          label="Engagement"
+          type="number"
+          min={0}
+          value={engagement}
+          onChange={(e) => setEngagement(e.target.value)}
+        />
+
+        {(isKolKoc || isPR) && (
+          <>
+            <Input
+              label={isPR ? 'Outlet name' : `${type} name`}
+              containerClassName="md:col-span-2"
+              value={metaName}
+              onChange={(e) => setMetaName(e.target.value)}
+              placeholder={isPR ? 'e.g. VnExpress' : 'e.g. Influencer Demo'}
             />
-          </Field>
 
-          <Field label="URL" full>
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://..."
-              className="input-field"
-            />
-          </Field>
-
-          <Field label="Published date">
-            <input
-              type="date"
-              value={publishedAt}
-              onChange={(e) => setPublishedAt(e.target.value)}
-              required
-              className="input-field"
-            />
-          </Field>
-          <Field label="utm_campaign">
-            <input
-              type="text"
-              value={utmCampaign}
-              onChange={(e) => setUtmCampaign(e.target.value.trim())}
-              placeholder="summer_sale_2026"
-              className="input-field font-mono"
-            />
-          </Field>
-
-          <Field label="Reach">
-            <input
+            <Input
+              label="Cost (VND)"
               type="number"
               min={0}
-              value={reach}
-              onChange={(e) => setReach(e.target.value)}
-              className="input-field"
+              value={cost}
+              onChange={(e) => setCost(e.target.value)}
             />
-          </Field>
-          <Field label="Engagement">
-            <input
-              type="number"
-              min={0}
-              value={engagement}
-              onChange={(e) => setEngagement(e.target.value)}
-              className="input-field"
-            />
-          </Field>
 
-          {(isKolKoc || isPR) && (
-            <>
-              <Field label={isPR ? 'Outlet name' : `${type} name`} full>
-                <input
-                  type="text"
-                  value={metaName}
-                  onChange={(e) => setMetaName(e.target.value)}
-                  placeholder={isPR ? 'e.g. VnExpress' : 'e.g. Influencer Demo'}
-                  className="input-field"
-                />
-              </Field>
-              <Field label="Cost (VND)">
-                <input
-                  type="number"
-                  min={0}
-                  value={cost}
-                  onChange={(e) => setCost(e.target.value)}
-                  className="input-field"
-                />
-              </Field>
-              {isPR && (
-                <Field label="Sentiment">
-                  <select
-                    value={metaSentiment}
-                    onChange={(e) => setMetaSentiment(e.target.value as any)}
-                    className="input-field"
-                  >
-                    <option value="positive">Positive</option>
-                    <option value="neutral">Neutral</option>
-                    <option value="negative">Negative</option>
-                  </select>
-                </Field>
-              )}
-            </>
-          )}
-        </div>
-
-        {error && (
-          <div className="px-6 pb-2 text-error text-xs font-bold">{error}</div>
+            {isPR && (
+              <FieldLabel label="Sentiment">
+                <select
+                  value={metaSentiment}
+                  onChange={(e) => setMetaSentiment(e.target.value as 'positive' | 'neutral' | 'negative')}
+                  className={SELECT_CLS}
+                >
+                  <option value="positive">Positive</option>
+                  <option value="neutral">Neutral</option>
+                  <option value="negative">Negative</option>
+                </select>
+              </FieldLabel>
+            )}
+          </>
         )}
-
-        <div className="flex justify-end gap-3 p-6 border-t border-slate-100">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex items-center justify-center gap-2 h-10 px-5 rounded-full bg-surface-container-high text-slate-600 hover:bg-slate-200 font-black text-[10px] uppercase tracking-widest transition-all"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="flex items-center justify-center gap-2 h-10 bg-primary text-white px-5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-95 transition-all disabled:opacity-50 min-w-[130px]"
-          >
-            {submitting ? 'Saving…' : initial ? 'Update' : 'Add post'}
-          </button>
-        </div>
-      </form>
-      <style>{`
-        .input-field {
-          width: 100%;
-          height: 40px;
-          padding: 0 16px;
-          border-radius: 12px;
-          border: 1px solid rgb(226 232 240);
-          background: white;
-          font-size: 14px;
-          transition: border-color 0.15s;
-        }
-        .input-field:focus {
-          outline: none;
-          border-color: rgb(99 102 241);
-          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-      `}</style>
-    </div>
-  );
-}
-
-function Field({ label, full, children }: { label: string; full?: boolean; children: React.ReactNode }) {
-  return (
-    <div className={full ? 'md:col-span-2' : ''}>
-      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
-        {label}
-      </label>
-      {children}
-    </div>
+      </div>
+    </FormDialog>
   );
 }
