@@ -153,6 +153,18 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Sub-component migration — Batch 10 done 2026-05-11
+
+4 dashboard/ui small files (≤23 LOC each) migrated to v2 primitives:
+- [x] `dashboard/ui/dashboard-panel.tsx` (12 LOC) → re-export over v2 GlassCard (variant=surface). Fix `rounded-3xl` legacy → `rounded-card` token.
+- [x] `dashboard/ui/dashboard-empty-state.tsx` (18 LOC) → v2 EmptyState (decorative blob signature) + Inbox icon.
+- [x] `dashboard/ui/dashboard-section-title.tsx` (18 LOC) → semantic tokens (`text-on-surface`, `rounded-chip` cho bar accent).
+- [x] `dashboard/ui/dashboard-page-header.tsx` (23 LOC) → wraps v2 PageHeader (no breadcrumb, no description) — API identical.
+
+Note: dashboard-panel + dashboard-empty-state đều consume bởi nhiều dashboard sub-components → cascading visual upgrade tới Sale tab (LeadFlow), Acquisition Overview, Marketing tab, Media tab, Product tab.
+
+vite build clean 3.45s ✓
+
 ### Sub-component migration — Batch 9 done 2026-05-11
 
 1 component migrated (biggest remaining file):

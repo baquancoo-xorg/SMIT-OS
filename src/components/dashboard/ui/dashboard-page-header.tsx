@@ -1,4 +1,12 @@
 import type { ReactNode } from 'react';
+import { PageHeader } from '../../ui/v2';
+
+/**
+ * Dashboard page header — H1 với italic accent. Breadcrumb owned by Header.tsx topbar.
+ *
+ * Phase 8 follow-up batch 10 (2026-05-11): wraps v2 PageHeader (no breadcrumb,
+ * no description). API identical.
+ */
 
 interface DashboardPageHeaderProps {
   title: string;
@@ -6,18 +14,10 @@ interface DashboardPageHeaderProps {
   rightControls?: ReactNode;
 }
 
-// Breadcrumb is owned by the topbar (Header.tsx). Page header renders only the H1.
 export default function DashboardPageHeader({
   title,
   accent,
   rightControls,
 }: DashboardPageHeaderProps) {
-  return (
-    <section className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--space-md)] shrink-0">
-      <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">
-        {title} <span className="text-primary italic">{accent}</span>
-      </h2>
-      {rightControls}
-    </section>
-  );
+  return <PageHeader title={`${title} `} accent={accent} actions={rightControls} className="border-0 pb-0" />;
 }

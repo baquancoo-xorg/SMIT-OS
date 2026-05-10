@@ -1,4 +1,12 @@
-import DashboardPanel from './dashboard-panel';
+import { Inbox } from 'lucide-react';
+import { EmptyState } from '../../ui/v2';
+
+/**
+ * Dashboard empty state — shown trong tab placeholder hoặc data-not-ready state.
+ *
+ * Phase 8 follow-up batch 10 (2026-05-11): migrated to v2 EmptyState (decorative
+ * blob signature). API identical.
+ */
 
 interface DashboardEmptyStateProps {
   title?: string;
@@ -9,10 +17,5 @@ export default function DashboardEmptyState({
   title = 'Coming soon',
   description = 'Nội dung cho tab này sẽ được cập nhật trong giai đoạn tiếp theo.',
 }: DashboardEmptyStateProps) {
-  return (
-    <DashboardPanel className="p-8 md:p-10 text-center">
-      <h3 className="text-lg font-bold text-on-surface">{title}</h3>
-      <p className="mt-2 text-sm text-on-surface-variant">{description}</p>
-    </DashboardPanel>
-  );
+  return <EmptyState icon={<Inbox />} title={title} description={description} variant="card" decorative />;
 }

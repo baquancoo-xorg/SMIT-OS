@@ -1,12 +1,23 @@
 import type { ReactNode } from 'react';
+import { GlassCard } from '../../ui/v2';
+
+/**
+ * Generic dashboard panel wrapper — used as base by other dashboard/ui components.
+ *
+ * Phase 8 follow-up batch 10 (2026-05-11): re-export over v2 GlassCard
+ * (variant=surface) — fixes legacy `rounded-3xl` inline class to `rounded-card`
+ * token. API identical.
+ */
 
 interface DashboardPanelProps {
   children: ReactNode;
   className?: string;
 }
 
-const baseClassName = 'bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm';
-
 export default function DashboardPanel({ children, className = '' }: DashboardPanelProps) {
-  return <div className={`${baseClassName} ${className}`.trim()}>{children}</div>;
+  return (
+    <GlassCard variant="surface" padding="none" className={className}>
+      {children}
+    </GlassCard>
+  );
 }
