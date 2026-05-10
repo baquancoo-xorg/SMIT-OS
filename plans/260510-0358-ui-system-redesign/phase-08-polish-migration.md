@@ -153,6 +153,20 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Sub-component migration — Batch 9 done 2026-05-11
+
+1 component migrated (biggest remaining file):
+- [x] `lead-tracker/lead-logs-tab.tsx` (451 LOC) — **tokens-only modernization** (no structural change). Reasons: complex selection state + bulk actions + admin delete approval flow + sticky multi-col header → full DataTable migration risky. Targeted updates:
+  - Status badges (5 states: Mới/Qualified/Unqualified/Đang liên hệ/Đang nuôi dưỡng) → v2 Badge variants (primary/success/error/info/warning)
+  - SLA badges (Closed/On-time/Overdue) → v2 Badge variants (neutral/success/error)
+  - Filter bar wrapper → v2 GlassCard
+  - Search input → v2 Input với iconLeft Search
+  - Empty state → v2 EmptyState
+  - Pending delete approval buttons → v2 Button (ghost) + token-driven container colors
+  - Removed unused imports (motion, Trash2)
+
+vite build clean 2.82s ✓
+
 ### Sub-component migration — Batch 8 done 2026-05-10
 
 1 component migrated (dashboard tab):

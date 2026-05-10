@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { addDays, differenceInCalendarDays, parseISO } from 'date-fns';
-import { Search, Check, Trash2, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { Search, Check, X } from 'lucide-react';
+import { AnimatePresence } from 'motion/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -15,15 +15,17 @@ import { TableRowActions } from '../ui/TableRowActions';
 import { TableShell } from '../ui/TableShell';
 import { getTableContract } from '../ui/table-contract';
 import { formatTableDateTime } from '../ui/table-date-format';
+import { GlassCard, Badge, Input, Button, EmptyState } from '../ui/v2';
+import type { BadgeVariant } from '../ui/v2';
 
 const STATUSES = ['Mới', 'Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'];
 
-const STATUS_BADGE: Record<string, string> = {
-  'Mới': 'bg-purple-50 text-purple-600 border-purple-100',
-  'Qualified': 'bg-emerald-50 text-emerald-600 border-emerald-100',
-  'Unqualified': 'bg-rose-50 text-rose-600 border-rose-100',
-  'Đang liên hệ': 'bg-blue-50 text-blue-600 border-blue-100',
-  'Đang nuôi dưỡng': 'bg-amber-50 text-amber-600 border-amber-100',
+const STATUS_VARIANT: Record<string, BadgeVariant> = {
+  'Mới': 'primary',
+  'Qualified': 'success',
+  'Unqualified': 'error',
+  'Đang liên hệ': 'info',
+  'Đang nuôi dưỡng': 'warning',
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -47,9 +49,9 @@ const isClosedLead = (status: string) => status === 'Qualified' || status === 'U
  *     - daysLeft >= 0 → On-time (D-N)
  *     - daysLeft < 0  → Overdue (+N)
  */
-function getLeadSla(lead: Lead, now: Date) {
+function getLeadSla(lead: Lead, now: Date): { label: string; variant: BadgeVariant } {
   if (isClosedLead(lead.status)) {
-    return { label: 'Closed', className: 'bg-slate-100 text-slate-600 border-slate-200' };
+    return { label: 'Closed', variant: 'neutral' };
   }
 
   const receivedDate = parseISO(String(lead.receivedDate).slice(0, 10));
@@ -57,17 +59,11 @@ function getLeadSla(lead: Lead, now: Date) {
   const daysLeft = differenceInCalendarDays(deadline, now);
 
   if (daysLeft >= 0) {
-    return {
-      label: `On-time (D-${daysLeft})`,
-      className: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    };
+    return { label: `On-time (D-${daysLeft})`, variant: 'success' };
   }
 
   const overdueDays = Math.abs(daysLeft);
-  return {
-    label: `Overdue (+${overdueDays})`,
-    className: 'bg-rose-50 text-rose-700 border-rose-200',
-  };
+  return { label: `Overdue (+${overdueDays})`, variant: 'error' };
 }
 
 const COLS = [
@@ -213,10 +209,10 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
 
   return (
     <div className="h-full flex flex-col gap-4">
-      <div className="shrink-0 flex flex-wrap gap-3 items-center p-4 bg-white/50 backdrop-blur-md rounded-3xl shadow-sm">
+      <GlassCard variant="surface" padding="sm" className="shrink-0 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-1.5">
           <DatePicker value={filters.dateFrom} onChange={(v) => sf('dateFrom', v)} placeholder="Từ ngày" />
-          <span className="text-slate-300 text-xs">&#8212;</span>
+          <span className="text-on-surface-variant/60 text-xs">&#8212;</span>
           <DatePicker value={filters.dateTo} onChange={(v) => sf('dateTo', v)} placeholder="Đến ngày" />
         </div>
         <CustomFilter value={filters.ae} onChange={(v) => sf('ae', v)} options={[{ value: '', label: 'All AE' }, ...aeOptions.map((a) => ({ value: a.fullName, label: a.fullName }))]} buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case" />
@@ -232,16 +228,13 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
           buttonClassName="!h-9 !px-3 !text-[11px] !tracking-normal !normal-case"
         />
         <DatePicker value={filters.noteDate} onChange={(v) => sf('noteDate', v)} placeholder="Note changed" />
-        <div className="relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search leads..."
-            value={filters.q}
-            onChange={(e) => sf('q', e.target.value)}
-            className="h-9 pl-9 pr-4 bg-white border border-slate-200 rounded-full text-[11px] font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-48"
-          />
-        </div>
+        <Input
+          containerClassName="w-48"
+          placeholder="Search leads..."
+          value={filters.q}
+          onChange={(e) => sf('q', e.target.value)}
+          iconLeft={<Search />}
+        />
         <div className="ml-auto flex items-center gap-3">
           {!loading && (() => {
             const now = new Date();
@@ -293,7 +286,7 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
           })()}
           {extraControls && <div>{extraControls}</div>}
         </div>
-      </div>
+      </GlassCard>
 
       <div className="flex-1 min-h-0 bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden">
         <TableShell variant="standard" className="h-full bg-transparent border-0 shadow-none rounded-none" scrollClassName="h-full overflow-y-auto overflow-x-auto custom-scrollbar" tableClassName="min-w-[1180px]">
@@ -362,14 +355,12 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                   <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500 whitespace-nowrap`}>{formatTableDateTime(lead.receivedDate)}</td>
                   <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500 whitespace-nowrap`}>{formatTableDateTime(lead.resolvedDate)}</td>
                   <td className={standardTable.cell}>
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.12em] whitespace-nowrap border shadow-sm ${STATUS_BADGE[lead.status] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                    <Badge variant={STATUS_VARIANT[lead.status] ?? 'neutral'}>
                       {toStatusLabel(lead.status)}
-                    </span>
+                    </Badge>
                   </td>
                   <td className={standardTable.cell}>
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.12em] whitespace-nowrap border shadow-sm ${sla.className}`}>
-                      {sla.label}
-                    </span>
+                    <Badge variant={sla.variant}>{sla.label}</Badge>
                   </td>
                   <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500`}>{lead.leadType ?? '-'}</td>
                   <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500`}>{lead.unqualifiedType ?? '-'}</td>
@@ -391,12 +382,12 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                       />
 
                       {hasPendingDelete && isLeadAdmin && (
-                        <div className="flex items-center gap-1 bg-rose-50 p-1 rounded-xl border border-rose-100">
-                          <span className="text-[10px] font-bold text-rose-600 px-2 max-w-[120px] truncate" title={lead.deleteReason || ''}>
+                        <div className="flex items-center gap-1 rounded-card border border-error-container bg-error-container/40 p-1">
+                          <span className="max-w-[120px] truncate px-2 text-[length:var(--text-caption)] font-semibold text-on-error-container" title={lead.deleteReason || ''}>
                             Lý do: {lead.deleteReason || 'N/A'}
                           </span>
-                          <button onClick={() => handleApproveDelete(lead)} className="p-1.5 text-emerald-500 hover:bg-white rounded-lg transition-all" title="Duyệt xóa"><Check size={14} /></button>
-                          <button onClick={() => handleRejectDelete(lead)} className="p-1.5 text-rose-400 hover:bg-white rounded-lg transition-all" title="Từ chối"><X size={14} /></button>
+                          <Button variant="ghost" size="sm" iconLeft={<Check />} onClick={() => handleApproveDelete(lead)} title="Duyệt xóa" aria-label="Duyệt xóa" className="text-success" />
+                          <Button variant="ghost" size="sm" iconLeft={<X />} onClick={() => handleRejectDelete(lead)} title="Từ chối" aria-label="Từ chối" className="text-error" />
                         </div>
                       )}
                     </div>
@@ -407,11 +398,13 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
 
             {!loading && leads.length === 0 && (
               <tr>
-                <td colSpan={isSale ? 14 : 13} className={standardTable.emptyState}>
-                  <div className="flex flex-col items-center opacity-30">
-                    <Search className="size-12 mb-4" />
-                    <p className="font-black uppercase tracking-[0.2em] text-sm">No leads found</p>
-                  </div>
+                <td colSpan={isSale ? 14 : 13} className="p-0">
+                  <EmptyState
+                    icon={<Search />}
+                    title="No leads found"
+                    description="Adjust filters hoặc CRM sync để load leads."
+                    variant="inline"
+                  />
                 </td>
               </tr>
             )}
