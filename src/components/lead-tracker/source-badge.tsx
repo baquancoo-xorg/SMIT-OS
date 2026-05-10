@@ -1,22 +1,29 @@
 import { Database } from 'lucide-react';
+import { Badge } from '../ui/v2';
 
 interface SourceBadgeProps {
   synced?: boolean;
   className?: string;
 }
 
-export default function SourceBadge({ synced, className = '' }: SourceBadgeProps) {
+/**
+ * Source provenance badge for leads.
+ *
+ * Phase 8 follow-up (2026-05-10): migrated to v2 Badge primitive (in-place,
+ * API identical). Both v1 + v2 LeadTracker pages benefit from consistent styling.
+ */
+export default function SourceBadge({ synced, className }: SourceBadgeProps) {
   if (synced) {
     return (
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border bg-blue-50 text-blue-600 border-blue-100 ${className}`.trim()}>
-        <Database size={10} /> CRM
-      </span>
+      <Badge variant="info" iconLeft={<Database />} className={className}>
+        CRM
+      </Badge>
     );
   }
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border bg-slate-100 text-slate-600 border-slate-200 ${className}`.trim()}>
+    <Badge variant="neutral" className={className}>
       Manual
-    </span>
+    </Badge>
   );
 }

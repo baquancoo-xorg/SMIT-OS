@@ -139,7 +139,29 @@ plans/260510-0358-ui-system-redesign/reports/
 - OKRsManagement v2 reuse exported inline functions từ v1 file
 
 **Follow-up phase work:**
-- [ ] Migrate sub-components ra `*/v2/` directories (lead-tracker, media-tracker, ads-tracker, dashboard, checkin)
+
+### Sub-component migration — Batch 1 done 2026-05-10 (in-place modernize)
+
+**Strategy pivot:** Original plan = create `*/v2/` directories. Better approach for tiny utility components: **in-place modernize** giữ same API + path → cả v1 và v2 page benefit từ consistent styling, không divergence cost.
+
+5 sub-components migrated (≤35 LOC each, API identical):
+- [x] `lead-tracker/source-badge.tsx` → v2 Badge primitive (info/neutral variants)
+- [x] `lead-tracker/sync-from-crm-button.tsx` → v2 Button (secondary variant)
+- [x] `lead-tracker/last-sync-indicator.tsx` → v2 Badge variant (success/warning/error)
+- [x] `media-tracker/platform-badge.tsx` → v2 design tokens (rounded-chip + text-caption + tracking-wide), giữ brand colors
+- [x] `checkin/ConfidenceSlider.tsx` → v2 Badge value indicator (success/warning/error variants)
+
+vite build clean 2.29s ✓
+
+### Sub-component migration — remaining (deferred)
+
+- [ ] Tables: `media-posts-table` (160 LOC), `campaigns-table` (173), `attribution-table` (93), `daily-stats-tab` (92) → migrate sang v2 DataTable
+- [ ] Modals/dialogs: `lead-detail-modal` (131), `media-post-dialog` (294), `lead-log-dialog` (316) → migrate sang v2 Modal/FormDialog
+- [ ] Complex sub-components: `lead-logs-tab` (451), `dashboard-tab` (202), `bulk-action-bar` (112), `lead-type-chart` (113)
+- [ ] Dashboard sub-components 38 files (overview/sale/product/marketing/media/ui/lead-distribution/call-performance)
+- [ ] OKRs accordion extraction (ObjectiveAccordionCard, ObjectiveAccordionCardL2, KeyResultRow, ChildObjectiveCard) ra files riêng
+- [ ] Rewrite WeeklyCheckin multi-step form với FormDialog v2 wizard pattern
+- [ ] Rewrite OKRs KeyResultRow + EditKRModal + UpdateProgressModal + LinkObjectiveModal với v2 primitives
 - [ ] Extract OKRs accordion (ObjectiveAccordionCard / ObjectiveAccordionCardL2 / KeyResultRow / ChildObjectiveCard) ra files riêng
 - [ ] Rewrite WeeklyCheckin multi-step form với FormDialog v2 wizard pattern
 - [ ] Rewrite OKRs KeyResultRow với v2 primitives

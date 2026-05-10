@@ -1,4 +1,5 @@
 import { formatDistanceToNow } from 'date-fns';
+import { Badge } from '../ui/v2';
 
 type LeadSyncStatus = {
   id: string;
@@ -11,24 +12,24 @@ interface LastSyncIndicatorProps {
   status: LeadSyncStatus | null | undefined;
 }
 
+/**
+ * Inline status indicator showing last CRM sync time + state.
+ *
+ * Phase 8 follow-up (2026-05-10): migrated to v2 Badge variants (in-place, API identical).
+ *  - failed → error variant
+ *  - running → warning variant
+ *  - other → success variant
+ */
 export default function LastSyncIndicator({ status }: LastSyncIndicatorProps) {
   if (!status) {
-    return <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">No sync yet</span>;
+    return <Badge variant="neutral">No sync yet</Badge>;
   }
 
   const when = status.finishedAt ?? status.startedAt;
   const distance = formatDistanceToNow(new Date(when), { addSuffix: true });
 
-  const cls =
-    status.status === 'failed'
-      ? 'text-rose-600'
-      : status.status === 'running'
-        ? 'text-amber-600'
-        : 'text-emerald-600';
+  const variant: 'error' | 'warning' | 'success' =
+    status.status === 'failed' ? 'error' : status.status === 'running' ? 'warning' : 'success';
 
-  return (
-    <span className={`text-[10px] font-black uppercase tracking-widest ${cls}`}>
-      Last sync: {distance}
-    </span>
-  );
+  return <Badge variant={variant}>Last sync: {distance}</Badge>;
 }

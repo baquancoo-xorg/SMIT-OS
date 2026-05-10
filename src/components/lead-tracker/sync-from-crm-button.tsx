@@ -1,4 +1,5 @@
 import { RefreshCcw } from 'lucide-react';
+import { Button } from '../ui/v2';
 
 interface SyncFromCrmButtonProps {
   canSync: boolean;
@@ -7,20 +8,26 @@ interface SyncFromCrmButtonProps {
   onSync: () => void;
 }
 
+/**
+ * "Sync from CRM" trigger button (admin only).
+ *
+ * Phase 8 follow-up (2026-05-10): migrated to v2 Button (in-place, API identical).
+ */
 export default function SyncFromCrmButton({ canSync, isSyncing, isRunning, onSync }: SyncFromCrmButtonProps) {
-  if (!canSync) {
-    return null;
-  }
+  if (!canSync) return null;
+
+  const busy = isSyncing || isRunning;
 
   return (
-    <button
+    <Button
+      variant="secondary"
+      size="md"
+      iconLeft={<RefreshCcw className={busy ? 'animate-spin' : undefined} />}
       onClick={onSync}
-      disabled={isSyncing || isRunning}
-      className="flex items-center justify-center gap-2 h-10 px-5 rounded-full bg-surface-container-high text-slate-600 hover:bg-slate-200 font-black text-[10px] uppercase tracking-widest transition-all disabled:opacity-50"
+      disabled={busy}
       title="Sync leads from CRM"
     >
-      <RefreshCcw size={13} className={isSyncing || isRunning ? 'animate-spin' : ''} />
-      {isSyncing || isRunning ? 'Syncing...' : 'Sync from CRM'}
-    </button>
+      {busy ? 'Syncing...' : 'Sync from CRM'}
+    </Button>
   );
 }

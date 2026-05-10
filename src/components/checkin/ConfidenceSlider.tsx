@@ -1,13 +1,21 @@
+import { Badge } from '../ui/v2';
+
 interface ConfidenceSliderProps {
   value: number;
   onChange: (value: number) => void;
   disabled?: boolean;
 }
 
-function colorFor(value: number): string {
-  if (value >= 7) return 'bg-emerald-500 text-emerald-50';
-  if (value >= 4) return 'bg-amber-500 text-amber-50';
-  return 'bg-rose-500 text-rose-50';
+/**
+ * 0-10 confidence slider for KR weekly check-ins.
+ *
+ * Phase 8 follow-up (2026-05-10): migrated value indicator to v2 Badge variant
+ * (in-place, API identical). Native range input retains accent-primary.
+ */
+function variantFor(value: number): 'success' | 'warning' | 'error' {
+  if (value >= 7) return 'success';
+  if (value >= 4) return 'warning';
+  return 'error';
 }
 
 export default function ConfidenceSlider({ value, onChange, disabled = false }: ConfidenceSliderProps) {
@@ -23,9 +31,9 @@ export default function ConfidenceSlider({ value, onChange, disabled = false }: 
         onChange={(e) => onChange(Number(e.target.value))}
         className="flex-1 accent-primary"
       />
-      <span className={`min-w-[3rem] text-center px-2 py-1 rounded-full text-xs font-black ${colorFor(value)}`}>
+      <Badge variant={variantFor(value)} size="md" soft={false} className="min-w-[3rem] justify-center">
         {value}/10
-      </span>
+      </Badge>
     </div>
   );
 }
