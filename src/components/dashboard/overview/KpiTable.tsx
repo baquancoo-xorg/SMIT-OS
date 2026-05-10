@@ -3,7 +3,20 @@ import { ArrowUp, ArrowDown, ArrowUpDown, Medal, Award, Trophy, Activity, Users,
 import { formatCurrency, formatNumber, formatPercent } from '../../../lib/formatters';
 import type { KpiMetricsResponse, KpiMetricsRow } from '../../../types/dashboard-overview';
 import { type SortConfig, type SortField, sortData, handleSortClick, formatDateVN } from './kpi-table-utils';
-import { DashboardPanel, DashboardSectionTitle, SegmentedTabs } from '../ui';
+import { DashboardPanel, SegmentedTabs } from '../ui';
+
+function KpiTableHeader() {
+  return (
+    <div>
+      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
+        Daily breakdown
+      </p>
+      <h3 className="text-2xl font-black font-headline tracking-tight text-on-surface">
+        KPI <span className="text-primary italic">Metrics</span>
+      </h3>
+    </div>
+  );
+}
 import { getTableContract } from '../../ui/table-contract';
 
 type ViewMode = 'realtime' | 'cohort';
@@ -300,8 +313,8 @@ export const KpiTable = memo(function KpiTable({
 
   if (error) {
     return (
-      <section>
-        <DashboardSectionTitle>KPI Metrics</DashboardSectionTitle>
+      <section className="space-y-3">
+        <KpiTableHeader />
         <DashboardPanel className="p-6">
           <p className="text-center text-red-600 font-medium">Lỗi: {error.message}</p>
         </DashboardPanel>
@@ -312,9 +325,9 @@ export const KpiTable = memo(function KpiTable({
   if (!data) return null;
 
   return (
-    <section>
-      <div className="flex items-center justify-between mb-3 gap-3">
-        <DashboardSectionTitle>KPI Metrics</DashboardSectionTitle>
+    <section className="space-y-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <KpiTableHeader />
         <div className="flex items-center gap-2">
           <div className="hidden md:block">
             <SegmentedTabs value={viewMode} onChange={onViewModeChange} options={VIEW_MODE_OPTIONS} />

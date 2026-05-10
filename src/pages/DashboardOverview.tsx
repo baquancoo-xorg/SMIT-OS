@@ -103,7 +103,17 @@ export default function DashboardOverview() {
                 />
               </>
             ) : (
-              <AcquisitionOverviewTab from={range.from} to={range.to} />
+              <>
+                <AcquisitionOverviewTab from={range.from} to={range.to} />
+
+                <KpiTable
+                  data={data?.kpiMetrics}
+                  isLoading={isLoading}
+                  error={error as Error | null}
+                  viewMode={viewMode}
+                  onViewModeChange={setViewMode}
+                />
+              </>
             )}
           </>
         )}
