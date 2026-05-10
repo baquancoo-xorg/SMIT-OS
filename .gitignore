@@ -13,3 +13,8 @@ prisma/dev.db
 metadata.json
 CREDENTIALS.md
 repomix-output.xml
+
+# DB backups (contain user PII / hashed passwords)
+plans/**/backups/
+*.sql.bak
+backup-*.sql

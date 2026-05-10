@@ -91,6 +91,8 @@ The `totp-pending` JWT has `purpose: 'totp-pending'` in its payload. `requireAut
 - `rbac.middleware.ts` — role-based access control
 - `ownership.middleware.ts` — resource ownership checks
 
+**Role model (since 2026-05-10, plan `260510-0318-role-simplification`):** two roles only — **Admin** and **Member**. The legacy `Leader` role was removed; existing Leader users were demoted to Member. RBAC presets: `RBAC.adminOnly`, `RBAC.authenticated`, `RBAC.selfOrAdmin`. Access pattern across resources is **read-shared, write-own**: list/detail GETs are open to every authenticated user; PUT/PATCH/DELETE require ownership (`resource.userId === req.user.userId` for reports; `resource.ownerId === req.user.userId` for KRs; `lead.ae === req.user.fullName` for leads) **or** `isAdmin`. Approve actions on daily/weekly reports + Objective L1 mutations + KR create/delete + CRM sync are admin-only.
+
 ## Data Layer
 
 - Prisma ORM with PostgreSQL 15
@@ -165,10 +167,10 @@ Configured in `server.ts` (hardened 2026-04-28):
 
 | Type | Trigger | Recipients | Service Method |
 |------|---------|-----------|-----------------|
-| `report_approved` | Weekly report approved by lead | Report owner | (built-in) |
-| `daily_new` | Daily report submitted | Leaders + admins | `notifyDailyNew()` |
-| `daily_late` | Daily report due but not submitted (10:30 ICT) | Leaders + admins (by team) | `notifyDailyLate()` |
-| `weekly_late` | Weekly report due but not submitted (09:00 ICT Monday) | Leaders + admins (by team) | `notifyWeeklyLate()` |
+| `report_approved` | Weekly report approved by an admin | Report owner | (built-in) |
+| `daily_new` | Daily report submitted | Admins | `notifyDailyNew()` |
+| `daily_late` | Daily report due but not submitted (10:30 ICT) | Submitter + admins | `notifyDailyLate()` |
+| `weekly_late` | Weekly report due but not submitted (09:00 ICT Monday) | Submitter + admins | `notifyWeeklyLate()` |
 
 **Deduplication:** `Notification` model uses `@@unique([userId, type, entityType, entityId])` constraint + atomic `createMany({skipDuplicates:true})` to prevent duplicate notifications in a single check run.
 
@@ -176,10 +178,10 @@ Configured in `server.ts` (hardened 2026-04-28):
 
 | Cron | Schedule | Handler | Purpose |
 |------|----------|---------|---------|
-| `30 10 * * 1-5` | Mon–Fri 10:30 ICT | `checkDailyLate()` | Find teams with unpublished daily reports, notify leaders |
-| `0 9 * * 1` | Monday 09:00 ICT | `checkWeeklyLate()` | Find teams with unpublished weekly reports, notify leaders |
+| `30 10 * * 1-5` | Mon–Fri 10:30 ICT | `checkDailyLate()` | Find members with unpublished daily reports, notify admins + the late member |
+| `0 9 * * 1` | Monday 09:00 ICT | `checkWeeklyLate()` | Find members with unpublished weekly reports, notify admins + the late member |
 
-**Daily report flow:** POST `/api/daily-reports` fans out `daily_new` notifications to leaders + admins (excluding submitter). Notification service failures are caught and logged; they never block the report creation response.
+**Daily report flow:** POST `/api/daily-reports` fans out `daily_new` notifications to admins (excluding submitter). Notification service failures are caught and logged; they never block the report creation response.
 
 **Dropped (v2.3.0–v2.3.1):** OKR risk monitoring (`checkOKRRisks` cron + handler), sheets-export failure alerts (`notifyFailure`), deadline + sprint watchers (`notifyDeadlineWarning`, `notifySprintEnding`).
 

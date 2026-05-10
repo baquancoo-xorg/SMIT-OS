@@ -1,5 +1,39 @@
 # Project Changelog
 
+## [v2.3.2] - 2026-05-10
+
+### Role Simplification — Admin + Member only
+
+**BREAKING:** Legacy `Leader` role removed across the stack. RBAC collapsed from 3 levels to 2.
+
+**Migration:**
+- 3 Leader users demoted to Member via `prisma/migrations/manual/demote-leader-to-member.sql` (DB backup at `plans/260510-0318-role-simplification/backups/backup-pre-role-simp-20260510-1422.sql`)
+- Post-migration role distribution: Admin × 2, Member × 15
+
+**Backend (8 files):**
+- `rbac.middleware.ts` — `Role` type narrowed to `'Admin' \| 'Member'`; `RBAC.leaderOrAdmin` preset removed
+- `notification.service.ts` — `findLeadersAndAdminsFor` renamed to `findAdminRecipientsFor`; queries `isAdmin: true` only (no role-string match, no department overlap filter)
+- `alert-scheduler.ts` — daily/weekly late escalation now goes to admins + the late submitter
+- `lead.routes.ts` — delete-request gate: AE of lead OR admin (Leader path dropped)
+- `objective.routes.ts` — Objective CRUD + recalculate moved to admin-only
+- `key-result.routes.ts` (newly captured) — POST/DELETE = admin-only; PUT = ownership (`KR.ownerId`) or admin
+- `daily-report.routes.ts` — list = read-shared (no per-role filter); edit = own + admin; approve = admin-only
+- `report.routes.ts` (weekly) — same pattern
+
+**Frontend (6 files):**
+- `types/index.ts` — comment updated
+- `settings/user-management-tab.tsx` — `Leader` option + badge variant removed
+- `WeeklyCheckinModal.tsx` — copy "Liên hệ Leader/Admin" → "Liên hệ Admin"
+- `WeeklyCheckin.tsx`, `DailySync.tsx` — approve gate renamed `canApprove`, admin-only
+- `LeadTracker.tsx` — `canManageLeads` = admin-only
+
+**Schema:**
+- `prisma/schema.prisma` — `User.role` comment updated to `// Admin, Member`
+
+**QA:** `tsc --noEmit` clean across server + src; final `grep "Leader"` returns 0 business hits; dev server hot-reloads without error; live `/api/health` returns 401 (auth-gated, endpoint healthy).
+
+**Plan:** `plans/260510-0318-role-simplification/`
+
 ## [v2.3.1] - 2026-05-10
 
 ### URL Rename + Notification Overhaul + Topbar Enrich
