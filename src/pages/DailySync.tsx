@@ -1,19 +1,31 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Plus, X, CheckCircle, Calendar, AlertTriangle, ListChecks, Target, Zap } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { DailyReport } from '../types';
-import { TableShell } from '../components/ui/TableShell';
-import { TableRowActions } from '../components/ui/TableRowActions';
-import { getTableContract } from '../components/ui/table-contract';
-import { formatTableDate, formatTableDateTime } from '../components/ui/table-date-format';
-import { Card } from '../components/ui';
-import PrimaryActionButton from '../components/ui/PrimaryActionButton';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { Plus, Calendar, CheckCircle, ListChecks, AlertTriangle, Target, Zap, Eye, Sun, Moon } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import type { DailyReport } from '../../types';
+import {
+  PageHeader,
+  Button,
+  Badge,
+  GlassCard,
+  EmptyState,
+  KpiCard,
+  Modal,
+  FormDialog,
+  DataTable,
+} from '../../components/ui/v2';
+import type { DataTableColumn } from '../../components/ui/v2';
 
 function todayIso(): string {
   return new Date().toISOString().split('T')[0];
 }
 
-function getSubmissionStatus(dateStr: string): { label: string; detail: string; type: 'early' | 'ontime' | 'late' } {
+interface SubmissionStatus {
+  label: string;
+  detail: string;
+  type: 'early' | 'ontime' | 'late';
+}
+
+function getSubmissionStatus(dateStr: string): SubmissionStatus {
   const d = new Date(dateStr);
   const totalMinutes = d.getHours() * 60 + d.getMinutes();
   const windowStart = 8 * 60 + 30;
@@ -29,19 +41,15 @@ function getSubmissionStatus(dateStr: string): { label: string; detail: string; 
   return { label: 'Late', detail: `+${diff} min`, type: 'late' };
 }
 
-function SubmissionStatusBadge({ createdAt }: { createdAt: string }) {
+function SubmissionBadge({ createdAt }: { createdAt: string }) {
   const { label, detail, type } = getSubmissionStatus(createdAt);
-  const styles = {
-    early: 'bg-blue-100 text-blue-700',
-    ontime: 'bg-emerald-100 text-emerald-700',
-    late: 'bg-red-100 text-red-700',
-  };
+  const variant = type === 'early' ? 'info' : type === 'ontime' ? 'success' : 'error';
   return (
     <div className="flex flex-col gap-0.5">
-      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest w-fit ${styles[type]}`}>
+      <Badge variant={variant} size="sm">
         {label}
-      </span>
-      {detail && <span className="text-[10px] text-slate-400 font-medium pl-1">{detail}</span>}
+      </Badge>
+      {detail && <span className="text-[length:var(--text-caption)] text-on-surface-variant">{detail}</span>}
     </div>
   );
 }
@@ -62,7 +70,70 @@ const EMPTY_FORM: FormState = {
   planToday: '',
 };
 
-export default function DailySync() {
+interface FormBlockProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  tone?: 'default' | 'warning';
+}
+
+function FormBlock({ icon, label, value, onChange, placeholder, tone = 'default' }: FormBlockProps) {
+  const tone_bg =
+    tone === 'warning'
+      ? 'bg-warning-container/40 border-warning/40 focus-visible:border-warning'
+      : 'bg-surface-container-lowest border-outline-variant focus-visible:border-primary';
+  return (
+    <label className="flex flex-col gap-2">
+      <span className="flex items-center gap-2 text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">
+        <span className="text-primary [&>svg]:size-4">{icon}</span>
+        {label}
+      </span>
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={[
+          'min-h-[120px] w-full resize-y rounded-input border px-3 py-2.5 text-[length:var(--text-body)] text-on-surface',
+          'transition-colors motion-fast ease-standard',
+          'placeholder:text-on-surface-variant/60',
+          'focus-visible:outline-none',
+          tone_bg,
+        ].join(' ')}
+      />
+    </label>
+  );
+}
+
+function DetailBlock({ title, body, tone = 'default' }: { title: string; body: string; tone?: 'default' | 'warning' }) {
+  const bg = tone === 'warning' ? 'bg-warning-container/30 border-warning/30' : 'bg-surface-container-low border-outline-variant/40';
+  return (
+    <div className={`${bg} rounded-card border p-4`}>
+      <h3 className="mb-2 text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">
+        {title}
+      </h3>
+      <p className="whitespace-pre-wrap text-[length:var(--text-body-sm)] text-on-surface">
+        {body || <span className="italic text-on-surface-variant">(trống)</span>}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * DailySync v2 — Phase 6 medium pages migration.
+ *
+ * Mobile critical (daily checkin). Token-driven shell with v2 primitives:
+ *  - PageHeader (italic accent + breadcrumb)
+ *  - KpiCard for status overview
+ *  - DataTable for list view (sortable, mobile-responsive via `hideBelow`)
+ *  - FormDialog for create flow
+ *  - Modal for detail view
+ *  - Badge for status / submission state
+ *
+ * Approve gated by admin (matches v1 + backend RBAC.adminOnly).
+ */
+export default function DailySyncV2() {
   const { currentUser } = useAuth();
   const [reports, setReports] = useState<DailyReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,9 +141,7 @@ export default function DailySync() {
   const [selectedReport, setSelectedReport] = useState<DailyReport | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
-  const standardTable = getTableContract('standard');
 
-  // Approve = admin only (matches backend RBAC.adminOnly).
   const canApprove = !!currentUser?.isAdmin;
 
   async function fetchReports() {
@@ -95,15 +164,27 @@ export default function DailySync() {
 
   const sortedReports = useMemo(
     () => [...reports].sort((a, b) => new Date(b.reportDate).getTime() - new Date(a.reportDate).getTime()),
-    [reports]
+    [reports],
   );
+
+  const stats = useMemo(() => {
+    const todayStr = todayIso();
+    const submittedToday = reports.filter((r) => r.reportDate.startsWith(todayStr)).length;
+    const reviewing = reports.filter((r) => r.status === 'Review').length;
+    const approved = reports.filter((r) => r.status === 'Approved').length;
+    const lateToday = reports
+      .filter((r) => r.reportDate.startsWith(todayStr))
+      .filter((r) => getSubmissionStatus(r.createdAt).type === 'late').length;
+    return { submittedToday, reviewing, approved, lateToday };
+  }, [reports]);
 
   function openForm() {
     setForm(EMPTY_FORM);
     setIsFormOpen(true);
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     if (!currentUser) return;
     setSubmitting(true);
     try {
@@ -147,204 +228,206 @@ export default function DailySync() {
     }
   }
 
+  const columns: DataTableColumn<DailyReport>[] = [
+    {
+      key: 'reporter',
+      label: 'Reporter',
+      sortable: true,
+      sort: (a, b) => (a.user?.fullName ?? '').localeCompare(b.user?.fullName ?? ''),
+      render: (r) => <span className="font-semibold text-on-surface">{r.user?.fullName ?? 'Unknown'}</span>,
+    },
+    {
+      key: 'reportDate',
+      label: 'Date',
+      sortable: true,
+      sort: (a, b) => new Date(a.reportDate).getTime() - new Date(b.reportDate).getTime(),
+      render: (r) => new Date(r.reportDate).toLocaleDateString('vi-VN'),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (r) => (
+        <Badge variant={r.status === 'Approved' ? 'success' : 'warning'}>
+          {r.status === 'Approved' ? 'Approved' : 'Review'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'submission',
+      label: 'Submission',
+      hideBelow: 'md',
+      render: (r) => <SubmissionBadge createdAt={r.createdAt} />,
+    },
+    {
+      key: 'createdAt',
+      label: 'Created',
+      hideBelow: 'lg',
+      sortable: true,
+      sort: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      render: (r) => new Date(r.createdAt).toLocaleString('vi-VN'),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      align: 'right',
+      width: 'w-20',
+      render: (r) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          iconLeft={<Eye />}
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedReport(r);
+          }}
+          aria-label="View report"
+        >
+          View
+        </Button>
+      ),
+    },
+  ];
+
   return (
-    <div className="page-container space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black font-headline text-slate-800">Daily Sync</h1>
-          <p className="text-sm text-slate-500 font-medium">Báo cáo 4 mục mỗi ngày</p>
-        </div>
-        <PrimaryActionButton onClick={openForm} icon={<Plus size={18} />}>Tạo báo cáo</PrimaryActionButton>
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        breadcrumb={[{ label: 'Cadence' }, { label: 'Daily Sync' }]}
+        title="Daily "
+        accent="Sync"
+        description="Báo cáo 4 mục mỗi ngày: hoàn thành, đang làm, blocker, kế hoạch."
+        actions={
+          <Button variant="primary" iconLeft={<Plus />} onClick={openForm}>
+            New report
+          </Button>
+        }
+      />
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+        <KpiCard label="Submitted today" value={stats.submittedToday} icon={<Sun />} accent="primary" />
+        <KpiCard label="Pending review" value={stats.reviewing} icon={<Moon />} accent="warning" decorative={stats.reviewing > 0} />
+        <KpiCard label="Approved" value={stats.approved} icon={<CheckCircle />} accent="success" />
+        <KpiCard label="Late today" value={stats.lateToday} icon={<AlertTriangle />} accent="error" decorative={stats.lateToday > 0} />
       </div>
 
-      <Card>
-        {loading ? (
-          <div className="p-8 text-center text-slate-400 text-sm">Đang tải...</div>
-        ) : sortedReports.length === 0 ? (
-          <div className="p-8 text-center text-slate-400 text-sm">Chưa có báo cáo nào.</div>
-        ) : (
-          <TableShell variant="standard">
-            <thead>
-              <tr className={standardTable.headerRow}>
-                <th className={standardTable.headerCell}>Reporter</th>
-                <th className={standardTable.headerCell}>Ngày</th>
-                <th className={standardTable.headerCell}>Status</th>
-                <th className={standardTable.headerCell}>Submission</th>
-                <th className={standardTable.headerCell}>Created at</th>
-                <th className={standardTable.actionHeaderCell}>Actions</th>
-              </tr>
-            </thead>
-            <tbody className={standardTable.body}>
-              {sortedReports.map(r => (
-                <tr key={r.id} onClick={() => setSelectedReport(r)} className={`${standardTable.row} cursor-pointer`}>
-                  <td className={standardTable.cell}>
-                    <span className="text-sm font-bold text-slate-800">{r.user?.fullName || 'Unknown'}</span>
-                  </td>
-                  <td className={standardTable.cell}>{formatTableDate(r.reportDate)}</td>
-                  <td className={standardTable.cell}>
-                    <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${
-                      r.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                    }`}>{r.status}</span>
-                  </td>
-                  <td className={standardTable.cell}><SubmissionStatusBadge createdAt={r.createdAt} /></td>
-                  <td className={standardTable.cell}>{formatTableDateTime(r.createdAt)}</td>
-                  <td className={standardTable.actionCell} onClick={(e) => e.stopPropagation()}>
-                    <TableRowActions onView={() => setSelectedReport(r)} variant="standard" />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </TableShell>
-        )}
-      </Card>
+      <DataTable<DailyReport>
+        label="Daily reports"
+        data={sortedReports}
+        columns={columns}
+        rowKey={(r) => r.id}
+        loading={loading}
+        density="comfortable"
+        onRowClick={(r) => setSelectedReport(r)}
+        empty={
+          <EmptyState
+            icon={<Calendar />}
+            title="Chưa có báo cáo"
+            description="Bắt đầu bằng cách tạo báo cáo hằng ngày đầu tiên."
+            actions={
+              <Button variant="primary" iconLeft={<Plus />} onClick={openForm}>
+                Create report
+              </Button>
+            }
+            decorative
+            variant="inline"
+          />
+        }
+      />
 
-      {/* Submit form modal */}
-      {isFormOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <div className="flex items-center gap-3">
-                <Calendar className="text-primary" size={24} />
-                <h2 className="text-2xl font-black font-headline text-slate-800">Báo cáo hằng ngày</h2>
-              </div>
-              <button onClick={() => setIsFormOpen(false)} className="p-2 text-slate-400 hover:text-slate-600 rounded-full">
-                <X size={20} />
-              </button>
-            </div>
+      {/* Submit form */}
+      <FormDialog
+        open={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onSubmit={handleSubmit}
+        title="Báo cáo hằng ngày"
+        description="Điền 4 mục — system phát hiện early/on-time/late tự động."
+        icon={<Calendar />}
+        size="lg"
+        submitLabel={submitting ? 'Đang gửi...' : 'Gửi báo cáo'}
+        cancelLabel="Huỷ"
+        isSubmitting={submitting}
+      >
+        <label className="flex flex-col gap-1.5">
+          <span className="text-[length:var(--text-label)] font-medium text-on-surface-variant">Ngày</span>
+          <input
+            type="date"
+            value={form.reportDate}
+            onChange={(e) => setForm({ ...form, reportDate: e.target.value })}
+            className="h-10 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+          />
+        </label>
 
-            <div className="flex-1 overflow-y-auto p-8 space-y-6">
-              <label className="block space-y-1">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Ngày</span>
-                <input
-                  type="date"
-                  value={form.reportDate}
-                  onChange={(e) => setForm({ ...form, reportDate: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
-              </label>
+        <FormBlock
+          icon={<CheckCircle />}
+          label="① Hoàn thành hôm qua"
+          value={form.completedYesterday}
+          onChange={(v) => setForm({ ...form, completedYesterday: v })}
+          placeholder="Liệt kê việc đã hoàn thành..."
+        />
 
-              <FormBlock
-                icon={<CheckCircle size={18} />}
-                label="① Hoàn thành hôm qua"
-                value={form.completedYesterday}
-                onChange={(v) => setForm({ ...form, completedYesterday: v })}
-                placeholder="Liệt kê việc đã hoàn thành..."
-              />
+        <FormBlock
+          icon={<ListChecks />}
+          label="② Đang thực hiện hôm qua"
+          value={form.doingYesterday}
+          onChange={(v) => setForm({ ...form, doingYesterday: v })}
+          placeholder="Việc còn dang dở, chưa xong..."
+        />
 
-              <FormBlock
-                icon={<ListChecks size={18} />}
-                label="② Đang thực hiện hôm qua"
-                value={form.doingYesterday}
-                onChange={(v) => setForm({ ...form, doingYesterday: v })}
-                placeholder="Việc còn dang dở, chưa xong..."
-              />
+        <FormBlock
+          icon={<AlertTriangle />}
+          label="③ Khó khăn / Vấn đề (kèm đề xuất)"
+          value={form.blockers}
+          onChange={(v) => setForm({ ...form, blockers: v })}
+          placeholder="Blocker, rủi ro, yêu cầu hỗ trợ..."
+          tone="warning"
+        />
 
-              <FormBlock
-                icon={<AlertTriangle size={18} />}
-                label="③ Khó khăn / Vấn đề (kèm đề xuất)"
-                value={form.blockers}
-                onChange={(v) => setForm({ ...form, blockers: v })}
-                placeholder="Blocker, rủi ro, yêu cầu hỗ trợ..."
-                tone="warning"
-              />
-
-              <FormBlock
-                icon={<Target size={18} />}
-                label="④ Sẽ thực hiện hôm nay"
-                value={form.planToday}
-                onChange={(v) => setForm({ ...form, planToday: v })}
-                placeholder="Plan cho ngày hôm nay..."
-              />
-            </div>
-
-            <div className="px-8 py-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50">
-              <button onClick={() => setIsFormOpen(false)} className="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200/50 rounded-full">
-                Huỷ
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="px-8 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-full shadow-lg shadow-primary/20 disabled:opacity-50"
-              >
-                {submitting ? 'Đang gửi...' : 'Gửi báo cáo'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        <FormBlock
+          icon={<Target />}
+          label="④ Sẽ thực hiện hôm nay"
+          value={form.planToday}
+          onChange={(v) => setForm({ ...form, planToday: v })}
+          placeholder="Plan cho ngày hôm nay..."
+        />
+      </FormDialog>
 
       {/* Detail modal */}
-      {selectedReport && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <div>
-                <h2 className="text-2xl font-black font-headline text-slate-800">{selectedReport.user?.fullName}</h2>
-                <p className="text-sm text-slate-500 font-medium">{formatTableDate(selectedReport.reportDate)}</p>
-              </div>
-              <button onClick={() => setSelectedReport(null)} className="p-2 text-slate-400 hover:text-slate-600 rounded-full">
-                <X size={20} />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-8 space-y-6">
-              <DetailBlock title="① Hoàn thành hôm qua" body={selectedReport.completedYesterday} />
-              <DetailBlock title="② Đang thực hiện hôm qua" body={selectedReport.doingYesterday} />
-              <DetailBlock title="③ Khó khăn / Vấn đề" body={selectedReport.blockers} tone="warning" />
-              <DetailBlock title="④ Sẽ thực hiện hôm nay" body={selectedReport.planToday} />
-            </div>
-            <div className="px-8 py-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50">
-              {canApprove && selectedReport.status === 'Review' && (
-                <button
-                  onClick={() => handleApprove(selectedReport.id)}
-                  className="px-8 py-2.5 text-sm font-bold text-white bg-emerald-500 hover:bg-emerald-600 rounded-full shadow-lg"
-                >
-                  <Zap size={14} className="inline mr-1" /> Duyệt
-                </button>
-              )}
-              <button onClick={() => setSelectedReport(null)} className="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200/50 rounded-full">
-                Đóng
-              </button>
-            </div>
+      <Modal
+        open={!!selectedReport}
+        onClose={() => setSelectedReport(null)}
+        title={selectedReport?.user?.fullName ?? 'Daily report'}
+        description={
+          selectedReport
+            ? `${new Date(selectedReport.reportDate).toLocaleDateString('vi-VN')} · ${selectedReport.status}`
+            : undefined
+        }
+        icon={<Calendar />}
+        size="lg"
+        footer={
+          <>
+            {canApprove && selectedReport?.status === 'Review' && (
+              <Button
+                variant="primary"
+                iconLeft={<Zap />}
+                onClick={() => selectedReport && handleApprove(selectedReport.id)}
+              >
+                Duyệt
+              </Button>
+            )}
+            <Button variant="ghost" onClick={() => setSelectedReport(null)}>
+              Đóng
+            </Button>
+          </>
+        }
+      >
+        {selectedReport && (
+          <div className="flex flex-col gap-4">
+            <DetailBlock title="① Hoàn thành hôm qua" body={selectedReport.completedYesterday} />
+            <DetailBlock title="② Đang thực hiện hôm qua" body={selectedReport.doingYesterday} />
+            <DetailBlock title="③ Khó khăn / Vấn đề" body={selectedReport.blockers} tone="warning" />
+            <DetailBlock title="④ Sẽ thực hiện hôm nay" body={selectedReport.planToday} />
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-interface FormBlockProps {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  tone?: 'default' | 'warning';
-}
-
-function FormBlock({ icon, label, value, onChange, placeholder, tone = 'default' }: FormBlockProps) {
-  const bg = tone === 'warning' ? 'bg-rose-50/40 border-rose-100 focus:ring-rose-200' : 'bg-slate-50 border-slate-200 focus:ring-primary/20';
-  return (
-    <label className="block space-y-2">
-      <span className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
-        {icon}
-        {label}
-      </span>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className={`w-full px-4 py-3 ${bg} border rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 min-h-[120px] resize-vertical`}
-      />
-    </label>
-  );
-}
-
-function DetailBlock({ title, body, tone = 'default' }: { title: string; body: string; tone?: 'default' | 'warning' }) {
-  const bg = tone === 'warning' ? 'bg-rose-50 border-rose-100' : 'bg-slate-50 border-slate-200';
-  return (
-    <div className={`${bg} border rounded-2xl p-5`}>
-      <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">{title}</h3>
-      <p className="text-sm text-slate-800 whitespace-pre-wrap">{body || <span className="italic text-slate-400">(trống)</span>}</p>
+        )}
+      </Modal>
     </div>
   );
 }

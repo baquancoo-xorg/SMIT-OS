@@ -4,6 +4,7 @@
 import { useProductFunnel, useProductTtv } from '../../../hooks/use-product-dashboard';
 import type { DateRange } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
+import { Skeleton } from '../../ui/v2';
 
 interface ProductFunnelWithTimeProps {
   range: DateRange;
@@ -28,20 +29,20 @@ export function ProductFunnelWithTime({ range }: ProductFunnelWithTimeProps) {
   return (
     <DashboardPanel className="p-4 md:p-5">
       <div className="mb-3">
-        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Funnel with Time-to-Value</h3>
-        <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">
+        <h3 className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">Funnel with Time-to-Value</h3>
+        <p className="mt-0.5 text-[length:var(--text-caption)] font-medium italic text-on-surface-variant">
           Step counts với drop-off % + avg days transition giữa step
         </p>
       </div>
 
       {isLoading ? (
-        <div className="h-[280px] animate-pulse bg-slate-100 rounded-2xl" />
+        <Skeleton variant="rect" className="h-[280px] rounded-card" />
       ) : hasError ? (
-        <div className="h-[200px] rounded-2xl border border-slate-100 flex items-center justify-center text-sm text-slate-500">
+        <div className="flex h-[200px] items-center justify-center rounded-card border border-outline-variant/40 text-[length:var(--text-body-sm)] text-on-surface-variant">
           Chưa có dữ liệu funnel
         </div>
       ) : (
-        <div className="rounded-2xl border border-slate-100 p-4 space-y-2">
+        <div className="space-y-2 rounded-card border border-outline-variant/40 p-4">
           {funnel.data!.steps.map((step, idx) => {
             const maxCount = Math.max(...funnel.data!.steps.map((s) => s.count), 1);
             const widthPct = (step.count / maxCount) * 100;
@@ -56,25 +57,25 @@ export function ProductFunnelWithTime({ range }: ProductFunnelWithTimeProps) {
               <div key={step.name}>
                 {idx > 0 && (
                   <div className="ml-32 flex items-center gap-2 py-1.5">
-                    <span className="inline-block w-px h-4 bg-slate-300" />
+                    <span className="inline-block h-4 w-px bg-outline-variant" />
                     {hasSample ? (
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest tabular-nums">
+                      <span className="text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] tabular-nums text-on-surface-variant">
                         ↓ ~{formatAvgDays(ttvStep!.avgDays)} (avg · n={ttvStep!.sampleSize})
                       </span>
                     ) : (
-                      <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+                      <span className="text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant/60">
                         ↓ — (no data)
                       </span>
                     )}
                   </div>
                 )}
                 <div className="flex items-center gap-3">
-                  <div className="w-32 text-xs font-semibold text-slate-600 truncate" title={step.displayName}>
+                  <div className="w-32 truncate text-[length:var(--text-body-sm)] font-semibold text-on-surface" title={step.displayName}>
                     {step.displayName}
                   </div>
-                  <div className="flex-1 bg-slate-100 rounded-full h-8 relative overflow-hidden">
+                  <div className="relative h-8 flex-1 overflow-hidden rounded-full bg-surface-variant/40">
                     <div
-                      className="absolute inset-y-0 left-0 rounded-full flex items-center px-3 text-white text-xs font-bold tabular-nums"
+                      className="absolute inset-y-0 left-0 flex items-center rounded-full px-3 text-[length:var(--text-body-sm)] font-semibold tabular-nums text-on-primary"
                       style={{
                         width: `${widthPct}%`,
                         backgroundColor: STEP_COLORS[idx % STEP_COLORS.length],
@@ -84,11 +85,11 @@ export function ProductFunnelWithTime({ range }: ProductFunnelWithTimeProps) {
                       {step.count.toLocaleString()}
                     </div>
                   </div>
-                  <div className="w-16 text-right text-xs font-bold tabular-nums">
+                  <div className="w-16 text-right text-[length:var(--text-body-sm)] font-semibold tabular-nums">
                     {idx > 0 && step.dropOffPct > 0 ? (
-                      <span className="text-rose-500">−{step.dropOffPct}%</span>
+                      <span className="text-error">−{step.dropOffPct}%</span>
                     ) : (
-                      <span className="text-slate-300">—</span>
+                      <span className="text-on-surface-variant/60">—</span>
                     )}
                   </div>
                 </div>

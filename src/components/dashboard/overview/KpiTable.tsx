@@ -4,15 +4,16 @@ import { formatCurrency, formatNumber, formatPercent } from '../../../lib/format
 import type { KpiMetricsResponse, KpiMetricsRow } from '../../../types/dashboard-overview';
 import { type SortConfig, type SortField, sortData, handleSortClick, formatDateVN } from './kpi-table-utils';
 import { DashboardPanel, SegmentedTabs } from '../ui';
+import { Skeleton } from '../../ui/v2';
 
 function KpiTableHeader() {
   return (
     <div>
-      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
+      <p className="mb-1 text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">
         Daily breakdown
       </p>
-      <h3 className="text-2xl font-black font-headline tracking-tight text-on-surface">
-        KPI <span className="text-primary italic">Metrics</span>
+      <h3 className="font-headline text-2xl font-black tracking-tight text-on-surface">
+        KPI <span className="italic text-primary">Metrics</span>
       </h3>
     </div>
   );
@@ -38,8 +39,8 @@ function SortableHeader({ field, title, sortConfig, onSort }: SortableHeaderProp
     <button
       type="button"
       onClick={() => onSort(field)}
-      className={`inline-flex items-center gap-0.5 transition-colors whitespace-nowrap ${
-        active ? 'text-primary' : 'text-slate-500 hover:text-slate-700'
+      className={`inline-flex items-center gap-0.5 whitespace-nowrap transition-colors ${
+        active ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'
       } ${denseTable.headerCell}`}
     >
       <span>{title}</span>
@@ -50,18 +51,18 @@ function SortableHeader({ field, title, sortConfig, onSort }: SortableHeaderProp
 
 function RateBadge({ value, rate }: { value: number; rate: number }) {
   const style = rate >= 50
-    ? 'bg-primary text-white'
+    ? 'bg-primary text-on-primary'
     : rate >= 20
-      ? 'bg-primary/70 text-white'
+      ? 'bg-primary/70 text-on-primary'
       : rate > 0
         ? 'bg-primary/20 text-primary'
-        : 'bg-slate-100 text-slate-400';
+        : 'bg-surface-variant/60 text-on-surface-variant/70';
   return (
     <span className="inline-flex items-center gap-1.5">
-      <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded ${style}`}>
+      <span className={`rounded px-1.5 py-0.5 text-[length:var(--text-caption)] font-semibold ${style}`}>
         {formatPercent(rate)}
       </span>
-      <span className="text-slate-700 tabular-nums">{value}</span>
+      <span className="tabular-nums text-on-surface">{value}</span>
     </span>
   );
 }
@@ -74,12 +75,12 @@ interface MqlTiers {
 
 function MqlBadgeWithTooltip({ value, rate, tiers, rowIndex }: { value: number; rate: number; tiers: MqlTiers; rowIndex?: number }) {
   const style = rate >= 50
-    ? 'bg-primary text-white'
+    ? 'bg-primary text-on-primary'
     : rate >= 20
-      ? 'bg-primary/70 text-white'
+      ? 'bg-primary/70 text-on-primary'
       : rate > 0
         ? 'bg-primary/20 text-primary'
-        : 'bg-slate-100 text-slate-400';
+        : 'bg-surface-variant/60 text-on-surface-variant/70';
   const total = tiers.gold + tiers.silver + tiers.bronze;
   const bronzePercent = total > 0 ? (tiers.bronze / total) * 100 : 0;
   const silverPercent = total > 0 ? (tiers.silver / total) * 100 : 0;
@@ -90,38 +91,38 @@ function MqlBadgeWithTooltip({ value, rate, tiers, rowIndex }: { value: number; 
     ? 'top-full mt-2'
     : 'bottom-full mb-2';
   const arrowPosition = showBelow
-    ? 'bottom-full border-b-white'
-    : 'top-full border-t-white';
+    ? 'bottom-full border-b-surface'
+    : 'top-full border-t-surface';
 
   return (
-    <div className="relative group inline-flex items-center gap-1.5 cursor-pointer">
-      <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded ${style}`}>
+    <div className="group relative inline-flex cursor-pointer items-center gap-1.5">
+      <span className={`rounded px-1.5 py-0.5 text-[length:var(--text-caption)] font-semibold ${style}`}>
         {formatPercent(rate)}
       </span>
-      <span className="text-slate-700 tabular-nums">{value}</span>
+      <span className="tabular-nums text-on-surface">{value}</span>
 
-      <div className={`absolute ${tooltipPosition} right-0 p-3 bg-white shadow-sm text-slate-700 text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 whitespace-nowrap z-50 shadow-md pointer-events-none min-w-[180px]`}>
-        <div className="font-semibold text-slate-800 mb-2 text-[11px]">MQL Tier Breakdown</div>
+      <div className={`absolute ${tooltipPosition} pointer-events-none invisible right-0 z-50 min-w-[180px] whitespace-nowrap rounded-card border border-outline-variant/40 bg-surface p-3 text-[length:var(--text-body-sm)] text-on-surface opacity-0 shadow-lg transition-all duration-150 group-hover:visible group-hover:opacity-100`}>
+        <div className="mb-2 text-[length:var(--text-caption)] font-semibold text-on-surface">MQL Tier Breakdown</div>
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-2">
             <Medal className="h-3.5 w-3.5 text-amber-600" />
-            <span className="text-slate-500">Bronze:</span>
-            <span className="ml-auto font-medium tabular-nums">{tiers.bronze} <span className="text-slate-400 font-normal">({bronzePercent.toFixed(1)}%)</span></span>
+            <span className="text-on-surface-variant">Bronze:</span>
+            <span className="ml-auto font-medium tabular-nums">{tiers.bronze} <span className="font-normal text-on-surface-variant/70">({bronzePercent.toFixed(1)}%)</span></span>
           </div>
           <div className="flex items-center gap-2">
-            <Award className="h-3.5 w-3.5 text-slate-400" />
-            <span className="text-slate-500">Silver:</span>
-            <span className="ml-auto font-medium tabular-nums">{tiers.silver} <span className="text-slate-400 font-normal">({silverPercent.toFixed(1)}%)</span></span>
+            <Award className="h-3.5 w-3.5 text-on-surface-variant" />
+            <span className="text-on-surface-variant">Silver:</span>
+            <span className="ml-auto font-medium tabular-nums">{tiers.silver} <span className="font-normal text-on-surface-variant/70">({silverPercent.toFixed(1)}%)</span></span>
           </div>
           <div className="flex items-center gap-2">
             <Trophy className="h-3.5 w-3.5 text-amber-500" />
-            <span className="text-slate-500">Gold:</span>
-            <span className="ml-auto font-medium tabular-nums">{tiers.gold} <span className="text-slate-400 font-normal">({goldPercent.toFixed(1)}%)</span></span>
+            <span className="text-on-surface-variant">Gold:</span>
+            <span className="ml-auto font-medium tabular-nums">{tiers.gold} <span className="font-normal text-on-surface-variant/70">({goldPercent.toFixed(1)}%)</span></span>
           </div>
         </div>
-        <div className="border-t border-slate-100 mt-2 pt-2 flex items-center justify-between">
-          <span className="font-semibold text-slate-700 text-[11px]">Total:</span>
-          <span className="font-semibold tabular-nums">{total} <span className="text-slate-400 font-normal">({rate.toFixed(1)}%)</span></span>
+        <div className="mt-2 flex items-center justify-between border-t border-outline-variant/40 pt-2">
+          <span className="text-[length:var(--text-caption)] font-semibold text-on-surface">Total:</span>
+          <span className="font-semibold tabular-nums">{total} <span className="font-normal text-on-surface-variant/70">({rate.toFixed(1)}%)</span></span>
         </div>
         <div className={`absolute ${arrowPosition} right-4 border-4 border-transparent`}></div>
       </div>
@@ -144,9 +145,9 @@ function KpiTableRow({ row, isTotal, rateMode, index = 0 }: KpiTableRowProps) {
   const isEven = index % 2 === 0;
   const denseTable = getTableContract('dense');
   const cellBase = denseTable.cell;
-  const rowBg = isTotal ? 'bg-slate-50/50' : isEven ? 'bg-white/30' : 'bg-slate-50/20';
-  const cellBg = isTotal ? 'bg-slate-50' : '';
-  const cellStyle = isTotal ? `${cellBase} font-semibold ${cellBg}` : `${cellBase} text-slate-600`;
+  const rowBg = isTotal ? 'bg-surface-variant/40' : isEven ? 'bg-surface/30' : 'bg-surface-variant/20';
+  const cellBg = isTotal ? 'bg-surface-variant/60' : '';
+  const cellStyle = isTotal ? `${cellBase} font-semibold ${cellBg}` : `${cellBase} text-on-surface-variant`;
   const rightAlign = 'text-right';
 
   const signupRate = safeDivide(row.signups, row.sessions);
@@ -161,8 +162,8 @@ function KpiTableRow({ row, isTotal, rateMode, index = 0 }: KpiTableRowProps) {
   const sqlRate = safeDivide(row.sql, row.signups);
 
   return (
-    <tr className={`${isTotal ? '' : 'border-b border-slate-100'} ${rowBg} hover:bg-primary/5 transition-colors`}>
-      <td className={`${cellStyle} text-left font-medium text-slate-800 sticky left-0 ${isTotal ? 'bg-slate-50 z-30' : `${rowBg} z-10`}`}>
+    <tr className={`${isTotal ? '' : 'border-b border-outline-variant/40'} ${rowBg} transition-colors hover:bg-primary/5`}>
+      <td className={`${cellStyle} sticky left-0 text-left font-medium text-on-surface ${isTotal ? 'z-30 bg-surface-variant/60' : `${rowBg} z-10`}`}>
         {isTotal ? 'TOTAL' : formatDateVN(row.date)}
       </td>
       <td className={`${cellStyle} ${rightAlign}`}>{formatCurrency(row.adSpend)}</td>
@@ -201,13 +202,13 @@ function KpiTableRow({ row, isTotal, rateMode, index = 0 }: KpiTableRowProps) {
         <RateBadge value={row.sql} rate={sqlRate} />
       </td>
       <td className={`${cellStyle} ${rightAlign} font-medium tabular-nums`}>{formatCurrency(row.revenue)}</td>
-      <td className={`${cellStyle} ${rightAlign} font-bold tabular-nums ${row.roas >= 1 ? 'text-primary' : 'text-red-600'}`}>
+      <td className={`${cellStyle} ${rightAlign} font-bold tabular-nums ${row.roas >= 1 ? 'text-primary' : 'text-error'}`}>
         {row.roas.toFixed(2)}x
       </td>
       <td className={`${cellStyle} ${rightAlign}`}>
         {row.revenue > 0
           ? `${((row.adSpend / row.revenue) * 100).toFixed(1)}%`
-          : <span className="text-slate-400">-</span>}
+          : <span className="text-on-surface-variant/60">-</span>}
       </td>
     </tr>
   );
@@ -216,11 +217,11 @@ function KpiTableRow({ row, isTotal, rateMode, index = 0 }: KpiTableRowProps) {
 function SkeletonTable() {
   return (
     <section>
-      <div className="h-5 w-24 bg-slate-200 rounded mb-3" />
-      <DashboardPanel className="animate-pulse overflow-hidden">
-        <div className="p-4 space-y-2">
+      <Skeleton variant="rect" className="mb-3 h-5 w-24 rounded" />
+      <DashboardPanel className="overflow-hidden">
+        <div className="space-y-2 p-4">
           {[...Array(7)].map((_, i) => (
-            <div key={i} className="h-8 bg-slate-100 rounded" />
+            <Skeleton key={i} variant="rect" className="h-8 rounded" />
           ))}
         </div>
       </DashboardPanel>
@@ -316,7 +317,7 @@ export const KpiTable = memo(function KpiTable({
       <section className="space-y-3">
         <KpiTableHeader />
         <DashboardPanel className="p-6">
-          <p className="text-center text-red-600 font-medium">Lỗi: {error.message}</p>
+          <p className="text-center font-medium text-error">Lỗi: {error.message}</p>
         </DashboardPanel>
       </section>
     );
@@ -386,58 +387,58 @@ export const KpiTable = memo(function KpiTable({
             </colgroup>
             <thead>
               <tr>
-                <th className="px-3 py-2.5 text-left sticky left-0 bg-slate-100 z-10">
+                <th className="px-3 py-2.5 text-left sticky left-0 bg-surface-variant/60 z-10">
                   <SortableHeader field="date" title="Date" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <SortableHeader field="adSpend" title="Ad Spend" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <SortableHeader field="sessions" title="Sessions" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <span className={denseTable.headerCell}>CPSe</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <SortableHeader field="signups" title="Signups" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <span className={denseTable.headerCell}>CPSi</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <SortableHeader field="opportunities" title="Opps" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <span className={denseTable.headerCell}>CPOpp</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <SortableHeader field="orders" title="Order" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <span className={denseTable.headerCell}>CPOr</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <span className={denseTable.headerCell}>MQL (3 tiers)</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <span className={denseTable.headerCell}>Pre-PQL</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <span className={denseTable.headerCell}>PQL</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <span className={denseTable.headerCell}>Pre-SQL</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <span className={denseTable.headerCell}>SQL</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <SortableHeader field="revenue" title="Revenue" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <SortableHeader field="roas" title="ROAS" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-slate-100">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
                   <span className={denseTable.headerCell}>ME/RE</span>
                 </th>
               </tr>
@@ -475,7 +476,7 @@ export const KpiTable = memo(function KpiTable({
           </table>
         </div>
 
-        <div ref={totalScrollRef} onScroll={handleTotalScroll} className="border-t-2 border-slate-200 bg-slate-50 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <div ref={totalScrollRef} onScroll={handleTotalScroll} className="border-t-2 border-outline-variant/40 bg-surface-variant/40 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <table className={`${denseTable.table} min-w-[1680px]`}>
             <colgroup>
               <col className="w-[100px]" />

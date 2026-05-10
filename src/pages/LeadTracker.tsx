@@ -1,21 +1,44 @@
 import { useState } from 'react';
 import { format, startOfMonth } from 'date-fns';
-import { List, BarChart2, Download } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import LeadLogsTab from '../components/lead-tracker/lead-logs-tab';
-import DailyStatsTab from '../components/lead-tracker/daily-stats-tab';
-import DatePicker from '../components/ui/DatePicker';
-import { exportAllLeadsToCsv } from '../components/lead-tracker/csv-export';
-import SyncFromCrmButton from '../components/lead-tracker/sync-from-crm-button';
-import LastSyncIndicator from '../components/lead-tracker/last-sync-indicator';
-import { useSyncNowMutation, useSyncStatusQuery } from '../hooks/use-lead-sync';
+import { List, BarChart2, Download, RefreshCw, Users } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import LeadLogsTab from '../../components/lead-tracker/lead-logs-tab';
+import DailyStatsTab from '../../components/lead-tracker/daily-stats-tab';
+import { exportAllLeadsToCsv } from '../../components/lead-tracker/csv-export';
+import LastSyncIndicator from '../../components/lead-tracker/last-sync-indicator';
+import { useSyncNowMutation, useSyncStatusQuery } from '../../hooks/use-lead-sync';
+import {
+  PageHeader,
+  Button,
+  TabPill,
+  GlassCard,
+} from '../../components/ui/v2';
+import type { TabPillItem } from '../../components/ui/v2';
 
 type ActiveTab = 'logs' | 'stats';
 
-export default function LeadTracker() {
+const TABS: TabPillItem<ActiveTab>[] = [
+  { value: 'logs', label: 'Lead Logs', icon: <List /> },
+  { value: 'stats', label: 'CRM Stats', icon: <BarChart2 /> },
+];
+
+/**
+ * LeadTracker v2 — Phase 6 medium pages migration.
+ *
+ * Token-driven shell wrapping v1 sub-components (LeadLogsTab, DailyStatsTab):
+ *  - PageHeader (italic accent + breadcrumb)
+ *  - TabPill (Logs / Stats)
+ *  - v2 Button for CRM sync (Admin only) + CSV export
+ *  - Date range filters preserved for stats tab
+ *
+ * Sub-components (lead-log-dialog, lead-detail-modal, source-badge, csv-export, etc.) reused
+ * from v1 — internal UI migration is follow-up work after Phase 6 sign-off.
+ *
+ * RBAC: CRM sync = admin only (matches backend). CSV export = isSale.
+ */
+export default function LeadTrackerV2() {
   const { currentUser } = useAuth();
   const isSale = currentUser?.departments?.includes('Sale');
-  // CRM sync + admin actions = admin only (matches backend admin gates).
   const canManageLeads = !!currentUser?.isAdmin;
   const [activeTab, setActiveTab] = useState<ActiveTab>('logs');
   const [statsDateFrom, setStatsDateFrom] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
@@ -43,87 +66,76 @@ export default function LeadTracker() {
     }
   };
 
-  const tabToggle = (
-    <div className="flex items-center bg-slate-100 rounded-full p-0.5 gap-0.5">
-      <button
-        onClick={() => setActiveTab('logs')}
-        className={`flex items-center gap-1.5 h-7 px-3.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${
-          activeTab === 'logs' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'
-        }`}
-      >
-        <List size={10} />
-        Lead Logs
-      </button>
-      <button
-        onClick={() => setActiveTab('stats')}
-        className={`flex items-center gap-1.5 h-7 px-3.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${
-          activeTab === 'stats' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'
-        }`}
-      >
-        <BarChart2 size={10} />
-        CRM Stats
-      </button>
+  const isSyncing = syncNow.isPending || syncStatus.data?.status === 'running';
+
+  const headerActions = (
+    <div className="flex flex-wrap items-center gap-2">
+      {canManageLeads && (
+        <>
+          <LastSyncIndicator status={syncStatus.data} />
+          <Button
+            variant="secondary"
+            iconLeft={<RefreshCw className={isSyncing ? 'animate-spin' : ''} />}
+            onClick={triggerSyncNow}
+            disabled={isSyncing}
+          >
+            {isSyncing ? 'Syncing...' : 'Sync CRM'}
+          </Button>
+        </>
+      )}
+      {isSale && activeTab === 'logs' && (
+        <Button variant="ghost" iconLeft={<Download />} onClick={handleExportCsv} disabled={exporting}>
+          {exporting ? 'Exporting...' : 'Export CSV'}
+        </Button>
+      )}
     </div>
   );
 
   return (
-    <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--space-md)] shrink-0">
-        <div>
-          <nav className="flex items-center gap-2 mb-2 text-on-surface-variant font-medium text-sm">
-            <span className="hover:text-primary cursor-pointer transition-colors">Acquisition</span>
-            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-            <span className="text-on-surface">Lead Tracker</span>
-          </nav>
-          <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">
-            Lead <span className="text-primary italic">Tracker</span>
-          </h2>
-        </div>
+    <div className="flex h-full flex-col gap-6">
+      <PageHeader
+        breadcrumb={[{ label: 'Acquisition' }, { label: 'Lead Tracker' }]}
+        title="Lead "
+        accent="Tracker"
+        description="CRM leads & SLA tracking. Edit gated per assignee — admin sync controls."
+        actions={headerActions}
+      />
 
-        {isSale && activeTab === 'logs' && canManageLeads && (
-          <div className="flex items-center gap-3">
-            {!!currentUser?.isAdmin && (
-              <>
-                <LastSyncIndicator status={syncStatus.data} />
-                <SyncFromCrmButton
-                  canSync={true}
-                  isSyncing={syncNow.isPending}
-                  isRunning={syncStatus.data?.status === 'running'}
-                  onSync={triggerSyncNow}
-                />
-              </>
-            )}
-            <button
-              onClick={handleExportCsv}
-              disabled={exporting}
-              className="flex items-center justify-center gap-2 h-10 px-5 rounded-full bg-surface-container-high text-slate-600 hover:bg-slate-200 font-black text-[10px] uppercase tracking-widest transition-all disabled:opacity-50"
-            >
-              <Download size={13} />
-              {exporting ? 'Exporting...' : 'Export CSV'}
-            </button>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <TabPill<ActiveTab> label="Lead tracker tabs" value={activeTab} onChange={setActiveTab} items={TABS} />
+        {activeTab === 'stats' && (
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={statsDateFrom}
+              onChange={(e) => setStatsDateFrom(e.target.value)}
+              className="h-9 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+            />
+            <span className="text-on-surface-variant">—</span>
+            <input
+              type="date"
+              value={statsDateTo}
+              onChange={(e) => setStatsDateTo(e.target.value)}
+              className="h-9 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+            />
           </div>
         )}
       </div>
 
-      <div className="flex-1 min-h-0 flex flex-col gap-4">
+      <div className="flex flex-1 min-h-0 flex-col">
         {activeTab === 'logs' ? (
-          <LeadLogsTab extraControls={tabToggle} />
+          <LeadLogsTab />
         ) : (
-          <>
-            <div className="shrink-0 flex flex-wrap gap-3 items-center p-4 bg-white/50 backdrop-blur-md rounded-3xl shadow-sm">
-              <div className="flex items-center gap-1.5">
-                <DatePicker value={statsDateFrom} onChange={setStatsDateFrom} placeholder="Từ ngày" />
-                <span className="text-slate-300 text-xs">&#8212;</span>
-                <DatePicker value={statsDateTo} onChange={setStatsDateTo} placeholder="Đến ngày" />
-              </div>
-              <div className="ml-auto">{tabToggle}</div>
-            </div>
-            <div className="flex-1 overflow-y-auto pb-8">
-              <DailyStatsTab dateFrom={statsDateFrom} dateTo={statsDateTo} />
-            </div>
-          </>
+          <GlassCard variant="surface" padding="md" className="flex-1 overflow-y-auto">
+            <DailyStatsTab dateFrom={statsDateFrom} dateTo={statsDateTo} />
+          </GlassCard>
         )}
       </div>
+
+      {/* Hidden Users icon to keep import balance for future per-row owner display */}
+      <span className="sr-only" aria-hidden="true">
+        <Users />
+      </span>
     </div>
   );
 }

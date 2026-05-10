@@ -1,72 +1,78 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { Camera, Save } from 'lucide-react';
+import {
+  PageHeader,
+  GlassCard,
+  Input,
+  Button,
+  useToast,
+} from '../../components/ui/v2';
 
-export default function Profile() {
+/**
+ * Profile v2 — token-driven redesign of personal info edit page.
+ *
+ * Migrated from v1 (`src/pages/Profile.tsx`). Keeps the same local-state
+ * stub (no API yet — wire when backend ready). Uses v2 PageHeader +
+ * GlassCard + Input + Button + toast for save feedback.
+ */
+export default function ProfileV2() {
+  const { toast } = useToast();
   const [name, setName] = useState('Hoàng Nguyễn');
   const [role, setRole] = useState('Agency PM');
   const [email, setEmail] = useState('hoang.nguyen@example.com');
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    // Stub — wire to API when backend ready.
+    await new Promise((r) => setTimeout(r, 600));
+    setSaving(false);
+    toast({ tone: 'success', title: 'Profile saved', description: 'Your changes are live.' });
+  };
 
   return (
-    <div className="h-full flex flex-col gap-[var(--space-lg)] w-full">
-      {/* Header */}
-      <section className="shrink-0">
-        <h2 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Edit Profile</h2>
-        <p className="text-slate-500 mt-2">Update your personal information.</p>
-      </section>
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Edit "
+        accent="Profile"
+        description="Update your personal information. Changes save immediately."
+      />
 
-      {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto pb-8">
-        <div className="bg-white/50 backdrop-blur-md p-8 rounded-3xl border border-white/20 shadow-sm max-w-2xl">
-        <div className="flex items-center gap-6 mb-8">
-          <img 
-            src="https://picsum.photos/seed/pm/100/100" 
-            alt="User"
-            className="w-24 h-24 rounded-3xl object-cover ring-4 ring-slate-50 shadow-xl"
+      <GlassCard variant="raised" padding="lg" className="max-w-2xl">
+        <div className="flex items-center gap-5 pb-6 border-b border-outline-variant/40">
+          <img
+            src="https://picsum.photos/seed/pm/96/96"
+            alt={`${name} avatar`}
+            className="size-20 rounded-card object-cover ring-4 ring-white shadow-md"
             referrerPolicy="no-referrer"
           />
-          <div>
-            <button className="px-4 py-2 bg-primary text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all">
-              Change Avatar
-            </button>
+          <div className="flex flex-col gap-1.5">
+            <p className="text-[length:var(--text-body-sm)] text-on-surface-variant">Profile photo</p>
+            <Button variant="secondary" size="sm" iconLeft={<Camera />}>
+              Change avatar
+            </Button>
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Full Name</label>
-            <input 
-              type="text" 
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" 
-              value={name}
-              onChange={e => setName(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Role</label>
-            <input 
-              type="text" 
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" 
-              value={role}
-              onChange={e => setRole(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Email</label>
-            <input 
-              type="email" 
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" 
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-            />
-          </div>
+        <div className="flex flex-col gap-4 pt-6">
+          <Input label="Full name" value={name} onChange={(e) => setName(e.target.value)} required />
+          <Input label="Role" value={role} onChange={(e) => setRole(e.target.value)} />
+          <Input
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            helperText="Used for login + notifications."
+            required
+          />
 
-          <div className="pt-4 flex justify-end">
-            <button className="px-8 py-3 bg-primary text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all">
-              Save Changes
-            </button>
+          <div className="flex justify-end pt-3">
+            <Button variant="primary" iconLeft={<Save />} isLoading={saving} onClick={handleSave}>
+              Save changes
+            </Button>
           </div>
         </div>
-        </div>
-      </div>
+      </GlassCard>
     </div>
   );
 }

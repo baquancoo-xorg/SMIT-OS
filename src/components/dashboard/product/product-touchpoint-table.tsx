@@ -1,16 +1,22 @@
-// Touchpoint Table — top 50 business by event count, sortable + pagination 25/page
+// Touchpoint Table — top 50 business by event count, sortable + pagination 10/page
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useProductOperational } from '../../../hooks/use-product-dashboard';
 import type { DateRange } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
+import { DataTable, EmptyState } from '../../ui/v2';
+import type { DataTableColumn, SortState } from '../../ui/v2';
 
 interface ProductTouchpointTableProps {
   range: DateRange;
 }
 
-type SortKey = 'count' | 'name' | 'last';
-type SortDir = 'asc' | 'desc';
+type TouchpointRow = {
+  businessId: string;
+  businessName: string | null;
+  eventCount: number;
+  lastActiveAt: string | null;
+};
 
 const PAGE_SIZE = 10;
 
@@ -28,146 +34,83 @@ function formatRelative(iso: string | null): string {
 
 export function ProductTouchpointTable({ range }: ProductTouchpointTableProps) {
   const { data, isLoading, error } = useProductOperational(range);
-  const [sortKey, setSortKey] = useState<SortKey>('count');
-  const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [page, setPage] = useState(0);
+  const [sort, setSort] = useState<SortState | null>({ key: 'eventCount', direction: 'desc' });
 
-  const sorted = useMemo(() => {
-    if (!data) return [];
-    const rows = [...data.touchpoints];
-    rows.sort((a, b) => {
-      const sign = sortDir === 'asc' ? 1 : -1;
-      if (sortKey === 'count') return sign * (a.eventCount - b.eventCount);
-      if (sortKey === 'last') {
+  const rows = (data?.touchpoints ?? []) as TouchpointRow[];
+
+  const columns: DataTableColumn<TouchpointRow>[] = [
+    {
+      key: 'business',
+      label: 'Business',
+      sortable: true,
+      sort: (a, b) => (a.businessName ?? a.businessId).localeCompare(b.businessName ?? b.businessId),
+      render: (row) => (
+        <div>
+          <div className="max-w-[280px] truncate font-semibold text-on-surface">
+            {row.businessName ?? `#${row.businessId}`}
+          </div>
+          <div className="text-[length:var(--text-caption)] text-on-surface-variant/70">#{row.businessId}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'eventCount',
+      label: 'Events',
+      align: 'right',
+      sortable: true,
+      sort: (a, b) => a.eventCount - b.eventCount,
+      render: (row) => (
+        <span className="font-semibold tabular-nums text-on-surface">{row.eventCount.toLocaleString()}</span>
+      ),
+    },
+    {
+      key: 'lastActiveAt',
+      label: 'Last Active',
+      align: 'right',
+      sortable: true,
+      sort: (a, b) => {
         const at = a.lastActiveAt ? new Date(a.lastActiveAt).getTime() : 0;
         const bt = b.lastActiveAt ? new Date(b.lastActiveAt).getTime() : 0;
-        return sign * (at - bt);
-      }
-      const an = a.businessName ?? a.businessId;
-      const bn = b.businessName ?? b.businessId;
-      return sign * an.localeCompare(bn);
-    });
-    return rows;
-  }, [data, sortKey, sortDir]);
+        return at - bt;
+      },
+      render: (row) => <span className="text-on-surface-variant">{formatRelative(row.lastActiveAt)}</span>,
+    },
+  ];
 
-  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
-  const pageRows = sorted.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-
-  const toggleSort = (key: SortKey) => {
-    if (sortKey === key) setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
-    else {
-      setSortKey(key);
-      setSortDir(key === 'name' ? 'asc' : 'desc');
-    }
-    setPage(0);
-  };
-
-  const renderSortArrow = (key: SortKey) =>
-    sortKey === key ? (sortDir === 'asc' ? '↑' : '↓') : '';
+  const showError = !!error && !isLoading;
 
   return (
     <DashboardPanel className="p-4 md:p-5">
       <div className="mb-3">
-        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
+        <h3 className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">
           Touchpoint Activity
         </h3>
-        <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">
+        <p className="mt-0.5 text-[length:var(--text-caption)] font-medium italic text-on-surface-variant">
           Top 50 business by event count · sortable · {PAGE_SIZE} business/trang
         </p>
       </div>
 
-      {isLoading ? (
-        <div className="h-[340px] animate-pulse bg-slate-100 rounded-2xl" />
-      ) : error || !data || sorted.length === 0 ? (
-        <div className="h-[200px] rounded-2xl border border-slate-100 flex items-center justify-center text-sm text-slate-500">
-          Chưa có touchpoint data
-        </div>
-      ) : (
-        <>
-          <div className="overflow-x-auto rounded-2xl border border-slate-100">
-            <table className="min-w-full text-xs">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-3 py-2 text-left">
-                    <button
-                      type="button"
-                      onClick={() => toggleSort('name')}
-                      aria-label="Sort by business name"
-                      className="font-bold uppercase tracking-wider text-slate-500 hover:text-slate-700"
-                    >
-                      Business {renderSortArrow('name')}
-                    </button>
-                  </th>
-                  <th className="px-3 py-2 text-right">
-                    <button
-                      type="button"
-                      onClick={() => toggleSort('count')}
-                      aria-label="Sort by event count"
-                      className="font-bold uppercase tracking-wider text-slate-500 hover:text-slate-700"
-                    >
-                      Events {renderSortArrow('count')}
-                    </button>
-                  </th>
-                  <th className="px-3 py-2 text-right">
-                    <button
-                      type="button"
-                      onClick={() => toggleSort('last')}
-                      aria-label="Sort by last active"
-                      className="font-bold uppercase tracking-wider text-slate-500 hover:text-slate-700"
-                    >
-                      Last Active {renderSortArrow('last')}
-                    </button>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {pageRows.map((row) => (
-                  <tr key={row.businessId} className="border-t border-slate-100 hover:bg-slate-50/50">
-                    <td className="px-3 py-2">
-                      <div className="font-semibold text-slate-700 truncate max-w-[280px]">
-                        {row.businessName ?? `#${row.businessId}`}
-                      </div>
-                      <div className="text-[10px] text-slate-400">#{row.businessId}</div>
-                    </td>
-                    <td className="px-3 py-2 text-right text-xs font-bold tabular-nums text-slate-700">
-                      {row.eventCount.toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2 text-right text-xs text-slate-500">
-                      {formatRelative(row.lastActiveAt)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {totalPages > 1 && (
-            <div className="mt-3 flex items-center justify-between text-[11px] font-bold text-slate-500">
-              <span>
-                Trang {page + 1}/{totalPages} · {sorted.length} business
-              </span>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setPage((p) => Math.max(0, p - 1))}
-                  disabled={page === 0}
-                  className="rounded-full border border-slate-200 px-3 py-1 disabled:opacity-40 hover:bg-slate-50"
-                >
-                  ← Prev
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                  disabled={page >= totalPages - 1}
-                  className="rounded-full border border-slate-200 px-3 py-1 disabled:opacity-40 hover:bg-slate-50"
-                >
-                  Next →
-                </button>
-              </div>
-            </div>
-          )}
-        </>
-      )}
+      <DataTable
+        data={rows}
+        columns={columns}
+        rowKey={(row) => row.businessId}
+        loading={isLoading}
+        empty={
+          <EmptyState
+            title={showError ? 'Không tải được touchpoint data' : 'Chưa có touchpoint data'}
+            description={showError ? 'Vui lòng thử lại sau.' : undefined}
+          />
+        }
+        sort={sort ?? undefined}
+        onSortChange={(next) => {
+          setSort(next);
+          setPage(0);
+        }}
+        pagination={{ page, pageSize: PAGE_SIZE, total: rows.length }}
+        onPaginationChange={setPage}
+        label="Touchpoint activity"
+      />
     </DashboardPanel>
   );
 }

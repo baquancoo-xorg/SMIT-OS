@@ -4,6 +4,7 @@ import type { DateRange, TopFeature } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
 import DashboardSectionTitle from '../ui/dashboard-section-title';
 import DashboardEmptyState from '../ui/dashboard-empty-state';
+import { Skeleton } from '../../ui/v2';
 
 interface ProductTopFeaturesTableProps {
   range: DateRange;
@@ -31,7 +32,7 @@ export function ProductTopFeaturesTable({ range }: ProductTopFeaturesTableProps)
         <DashboardSectionTitle>Top Features</DashboardSectionTitle>
         <div className="mt-4 space-y-2">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />
+            <Skeleton key={i} variant="rect" className="h-10 rounded-card" />
           ))}
         </div>
       </DashboardPanel>
@@ -68,7 +69,7 @@ export function ProductTopFeaturesTable({ range }: ProductTopFeaturesTableProps)
 
   const SortHeader = ({ label, sortKey }: { label: string; sortKey: SortKey }) => (
     <th
-      className="px-4 py-2 text-left text-sm font-medium text-gray-600 cursor-pointer hover:text-gray-900"
+      className="cursor-pointer px-4 py-2 text-left text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant transition-colors hover:text-on-surface"
       onClick={() => handleSort(sortKey)}
     >
       {label} {sortBy === sortKey && (sortAsc ? '↑' : '↓')}
@@ -81,20 +82,20 @@ export function ProductTopFeaturesTable({ range }: ProductTopFeaturesTableProps)
       <div className="mt-4 overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b">
+            <tr className="border-b border-outline-variant/40">
               <SortHeader label="Feature" sortKey="feature" />
               <SortHeader label="Users" sortKey="users" />
               <SortHeader label="Total Uses" sortKey="totalUses" />
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Last Used</th>
+              <th className="px-4 py-2 text-left text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">Last Used</th>
             </tr>
           </thead>
           <tbody>
             {sorted.map((item) => (
-              <tr key={item.feature} className="border-b hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm">{item.feature}</td>
-                <td className="px-4 py-3 text-sm">{item.users.toLocaleString()}</td>
-                <td className="px-4 py-3 text-sm">{item.totalUses.toLocaleString()}</td>
-                <td className="px-4 py-3 text-sm text-gray-500">
+              <tr key={item.feature} className="border-b border-outline-variant/40 transition-colors hover:bg-surface-variant/40">
+                <td className="px-4 py-3 text-[length:var(--text-body-sm)] text-on-surface">{item.feature}</td>
+                <td className="px-4 py-3 text-[length:var(--text-body-sm)] tabular-nums text-on-surface">{item.users.toLocaleString()}</td>
+                <td className="px-4 py-3 text-[length:var(--text-body-sm)] tabular-nums text-on-surface">{item.totalUses.toLocaleString()}</td>
+                <td className="px-4 py-3 text-[length:var(--text-body-sm)] text-on-surface-variant">
                   {item.lastUsed ? new Date(item.lastUsed).toLocaleDateString('vi-VN') : '—'}
                 </td>
               </tr>

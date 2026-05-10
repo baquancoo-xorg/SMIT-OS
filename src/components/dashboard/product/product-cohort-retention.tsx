@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useProductCohort } from '../../../hooks/use-product-dashboard';
 import type { DateRange } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
+import { Skeleton } from '../../ui/v2';
 
 interface ProductCohortRetentionProps {
   range: DateRange;
@@ -34,26 +35,26 @@ export function ProductCohortRetention({ range }: ProductCohortRetentionProps) {
   return (
     <DashboardPanel className="p-4 md:p-5">
       <div className="mb-3">
-        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Cohort Retention Heatmap</h3>
-        <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">
+        <h3 className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">Cohort Retention Heatmap</h3>
+        <p className="mt-0.5 text-[length:var(--text-caption)] font-medium italic text-on-surface-variant">
           % business active sau N ngày kể từ tuần signup
         </p>
       </div>
 
       {isLoading ? (
-        <div className="h-[280px] animate-pulse bg-slate-100 rounded-2xl" />
+        <Skeleton variant="rect" className="h-[280px] rounded-card" />
       ) : error || !data ? (
-        <div className="h-[200px] rounded-2xl border border-slate-100 flex items-center justify-center text-sm text-slate-500">
+        <div className="flex h-[200px] items-center justify-center rounded-card border border-outline-variant/40 text-[length:var(--text-body-sm)] text-on-surface-variant">
           Không tải được cohort data
         </div>
       ) : data.cohorts.length === 0 ? (
-        <div className="h-[200px] rounded-2xl border border-slate-100 flex items-center justify-center text-sm text-slate-500">
+        <div className="flex h-[200px] items-center justify-center rounded-card border border-outline-variant/40 text-[length:var(--text-body-sm)] text-on-surface-variant">
           {data.message ?? 'Chưa có cohort data trong khoảng này'}
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-slate-100 p-3 md:p-4">
+        <div className="overflow-x-auto rounded-card border border-outline-variant/40 p-3 md:p-4">
           <div className="min-w-[600px] space-y-1">
-            <div className="grid gap-1 text-[10px] font-bold text-slate-400" style={{ gridTemplateColumns: '120px 80px repeat(5, minmax(56px, 1fr))' }}>
+            <div className="grid gap-1 text-[length:var(--text-caption)] font-semibold text-on-surface-variant" style={{ gridTemplateColumns: '120px 80px repeat(5, minmax(56px, 1fr))' }}>
               <div>Cohort week</div>
               <div className="text-right">Size</div>
               {RETENTION_KEYS.map((k) => (
@@ -63,11 +64,11 @@ export function ProductCohortRetention({ range }: ProductCohortRetentionProps) {
             {data.cohorts.map((c) => (
               <div
                 key={c.cohort}
-                className="grid gap-1 items-center"
+                className="grid items-center gap-1"
                 style={{ gridTemplateColumns: '120px 80px repeat(5, minmax(56px, 1fr))' }}
               >
-                <div className="text-xs font-semibold text-slate-600">{c.cohort}</div>
-                <div className="text-xs font-bold text-slate-500 text-right tabular-nums">{c.size}</div>
+                <div className="text-[length:var(--text-body-sm)] font-semibold text-on-surface">{c.cohort}</div>
+                <div className="text-right text-[length:var(--text-body-sm)] font-semibold tabular-nums text-on-surface-variant">{c.size}</div>
                 {RETENTION_KEYS.map((k) => {
                   const value = c.retention[k.key];
                   const label = `${c.cohort} ${k.label}: ${value}% (${Math.round((value / 100) * c.size)}/${c.size})`;
@@ -88,7 +89,7 @@ export function ProductCohortRetention({ range }: ProductCohortRetentionProps) {
               </div>
             ))}
           </div>
-          <p className="mt-3 text-[11px] font-semibold text-slate-500">
+          <p className="mt-3 text-[length:var(--text-caption)] font-medium text-on-surface-variant">
             {activeLabel ?? 'Di chuột vào ô để xem chi tiết retention.'}
           </p>
         </div>

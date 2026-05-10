@@ -15,6 +15,7 @@ import {
 import { useProductCohort } from '../../../hooks/use-product-dashboard';
 import type { DateRange } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
+import { Skeleton } from '../../ui/v2';
 
 interface ProductCohortActivationCurveProps {
   range: DateRange;
@@ -37,13 +38,13 @@ interface CurveTooltipProps {
 function CurveTooltip({ active, payload, label }: CurveTooltipProps) {
   if (!active || !payload || payload.length === 0) return null;
   return (
-    <div className="rounded-xl border border-black/5 bg-white/90 p-3 shadow-lg backdrop-blur-sm">
-      <p className="mb-1 text-xs font-black text-slate-700">Day {label}</p>
+    <div className="rounded-card border border-outline-variant/40 bg-surface/95 p-3 shadow-lg backdrop-blur-sm">
+      <p className="mb-1 text-[length:var(--text-body-sm)] font-semibold text-on-surface">Day {label}</p>
       <div className="space-y-1">
         {payload.map((item) => (
-          <div key={item.name} className="flex items-center justify-between gap-4 text-xs font-semibold">
+          <div key={item.name} className="flex items-center justify-between gap-4 text-[length:var(--text-body-sm)] font-medium">
             <span style={{ color: item.color ?? '#475569' }}>{item.name}</span>
-            <span className="text-slate-700 tabular-nums">{item.value}%</span>
+            <span className="tabular-nums text-on-surface">{item.value}%</span>
           </div>
         ))}
       </div>
@@ -74,20 +75,20 @@ export function ProductCohortActivationCurve({ range }: ProductCohortActivationC
   return (
     <DashboardPanel className="p-4 md:p-5">
       <div className="mb-3">
-        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Cohort Activation Curve</h3>
-        <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">
+        <h3 className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">Cohort Activation Curve</h3>
+        <p className="mt-0.5 text-[length:var(--text-caption)] font-medium italic text-on-surface-variant">
           Top 6 cohort gần nhất · % business active theo D0/D1/D7/D14/D30
         </p>
       </div>
 
       {isLoading ? (
-        <div className="h-[300px] animate-pulse bg-slate-100 rounded-2xl" />
+        <Skeleton variant="rect" className="h-[300px] rounded-card" />
       ) : error || chartData.length === 0 ? (
-        <div className="h-[200px] rounded-2xl border border-slate-100 flex items-center justify-center text-sm text-slate-500">
+        <div className="flex h-[200px] items-center justify-center rounded-card border border-outline-variant/40 text-[length:var(--text-body-sm)] text-on-surface-variant">
           Chưa có cohort data
         </div>
       ) : (
-        <div className="h-[300px] rounded-2xl border border-slate-100 p-2">
+        <div className="h-[300px] rounded-card border border-outline-variant/40 p-2">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 8, right: 16, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />

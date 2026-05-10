@@ -35,7 +35,7 @@ function RefreshButton({ onRefresh, refreshing }: { onRefresh: () => void; refre
       onClick={onRefresh}
       disabled={refreshing}
       title="Refresh data"
-      className="inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 transition-colors hover:bg-slate-50 disabled:opacity-50"
+      className="inline-flex shrink-0 items-center gap-1 rounded-chip border border-outline-variant/40 bg-surface px-3 py-1 text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant transition-colors hover:bg-surface-variant/40 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
     >
       <svg
         className={`h-3 w-3 ${refreshing ? 'animate-spin' : ''}`}

@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { useProductStuck } from '../../../hooks/use-product-dashboard';
 import type { DateRange } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
+import { Badge, Skeleton } from '../../ui/v2';
 
 interface ProductStuckListProps {
   range: DateRange;
@@ -19,10 +20,9 @@ function formatDate(iso: string): string {
     .padStart(2, '0')}/${d.getUTCFullYear()}`;
 }
 
-function severityClass(days: number): string {
-  if (days >= 30) return 'bg-rose-100 text-rose-700';
-  if (days >= 14) return 'bg-orange-100 text-orange-700';
-  return 'bg-amber-100 text-amber-700';
+function severityVariant(days: number): 'error' | 'warning' {
+  if (days >= 14) return 'error';
+  return 'warning';
 }
 
 export function ProductStuckList({ range }: ProductStuckListProps) {
@@ -40,70 +40,66 @@ export function ProductStuckList({ range }: ProductStuckListProps) {
     <DashboardPanel className="p-4 md:p-5">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
+          <h3 className="flex items-center text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">
             Stuck Businesses
-            <span className="ml-2 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800 normal-case tracking-normal">
+            <Badge variant="warning" size="sm" className="ml-2 normal-case tracking-normal">
               tracking-only
-            </span>
+            </Badge>
           </h3>
-          <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">
+          <p className="mt-0.5 text-[length:var(--text-caption)] font-medium italic text-on-surface-variant">
             Signup &gt; {data?.thresholdDays ?? 7} ngày · chưa first sync · {PAGE_SIZE} business/trang · lọc theo khoảng ngày trên trang
           </p>
         </div>
         {data && (
-          <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-black tabular-nums text-rose-700">
+          <Badge variant="error" size="md" className="tabular-nums">
             {data.totalCount} stuck
-          </span>
+          </Badge>
         )}
       </div>
 
       {isLoading ? (
-        <div className="h-[280px] animate-pulse bg-slate-100 rounded-2xl" />
+        <Skeleton variant="rect" className="h-[280px] rounded-card" />
       ) : error || !data ? (
-        <div className="h-[200px] rounded-2xl border border-slate-100 flex items-center justify-center text-sm text-slate-500">
+        <div className="flex h-[200px] items-center justify-center rounded-card border border-outline-variant/40 text-[length:var(--text-body-sm)] text-on-surface-variant">
           Không tải được stuck list
         </div>
       ) : items.length === 0 ? (
-        <div className="h-[200px] rounded-2xl border border-emerald-100 bg-emerald-50/30 flex items-center justify-center text-sm font-semibold text-emerald-700">
+        <div className="flex h-[200px] items-center justify-center rounded-card border border-success-container/60 bg-success-container/30 text-[length:var(--text-body-sm)] font-semibold text-on-success-container">
           ✓ Không có business nào bị stuck trong khoảng ngày này
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto rounded-2xl border border-slate-100">
-            <table className="min-w-full text-xs">
-              <thead className="bg-slate-50">
+          <div className="overflow-x-auto rounded-card border border-outline-variant/40">
+            <table className="min-w-full text-[length:var(--text-body-sm)]">
+              <thead className="bg-surface-variant/40">
                 <tr>
-                  <th className="px-3 py-2 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <th className="px-3 py-2 text-left text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">
                     Business
                   </th>
-                  <th className="px-3 py-2 text-right text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <th className="px-3 py-2 text-right text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">
                     Signup
                   </th>
-                  <th className="px-3 py-2 text-right text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <th className="px-3 py-2 text-right text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">
                     Days Stuck
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {pageItems.map((item) => (
-                  <tr key={item.businessId} className="border-t border-slate-100">
+                  <tr key={item.businessId} className="border-t border-outline-variant/40">
                     <td className="px-3 py-2">
-                      <div className="font-semibold text-slate-700 truncate max-w-[320px]">
+                      <div className="max-w-[320px] truncate font-semibold text-on-surface">
                         {item.businessName ?? `#${item.businessId}`}
                       </div>
-                      <div className="text-[10px] text-slate-400">#{item.businessId}</div>
+                      <div className="text-[length:var(--text-caption)] text-on-surface-variant/70">#{item.businessId}</div>
                     </td>
-                    <td className="px-3 py-2 text-right text-xs text-slate-500 tabular-nums">
+                    <td className="px-3 py-2 text-right tabular-nums text-on-surface-variant">
                       {formatDate(item.signupAt)}
                     </td>
                     <td className="px-3 py-2 text-right">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold tabular-nums ${severityClass(
-                          item.daysStuck,
-                        )}`}
-                      >
+                      <Badge variant={severityVariant(item.daysStuck)} size="sm" className="tabular-nums">
                         {item.daysStuck}d
-                      </span>
+                      </Badge>
                     </td>
                   </tr>
                 ))}
@@ -112,7 +108,7 @@ export function ProductStuckList({ range }: ProductStuckListProps) {
           </div>
 
           {totalPages > 1 && (
-            <div className="mt-3 flex items-center justify-between text-[11px] font-bold text-slate-500">
+            <div className="mt-3 flex items-center justify-between text-[length:var(--text-caption)] font-semibold text-on-surface-variant">
               <span>
                 Trang {page + 1}/{totalPages} · {items.length} business
               </span>
@@ -121,7 +117,7 @@ export function ProductStuckList({ range }: ProductStuckListProps) {
                   type="button"
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
-                  className="rounded-full border border-slate-200 px-3 py-1 disabled:opacity-40 hover:bg-slate-50"
+                  className="rounded-chip border border-outline-variant/40 px-3 py-1 transition-colors hover:bg-surface-variant/40 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
                 >
                   ← Prev
                 </button>
@@ -129,7 +125,7 @@ export function ProductStuckList({ range }: ProductStuckListProps) {
                   type="button"
                   onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                   disabled={page >= totalPages - 1}
-                  className="rounded-full border border-slate-200 px-3 py-1 disabled:opacity-40 hover:bg-slate-50"
+                  className="rounded-chip border border-outline-variant/40 px-3 py-1 transition-colors hover:bg-surface-variant/40 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
                 >
                   Next →
                 </button>
