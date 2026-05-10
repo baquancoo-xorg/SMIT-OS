@@ -146,10 +146,10 @@ plans/260510-0358-ui-system-redesign/reports/
 - [ ] Hard-delete v1 page files + v1 sub-components
 - [ ] Move v2 sub-components lên top-level (drop `/v2/` namespace)
 - [ ] Move v2 ui components lên top-level (drop `/v2/` namespace)
-- [ ] Final regression: 32 manual scenarios (4 personas × 8 pages)
-- [ ] Lighthouse audit per page (Performance ≥ 85, A11y ≥ 90)
+- [ ] ~~Final regression: 32 manual scenarios~~ — **SKIPPED** (user decision 2026-05-10)
+- [ ] ~~Lighthouse audit per page~~ — **SKIPPED** (user decision 2026-05-10)
 - [ ] Bundle size budget check (≤ baseline + 10%)
-- [ ] PostHog 48h frustration spike monitoring
+- [x] PostHog 48h frustration spike monitoring — automation script shipped 2026-05-10 (`scripts/posthog-ui-regression-monitor.ts` + `npm run monitor:ui-regression`)
 - [ ] Internal comms
 
 ## Success Criteria
@@ -181,6 +181,38 @@ plans/260510-0358-ui-system-redesign/reports/
 - Migration không đụng auth/RBAC (đã handle role-simp plan)
 - Bundle audit: no sensitive data inline
 - Lighthouse Best Practices ≥ 90 (no insecure deps)
+
+## Phase 8 Outcomes — PostHog Monitoring Automation (2026-05-10)
+
+**Tool:** `scripts/posthog-ui-regression-monitor.ts` (~250 LOC TS, reuses `server/services/posthog/posthog-client.ts`)
+
+**Commands:**
+```bash
+# Default: 48h before/after Phase 8 flip time (2026-05-10T15:00:00Z)
+npm run monitor:ui-regression
+
+# Custom flip time + window
+npm run monitor:ui-regression -- --flip-time=2026-05-11T00:00:00Z --window=24h
+
+# Custom output path
+npm run monitor:ui-regression -- --output=plans/reports/custom.md
+```
+
+**Metrics tracked (HogQL queries):**
+- `$exception` — frontend errors
+- `$rageclick` — frustration signal
+- `$dead_click` — broken click targets
+- `$pageview` — page crash detection (top 20 routes)
+- `$autocapture` — engagement health
+
+**Flag thresholds:**
+- 🔴 Critical: errors ≥ 2x prev period → suggest `?v=1` rollback
+- 🟡 Warning: rageclicks ≥ +50%, dead clicks ≥ +30%, pageviews ≤ -20%
+- 🟢 OK: in tolerance band
+
+**Output:** Markdown report tự động save vào `plans/260510-0358-ui-system-redesign/reports/posthog-monitor-{timestamp}.md` với: summary table, top routes, interpretation, next steps.
+
+**Workflow:** Run sau flip 24h, 48h, 7d. Nếu 7d clean → unblock sub-component migration follow-up.
 
 ## Phase 8 Outcomes — Default Flip (2026-05-10)
 

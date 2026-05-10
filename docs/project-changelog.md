@@ -18,6 +18,8 @@
 
 **Rollback:** add `?v=1` to any URL to render v1 page tạm thời. v1 will be hard-deleted in follow-up phase after sub-component migration completes.
 
+**PostHog regression monitor:** `npm run monitor:ui-regression` chạy script (`scripts/posthog-ui-regression-monitor.ts`) so sánh metrics 48h trước/sau flip ($exception / $rageclick / $dead_click / $pageview / $autocapture). Tự động flag spike + suggest rollback nếu errors ≥ 2x. Output markdown report.
+
 **Plan:** `plans/260510-0358-ui-system-redesign/plan.md`
 
 ### UI System Redesign — Phase 7 (Dashboard + OKRs v2 shells) — 2026-05-10

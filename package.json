@@ -35,6 +35,7 @@
     "db:seed:acquisition": "tsx prisma/seeds/acquisition.seed.ts",
     "backfill:leads": "tsx scripts/backfill-crm-leads.ts",
     "backfill:lead-source": "tsx scripts/backfill-lead-source.ts",
+    "monitor:ui-regression": "tsx --env-file=.env scripts/posthog-ui-regression-monitor.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
