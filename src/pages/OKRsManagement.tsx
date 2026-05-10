@@ -325,7 +325,7 @@ export default function OKRsManagement() {
 }
 
 // Accordion-style L1 Objective Card with expandable L2 children
-function ObjectiveAccordionCard({
+export function ObjectiveAccordionCard({
   objective,
   childObjectives,
   objectives,
@@ -580,7 +580,7 @@ function AddKRButton({ objectiveId, onRefresh }: { objectiveId: string; onRefres
 }
 
 // Accordion-style L2 Objective Card
-function ObjectiveAccordionCardL2({
+export function ObjectiveAccordionCardL2({
   objective: initialObjective,
   parentObjective,
   objectives,
@@ -1201,7 +1201,7 @@ function LinkObjectiveModal({
   );
 }
 
-function AddObjectiveModal({
+export function AddObjectiveModal({
   isOpen,
   onClose,
   onAdd,

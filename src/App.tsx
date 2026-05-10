@@ -32,8 +32,9 @@ const LeadTrackerV2 = lazy(() => import('./pages/v2/LeadTracker'));
 const MediaTrackerV2 = lazy(() => import('./pages/v2/MediaTracker'));
 const AdsTrackerV2 = lazy(() => import('./pages/v2/AdsTracker'));
 
-// Phase 7 v2 page migrations — large pages (batch 1: Dashboard).
+// Phase 7 v2 page migrations — large pages (batch 1: Dashboard, batch 2: OKRs).
 const DashboardOverviewV2 = lazy(() => import('./pages/v2/DashboardOverview'));
+const OKRsManagementV2 = lazy(() => import('./pages/v2/OKRsManagement'));
 
 function PageLoader() {
   return (
@@ -81,7 +82,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={isV2 ? <DashboardOverviewV2 /> : <DashboardOverview />} />
-          <Route path="/okrs" element={<OKRsManagement />} />
+          <Route path="/okrs" element={isV2 ? <OKRsManagementV2 /> : <OKRsManagement />} />
           <Route path="/daily-sync" element={isV2 ? <DailySyncV2 /> : <DailySync />} />
           <Route path="/checkin" element={isV2 ? <WeeklyCheckinV2 /> : <WeeklyCheckin />} />
           <Route path="/lead-tracker" element={isV2 ? <LeadTrackerV2 /> : <LeadTracker />} />

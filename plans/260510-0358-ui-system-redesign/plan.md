@@ -198,7 +198,7 @@ See [`reports/current-tokens-inventory.md`](./reports/current-tokens-inventory.m
 | 4 | Component Library Implementation | 1-1.5w | **implementation_done** (25 components shipped 2026-05-10, pending: user review for Phase 5 sign-off) | [phase-04-component-library.md](./phase-04-component-library.md) |
 | 5 | Pages Redesign — Auth/Profile/Settings (5 sub-tabs) | 1.5w | **implementation_done** (Batch 1+2: 3 pages + 5 sub-tabs + toggle 2026-05-10) | [phase-05-pages-small.md](./phase-05-pages-small.md) |
 | 6 | Pages Redesign — DailySync/WeeklyCheckin/LeadTracker/MediaTracker/AdsTracker | 2.5-3w | **implementation_done** (5 page shells + ?v=2 toggle 2026-05-10) | [phase-06-pages-medium.md](./phase-06-pages-medium.md) |
-| 7 | Pages Redesign — Dashboard/OKRs (hardest, most LOC) | 1.5-2w | **batch_1_done** (Dashboard shell shipped 2026-05-10), batch 2 OKRs pending | [phase-07-pages-large.md](./phase-07-pages-large.md) |
+| 7 | Pages Redesign — Dashboard/OKRs (hardest, most LOC) | 1.5-2w | **implementation_done** (Dashboard + OKRs v2 shells shipped 2026-05-10) | [phase-07-pages-large.md](./phase-07-pages-large.md) |
 | 8 | Polish + Migration + Documentation | 5-7d | pending | [phase-08-polish-migration.md](./phase-08-polish-migration.md) |
 
 **Total: 8-10 tuần** (mở rộng từ 7-9 tuần do scope thực tế lớn hơn audit ban đầu: +2 pages Acquisition, +5 Settings sub-tabs, +OkrCycleCountdown, +error states).
