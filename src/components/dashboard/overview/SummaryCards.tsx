@@ -2,59 +2,18 @@ import React, { memo } from 'react';
 import { DollarSign, CreditCard, Users, TrendingUp } from 'lucide-react';
 import { formatCurrency } from '../../../lib/formatters';
 import type { SummaryMetrics, MetricWithTrend } from '../../../types/dashboard-overview';
-import DashboardPanel from '../ui/dashboard-panel';
+import { KpiCard, Skeleton, GlassCard } from '../../ui/v2';
 
-interface MetricCardProps {
-  label: string;
-  value: string;
-  icon: React.ElementType;
-  trend?: number;
-  trendDirection?: 'up' | 'down' | 'neutral';
-}
-
-function MetricCard({ label, value, icon: Icon, trend, trendDirection }: MetricCardProps) {
-  const trendColor = trendDirection === 'up'
-    ? 'text-primary'
-    : trendDirection === 'down'
-      ? 'text-red-600'
-      : 'text-slate-500';
-
-  return (
-    <DashboardPanel className="group p-5 hover:shadow-md transition-all duration-200">
-      <div className="flex items-start justify-between mb-3">
-        <div className="p-2 rounded-lg bg-primary/10">
-          <Icon className="h-5 w-5 text-primary" />
-        </div>
-      </div>
-
-      <p className="text-xs font-medium text-slate-500 mb-1">{label}</p>
-      <h4 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">{value}</h4>
-
-      {trend !== undefined && (
-        <div className="mt-2 flex items-center gap-1.5">
-          <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${trendColor}`}>
-            {trendDirection === 'up' ? '↗' : trendDirection === 'down' ? '↘' : '→'}
-            {Math.abs(trend).toFixed(1)}%
-          </span>
-          <span className="text-xs text-slate-400">vs last period</span>
-        </div>
-      )}
-    </DashboardPanel>
-  );
-}
-
-function SkeletonCard() {
-  return (
-    <DashboardPanel className="p-5 animate-pulse">
-      <div className="flex items-start justify-between mb-3">
-        <div className="w-9 h-9 bg-slate-100 rounded-lg" />
-        <div className="w-14 h-6 bg-slate-100 rounded-md" />
-      </div>
-      <div className="h-3 w-16 bg-slate-100 rounded mb-2" />
-      <div className="h-7 w-28 bg-slate-200 rounded" />
-    </DashboardPanel>
-  );
-}
+/**
+ * Dashboard Overview summary cards (Revenue / Ad Spend / Signups / ROAS).
+ *
+ * Phase 8 follow-up batch 14 (2026-05-11): migrated to v2 KpiCard (Bento
+ * decorative + trend delta percent). Removed inline MetricCard + SkeletonCard
+ * helpers (replaced bằng v2 KpiCard + Skeleton).
+ *
+ * KpiCard trend inference: deltaPercent positive → up arrow, negative → down,
+ * zero → flat. Maps natural to MetricWithTrend.trendDirection.
+ */
 
 interface SummaryCardsProps {
   data?: SummaryMetrics;
@@ -71,17 +30,19 @@ export const SummaryCards = memo(function SummaryCards({
 }: SummaryCardsProps) {
   if (isLoading) {
     return (
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <Skeleton key={i} variant="rect" className="h-32 rounded-card" />
+        ))}
       </div>
     );
   }
 
   if (error) {
     return (
-      <DashboardPanel className="p-5">
-        <p className="text-center text-red-600 font-medium">Lỗi: {error.message}</p>
-      </DashboardPanel>
+      <GlassCard variant="surface" padding="md">
+        <p className="text-center font-semibold text-error">Lỗi: {error.message}</p>
+      </GlassCard>
     );
   }
 
@@ -90,25 +51,36 @@ export const SummaryCards = memo(function SummaryCards({
   const metrics: Array<{
     label: string;
     value: string;
-    icon: React.ElementType;
+    icon: React.ReactNode;
     metric: MetricWithTrend;
   }> = [
-    { label: 'Revenue', value: formatCurrency(data.revenue.value), icon: DollarSign, metric: data.revenue },
-    { label: 'Ad Spend', value: formatCurrency(data.adSpend.value), icon: CreditCard, metric: data.adSpend },
-    { label: 'Signups', value: data.signups.value.toLocaleString(), icon: Users, metric: data.signups },
-    { label: 'ROAS', value: `${data.roas.value.toFixed(2)}x`, icon: TrendingUp, metric: data.roas },
+    { label: 'Revenue', value: formatCurrency(data.revenue.value), icon: <DollarSign />, metric: data.revenue },
+    { label: 'Ad Spend', value: formatCurrency(data.adSpend.value), icon: <CreditCard />, metric: data.adSpend },
+    { label: 'Signups', value: data.signups.value.toLocaleString(), icon: <Users />, metric: data.signups },
+    { label: 'ROAS', value: `${data.roas.value.toFixed(2)}x`, icon: <TrendingUp />, metric: data.roas },
   ];
 
   return (
-    <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
       {metrics.map((m) => (
-        <MetricCard
+        <KpiCard
           key={m.label}
           label={m.label}
           value={m.value}
           icon={m.icon}
-          trend={compareEnabled ? m.metric.trend : undefined}
-          trendDirection={compareEnabled ? m.metric.trendDirection : undefined}
+          accent="primary"
+          decorative
+          deltaPercent={compareEnabled ? m.metric.trend : undefined}
+          deltaLabel={compareEnabled ? 'vs last period' : undefined}
+          trend={
+            compareEnabled
+              ? m.metric.trendDirection === 'up'
+                ? 'up'
+                : m.metric.trendDirection === 'down'
+                  ? 'down'
+                  : 'flat'
+              : undefined
+          }
         />
       ))}
     </div>

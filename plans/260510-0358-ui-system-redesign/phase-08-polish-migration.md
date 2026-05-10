@@ -153,6 +153,16 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Sub-component migration — Batch 14 done 2026-05-11
+
+2 dashboard files:
+- [x] `dashboard/overview/SummaryCards.tsx` (116 LOC) → v2 KpiCard × 4 (decorative + deltaPercent + deltaLabel + trend) + Skeleton primitive + GlassCard cho error. Removed inline MetricCard + SkeletonCard helpers.
+- [x] `dashboard/acquisition-overview/journey-funnel.tsx` (97 LOC) — token modernization: rounded-3xl → rounded-card + rounded-full → rounded-chip + text-[10px] / text-2xl / text-sm font-bold → token typography (text-label / text-h5 / text-body-sm). 3 stage colors (Pre/In/Post) giữ brand-specific.
+
+KpiTable.tsx (509 LOC) skip — quá lớn cho 1 batch + cấu trúc table phức tạp. Defer.
+
+vite build clean 2.05s ✓
+
 ### Sub-component migration — Batch 13 done 2026-05-11
 
 2 dashboard compact summaries:

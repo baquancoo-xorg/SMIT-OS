@@ -61,30 +61,30 @@ function StageBand({
 }) {
   return (
     <div
-      className={`${style.bg} backdrop-blur-md border ${style.border} rounded-3xl shadow-sm p-4 xl:p-6 relative overflow-hidden`}
+      className={`${style.bg} relative overflow-hidden rounded-card border ${style.border} p-4 shadow-sm backdrop-blur-md xl:p-6`}
     >
-      <div className={`absolute top-0 right-0 w-32 h-32 ${style.accent} opacity-10 rounded-full -mr-16 -mt-16`} />
-      <div className="flex items-center gap-2 mb-4 relative z-10">
-        <div className={`w-2 h-2 rounded-full ${style.accent} animate-pulse`} />
-        <p className={`text-[10px] font-black uppercase tracking-widest ${style.text}`}>{stage.label}</p>
+      <div className={`pointer-events-none absolute -top-16 -right-16 size-32 rounded-full opacity-10 ${style.accent}`} aria-hidden="true" />
+      <div className="relative mb-4 flex items-center gap-2">
+        <div className={`size-2 animate-pulse rounded-chip ${style.accent}`} aria-hidden="true" />
+        <p className={`text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] ${style.text}`}>{stage.label}</p>
       </div>
-      <div className="space-y-3 relative z-10">
+      <div className="relative space-y-3">
         {stage.steps.map((step, idx) => {
           const widthPct = (step.value / maxValue) * 100;
           return (
             <div key={step.name} className="space-y-1">
               <div className="flex items-baseline justify-between">
-                <span className="text-sm font-bold text-on-surface">{step.name}</span>
-                <span className="text-2xl font-black font-headline">{fmtNumber(step.value)}</span>
+                <span className="text-[length:var(--text-body-sm)] font-semibold text-on-surface">{step.name}</span>
+                <span className="font-headline text-[length:var(--text-h5)] font-bold">{fmtNumber(step.value)}</span>
               </div>
-              <div className="h-2 bg-white/60 rounded-full overflow-hidden">
+              <div className="h-2 overflow-hidden rounded-chip bg-white/60">
                 <div
                   className={`h-full ${style.accent} transition-all duration-700`}
                   style={{ width: `${Math.max(widthPct, 1)}%` }}
                 />
               </div>
               {idx > 0 && step.conversionFromPrev != null && (
-                <p className="text-[10px] font-bold text-slate-400">
+                <p className="text-[length:var(--text-caption)] font-semibold text-on-surface-variant">
                   ↓ {(step.conversionFromPrev * 100).toFixed(1)}% conversion
                 </p>
               )}
