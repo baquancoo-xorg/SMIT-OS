@@ -153,6 +153,13 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Sub-component migration — Batch 7 done 2026-05-10
+
+1 component migrated (form dialog):
+- [x] `lead-tracker/lead-log-dialog.tsx` (316 → 268 LOC, -48 LOC) → v2 FormDialog primitive + v2 Input + v2 Badge cho status. Removed inline `INPUT_CLS` constant, motion.div wrapper, manual ESC handler. CustomSelect + DatePicker (v1) reused (deep dropdown logic, follow-up).
+
+vite build clean 2.22s ✓
+
 ### Sub-component migration — Batch 6 done 2026-05-10
 
 1 component migrated (form dialog):
