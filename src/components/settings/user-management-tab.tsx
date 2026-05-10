@@ -3,10 +3,10 @@ import { Save, X, UserCog } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { User } from '../../types';
 import { Input, Button, GlassCard as Card, Badge } from '../ui/v2';
-import CustomSelect from '../ui/CustomSelect';
-import { TableRowActions } from '../ui/TableRowActions';
-import { TableShell } from '../ui/TableShell';
-import { getTableContract } from '../ui/table-contract';
+import CustomSelect from '../ui/v2/custom-select';
+import { TableRowActions } from '../ui/v2/table-row-actions';
+import { TableShell } from '../ui/v2/table-shell';
+import { getTableContract } from '../ui/v2/table-contract';
 
 const ALL_DEPARTMENTS = ['BOD', 'Tech', 'Marketing', 'Media', 'Sale'];
 const ROLE_OPTIONS = [

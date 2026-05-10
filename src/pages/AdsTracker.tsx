@@ -5,7 +5,6 @@ import {
   TrendingUp,
   Target,
   RefreshCw,
-  Download,
   DollarSign,
   Activity,
   Users,
@@ -21,9 +20,7 @@ import {
   useAdsAttributionUnmatchedQuery,
   useTriggerAdsSyncMutation,
 } from '../hooks/use-ads-tracker';
-import { exportAdsCampaignsToCsv, exportAdsAttributionToCsv } from '../components/ads-tracker/csv-export';
 import {
-  PageHeader,
   Button,
   TabPill,
   KpiCard,
@@ -90,58 +87,37 @@ export default function AdsTrackerV2() {
     }
   };
 
-  const handleExport = async () => {
-    try {
-      if (activeTab === 'attribution') {
-        await exportAdsAttributionToCsv(params);
-      } else {
-        await exportAdsCampaignsToCsv(params);
-      }
-    } catch (err: any) {
-      alert(err?.message ?? 'Export failed');
-    }
-  };
-
-  const headerActions = (
-    <div className="flex flex-wrap items-center gap-2">
-      <input
-        type="date"
-        value={dateFrom}
-        onChange={(e) => setDateFrom(e.target.value)}
-        className="h-9 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
-      />
-      <span className="text-on-surface-variant">—</span>
-      <input
-        type="date"
-        value={dateTo}
-        onChange={(e) => setDateTo(e.target.value)}
-        className="h-9 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
-      />
-      <Button variant="ghost" iconLeft={<Download />} onClick={handleExport}>
-        Export CSV
-      </Button>
-      {isAdmin && (
-        <Button
-          variant="primary"
-          iconLeft={<RefreshCw className={syncMutation.isPending ? 'animate-spin' : ''} />}
-          onClick={handleSync}
-          disabled={syncMutation.isPending}
-        >
-          {syncMutation.isPending ? 'Syncing...' : 'Sync Meta'}
-        </Button>
-      )}
-    </div>
-  );
 
   return (
     <div className="flex h-full flex-col gap-6">
-      <PageHeader
-        breadcrumb={[{ label: 'Acquisition' }, { label: 'Ads Tracker' }]}
-        title="Ads "
-        accent="Tracker"
-        description="Meta ad campaigns: spend, performance, lead attribution."
-        actions={headerActions}
-      />
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <TabPill<Tab> label="Ads tracker tabs" value={activeTab} onChange={setActiveTab} items={TABS} />
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="h-9 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+          />
+          <span className="text-on-surface-variant">—</span>
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="h-9 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+          />
+          {isAdmin && (
+            <Button
+              variant="primary"
+              iconLeft={<RefreshCw className={syncMutation.isPending ? 'animate-spin' : ''} />}
+              onClick={handleSync}
+              disabled={syncMutation.isPending}
+            >
+              {syncMutation.isPending ? 'Syncing...' : 'Sync Meta'}
+            </Button>
+          )}
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <KpiCard
@@ -167,8 +143,6 @@ export default function AdsTrackerV2() {
       </div>
 
       <div className="flex flex-1 min-h-0 flex-col gap-4">
-        <TabPill<Tab> label="Ads tracker tabs" value={activeTab} onChange={setActiveTab} items={TABS} />
-
         {activeTab === 'campaigns' && (
           <GlassCard variant="surface" padding="none" className="flex-1 min-h-0 overflow-y-auto">
             <CampaignsTable campaigns={campaigns} />

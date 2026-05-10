@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { RefreshCw, Save, X } from 'lucide-react';
 import { Input, Button, GlassCard as Card, Badge } from '../ui/v2';
-import { TableRowActions } from '../ui/TableRowActions';
-import { TableShell } from '../ui/TableShell';
-import { getTableContract } from '../ui/table-contract';
-import { formatTableDateTime } from '../ui/table-date-format';
+import { TableRowActions } from '../ui/v2/table-row-actions';
+import { TableShell } from '../ui/v2/table-shell';
+import { getTableContract } from '../ui/v2/table-contract';
+import { formatTableDateTime } from '../ui/v2/table-date-format';
 
 interface FbAccount {
   id: number;

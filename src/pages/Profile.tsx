@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Camera, Save } from 'lucide-react';
 import {
-  PageHeader,
   GlassCard,
   Input,
   Button,
@@ -32,12 +31,6 @@ export default function ProfileV2() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Edit "
-        accent="Profile"
-        description="Update your personal information. Changes save immediately."
-      />
-
       <GlassCard variant="raised" padding="lg" className="max-w-2xl">
         <div className="flex items-center gap-5 pb-6 border-b border-outline-variant/40">
           <img

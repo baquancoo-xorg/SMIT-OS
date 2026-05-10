@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import type { LeadDailyStat } from '../../types';
-import { TableShell } from '../ui/TableShell';
-import { getTableContract } from '../ui/table-contract';
-import { formatTableDate } from '../ui/table-date-format';
+import { TableShell } from '../ui/v2/table-shell';
+import { getTableContract } from '../ui/v2/table-contract';
+import { formatTableDate } from '../ui/v2/table-date-format';
 
 function fmt(rate: number | null) {
   if (rate === null) return '-';

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Globe, Mic, Newspaper, Download, Plus, Eye, Heart, DollarSign, Newspaper as NewspaperIcon } from 'lucide-react';
+import { Globe, Mic, Newspaper, Plus, Eye, Heart, DollarSign, Newspaper as NewspaperIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import MediaPostsTable from '../components/media-tracker/media-posts-table';
 import MediaPostDialog from '../components/media-tracker/media-post-dialog';
@@ -9,10 +9,8 @@ import {
   useUpdateMediaPostMutation,
   useDeleteMediaPostMutation,
 } from '../hooks/use-media-tracker';
-import { exportMediaPostsToCsv } from '../components/media-tracker/csv-export';
 import type { MediaPost, MediaPostType } from '../types';
 import {
-  PageHeader,
   Button,
   TabPill,
   KpiCard,
@@ -103,38 +101,21 @@ export default function MediaTrackerV2() {
     }
   };
 
-  const handleExport = () => {
-    const tabType = activeTab === 'kol' ? undefined : activeTab === 'pr' ? 'PR' : 'ORGANIC';
-    exportMediaPostsToCsv(tabType ? { type: tabType as MediaPostType } : undefined).catch((err) =>
-      alert(err?.message ?? 'Export failed'),
-    );
-  };
-
   return (
     <div className="flex h-full flex-col gap-6">
-      <PageHeader
-        breadcrumb={[{ label: 'Acquisition' }, { label: 'Media Tracker' }]}
-        title="Media "
-        accent="Tracker"
-        description="Owned posts, KOL/KOC partnerships, PR placements — reach + engagement + spend tracking."
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="ghost" iconLeft={<Download />} onClick={handleExport}>
-              Export CSV
-            </Button>
-            <Button
-              variant="primary"
-              iconLeft={<Plus />}
-              onClick={() => {
-                setEditing(null);
-                setDialogOpen(true);
-              }}
-            >
-              Add post
-            </Button>
-          </div>
-        }
-      />
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <TabPill<Tab> label="Media tracker tabs" value={activeTab} onChange={setActiveTab} items={TABS} />
+        <Button
+          variant="primary"
+          iconLeft={<Plus />}
+          onClick={() => {
+            setEditing(null);
+            setDialogOpen(true);
+          }}
+        >
+          Add post
+        </Button>
+      </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <KpiCard label="Total Posts" value={totals.totalPosts.toLocaleString()} icon={<NewspaperIcon />} accent="primary" />
@@ -150,8 +131,6 @@ export default function MediaTrackerV2() {
       </div>
 
       <div className="flex flex-1 min-h-0 flex-col gap-4">
-        <TabPill<Tab> label="Media tracker tabs" value={activeTab} onChange={setActiveTab} items={TABS} />
-
         <GlassCard variant="surface" padding="none" className="flex-1 min-h-0 overflow-y-auto">
           <MediaPostsTable
             posts={filtered}

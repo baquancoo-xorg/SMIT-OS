@@ -22,7 +22,6 @@ import {
   getQ2Deadline,
 } from '../components/okr/v2/department-color-config';
 import {
-  PageHeader,
   Button,
   TabPill,
   KpiCard,
@@ -191,17 +190,26 @@ export default function OKRsManagementV2() {
 
   return (
     <div className="flex h-full flex-col gap-6">
-      <PageHeader
-        breadcrumb={[{ label: 'Planning' }, { label: 'OKRs' }]}
-        title="Kinetic Workshop "
-        accent="OKRs"
-        description="Company L1 + Team L2 objectives. Quarterly progress, key results, drag-drop alignment."
-        actions={
-          <Button variant="primary" iconLeft={<Plus />} onClick={() => setIsAddObjModalOpen(true)}>
-            New Objective
-          </Button>
-        }
-      />
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-wrap items-center gap-3">
+          <TabPill<ActiveTab> label="OKR level tabs" value={activeTab} onChange={setActiveTab} items={TABS} />
+          <FilterChip<string>
+            value={departmentFilter}
+            onChange={setDepartmentFilter}
+            options={DEPT_FILTER_OPTIONS}
+            icon={<Filter size={14} />}
+          />
+          <FilterChip<string>
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={STATUS_FILTER_OPTIONS}
+            icon={<Filter size={14} />}
+          />
+        </div>
+        <Button variant="primary" iconLeft={<Plus />} onClick={() => setIsAddObjModalOpen(true)}>
+          New Objective
+        </Button>
+      </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <KpiCard
@@ -240,24 +248,6 @@ export default function OKRsManagementV2() {
           accent="warning"
           decorative
         />
-      </div>
-
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <TabPill<ActiveTab> label="OKR level tabs" value={activeTab} onChange={setActiveTab} items={TABS} />
-        <div className="flex flex-wrap items-center gap-3">
-          <FilterChip<string>
-            value={departmentFilter}
-            onChange={setDepartmentFilter}
-            options={DEPT_FILTER_OPTIONS}
-            icon={<Filter size={14} />}
-          />
-          <FilterChip<string>
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={STATUS_FILTER_OPTIONS}
-            icon={<Filter size={14} />}
-          />
-        </div>
       </div>
 
       <div className="flex-1 space-y-6 overflow-y-auto pb-8">

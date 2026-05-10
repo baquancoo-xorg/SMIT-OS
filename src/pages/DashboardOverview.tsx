@@ -13,7 +13,7 @@ import { ProductSection } from '../components/dashboard/product';
 import MarketingTab from '../components/dashboard/marketing/marketing-tab';
 import MediaTab from '../components/dashboard/media/media-tab';
 import AcquisitionOverviewTab from '../components/dashboard/acquisition-overview/acquisition-overview-tab';
-import { PageHeader, TabPill, GlassCard } from '../components/ui/v2';
+import { TabPill, GlassCard } from '../components/ui/v2';
 import type { TabPillItem } from '../components/ui/v2';
 
 type ViewMode = 'realtime' | 'cohort';
@@ -84,15 +84,10 @@ export default function DashboardOverviewV2() {
 
   return (
     <div className="flex h-full flex-col gap-6">
-      <PageHeader
-        breadcrumb={[{ label: 'Workspace' }, { label: 'Dashboard' }]}
-        title="Overview "
-        accent="Dashboard"
-        description="Cross-domain KPIs: acquisition funnel, sale flow, product activation, marketing & media."
-        actions={<V1DateRangePicker value={range} onChange={setRange} />}
-      />
-
-      <TabPill<DashboardDomainTab> label="Dashboard domain tabs" value={selectedTab} onChange={handleTabChange} items={TABS} />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <TabPill<DashboardDomainTab> label="Dashboard domain tabs" value={selectedTab} onChange={handleTabChange} items={TABS} />
+        <V1DateRangePicker value={range} onChange={setRange} />
+      </div>
 
       <div className="flex-1 space-y-6 overflow-y-auto pb-8">
         {selectedTab === 'overview' && (

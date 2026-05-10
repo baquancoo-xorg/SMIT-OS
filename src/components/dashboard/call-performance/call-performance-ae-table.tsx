@@ -1,8 +1,8 @@
 import type { CallPerformancePerAeItem } from '../../../types/call-performance';
 import { formatDecimal, formatNumber, formatPercent } from '../../../lib/formatters';
 import DashboardPanel from '../ui/dashboard-panel';
-import { TableShell } from '../../ui/TableShell';
-import { getTableContract } from '../../ui/table-contract';
+import { TableShell } from '../../ui/v2/table-shell';
+import { getTableContract } from '../../ui/v2/table-contract';
 
 interface Props {
   data: CallPerformancePerAeItem[];

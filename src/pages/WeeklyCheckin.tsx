@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext';
 import type { WeeklyReport, KrCheckin, WeeklyPriority } from '../types';
 import WeeklyCheckinModal from '../components/modals/WeeklyCheckinModal';
 import {
-  PageHeader,
   Button,
   Badge,
   EmptyState,
@@ -206,17 +205,11 @@ export default function WeeklyCheckinV2() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        breadcrumb={[{ label: 'Cadence' }, { label: 'Weekly Check-in' }]}
-        title="Weekly "
-        accent="Check-in"
-        description="5-block Wodtke: KR confidence + priorities + top 3 + risks + help."
-        actions={
-          <Button variant="primary" iconLeft={<Plus />} onClick={() => setIsModalOpen(true)}>
-            New check-in
-          </Button>
-        }
-      />
+      <div className="flex justify-end">
+        <Button variant="primary" iconLeft={<Plus />} onClick={() => setIsModalOpen(true)}>
+          New check-in
+        </Button>
+      </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <KpiCard label="Total" value={stats.total} icon={<CalendarCheck2 />} accent="primary" />
@@ -238,11 +231,6 @@ export default function WeeklyCheckinV2() {
             icon={<CalendarCheck2 />}
             title="Chưa có check-in"
             description="Tạo check-in đầu tiên để cập nhật tiến độ KR + priorities tuần này."
-            actions={
-              <Button variant="primary" iconLeft={<Plus />} onClick={() => setIsModalOpen(true)}>
-                Create check-in
-              </Button>
-            }
             decorative
             variant="inline"
           />

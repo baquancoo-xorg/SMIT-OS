@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { format, startOfMonth } from 'date-fns';
-import { List, BarChart2, Download, RefreshCw, Users } from 'lucide-react';
+import { List, BarChart2, RefreshCw } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import LeadLogsTab from '../components/lead-tracker/lead-logs-tab';
 import DailyStatsTab from '../components/lead-tracker/daily-stats-tab';
-import { exportAllLeadsToCsv } from '../components/lead-tracker/csv-export';
 import LastSyncIndicator from '../components/lead-tracker/last-sync-indicator';
 import { useSyncNowMutation, useSyncStatusQuery } from '../hooks/use-lead-sync';
 import {
-  PageHeader,
   Button,
   TabPill,
   GlassCard,
@@ -38,23 +36,12 @@ const TABS: TabPillItem<ActiveTab>[] = [
  */
 export default function LeadTrackerV2() {
   const { currentUser } = useAuth();
-  const isSale = currentUser?.departments?.includes('Sale');
   const canManageLeads = !!currentUser?.isAdmin;
   const [activeTab, setActiveTab] = useState<ActiveTab>('logs');
   const [statsDateFrom, setStatsDateFrom] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
   const [statsDateTo, setStatsDateTo] = useState(format(new Date(), 'yyyy-MM-dd'));
-  const [exporting, setExporting] = useState(false);
   const syncNow = useSyncNowMutation();
   const syncStatus = useSyncStatusQuery(!!currentUser?.isAdmin);
-
-  const handleExportCsv = async () => {
-    setExporting(true);
-    try {
-      await exportAllLeadsToCsv();
-    } finally {
-      setExporting(false);
-    }
-  };
 
   const triggerSyncNow = async () => {
     try {
@@ -68,7 +55,7 @@ export default function LeadTrackerV2() {
 
   const isSyncing = syncNow.isPending || syncStatus.data?.status === 'running';
 
-  const headerActions = (
+  const syncActions = (
     <div className="flex flex-wrap items-center gap-2">
       {canManageLeads && (
         <>
@@ -83,44 +70,33 @@ export default function LeadTrackerV2() {
           </Button>
         </>
       )}
-      {isSale && activeTab === 'logs' && (
-        <Button variant="ghost" iconLeft={<Download />} onClick={handleExportCsv} disabled={exporting}>
-          {exporting ? 'Exporting...' : 'Export CSV'}
-        </Button>
-      )}
     </div>
   );
 
   return (
     <div className="flex h-full flex-col gap-6">
-      <PageHeader
-        breadcrumb={[{ label: 'Acquisition' }, { label: 'Lead Tracker' }]}
-        title="Lead "
-        accent="Tracker"
-        description="CRM leads & SLA tracking. Edit gated per assignee — admin sync controls."
-        actions={headerActions}
-      />
-
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <TabPill<ActiveTab> label="Lead tracker tabs" value={activeTab} onChange={setActiveTab} items={TABS} />
-        {activeTab === 'stats' && (
-          <div className="flex items-center gap-2">
-            <input
-              type="date"
-              value={statsDateFrom}
-              onChange={(e) => setStatsDateFrom(e.target.value)}
-              className="h-9 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
-            />
-            <span className="text-on-surface-variant">—</span>
-            <input
-              type="date"
-              value={statsDateTo}
-              onChange={(e) => setStatsDateTo(e.target.value)}
-              className="h-9 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
-            />
-          </div>
-        )}
+        {syncActions}
       </div>
+
+      {activeTab === 'stats' && (
+        <div className="flex items-center gap-2">
+          <input
+            type="date"
+            value={statsDateFrom}
+            onChange={(e) => setStatsDateFrom(e.target.value)}
+            className="h-9 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+          />
+          <span className="text-on-surface-variant">—</span>
+          <input
+            type="date"
+            value={statsDateTo}
+            onChange={(e) => setStatsDateTo(e.target.value)}
+            className="h-9 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+          />
+        </div>
+      )}
 
       <div className="flex flex-1 min-h-0 flex-col">
         {activeTab === 'logs' ? (
@@ -132,10 +108,6 @@ export default function LeadTrackerV2() {
         )}
       </div>
 
-      {/* Hidden Users icon to keep import balance for future per-row owner display */}
-      <span className="sr-only" aria-hidden="true">
-        <Users />
-      </span>
     </div>
   );
 }

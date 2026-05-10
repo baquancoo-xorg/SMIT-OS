@@ -18,7 +18,7 @@ function KpiTableHeader() {
     </div>
   );
 }
-import { getTableContract } from '../../ui/table-contract';
+import { getTableContract } from '../../ui/v2/table-contract';
 
 type ViewMode = 'realtime' | 'cohort';
 type RateMode = 'top' | 'step';

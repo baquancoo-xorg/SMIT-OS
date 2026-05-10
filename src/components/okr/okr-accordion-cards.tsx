@@ -6,7 +6,7 @@ import { Objective, KeyResult, User } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronDown, ChevronRight, X, Link as LinkIcon, Trash2, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import CustomSelect from '../ui/CustomSelect';
+import CustomSelect from '../ui/v2/custom-select';
 
 
 // Accordion-style L1 Objective Card with expandable L2 children

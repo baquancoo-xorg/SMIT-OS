@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { UserCircle, FileText } from 'lucide-react';
 import { api } from '../../lib/api';
 import type { Lead } from '../../types';
-import DatePicker from '../ui/DatePicker';
-import CustomSelect from '../ui/CustomSelect';
+import DatePicker from '../ui/v2/date-picker';
+import CustomSelect from '../ui/v2/custom-select';
 import { FormDialog, Input, Badge } from '../ui/v2';
 
 /**

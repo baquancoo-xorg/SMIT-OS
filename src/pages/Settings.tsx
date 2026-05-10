@@ -9,7 +9,7 @@ import {
   FbConfigTabV2,
   SheetsExportTabV2,
 } from '../components/settings/v2';
-import { PageHeader, TabPill, Button, ConfirmDialog } from '../components/ui/v2';
+import { TabPill, Button, ConfirmDialog } from '../components/ui/v2';
 import type { TabPillItem } from '../components/ui/v2';
 
 type SettingsTabId = 'profile' | 'users' | 'okrs' | 'fb-config' | 'export';
@@ -120,16 +120,7 @@ export default function SettingsV2() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        breadcrumb={[
-          { label: 'System' },
-          { label: 'Settings' },
-        ]}
-        title={`${isAdmin ? 'Workspace' : 'User'} `}
-        accent="Settings"
-        description="Manage your profile, team, OKR cycles, integrations, and exports."
-        actions={headerAction ?? undefined}
-      />
+      {headerAction && <div className="flex justify-end">{headerAction}</div>}
 
       <div className="overflow-x-auto pb-1 -mx-1 px-1">
         <TabPill

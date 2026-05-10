@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Calendar, ChevronDown } from 'lucide-react';
 import { format, subDays, startOfMonth } from 'date-fns';
-import DatePicker from '../../ui/DatePicker';
+import DatePicker from '../../ui/v2/date-picker';
 
 export interface DateRangeValue {
   from: string;

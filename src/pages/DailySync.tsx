@@ -3,7 +3,6 @@ import { Plus, Calendar, CheckCircle, ListChecks, AlertTriangle, Target, Zap, Ey
 import { useAuth } from '../contexts/AuthContext';
 import type { DailyReport } from '../types';
 import {
-  PageHeader,
   Button,
   Badge,
   GlassCard,
@@ -290,17 +289,11 @@ export default function DailySyncV2() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        breadcrumb={[{ label: 'Cadence' }, { label: 'Daily Sync' }]}
-        title="Daily "
-        accent="Sync"
-        description="Báo cáo 4 mục mỗi ngày: hoàn thành, đang làm, blocker, kế hoạch."
-        actions={
-          <Button variant="primary" iconLeft={<Plus />} onClick={openForm}>
-            New report
-          </Button>
-        }
-      />
+      <div className="flex justify-end">
+        <Button variant="primary" iconLeft={<Plus />} onClick={openForm}>
+          New report
+        </Button>
+      </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <KpiCard label="Submitted today" value={stats.submittedToday} icon={<Sun />} accent="primary" />
@@ -322,11 +315,6 @@ export default function DailySyncV2() {
             icon={<Calendar />}
             title="Chưa có báo cáo"
             description="Bắt đầu bằng cách tạo báo cáo hằng ngày đầu tiên."
-            actions={
-              <Button variant="primary" iconLeft={<Plus />} onClick={openForm}>
-                Create report
-              </Button>
-            }
             decorative
             variant="inline"
           />
