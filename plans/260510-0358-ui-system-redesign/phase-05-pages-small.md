@@ -13,7 +13,7 @@
 | Date | 2026-05-10 |
 | Priority | P2 |
 | Effort | 1.5 tuần (expanded) |
-| Status | in_progress (Batch 1: Profile + Login + Settings shell done 2026-05-10) |
+| Status | implementation_done (Batch 1+2: 3 pages + 5 sub-tabs done 2026-05-10) |
 
 Redesign 3 small pages trước (Login, Profile, Settings) để **validate design system + component library** trên scope nhỏ trước khi vào pages phức tạp hơn. Nếu phát hiện component thiếu/sai → fix Phase 4 trước khi tiến tiếp.
 
@@ -99,11 +99,11 @@ src/App.tsx                    (route swap khi user OK)
 - [x] Build Profile v2 → `src/pages/v2/Profile.tsx`
 - [x] Build Settings shell + tabs nav → `src/pages/v2/Settings.tsx` (TabPill + ConfirmDialog v2, sub-tab content reuses v1)
 - [x] Wire `?v=2` toggle in `src/App.tsx` + global ToastProvider
-- [ ] Build Settings/Profile sub-tab content v2 (defer batch 2)
-- [ ] Build Settings/Users sub-tab content v2 (defer batch 2)
-- [ ] Build Settings/OKR Cycles sub-tab content v2 (defer batch 2)
-- [ ] Build Settings/FB Config sub-tab content v2 (defer batch 2)
-- [ ] Build Settings/Sheets Export sub-tab content v2 (defer batch 2)
+- [x] Build Settings/Profile sub-tab content v2 → `src/components/settings/v2/profile-tab.tsx` (form + 2FA flow with v2 GlassCard/Badge/Input/Button)
+- [x] Build Settings/Users sub-tab content v2 → `src/components/settings/v2/user-management-tab.tsx` (DataTable + FormDialog + DropdownMenu)
+- [x] Build Settings/OKR Cycles sub-tab content v2 → `src/components/settings/v2/okr-cycles-tab.tsx` (DataTable + FormDialog)
+- [x] Build Settings/FB Config sub-tab content v2 → `src/components/settings/v2/fb-config-tab.tsx` (DataTable + FormDialog + KpiCard for sync status + toast)
+- [x] Build Settings/Sheets Export sub-tab content v2 → `src/components/settings/v2/sheets-export-tab.tsx` (GlassCard + KpiCard + folder autocomplete preserved)
 - [ ] Per-page checklist pass (manual smoke + Lighthouse)
 - [ ] User review 3 pages → sign-off
 - [ ] Component fix-back (nếu phát hiện thiếu)
@@ -111,6 +111,7 @@ src/App.tsx                    (route swap khi user OK)
 ## Progress Log
 
 - **Batch 1 (2026-05-10)** — Profile + LoginPage + Settings shell migrated to v2 namespace. `?v=2` toggle wired. Sub-tab content blocks reuse v1. See `reports/phase-05-batch-1-profile-login-settings-shell.md`.
+- **Batch 2 (2026-05-10)** — All 5 Settings sub-tab CONTENT migrated to `src/components/settings/v2/` (ProfileTab, UserManagementTab, OkrCyclesTab, FbConfigTab, SheetsExportTab). Settings v2 page imports updated. ~1500 LOC migration. See `reports/phase-05-batch-2-settings-subtabs.md`.
 
 ## Success Criteria
 

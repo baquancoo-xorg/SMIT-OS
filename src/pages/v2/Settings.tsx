@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Download, RefreshCw, Plus, Users, Target, Facebook, UserCircle, FileSpreadsheet } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { UserManagementTab } from '../../components/settings/user-management-tab';
-import { OkrCyclesTab } from '../../components/settings/okr-cycles-tab';
-import { FbConfigTab } from '../../components/settings/fb-config-tab';
-import { ProfileTab } from '../../components/settings/profile-tab';
-import { SheetsExportTab } from '../../components/settings/sheets-export-tab';
+import {
+  ProfileTabV2,
+  UserManagementTabV2,
+  OkrCyclesTabV2,
+  FbConfigTabV2,
+  SheetsExportTabV2,
+} from '../../components/settings/v2';
 import { PageHeader, TabPill, Button, ConfirmDialog } from '../../components/ui/v2';
 import type { TabPillItem } from '../../components/ui/v2';
 
@@ -139,26 +141,26 @@ export default function SettingsV2() {
       </div>
 
       <div className="min-h-0 flex-1">
-        {activeTab === 'profile' && <ProfileTab />}
+        {activeTab === 'profile' && <ProfileTabV2 />}
         {activeTab === 'users' && isAdmin && (
-          <UserManagementTab
+          <UserManagementTabV2
             onDeleteConfirm={(type, id) => setDeleteConfirm({ type, id })}
             isAddingUser={isAddingUser}
             setIsAddingUser={setIsAddingUser}
           />
         )}
         {activeTab === 'okrs' && isAdmin && (
-          <OkrCyclesTab
+          <OkrCyclesTabV2
             onDeleteConfirm={(type, id) => setDeleteConfirm({ type, id })}
             isAddingCycle={isAddingCycle}
             setIsAddingCycle={setIsAddingCycle}
           />
         )}
         {activeTab === 'fb-config' && isAdmin && (
-          <FbConfigTab isAddingFb={isAddingFb} setIsAddingFb={setIsAddingFb} />
+          <FbConfigTabV2 isAddingFb={isAddingFb} setIsAddingFb={setIsAddingFb} />
         )}
         {activeTab === 'export' && isAdmin && (
-          <SheetsExportTab exportTrigger={exportTrigger} onExportingChange={setExporting} />
+          <SheetsExportTabV2 exportTrigger={exportTrigger} onExportingChange={setExporting} />
         )}
       </div>
 
