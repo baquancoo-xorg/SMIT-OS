@@ -4,6 +4,7 @@ import type { DateRange } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
 import DashboardSectionTitle from '../ui/dashboard-section-title';
 import DashboardEmptyState from '../ui/dashboard-empty-state';
+import { Skeleton } from '../../ui/v2';
 
 interface ProductFunnelChartProps {
   range: DateRange;
@@ -18,7 +19,7 @@ export function ProductFunnelChart({ range }: ProductFunnelChartProps) {
     return (
       <DashboardPanel className="p-6">
         <DashboardSectionTitle>Conversion Funnel</DashboardSectionTitle>
-        <div className="h-64 animate-pulse bg-gray-100 rounded mt-4" />
+        <Skeleton variant="rect" className="mt-4 h-64 rounded-card" />
       </DashboardPanel>
     );
   }

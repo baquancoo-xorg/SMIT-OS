@@ -14,6 +14,7 @@ import {
 import { useProductChannel } from '../../../hooks/use-product-dashboard';
 import type { DateRange } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
+import { Badge, Skeleton } from '../../ui/v2';
 
 interface ProductChannelPostHogSecondaryProps {
   range: DateRange;
@@ -46,24 +47,22 @@ export function ProductChannelPostHogSecondary({ range }: ProductChannelPostHogS
     <DashboardPanel className="p-4 md:p-5">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">PostHog Referring Domain</h3>
-          <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">
+          <h3 className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">PostHog Referring Domain</h3>
+          <p className="mt-0.5 text-[length:var(--text-caption)] font-medium italic text-on-surface-variant">
             Cross-validation từ event tracking · loại $direct + internal noise
           </p>
         </div>
-        <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-amber-700">
-          Secondary
-        </span>
+        <Badge variant="warning">Secondary</Badge>
       </div>
 
       {isLoading ? (
-        <div className="h-[260px] animate-pulse bg-slate-100 rounded-2xl" />
+        <Skeleton variant="rect" className="h-[260px] rounded-card" />
       ) : error || !data || data.posthog.length === 0 ? (
-        <div className="h-[180px] rounded-2xl border border-slate-100 flex items-center justify-center text-sm text-slate-500">
+        <div className="flex h-[180px] items-center justify-center rounded-card border border-outline-variant/40 text-[length:var(--text-body-sm)] text-on-surface-variant">
           Không có PostHog referrer data sau khi loại noise
         </div>
       ) : (
-        <div className="h-[260px] rounded-2xl border border-slate-100 p-2">
+        <div className="h-[260px] rounded-card border border-outline-variant/40 p-2">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.posthog} layout="vertical" margin={{ top: 8, right: 32, left: 8, bottom: 8 }}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />

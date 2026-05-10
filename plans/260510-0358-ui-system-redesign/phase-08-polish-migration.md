@@ -153,6 +153,14 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Sub-component migration — Batch 16 done 2026-05-11
+
+2 product/ files:
+- [x] `dashboard/product/product-funnel-chart.tsx` (78 LOC) — already consumed migrated DashboardPanel + DashboardSectionTitle + DashboardEmptyState từ batch 10. Only fix: loading skeleton (inline `bg-gray-100 animate-pulse` → Skeleton v2 rounded-card).
+- [x] `dashboard/product/product-channel-posthog-secondary.tsx` (95 LOC) — title tokens + rounded-2xl → rounded-card + Skeleton v2 cho loading + Badge v2 (warning) cho "Secondary" tag.
+
+vite build clean 2.01s ✓
+
 ### Sub-component migration — Batch 15 done 2026-05-11
 
 2 dashboard files:
