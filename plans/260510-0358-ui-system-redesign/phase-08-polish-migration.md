@@ -153,6 +153,13 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Sub-component migration — Batch 8 done 2026-05-10
+
+1 component migrated (dashboard tab):
+- [x] `lead-tracker/dashboard-tab.tsx` (202 → 168 LOC, -34 LOC) → v2 KpiCard (Bento decorative cho 3 KPIs: Inflow info / Cleared success / Active Backlog warning) + GlassCard wrappers cho 2 charts + Spinner + EmptyState (error). Removed inline KPICard helper (replaced bằng v2 KpiCard). Kept ClearanceRateCard inline vì v2 KpiCard không có progress bar slot.
+
+vite build clean 2.16s ✓
+
 ### Sub-component migration — Batch 7 done 2026-05-10
 
 1 component migrated (form dialog):
