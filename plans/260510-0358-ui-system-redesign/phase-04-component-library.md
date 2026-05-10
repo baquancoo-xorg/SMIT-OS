@@ -12,7 +12,7 @@
 | Date | 2026-05-10 |
 | Priority | P2 |
 | Effort | 1-1.5 tuần |
-| Status | pending |
+| Status | implementation_done (25/25 components shipped, pending: a11y audit + user review) |
 
 Code base reusable component library theo design tokens Phase 2 + mockup Phase 3. Output là `src/components/ui/v2/` với ≥ 15 components ready cho Phase 5-7 page redesign. Bao gồm Storybook (hoặc demo page) để preview + test isolation.
 
@@ -122,16 +122,24 @@ docs/component-library.md
 
 ## Todo List
 
-- [ ] Decision Storybook vs demo page
-- [ ] Setup demo environment
-- [ ] Build 6 atoms + demo
-- [ ] Build 5 molecules + demo
-- [ ] Build 6 organisms + demo
-- [ ] Build 3 layout + demo
-- [ ] A11y test
-- [ ] Lighthouse demo page
-- [ ] Component library doc
-- [ ] User review demo page
+- [x] Decision Storybook vs demo page → **Storybook 10 (locked 2026-05-10)**
+- [x] Setup demo environment → Storybook + Vite + Tailwind v4 + a11y addon (`npm run storybook` / `npm run build-storybook`)
+- [x] Build 6 atoms + demo → Button, Input, Badge, StatusDot, Spinner, Skeleton (each with stories)
+- [x] Build 5 molecules + demo → PageHeader, TabPill, EmptyState, KpiCard, DateRangePicker
+- [x] Build 7 organisms + demo → GlassCard, Modal, ConfirmDialog, DropdownMenu, NotificationToast (+Provider/hook), FormDialog, DataTable
+- [x] Build 5 layout + demo → Sidebar, Header, AppLayout, OkrCycleCountdown, NotificationCenter (compound API)
+- [x] Build 2 misc + demo → ErrorBoundary v2, NotFoundPage (LoadingSkeleton dropped — overlaps with Skeleton atom)
+- [ ] A11y test (Lighthouse on Storybook static — defer to Phase 8 polish)
+- [ ] Lighthouse demo page (defer to Phase 8 polish)
+- [ ] Component library doc (defer to Phase 8 — once page migrations validate API stability)
+- [ ] User review demo page → sign-off Phase 5 (BLOCKER for Phase 5 start)
+
+## Progress Log
+
+- **Batch 1 (2026-05-10)** — Storybook 10 setup + 6 atoms shipped. See `reports/phase-04-batch-1-atoms.md`.
+- **Batch 2 (2026-05-10)** — 5 molecules shipped: PageHeader, TabPill, EmptyState, KpiCard (Bento signature), DateRangePicker (Headless UI Popover). See `reports/phase-04-batch-2-molecules.md`.
+- **Batch 3 (2026-05-10)** — 7 organisms shipped: GlassCard, Modal, ConfirmDialog, DropdownMenu, NotificationToast (+ToastProvider+useToast), FormDialog, DataTable. Toast keyframe added to `src/index.css`. See `reports/phase-04-batch-3-organisms.md`.
+- **Batch 4 (2026-05-10)** — 5 layout + 2 misc shipped: Sidebar (mobile slide-out via Dialog), Header (sticky), AppLayout (composition), OkrCycleCountdown (live ticker), NotificationCenter (compound API), ErrorBoundary v2, NotFoundPage. Total 25 components (6+5+7+5+2). LoadingSkeleton dropped. See `reports/phase-04-batch-4-layout-misc.md`.
 
 ## Success Criteria
 

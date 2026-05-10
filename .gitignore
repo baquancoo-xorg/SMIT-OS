@@ -18,3 +18,9 @@ repomix-output.xml
 plans/**/backups/
 *.sql.bak
 backup-*.sql
+
+# Stitch budget guard (local state, not committed)
+.claude/.stitch-budget.json
+
+*storybook.log
+storybook-static

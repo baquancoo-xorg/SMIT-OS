@@ -124,6 +124,39 @@ created: 2026-05-10
 
 See [`reports/ux-audit-summary-top10.md`](./reports/ux-audit-summary-top10.md) for actionable breakdown + Phase 2 priorities.
 
+## Phase 3 Outcomes
+
+**Completed 2026-05-10 với pivot to just-in-time approach.**
+
+10 mockup screens generated (9 batch 1 + 1 batch 2 sample) trên Stitch AI. Design language LOCKED bởi user review. Remaining ~20 screens pivot sang generate just-in-time per page trong Phase 5-7 implementation.
+
+**Deliverables:**
+1. `reports/mockup-batch-1-review.md` — 9 screens batch 1 với visual checklist + Q1-Q4 user decisions
+2. `reports/batch-2-prompts-spec.md` — 8 prompts ready cho DailySync/Checkin/LeadTracker (just-in-time generation)
+3. `reports/batch-3-prompts-spec.md` — 9 prompts ready cho Dashboard/OKRs
+4. `reports/final-mockup-signoff.md` — Phase 3 sign-off document
+5. Stitch project active: `17630608962270981746` + design system asset `4954151027897322910`
+
+**Key decisions LOCKED (user review batch 1):**
+- Q1: Profile = separate sidebar item
+- Q2: Settings mobile = horizontal scroll tab strip
+- Q3: Login mobile error = mockup separate
+- Q4: SMIT OS legacy Stitch project = user xóa thủ công
+- Brand colors locked Phase 2 ✓
+- Glass card pattern + bento blob signature ✓
+- Page header italic primary pattern ✓
+- Mobile sticky save bar (DailySync sample) ✓
+
+**Why pivot to JIT:**
+- Stitch Pro Agent unreliable cho mass generation (timeout + service outage)
+- Phase 2 tokens là source of truth, mockups chỉ visual reference
+- 10 screens đủ cover all major patterns (glass cards, bento, page header, sidebar, forms, tables, modals, mobile sticky save, error states)
+- Just-in-time = generate per-page during Phase 5-7 implementation, fresh + accurate
+
+**Effort:** 1 day actual vs 1.5-2 tuần planned. Faster path forward.
+
+See [`reports/final-mockup-signoff.md`](./reports/final-mockup-signoff.md) for full details.
+
 ## Phase 2 Outcomes
 
 **Completed 2026-05-10 by `/ck:cook` session 17:19.**
@@ -161,8 +194,8 @@ See [`reports/current-tokens-inventory.md`](./reports/current-tokens-inventory.m
 |---|---|---|---|---|
 | 1 | UX Audit & Research | 1w | **completed** (2026-05-10) | [phase-01-ux-audit-research.md](./phase-01-ux-audit-research.md) |
 | 2 | Design System Foundation (tokens + color + typography) | 1-1.5w | **completed** (2026-05-10) | [phase-02-design-system-foundation.md](./phase-02-design-system-foundation.md) |
-| 3 | Wireframe + Hi-fi Mockup (Figma) | 1.5-2w | pending | [phase-03-wireframe-mockup.md](./phase-03-wireframe-mockup.md) |
-| 4 | Component Library Implementation | 1-1.5w | pending | [phase-04-component-library.md](./phase-04-component-library.md) |
+| 3 | Wireframe + Hi-fi Mockup (Stitch AI) | 1.5-2w | **completed** (2026-05-10, pivot to JIT) | [phase-03-wireframe-mockup.md](./phase-03-wireframe-mockup.md) |
+| 4 | Component Library Implementation | 1-1.5w | **implementation_done** (25 components shipped 2026-05-10, pending: user review for Phase 5 sign-off) | [phase-04-component-library.md](./phase-04-component-library.md) |
 | 5 | Pages Redesign — Auth/Profile/Settings (5 sub-tabs) | 1.5w | pending | [phase-05-pages-small.md](./phase-05-pages-small.md) |
 | 6 | Pages Redesign — DailySync/WeeklyCheckin/LeadTracker/MediaTracker/AdsTracker | 2.5-3w | pending | [phase-06-pages-medium.md](./phase-06-pages-medium.md) |
 | 7 | Pages Redesign — Dashboard/OKRs (hardest, most LOC) | 1.5-2w | pending | [phase-07-pages-large.md](./phase-07-pages-large.md) |
@@ -170,20 +203,20 @@ See [`reports/current-tokens-inventory.md`](./reports/current-tokens-inventory.m
 
 **Total: 8-10 tuần** (mở rộng từ 7-9 tuần do scope thực tế lớn hơn audit ban đầu: +2 pages Acquisition, +5 Settings sub-tabs, +OkrCycleCountdown, +error states).
 
-## Critical Path
+## Critical Path (updated 2026-05-10 sau Phase 3 JIT pivot)
 
 ```
-Tuần 1     [Phase 1: UX Audit & Research]
-Tuần 2     [Phase 2: Design System Foundation]
-Tuần 3-4   [Phase 3: Wireframe + Hi-fi Mockup]
-Tuần 5     [Phase 4: Component Library]
-Tuần 6     [Phase 5: Small pages (Auth + Profile + Settings)]
-Tuần 7-8   [Phase 6: Medium pages (DailySync + Checkin + LeadTracker)]
-Tuần 8-9   [Phase 7: Large pages (Dashboard + OKRs)]
-Tuần 9     [Phase 8: Polish + Migration + Doc]
+Day 1      [Phase 1: UX Audit & Research]      ✅ done
+Day 1      [Phase 2: Design System Foundation] ✅ done
+Day 1      [Phase 3: Mockup batch 1 + JIT spec] ✅ done (pivot)
+Tuần 1     [Phase 4: Component Library — 15+ primitives + Storybook]
+Tuần 2     [Phase 5: Small pages (Auth + Profile + Settings)] — JIT mockup per page
+Tuần 3-4   [Phase 6: Medium pages (DailySync + Checkin + LeadTracker)] — JIT mockup
+Tuần 4-5   [Phase 7: Large pages (Dashboard + OKRs)] — JIT mockup
+Tuần 5-6   [Phase 8: Polish + Migration + Doc]
 ```
 
-⚠️ **Phase 1-3 là design phase** (KHÔNG code) — phải có sign-off mockup từ user trước Phase 4. Đây là rủi ro lớn nhất: nếu mockup không pass → quay lại Phase 3.
+⚠️ **Phase 1-3 design phase done.** Pivot to JIT mockup approach: generate 1-2 mockups per page right before Phase 5-7 implementation, not big-batch upfront. Reduces Stitch dependency risk + faster start of Phase 4.
 
 ## Key Decisions (chốt từ user)
 
