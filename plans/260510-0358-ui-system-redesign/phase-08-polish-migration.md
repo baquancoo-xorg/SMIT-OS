@@ -153,6 +153,14 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Sub-component migration — Batch 13 done 2026-05-11
+
+2 dashboard compact summaries:
+- [x] `dashboard/marketing/marketing-tab.tsx` (146 LOC) → v2 KpiCard × 4 (Bento decorative) + GlassCard wrapper + EmptyState v2 (Megaphone icon) + token typography. Removed inline KpiCard helper.
+- [x] `dashboard/media/media-tab.tsx` (183 LOC) → v2 KpiCard × 4 + 2 GlassCard wrappers (KOL panel + PR panel) + Badge variants cho sentiment + EmptyState v2. Removed inline KpiCard + SENTIMENT_BADGE map.
+
+vite build clean 2.09s ✓
+
 ### Sub-component migration — Batch 12 done 2026-05-11
 
 5 dashboard leaf files (call-performance + lead-distribution):

@@ -1,7 +1,18 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, DollarSign, Activity, Users, Calculator } from 'lucide-react';
 import { useAdsCampaignsQuery, useAdsAttributionQuery } from '../../../hooks/use-ads-tracker';
+import { GlassCard, KpiCard, EmptyState } from '../../ui/v2';
+import { Megaphone } from 'lucide-react';
+
+/**
+ * Dashboard Marketing tab — compact summary of Ads spend + top-converting campaigns.
+ *
+ * Phase 8 follow-up batch 13 (2026-05-11): full migration to v2 primitives.
+ * - 4 inline KpiCard helpers (highlight + plain) → v2 KpiCard (Bento decorative)
+ * - Top campaigns table card → v2 GlassCard wrapper + token-driven typography
+ * - EmptyState v2 cho zero campaigns
+ */
 
 interface Props {
   from: string;
@@ -36,7 +47,7 @@ export default function MarketingTab({ from, to }: Props) {
     return [...attribution]
       .filter((a) => a.spendTotal > 0)
       .sort((a, b) => {
-        // ROAS proxy: leadCount / spend (we don't have revenue per campaign yet).
+        // ROAS proxy: leadCount / spend (no revenue per campaign yet).
         const ra = a.leadCount / a.spendTotal;
         const rb = b.leadCount / b.spendTotal;
         return rb - ra;
@@ -46,101 +57,69 @@ export default function MarketingTab({ from, to }: Props) {
 
   return (
     <div className="space-y-[var(--space-lg)]">
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <KpiCard label="Total Spend" value={fmtMoney(totals.spend, totals.currency)} highlight />
-        <KpiCard label="Active Campaigns" value={String(totals.active)} subtitle={`${campaigns.length} total`} />
-        <KpiCard label="Leads from Ads" value={fmtNumber(totals.totalLeads)} />
-        <KpiCard label="Avg CPL" value={totals.cpl != null ? fmtMoney(totals.cpl, totals.currency) : '—'} />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+        <KpiCard label="Total Spend" value={fmtMoney(totals.spend, totals.currency)} icon={<DollarSign />} accent="primary" decorative />
+        <KpiCard label="Active Campaigns" value={String(totals.active)} unit={`/ ${campaigns.length}`} icon={<Activity />} accent="info" />
+        <KpiCard label="Leads from Ads" value={fmtNumber(totals.totalLeads)} icon={<Users />} accent="success" />
+        <KpiCard
+          label="Avg CPL"
+          value={totals.cpl != null ? fmtMoney(totals.cpl, totals.currency) : '—'}
+          icon={<Calculator />}
+          accent="warning"
+        />
       </div>
 
-      <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-4 xl:p-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16" />
-        <div className="flex items-center justify-between mb-4 relative z-10">
-          <h3 className="text-2xl font-black font-headline">
-            Top campaigns by <span className="text-primary italic">conversion</span>
+      <GlassCard variant="surface" padding="md" className="relative overflow-hidden">
+        <div aria-hidden="true" className="pointer-events-none absolute -top-16 -right-16 size-32 rounded-full bg-primary-container/40 blur-3xl" />
+        <div className="relative mb-4 flex items-center justify-between">
+          <h3 className="font-headline text-[length:var(--text-h5)] font-bold text-on-surface">
+            Top campaigns by <em className="font-medium text-primary italic">conversion</em>
           </h3>
           <Link
             to="/ads-tracker"
-            className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
+            className="inline-flex items-center gap-1 text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-primary hover:underline"
           >
             View all <ExternalLink size={10} />
           </Link>
         </div>
-        <div className="overflow-x-auto relative z-10">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-white/40">
-                <th className="px-4 py-3">Campaign</th>
-                <th className="px-4 py-3">UTM</th>
-                <th className="px-4 py-3 text-right">Spend</th>
-                <th className="px-4 py-3 text-right">Leads</th>
-                <th className="px-4 py-3 text-right">CPL</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topByRoas.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="text-center py-12 text-slate-400 font-black uppercase tracking-widest text-[10px]"
-                  >
-                    No campaign attribution yet
-                  </td>
+        <div className="relative overflow-x-auto">
+          {topByRoas.length === 0 ? (
+            <EmptyState
+              icon={<Megaphone />}
+              title="No campaign attribution yet"
+              description="Sync Meta + ensure Lead.source matches utm_campaign."
+              variant="inline"
+            />
+          ) : (
+            <table className="w-full text-[length:var(--text-body-sm)]">
+              <thead>
+                <tr className="border-b border-outline-variant/40 text-left text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">
+                  <th className="px-4 py-3">Campaign</th>
+                  <th className="px-4 py-3">UTM</th>
+                  <th className="px-4 py-3 text-right">Spend</th>
+                  <th className="px-4 py-3 text-right">Leads</th>
+                  <th className="px-4 py-3 text-right">CPL</th>
                 </tr>
-              ) : (
-                topByRoas.map((a) => (
-                  <tr key={a.campaignId} className="border-b border-white/30">
-                    <td className="px-4 py-3 font-medium">{a.campaignName}</td>
-                    <td className="px-4 py-3 text-xs font-mono text-on-surface-variant">
-                      {a.utmCampaign ?? <span className="text-slate-300">—</span>}
+              </thead>
+              <tbody>
+                {topByRoas.map((a) => (
+                  <tr key={a.campaignId} className="border-b border-outline-variant/30 last:border-0">
+                    <td className="px-4 py-3 font-medium text-on-surface">{a.campaignName}</td>
+                    <td className="px-4 py-3 font-mono text-[length:var(--text-caption)] text-on-surface-variant">
+                      {a.utmCampaign ?? <span className="text-on-surface-variant/60">—</span>}
                     </td>
-                    <td className="px-4 py-3 text-right font-headline font-black">
-                      {fmtMoney(a.spendTotal, a.currency)}
-                    </td>
-                    <td className="px-4 py-3 text-right text-xs font-bold">{a.leadCount}</td>
-                    <td className="px-4 py-3 text-right text-xs font-bold">
+                    <td className="px-4 py-3 text-right font-headline font-bold">{fmtMoney(a.spendTotal, a.currency)}</td>
+                    <td className="px-4 py-3 text-right font-semibold">{a.leadCount}</td>
+                    <td className="px-4 py-3 text-right font-semibold">
                       {a.cpl != null ? fmtMoney(a.cpl, a.currency) : '—'}
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
-      </div>
-    </div>
-  );
-}
-
-function KpiCard({
-  label,
-  value,
-  subtitle,
-  highlight,
-}: {
-  label: string;
-  value: string;
-  subtitle?: string;
-  highlight?: boolean;
-}) {
-  if (highlight) {
-    return (
-      <div className="bg-primary text-white p-4 xl:p-6 rounded-3xl shadow-xl shadow-primary/20 flex flex-col gap-2 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-20 h-20 xl:w-32 xl:h-32 bg-white/10 rounded-full -mr-10 -mt-10 xl:-mr-16 xl:-mt-16 group-hover:scale-150 transition-transform duration-700" />
-        <p className="text-[10px] font-black uppercase tracking-widest opacity-80 relative z-10">{label}</p>
-        <h4 className="text-2xl xl:text-4xl font-black font-headline relative z-10">{value}</h4>
-        {subtitle && <p className="text-[10px] opacity-80 relative z-10">{subtitle}</p>}
-      </div>
-    );
-  }
-  return (
-    <div className="bg-white/50 backdrop-blur-md border border-white/20 p-4 xl:p-6 rounded-3xl shadow-sm flex flex-col gap-2 relative overflow-hidden group">
-      <div className="absolute top-0 right-0 w-20 h-20 xl:w-32 xl:h-32 bg-primary/5 rounded-full -mr-10 -mt-10 xl:-mr-16 xl:-mt-16 group-hover:scale-150 transition-transform duration-700" />
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10">{label}</p>
-      <h4 className="text-2xl xl:text-4xl font-black font-headline relative z-10">{value}</h4>
-      {subtitle && (
-        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest relative z-10">{subtitle}</p>
-      )}
+      </GlassCard>
     </div>
   );
 }

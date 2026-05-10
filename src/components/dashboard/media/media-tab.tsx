@@ -1,9 +1,20 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Newspaper, Eye, DollarSign, Mic, Megaphone } from 'lucide-react';
 import { format } from 'date-fns';
 import { useMediaPostsQuery } from '../../../hooks/use-media-tracker';
 import PlatformBadge from '../../media-tracker/platform-badge';
+import { GlassCard, KpiCard, Badge, EmptyState } from '../../ui/v2';
+
+/**
+ * Dashboard Media tab — compact summary KOL/KOC + PR.
+ *
+ * Phase 8 follow-up batch 13 (2026-05-11): full migration to v2 primitives.
+ * - 4 inline KpiCard helpers → v2 KpiCard (Bento decorative)
+ * - 2 panels (KOL + PR) → v2 GlassCard wrappers
+ * - PR sentiment badges → v2 Badge variants (success/error/neutral)
+ * - EmptyState v2 cho zero data
+ */
 
 interface Props {
   from: string;
@@ -16,11 +27,10 @@ function fmtNumber(n: number) {
   return n.toLocaleString('en-US');
 }
 
-const SENTIMENT_BADGE: Record<string, string> = {
-  positive: 'bg-tertiary/10 text-tertiary border-tertiary/20',
-  neutral: 'bg-slate-100 text-slate-500 border-slate-200',
-  negative: 'bg-error/10 text-error border-error/20',
-};
+function SentimentBadge({ sentiment }: { sentiment: string }) {
+  const variant = sentiment === 'positive' ? 'success' : sentiment === 'negative' ? 'error' : 'neutral';
+  return <Badge variant={variant}>{sentiment}</Badge>;
+}
 
 export default function MediaTab({ from, to }: Props) {
   const postsQuery = useMediaPostsQuery({ from, to });
@@ -52,50 +62,51 @@ export default function MediaTab({ from, to }: Props) {
 
   return (
     <div className="space-y-[var(--space-lg)]">
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <KpiCard label="Total Posts" value={String(totals.totalPosts)} highlight />
-        <KpiCard label="Total Reach" value={fmtNumber(totals.totalReach)} />
-        <KpiCard label="KOL/KOC Spend" value={totals.kolSpend.toLocaleString() + ' VND'} />
-        <KpiCard label="PR Mentions" value={String(totals.prCount)} />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+        <KpiCard label="Total Posts" value={totals.totalPosts} icon={<Newspaper />} accent="primary" decorative />
+        <KpiCard label="Total Reach" value={fmtNumber(totals.totalReach)} icon={<Eye />} accent="info" />
+        <KpiCard
+          label="KOL/KOC Spend"
+          value={totals.kolSpend.toLocaleString()}
+          unit="VND"
+          icon={<DollarSign />}
+          accent="warning"
+        />
+        <KpiCard label="PR Mentions" value={totals.prCount} icon={<Megaphone />} accent="success" />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-4 xl:p-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#E60076]/5 rounded-full -mr-16 -mt-16" />
-          <div className="flex items-center justify-between mb-4 relative z-10">
-            <h3 className="text-2xl font-black font-headline">
-              Top <span className="text-primary italic">KOL/KOC</span>
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <GlassCard variant="surface" padding="md" className="relative overflow-hidden">
+          <div aria-hidden="true" className="pointer-events-none absolute -top-16 -right-16 size-32 rounded-full bg-[#E60076]/10 blur-3xl" />
+          <div className="relative mb-4 flex items-center justify-between">
+            <h3 className="font-headline text-[length:var(--text-h5)] font-bold text-on-surface">
+              Top <em className="font-medium text-primary italic">KOL/KOC</em>
             </h3>
             <Link
               to="/media-tracker"
-              className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
+              className="inline-flex items-center gap-1 text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-primary hover:underline"
             >
               View all <ExternalLink size={10} />
             </Link>
           </div>
-          <div className="space-y-2 relative z-10">
+          <div className="relative space-y-2">
             {topKol.length === 0 ? (
-              <p className="text-center py-8 text-slate-400 font-black uppercase tracking-widest text-[10px]">
-                No KOL/KOC posts yet
-              </p>
+              <EmptyState icon={<Mic />} title="No KOL/KOC posts yet" variant="inline" />
             ) : (
               topKol.map((p) => {
                 const meta = (p.meta ?? {}) as Record<string, any>;
                 const name = meta.kolName ?? meta.kocName ?? p.title ?? 'Untitled';
                 return (
-                  <div
-                    key={p.id}
-                    className="flex items-center gap-3 p-2 rounded-2xl hover:bg-white/40 transition"
-                  >
+                  <div key={p.id} className="flex items-center gap-3 rounded-card p-2 transition hover:bg-surface-container-low">
                     <PlatformBadge platform={p.platform} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{name}</p>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[length:var(--text-body-sm)] font-medium text-on-surface">{name}</p>
+                      <p className="text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">
                         {fmtNumber(p.engagement)} eng · {fmtNumber(p.reach)} reach
                       </p>
                     </div>
                     {p.cost && (
-                      <span className="text-xs font-bold text-on-surface-variant">
+                      <span className="text-[length:var(--text-caption)] font-semibold text-on-surface-variant">
                         {fmtNumber(p.cost)} VND
                       </span>
                     )}
@@ -104,80 +115,45 @@ export default function MediaTab({ from, to }: Props) {
               })
             )}
           </div>
-        </div>
+        </GlassCard>
 
-        <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-4 xl:p-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#0059B6]/5 rounded-full -mr-16 -mt-16" />
-          <div className="flex items-center justify-between mb-4 relative z-10">
-            <h3 className="text-2xl font-black font-headline">
-              Recent <span className="text-primary italic">PR</span>
+        <GlassCard variant="surface" padding="md" className="relative overflow-hidden">
+          <div aria-hidden="true" className="pointer-events-none absolute -top-16 -right-16 size-32 rounded-full bg-[#0059B6]/10 blur-3xl" />
+          <div className="relative mb-4 flex items-center justify-between">
+            <h3 className="font-headline text-[length:var(--text-h5)] font-bold text-on-surface">
+              Recent <em className="font-medium text-primary italic">PR</em>
             </h3>
             <Link
               to="/media-tracker"
-              className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
+              className="inline-flex items-center gap-1 text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-primary hover:underline"
             >
               View all <ExternalLink size={10} />
             </Link>
           </div>
-          <div className="space-y-2 relative z-10">
+          <div className="relative space-y-2">
             {recentPr.length === 0 ? (
-              <p className="text-center py-8 text-slate-400 font-black uppercase tracking-widest text-[10px]">
-                No PR mentions yet
-              </p>
+              <EmptyState icon={<Newspaper />} title="No PR mentions yet" variant="inline" />
             ) : (
               recentPr.map((p) => {
                 const meta = (p.meta ?? {}) as Record<string, any>;
                 const sentiment = String(meta.sentiment ?? 'neutral');
                 const outlet = meta.outlet ?? p.title ?? 'Unknown outlet';
                 return (
-                  <div key={p.id} className="flex items-center gap-3 p-2 rounded-2xl hover:bg-white/40 transition">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{outlet}</p>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                  <div key={p.id} className="flex items-center gap-3 rounded-card p-2 transition hover:bg-surface-container-low">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[length:var(--text-body-sm)] font-medium text-on-surface">{outlet}</p>
+                      <p className="text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">
                         {format(new Date(p.publishedAt), 'yyyy-MM-dd')} · {fmtNumber(p.reach)} reach
                       </p>
                     </div>
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-black uppercase tracking-widest ${
-                        SENTIMENT_BADGE[sentiment] ?? SENTIMENT_BADGE.neutral
-                      }`}
-                    >
-                      {sentiment}
-                    </span>
+                    <SentimentBadge sentiment={sentiment} />
                   </div>
                 );
               })
             )}
           </div>
-        </div>
+        </GlassCard>
       </div>
-    </div>
-  );
-}
-
-function KpiCard({
-  label,
-  value,
-  highlight,
-}: {
-  label: string;
-  value: string;
-  highlight?: boolean;
-}) {
-  if (highlight) {
-    return (
-      <div className="bg-primary text-white p-4 xl:p-6 rounded-3xl shadow-xl shadow-primary/20 flex flex-col gap-2 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-20 h-20 xl:w-32 xl:h-32 bg-white/10 rounded-full -mr-10 -mt-10 xl:-mr-16 xl:-mt-16 group-hover:scale-150 transition-transform duration-700" />
-        <p className="text-[10px] font-black uppercase tracking-widest opacity-80 relative z-10">{label}</p>
-        <h4 className="text-2xl xl:text-4xl font-black font-headline relative z-10">{value}</h4>
-      </div>
-    );
-  }
-  return (
-    <div className="bg-white/50 backdrop-blur-md border border-white/20 p-4 xl:p-6 rounded-3xl shadow-sm flex flex-col gap-2 relative overflow-hidden group">
-      <div className="absolute top-0 right-0 w-20 h-20 xl:w-32 xl:h-32 bg-primary/5 rounded-full -mr-10 -mt-10 xl:-mr-16 xl:-mt-16 group-hover:scale-150 transition-transform duration-700" />
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10">{label}</p>
-      <h4 className="text-2xl xl:text-4xl font-black font-headline relative z-10">{value}</h4>
     </div>
   );
 }
