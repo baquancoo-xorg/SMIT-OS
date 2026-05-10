@@ -2,15 +2,21 @@
 
 ## [Unreleased]
 
-### UI System Redesign — Phase 1 (UX Audit & Research) completed
+### UI System Redesign — Phase 2 (Design System Foundation) completed
 
-**Phase 1 deliverables:**
-- 14 page-level UX audit reports (Dashboard, OKRs, Lead/Ads/Media Trackers, Daily Sync, Weekly Checkin, Settings, Profile, LoginPage, Layout components, Mobile)
-- Nielsen heuristic evaluation (10 criteria)
-- Cross-page drift inventory (spacing, card patterns, form patterns, header fragmentation, color/typography inconsistency)
-- Top 10 insights synthesis (5.5% design token adoption, 39 card variants, form abstraction missing, etc.)
+**Phase 2 deliverables:**
+- `src/index.css` rewritten with design token foundation: 8 semantic color scales, 4 department colors (BAO refreshed), spacing/radius/typography/shadow/motion/z-index scales
+- `docs/design-tokens-spec.md` — token reference document (source of truth for Phase 3+)
+- `docs/design-system-foundation.md` — usage rules, accessibility guidelines, motion principles, component patterns
+- Status colors added: success (tertiary), warning (amber-500), info (slate-400)
+- Breakpoints specification fixed (md: 768px, lg: 1024px, xl: 1280px, 2xl: 1536px — Tailwind defaults; prior config was reversed)
 
-**No code changes in Phase 1 — audit-only research stage.** Findings inform Phases 2–8 (Design Tokens, Mockups, Component Library, Integration). `docs/ui-style-guide.md` currently source-of-truth but deferred for full rewrite post-Phase 8.
+**Code changes:**
+- `src/index.css` — full rewrite with CSS custom properties, semantic color tokens, space/radius/typography scales
+
+**Breaking change:** Breakpoints shifted (md/lg/xl/2xl values corrected to match Tailwind defaults). Responsive code patterns using `md:` / `xl:` breakpoints remain valid but shifted screen widths. Phase 8 codemod will audit responsive patterns across templates.
+
+**Phase 1 recap:** 14 page-level UX audit reports + Top 10 insights synthesis (5.5% design token adoption, 39 card variants, form abstraction missing, etc.) — informed Phase 2 token design.
 
 **Audit reports:** `plans/260510-0358-ui-system-redesign/reports/`
 

@@ -124,12 +124,43 @@ created: 2026-05-10
 
 See [`reports/ux-audit-summary-top10.md`](./reports/ux-audit-summary-top10.md) for actionable breakdown + Phase 2 priorities.
 
+## Phase 2 Outcomes
+
+**Completed 2026-05-10 by `/ck:cook` session 17:19.**
+
+Full design system foundation shipped: tokens + color + typography + semantic spacing + motion + accessibility rules.
+
+**Deliverables:**
+1. `src/index.css` — full rewrite, 70+ design tokens (color/typography/spacing/radius/shadow/motion/z-index)
+2. `docs/design-tokens-spec.md` — comprehensive token reference (source of truth)
+3. `docs/design-system-foundation.md` — usage rules, a11y, motion, implementation checklist
+4. `reports/current-tokens-inventory.md` — Phase 2 audit baseline
+
+**Key changes:**
+- **Color system:** M3 brand colors kept (primary #0059b6, secondary #a03a0f, tertiary #006b1f), NEW status semantic colors (success/warning/error/info with `-container` + `on-` variants, 4 sets = 16 tokens), department colors promoted to CSS vars (BOD refreshed violet #6e47ff)
+- **Typography:** 12-token scale (caption → display) with leading + tracking defined
+- **Semantic spacing:** clamp-based responsive scale (sm/base/md/lg/xl/2xl/3xl)
+- **Radius tokens:** button/chip/input/card/modal semantic names (vs generic rounded-2xl)
+- **Breakpoints:** Tailwind defaults restored (fixed reversed xl/2xl) — **BREAKING CHANGE**: md=768/lg=1024/xl=1280/2xl=1536
+- **Shadows:** 7-stop scale (subtle → dramatic)
+- **Motion:** 5 durations (instant/fast/base/slow/slower), 4 easings (standard/decel/accel/sharp)
+- **A11y:** Global focus-visible ring spec, prefers-reduced-motion handler
+- **Z-index:** 8 semantic layers (dropdown/sticky/fixed/backdrop/modal/tooltip/notification/max)
+
+**Metrics:**
+- **70+ tokens** designed + documented
+- **2 breaking changes:** breakpoint values, dept colors now semantic
+- **3 files updated:** src/index.css (full rewrite), 2 docs new
+- **Compile:** `npx vite build` ✓ clean (2.18s)
+
+See [`reports/current-tokens-inventory.md`](./reports/current-tokens-inventory.md) for baseline audit.
+
 ## Phases
 
 | # | Phase | Effort | Status | File |
 |---|---|---|---|---|
 | 1 | UX Audit & Research | 1w | **completed** (2026-05-10) | [phase-01-ux-audit-research.md](./phase-01-ux-audit-research.md) |
-| 2 | Design System Foundation (tokens + color + typography) | 1-1.5w | pending | [phase-02-design-system-foundation.md](./phase-02-design-system-foundation.md) |
+| 2 | Design System Foundation (tokens + color + typography) | 1-1.5w | **completed** (2026-05-10) | [phase-02-design-system-foundation.md](./phase-02-design-system-foundation.md) |
 | 3 | Wireframe + Hi-fi Mockup (Figma) | 1.5-2w | pending | [phase-03-wireframe-mockup.md](./phase-03-wireframe-mockup.md) |
 | 4 | Component Library Implementation | 1-1.5w | pending | [phase-04-component-library.md](./phase-04-component-library.md) |
 | 5 | Pages Redesign — Auth/Profile/Settings (5 sub-tabs) | 1.5w | pending | [phase-05-pages-small.md](./phase-05-pages-small.md) |

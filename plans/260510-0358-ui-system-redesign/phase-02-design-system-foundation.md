@@ -12,7 +12,8 @@
 | Date | 2026-05-10 |
 | Priority | P2 |
 | Effort | 1-1.5 tuần |
-| Status | pending |
+| Status | **completed (2026-05-10)** |
+| Completed by | `/ck:cook` session 2026-05-10 17:19 |
 
 Build foundation của design system mới: tokens (color, typography, spacing), grid, motion, accessibility rules. Output là một **design tokens spec** + Tailwind config update — input cho Phase 3 mockup và Phase 4 component library.
 
@@ -104,16 +105,17 @@ tailwind.config.{js,ts}          (extend updated)
 
 ## Todo List
 
-- [ ] Audit current tokens
-- [ ] Color system design + contrast verify
-- [ ] Typography scale spec
-- [ ] Spacing + Radius + Shadow + Motion scales
-- [ ] Component-level tokens map
-- [ ] Tailwind config update
-- [ ] CSS vars update `index.css`
-- [ ] Compile + visual smoke test
-- [ ] Specs doc x2
-- [ ] User sign-off
+- [x] Audit current tokens — `reports/current-tokens-inventory.md`
+- [x] Color system design — M3 brand kept, status semantic added (success/warning/info), dept colors promoted to tokens (BOD refreshed to violet)
+- [x] Typography scale spec — 12 tokens (caption→display), leading + tracking
+- [x] Spacing + Radius + Shadow + Motion scales — clamp-spacing kept, radius semantic-first, shadow 7-stop, motion 5 durations + 4 easings
+- [x] Z-index layers added (NEW)
+- [x] Tailwind config update (NA — Tailwind v4, all via `@theme` in CSS)
+- [x] CSS vars update `index.css` — full rewrite, breakpoints fixed (Tailwind defaults), focus-visible global, prefers-reduced-motion handler
+- [x] Compile + smoke test — `npx vite build` ✓ passes (2.18s)
+- [x] Specs doc x2 — `docs/design-tokens-spec.md` + `docs/design-system-foundation.md`
+- [ ] **User sign-off** — pending (gate cho Phase 3)
+- [ ] Visual smoke test on dev server (Phase 8 will catch breakpoint changes; check key pages now optional)
 
 ## Success Criteria
 

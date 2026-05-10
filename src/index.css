@@ -1,10 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
+/* =============================================================
+   SMIT-OS DESIGN TOKENS — Phase 2 Foundation (2026-05-10)
+   Spec: docs/design-tokens-spec.md
+   Source of truth for all design decisions. Do NOT add ad-hoc
+   colors/sizes inline; extend tokens here instead.
+   ============================================================= */
 @theme {
+  /* ---------- Fonts ---------- */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-headline: "Manrope", sans-serif;
 
+  /* ---------- Brand colors (Material Design 3) — KEEP ---------- */
   --color-primary: #0059b6;
   --color-on-primary: #eff2ff;
   --color-primary-container: #68a0ff;
@@ -20,6 +28,7 @@
   --color-tertiary-container: #8df48e;
   --color-on-tertiary-container: #005c19;
 
+  /* ---------- Surface family ---------- */
   --color-surface: #f7f5ff;
   --color-on-surface: #222d51;
   --color-on-surface-variant: #505a81;
@@ -33,91 +42,164 @@
   --color-outline: #4a5580;
   --color-outline-variant: #a1abd7;
 
+  /* ---------- Status semantic colors (NEW Phase 2) ---------- */
+  --color-success: #009966;
+  --color-on-success: #ffffff;
+  --color-success-container: #d1fadf;
+  --color-on-success-container: #00432a;
+
+  --color-warning: #d97706;
+  --color-on-warning: #ffffff;
+  --color-warning-container: #fef3c7;
+  --color-on-warning-container: #78350f;
+
   --color-error: #b31b25;
+  --color-on-error: #ffffff;
   --color-error-container: #fb5151;
   --color-on-error-container: #570008;
 
-  --radius-DEFAULT: 0.5rem;   /* 8px */
-  --radius-lg: 0.75rem;     /* 12px */
-  --radius-xl: 1rem;       /* 16px */
-  --radius-2xl: 1.25rem;    /* 20px */
-  --radius-3xl: 1.5rem;     /* 24px */
+  --color-info: #0284c7;
+  --color-on-info: #ffffff;
+  --color-info-container: #e0f2fe;
+  --color-on-info-container: #0c4a6e;
 
-  /* Semantic tokens */
-  --radius-action: 1rem;      /* 16px - buttons, badges, chips */
-  --radius-container: 1.25rem; /* 20px - cards, modals */
+  /* ---------- Department colors (NEW Phase 2 — promoted to tokens) ---------- */
+  /* BOD refreshed to violet (was: same as Tech blue — indistinguishable) */
+  --color-dept-bod: #6e47ff;
+  --color-dept-tech: #0059b6;
+  --color-dept-marketing: #f54a00;
+  --color-dept-media: #e60076;
+  --color-dept-sale: #009966;
 
-  /* Breakpoints - Tailwind v4 auto-generates */
-  --breakpoint-xs: 375px;
-  --breakpoint-sm: 390px;
-  --breakpoint-md: 430px;
-  --breakpoint-tablet: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1440px;
-  --breakpoint-2xl: 1366px;
-  --breakpoint-3xl: 1920px;
-  --breakpoint-4xl: 2560px;
+  /* ---------- Typography scale (NEW Phase 2) ---------- */
+  /* Modular scale 1.25 (major third). Mobile-tuned, scales via html font-size. */
+  --text-caption: 0.6875rem;     /* 11px */
+  --text-label:   0.75rem;       /* 12px — small labels, badges */
+  --text-body-sm: 0.8125rem;     /* 13px */
+  --text-body:    0.875rem;      /* 14px — default body */
+  --text-body-lg: 1rem;          /* 16px */
+  --text-h6:      1.125rem;      /* 18px */
+  --text-h5:      1.25rem;       /* 20px */
+  --text-h4:      1.5rem;        /* 24px */
+  --text-h3:      1.875rem;      /* 30px */
+  --text-h2:      2.25rem;       /* 36px — page title */
+  --text-h1:      3rem;          /* 48px */
+  --text-display: 3.75rem;       /* 60px — hero */
 
-  /* Dynamic Spacing */
-  --space-xs: clamp(0.25rem, 0.5vw, 0.5rem);
-  --space-sm: clamp(0.5rem, 1vw, 0.75rem);
-  --space-md: clamp(0.75rem, 1.5vw, 1rem);
-  --space-lg: clamp(1rem, 2vw, 1.5rem);
-  --space-xl: clamp(1.5rem, 3vw, 2rem);
+  --leading-tight: 1.2;
+  --leading-snug:  1.35;
+  --leading-base:  1.5;
+  --leading-loose: 1.75;
+
+  --tracking-tight:   -0.02em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.02em;
+  --tracking-widest:  0.1em;
+
+  /* ---------- Spacing (clamp-based, responsive) — KEEP ---------- */
+  --space-xs:  clamp(0.25rem, 0.5vw, 0.5rem);
+  --space-sm:  clamp(0.5rem, 1vw, 0.75rem);
+  --space-md:  clamp(0.75rem, 1.5vw, 1rem);
+  --space-lg:  clamp(1rem, 2vw, 1.5rem);
+  --space-xl:  clamp(1.5rem, 3vw, 2rem);
   --space-2xl: clamp(2rem, 4vw, 3rem);
+  --space-3xl: clamp(3rem, 6vw, 4rem);
 
-  /* Touch Targets */
-  --touch-min: 44px;
-  --touch-comfort: 48px;
+  /* ---------- Radius scale (REDEFINED — semantic-first) ---------- */
+  /* Generic stops kept for migration window */
+  --radius-DEFAULT: 0.5rem;   /*  8px */
+  --radius-sm:      0.375rem; /*  6px */
+  --radius-md:      0.625rem; /* 10px */
+  --radius-lg:      0.75rem;  /* 12px */
+  --radius-xl:      1rem;     /* 16px */
+  --radius-2xl:     1.25rem;  /* 20px */
+  --radius-3xl:     1.5rem;   /* 24px */
+  --radius-full:    9999px;
 
-  /* Card Sizing */
+  /* Semantic — preferred for new code (per design system spec) */
+  --radius-input:  1rem;     /* 16px → input/select */
+  --radius-button: 9999px;   /* full pill — primary actions */
+  --radius-chip:   9999px;   /* full pill — badges/chips */
+  --radius-card:   1.5rem;   /* 24px → glass card / bento */
+  --radius-modal:  1.5rem;   /* 24px → modal/dialog */
+
+  /* ---------- Breakpoints (FIXED — Tailwind defaults) ---------- */
+  /* Phase 2 fix: drop custom xs/tablet/3xl/4xl, fix reversed xl/2xl. */
+  /* sm 640 → small phone landscape / phablet                       */
+  /* md 768 → tablet portrait                                        */
+  /* lg 1024 → tablet landscape / small laptop                       */
+  /* xl 1280 → desktop                                               */
+  /* 2xl 1536 → wide desktop                                         */
+  --breakpoint-sm:  640px;
+  --breakpoint-md:  768px;
+  --breakpoint-lg:  1024px;
+  --breakpoint-xl:  1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* ---------- Shadow scale (NEW Phase 2) ---------- */
+  --shadow-xs:  0 1px 2px 0 rgba(34, 45, 81, 0.05);
+  --shadow-sm:  0 1px 3px 0 rgba(34, 45, 81, 0.07), 0 1px 2px -1px rgba(34, 45, 81, 0.05);
+  --shadow-md:  0 4px 6px -1px rgba(34, 45, 81, 0.08), 0 2px 4px -2px rgba(34, 45, 81, 0.05);
+  --shadow-lg:  0 10px 15px -3px rgba(34, 45, 81, 0.1), 0 4px 6px -4px rgba(34, 45, 81, 0.05);
+  --shadow-xl:  0 20px 25px -5px rgba(34, 45, 81, 0.12), 0 8px 10px -6px rgba(34, 45, 81, 0.08);
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+  --shadow-focus: 0 0 0 3px rgba(0, 89, 182, 0.3); /* primary focus ring */
+
+  /* ---------- Motion tokens (NEW Phase 2) ---------- */
+  --duration-instant: 75ms;
+  --duration-fast:    150ms;
+  --duration-medium:  250ms;
+  --duration-slow:    400ms;
+  --duration-slower:  600ms;
+
+  --ease-standard:   cubic-bezier(0.2, 0, 0, 1);    /* Material standard */
+  --ease-decelerate: cubic-bezier(0, 0, 0, 1);      /* enter */
+  --ease-accelerate: cubic-bezier(0.3, 0, 1, 1);    /* exit */
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);    /* signature */
+
+  /* ---------- Z-index layers (NEW Phase 2) ---------- */
+  --z-base:        0;
+  --z-sticky:      10;   /* sticky table headers */
+  --z-sidebar:     20;
+  --z-header:      30;   /* top app bar */
+  --z-dropdown:    40;   /* select, menu */
+  --z-modal:       50;   /* dialog backdrop + content */
+  --z-toast:       60;   /* notification toasts (above modal) */
+  --z-tooltip:     70;   /* highest UI layer */
+
+  /* ---------- Touch targets (a11y) — KEEP ---------- */
+  --touch-min:     44px;  /* WCAG 2.1 minimum */
+  --touch-comfort: 48px;  /* recommended */
+
+  /* ---------- Card sizing — KEEP ---------- */
   --card-min: 280px;
   --card-max: 360px;
 
-  /* Layout */
-  --header-h: 4rem;
+  /* ---------- Layout — KEEP ---------- */
+  --header-h:  4rem;
   --content-h: calc(100dvh - var(--header-h));
 
-  /* Content Padding - synced with Header */
-  --content-px-mobile: 1rem;
-  --content-px-tablet: 2rem;
+  --content-px-mobile:  1rem;
+  --content-px-tablet:  2rem;
   --content-px-desktop: 2.5rem;
 
-  /* Page Block Spacing */
   --page-pt: 2rem;
   --page-pb: 1.5rem;
 }
 
+/* =============================================================
+   BASE LAYER
+   ============================================================= */
 @layer base {
-  /* Fluid typography scaling for responsive layouts (REM scales uniformly) */
+  /* Fluid root font-size — REM scales uniformly */
   html {
-    font-size: 13px; /* Mobile / Smallest devices */
+    font-size: 13px; /* Mobile */
   }
-  @media (min-width: 768px) {
-    html {
-      font-size: 13px; /* Tablet */
-    }
-  }
-  @media (min-width: 1024px) {
-    html {
-      font-size: 14px; /* Small laptops (1280x800, 1366x768) */
-    }
-  }
-  @media (min-width: 1440px) {
-    html {
-      font-size: 15px; /* Medium laptops (Macbook Pro 14", 1440px logic res) */
-    }
-  }
-  @media (min-width: 1600px) {
-    html {
-      font-size: 16px; /* Standard 1080p, smaller 2K */
-    }
-  }
-  @media (min-width: 1920px) {
-    html {
-      font-size: 17px; /* 2K and 4K Screens */
-    }
-  }
+  @media (min-width: 768px)  { html { font-size: 13px; } } /* Tablet */
+  @media (min-width: 1024px) { html { font-size: 14px; } } /* Small laptop */
+  @media (min-width: 1280px) { html { font-size: 15px; } } /* Desktop (md laptop) */
+  @media (min-width: 1536px) { html { font-size: 16px; } } /* 1080p */
+  @media (min-width: 1920px) { html { font-size: 17px; } } /* 2K+ */
 
   body {
     @apply bg-surface text-on-surface font-sans antialiased;
@@ -127,13 +209,11 @@
     @apply font-headline;
   }
 
-  html,
-  body,
-  * {
+  /* Hidden scrollbars — cross-browser */
+  html, body, * {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-
   html::-webkit-scrollbar,
   body::-webkit-scrollbar,
   *::-webkit-scrollbar {
@@ -142,8 +222,28 @@
     display: none;
     background: transparent;
   }
+
+  /* A11y: respect reduced-motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Focus-visible ring (keyboard nav) — token-driven */
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+    border-radius: inherit;
+  }
 }
 
+/* =============================================================
+   UTILITIES LAYER
+   ============================================================= */
 @layer utilities {
   .scrollbar-hide {
     -ms-overflow-style: none;
@@ -162,17 +262,11 @@
     padding-inline: var(--content-px-mobile);
     padding-block: var(--page-pt) var(--page-pb);
   }
-
-  @media (min-width: 430px) {
-    .page-padding {
-      padding-inline: var(--content-px-tablet);
-    }
+  @media (min-width: 768px) {
+    .page-padding { padding-inline: var(--content-px-tablet); }
   }
-
-  @media (min-width: 1440px) {
-    .page-padding {
-      padding-inline: var(--content-px-desktop);
-    }
+  @media (min-width: 1280px) {
+    .page-padding { padding-inline: var(--content-px-desktop); }
   }
 
   .page-scrollable {
@@ -192,8 +286,22 @@
   }
 
   .transition-layout {
-    transition: all 0.2s ease-out;
+    transition: all var(--duration-medium) var(--ease-standard);
   }
+
+  /* Token-driven motion utilities */
+  .motion-fast    { transition-duration: var(--duration-fast); }
+  .motion-medium  { transition-duration: var(--duration-medium); }
+  .motion-slow    { transition-duration: var(--duration-slow); }
+  .ease-standard  { transition-timing-function: var(--ease-standard); }
+
+  /* Z-index helpers */
+  .z-sidebar  { z-index: var(--z-sidebar); }
+  .z-header   { z-index: var(--z-header); }
+  .z-dropdown { z-index: var(--z-dropdown); }
+  .z-modal    { z-index: var(--z-modal); }
+  .z-toast    { z-index: var(--z-toast); }
+  .z-tooltip  { z-index: var(--z-tooltip); }
 }
 
 /* Safari iOS fallback for dvh */
@@ -206,8 +314,8 @@
   }
 }
 
-/* Tablet-specific adjustments (768px - 1439px) */
-@media (min-width: 768px) and (max-width: 1439px) {
+/* Tablet-specific adjustments (768px - 1279px) — pre-desktop refinements */
+@media (min-width: 768px) and (max-width: 1279px) {
   h1 { font-size: clamp(1.5rem, 4vw, 2rem); }
   h2 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
   h3 { font-size: clamp(1rem, 2.5vw, 1.25rem); }
@@ -226,12 +334,16 @@
   }
 }
 
+/* =============================================================
+   COMPONENTS LAYER (canonical class shortcuts)
+   ============================================================= */
 @layer components {
   .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     @apply inline-block align-middle;
   }
 
+  /* Glass surfaces — primary container patterns */
   .glass-panel {
     @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-sm;
   }
@@ -239,17 +351,15 @@
   .glass-card {
     @apply bg-white/40 backdrop-blur-md border border-white/20 shadow-sm transition-all duration-300;
   }
-
   .glass-card:hover {
     @apply bg-white/60 shadow-md;
   }
 
+  /* Brand gradients */
   .soft-gradient {
     background: linear-gradient(135deg, #0059b6 0%, #68a0ff 100%);
   }
-
   .coral-gradient {
     background: linear-gradient(135deg, #a03a0f 0%, #ffc4b1 100%);
   }
 }
-

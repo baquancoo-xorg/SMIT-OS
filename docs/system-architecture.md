@@ -225,6 +225,10 @@ Configured in `server.ts` (hardened 2026-04-28):
 
 ## Frontend UI Architecture
 
+### Design Token Foundation (Phase 2 — 2026-05-10)
+
+CSS custom properties now centralize all design decisions: semantic colors (8 scales), department colors (BOD refreshed), spacing, radius, typography, shadow, motion, z-index. Source of truth: `src/index.css` + `docs/design-tokens-spec.md`. Usage guidelines: `docs/design-system-foundation.md`.
+
 ### Route Map (as of 2026-05-10)
 
 Final routes: `/`, `/dashboard` (landing), `/okrs`, `/daily-sync`, `/checkin`, `/lead-tracker`, `/settings`, `/profile`. Wildcard routes redirect to `/dashboard` (changed from `/ads-overview` in v2.3.1).

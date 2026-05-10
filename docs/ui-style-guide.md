@@ -1,5 +1,11 @@
 # UI Style Guide
 
+> **⚠️ DEPRECATED (Phase 2, 2026-05-10):** This document is being superseded by the Design System Foundation. New projects and updates should reference:
+> - **Token reference:** [`docs/design-tokens-spec.md`](./design-tokens-spec.md) — semantic colors, spacing, typography, shadows, motion, z-index
+> - **Usage rules + a11y:** [`docs/design-system-foundation.md`](./design-system-foundation.md) — patterns, accessibility, motion guidelines
+>
+> This guide will be comprehensively rewritten in Phase 8 once component library and mockups are finalized. Existing patterns remain valid for backward compatibility.
+
 > Last updated: 2026-05-10
 > **Source of truth: `src/pages/OKRsManagement.tsx`** — trang đầu tiên được build, style chuẩn nhất của dự án.
 >
