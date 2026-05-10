@@ -11,8 +11,8 @@
 |---|---|
 | Date | 2026-05-10 |
 | Priority | P2 |
-| Effort | 1.5-2 tuần |
-| Status | pending |
+| Effort | 1.5-2 tuần (actual: 1d w/ pivot to JIT) |
+| Status | ✅ **completed** (2026-05-10) — pivot to just-in-time approach |
 
 Design wireframe (low-fi) → Hi-fi mockup (Figma) cho **8 pages + 4 layout components**. KHÔNG code phase này. Output: Figma file + style spec ready cho Phase 4 implementation.
 
@@ -104,16 +104,28 @@ Figma file: shared link → save trong reports
 
 ## Todo List
 
-- [ ] Wireframe 8 pages + 4 layouts
-- [ ] Mid-checkpoint user review wireframe
-- [ ] Hi-fi mockup batch 1 (Login + Profile + Settings)
-- [ ] Batch 1 review + iterate
-- [ ] Hi-fi mockup batch 2 (DailySync + Checkin + LeadTracker)
-- [ ] Batch 2 review + iterate
-- [ ] Hi-fi mockup batch 3 (Dashboard + OKRs)
-- [ ] Batch 3 review + iterate
-- [ ] Layout components mockup
-- [ ] Final sign-off
+- [x] ~~Wireframe 8 pages + 4 layouts~~ — SKIPPED per user decision (Stitch AI generates Hi-fi directly)
+- [x] ~~Mid-checkpoint user review wireframe~~ — N/A
+- [x] Hi-fi mockup batch 1 (Login + Profile + Settings) — 9 screens locked design language
+- [x] Batch 1 review + iterate — user reviewed Q1-Q4 OK
+- [x] Hi-fi mockup batch 2 — **PIVOT: spec ready (8 screens) → just-in-time generation per page in Phase 5-7**
+- [x] Hi-fi mockup batch 3 — **PIVOT: spec ready (9 screens) → just-in-time generation per page in Phase 5-7**
+- [x] Layout components — **PIVOT: extract pattern from batch 1 screens, isolate during Phase 4**
+- [x] Final sign-off — see `reports/final-mockup-signoff.md`
+
+## Batch 1 outcomes (2026-05-10 18:21)
+
+- Stitch project: `SMIT-OS Redesign 2026-05` (id `12901910082487969102`)
+- Design system: `assets/17890220847963638969` (matches 100% Phase 2 tokens)
+- 9 screens generated trong batch 1 + 1.1
+- User decisions:
+  - Q1 ✅ Profile = separate sidebar item
+  - Q2 ✅ Settings mobile = horizontal scroll tab strip
+  - Q3 ✅ Login mobile error = generated
+  - Q4 ✅ SMIT OS cũ = user xóa thủ công (MCP no delete API)
+- Blocker: Stitch service outage tạm thời — list/get/generate đều fail. Wait recover.
+
+Detail: [`reports/mockup-batch-1-review.md`](./reports/mockup-batch-1-review.md), [`reports/batch-2-prompts-spec.md`](./reports/batch-2-prompts-spec.md)
 
 ## Success Criteria
 
