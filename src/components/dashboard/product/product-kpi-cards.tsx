@@ -3,6 +3,7 @@
 import { useProductSummary } from '../../../hooks/use-product-dashboard';
 import type { DateRange } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
+import { Skeleton } from '../../ui/v2';
 
 interface ProductKpiCardsProps {
   range: DateRange;
@@ -21,12 +22,12 @@ export function ProductKpiCards({ range }: ProductKpiCardsProps) {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-8">
         {[...Array(8)].map((_, i) => (
-          <DashboardPanel key={i} className="p-4 animate-pulse">
-            <div className="h-3 bg-slate-200 rounded w-20 mb-2" />
-            <div className="h-7 bg-slate-200 rounded w-16 mb-1" />
-            <div className="h-3 bg-slate-100 rounded w-24" />
+          <DashboardPanel key={i} className="p-4">
+            <Skeleton variant="text" width="80%" className="mb-2" />
+            <Skeleton variant="text" width="60%" className="mb-1 h-7" />
+            <Skeleton variant="text" width="90%" />
           </DashboardPanel>
         ))}
       </div>
@@ -35,7 +36,7 @@ export function ProductKpiCards({ range }: ProductKpiCardsProps) {
 
   if (error || !data) {
     return (
-      <DashboardPanel className="p-6 text-sm text-slate-500">
+      <DashboardPanel className="p-6 text-[length:var(--text-body-sm)] text-on-surface-variant">
         Không thể tải KPI metrics
       </DashboardPanel>
     );
@@ -65,29 +66,27 @@ export function ProductKpiCards({ range }: ProductKpiCardsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-8">
       {kpis.map((kpi) => (
         <div key={kpi.label} title={kpi.tooltip}>
           <DashboardPanel
-            className={`p-4 ${
-              kpi.highlight ? 'ring-2 ring-sky-500 bg-sky-50/60' : ''
-            }`}
+            className={`p-4 ${kpi.highlight ? 'bg-info-container/30 ring-2 ring-info' : ''}`}
           >
             <p
-              className={`text-[10px] font-black uppercase tracking-widest ${
-                kpi.highlight ? 'text-sky-700' : 'text-slate-400'
+              className={`text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] ${
+                kpi.highlight ? 'text-on-info-container' : 'text-on-surface-variant'
               }`}
             >
               {kpi.label}
             </p>
             <p
-              className={`text-2xl font-black mt-1 tabular-nums ${
-                kpi.highlight ? 'text-sky-900' : 'text-slate-700'
+              className={`mt-1 font-headline text-[length:var(--text-h5)] font-bold tabular-nums ${
+                kpi.highlight ? 'text-info' : 'text-on-surface'
               }`}
             >
               {kpi.value}
             </p>
-            <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">{kpi.desc}</p>
+            <p className="mt-0.5 text-[length:var(--text-caption)] font-medium italic text-on-surface-variant">{kpi.desc}</p>
           </DashboardPanel>
         </div>
       ))}

@@ -153,6 +153,14 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Sub-component migration — Batch 15 done 2026-05-11
+
+2 dashboard files:
+- [x] `dashboard/acquisition-overview/acquisition-overview-tab.tsx` (105 LOC) → Spinner v2 + EmptyState v2 + token modernization. 8 KpiBand cells (Reach/Clicks/Visits/Leads/Trials/Active/Paid/Revenue) giữ stage-specific brand tints (3 stages Pre/In/Post — không map sang v2 Badge semantic 5 variants được).
+- [x] `dashboard/product/product-kpi-cards.tsx` (96 LOC) — Skeleton v2 cho loading state. Token typography. Pre-PQL Rate highlight → info-container surface với info text (was sky brand). Removed inline animate-pulse + manual `div` skeleton blocks.
+
+vite build clean 2.13s ✓
+
 ### Sub-component migration — Batch 14 done 2026-05-11
 
 2 dashboard files:
