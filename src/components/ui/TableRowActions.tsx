@@ -36,7 +36,7 @@ export function TableRowActions({
           type="button"
           onClick={onView}
           aria-label="View"
-          className={`${paddingClass} ${buttonClassName} text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all`}
+          className={`${paddingClass} ${buttonClassName} text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-chip transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35`}
         >
           <Eye size={iconSize} />
         </button>
@@ -47,7 +47,7 @@ export function TableRowActions({
           type="button"
           onClick={onEdit}
           aria-label="Edit"
-          className={`${paddingClass} ${buttonClassName} text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all`}
+          className={`${paddingClass} ${buttonClassName} text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-chip transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35`}
         >
           <Edit2 size={iconSize} />
         </button>
@@ -58,7 +58,7 @@ export function TableRowActions({
           type="button"
           onClick={onDelete}
           aria-label="Delete"
-          className={`${paddingClass} ${buttonClassName} text-slate-400 hover:text-error hover:bg-error/5 rounded-lg transition-all`}
+          className={`${paddingClass} ${buttonClassName} text-on-surface-variant hover:text-error hover:bg-error/5 rounded-chip transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error/35`}
         >
           <Trash2 size={iconSize} />
         </button>

@@ -37,30 +37,28 @@ export default function CustomSelect<T = string>({
         <div className={`relative ${className}`}>
           <ListboxButton
             className={`
-              w-full flex items-center justify-between gap-2
-              px-4 py-3 rounded-3xl
-              bg-white border border-slate-200
-              hover:border-slate-300
-              focus:border-primary focus:ring-2 focus:ring-primary/20
-              outline-none transition-all
-              text-sm font-medium
-              ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+              flex w-full items-center justify-between gap-2
+              rounded-card border border-outline-variant/40 bg-surface px-4 py-3
+              text-[length:var(--text-body-sm)] font-medium
+              outline-none transition-colors
+              hover:border-outline focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/35
+              ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
             `}
           >
             <span className="flex items-center gap-2 truncate">
-              {icon && <span className="text-primary flex-shrink-0">{icon}</span>}
+              {icon && <span className="flex-shrink-0 text-primary">{icon}</span>}
               {selectedOption?.icon && (
                 <span className={`flex-shrink-0 ${selectedOption.iconColor || ''}`}>
                   {selectedOption.icon}
                 </span>
               )}
-              <span className={selectedOption ? 'text-slate-800' : 'text-slate-400'}>
+              <span className={selectedOption ? 'text-on-surface' : 'text-on-surface-variant/70'}>
                 {selectedOption?.label || placeholder}
               </span>
             </span>
             <ChevronDown
               size={16}
-              className={`text-slate-400 flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
+              className={`flex-shrink-0 text-on-surface-variant transition-transform ${open ? 'rotate-180' : ''}`}
             />
           </ListboxButton>
 
@@ -74,18 +72,17 @@ export default function CustomSelect<T = string>({
               >
               <ListboxOptions
                 static
-                className="absolute z-50 w-full mt-2 bg-white rounded-3xl shadow-lg overflow-hidden max-h-60 overflow-y-auto"
+                className="absolute z-50 mt-2 max-h-60 w-full overflow-hidden overflow-y-auto rounded-card border border-outline-variant/40 bg-surface shadow-lg"
               >
                 {options.map((option) => (
                   <ListboxOption key={String(option.value)} value={option.value} as={Fragment}>
                     {({ selected, focus }) => (
                       <div
                         className={`
-                          flex items-center justify-between gap-2
-                          px-4 py-2.5 cursor-pointer
-                          text-sm font-medium transition-colors
-                          ${focus ? 'bg-slate-50' : ''}
-                          ${selected ? 'text-primary bg-primary/5' : 'text-slate-700'}
+                          flex cursor-pointer items-center justify-between gap-2
+                          px-4 py-2.5 text-[length:var(--text-body-sm)] font-medium transition-colors
+                          ${focus ? 'bg-surface-variant/40' : ''}
+                          ${selected ? 'bg-primary/5 text-primary' : 'text-on-surface'}
                         `}
                       >
                         <span className="flex items-center gap-2 truncate">

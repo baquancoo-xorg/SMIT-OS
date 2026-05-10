@@ -94,18 +94,18 @@ export default function DatePicker({ value, onChange, placeholder = 'Chọn ngà
         disabled={disabled}
         onClick={() => { if (!disabled) { reposition(); setOpen((v) => !v); } }}
         className={isDark
-          ? `flex items-center gap-2 h-9 px-3 rounded-full bg-black/20 border border-white/20
-              hover:bg-black/30 hover:border-white/40 transition-all text-[11px] font-bold
-              focus:outline-none focus:ring-2 focus:ring-white/20 ${className}`
-          : `flex items-center gap-2 h-9 px-3 rounded-full bg-slate-100/50 border border-transparent
-              hover:bg-white hover:border-primary/20 transition-all text-[11px] font-bold text-slate-600
-              focus:outline-none focus:ring-2 focus:ring-primary/20 ${className}`
+          ? `flex items-center gap-2 h-9 px-3 rounded-chip bg-on-surface/20 border border-on-primary/20
+              hover:bg-on-surface/30 hover:border-on-primary/40 transition-colors text-[length:var(--text-caption)] font-semibold
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-primary/20 ${className}`
+          : `flex items-center gap-2 h-9 px-3 rounded-chip bg-surface-variant/50 border border-transparent
+              hover:bg-surface hover:border-primary/20 transition-colors text-[length:var(--text-caption)] font-semibold text-on-surface-variant
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 ${className}`
         }
       >
-        <Calendar size={13} className={isDark ? 'text-white/60' : 'text-slate-400'} />
+        <Calendar size={13} className={isDark ? 'text-on-primary/60' : 'text-on-surface-variant'} />
         <span className={isDark
-          ? (selected ? 'text-white font-bold' : 'text-white/60')
-          : (selected ? 'text-slate-700' : 'text-slate-400')
+          ? (selected ? 'text-on-primary font-semibold' : 'text-on-primary/60')
+          : (selected ? 'text-on-surface' : 'text-on-surface-variant/70')
         }>{label}</span>
       </button>
 
@@ -119,25 +119,25 @@ export default function DatePicker({ value, onChange, placeholder = 'Chọn ngà
               exit={{ opacity: 0, y: -6, scale: 0.97 }}
               transition={{ duration: 0.15 }}
               style={{ top: pos.top, left: pos.left }}
-              className="fixed z-[300] w-72 bg-white rounded-3xl shadow-2xl shadow-slate-200/60 border border-slate-100 p-4"
+              className="fixed z-[300] w-72 rounded-card border border-outline-variant/40 bg-surface p-4 shadow-2xl"
             >
               {/* Month nav */}
-              <div className="flex items-center justify-between mb-3">
-                <button onClick={() => setMonth((m) => subMonths(m, 1))} className="p-1.5 rounded-xl hover:bg-slate-100 transition-colors">
-                  <ChevronLeft size={14} className="text-slate-500" />
+              <div className="mb-3 flex items-center justify-between">
+                <button onClick={() => setMonth((m) => subMonths(m, 1))} className="rounded-chip p-1.5 transition-colors hover:bg-surface-variant/40">
+                  <ChevronLeft size={14} className="text-on-surface-variant" />
                 </button>
-                <span className="text-xs font-black text-slate-700 uppercase tracking-widest capitalize">
+                <span className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface capitalize">
                   {monthLabel}
                 </span>
-                <button onClick={() => setMonth((m) => addMonths(m, 1))} className="p-1.5 rounded-xl hover:bg-slate-100 transition-colors">
-                  <ChevronRight size={14} className="text-slate-500" />
+                <button onClick={() => setMonth((m) => addMonths(m, 1))} className="rounded-chip p-1.5 transition-colors hover:bg-surface-variant/40">
+                  <ChevronRight size={14} className="text-on-surface-variant" />
                 </button>
               </div>
 
               {/* DOW header */}
-              <div className="grid grid-cols-7 mb-1">
+              <div className="mb-1 grid grid-cols-7">
                 {DOW.map((d) => (
-                  <div key={d} className="text-center text-[10px] font-black text-slate-400 uppercase tracking-wider py-1">{d}</div>
+                  <div key={d} className="py-1 text-center text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">{d}</div>
                 ))}
               </div>
 
@@ -152,11 +152,11 @@ export default function DatePicker({ value, onChange, placeholder = 'Chọn ngà
                       key={day.toISOString()}
                       onClick={() => select(day)}
                       className={`
-                        aspect-square w-full flex items-center justify-center rounded-xl text-xs font-bold transition-all
-                        ${isSel ? 'bg-primary text-white shadow-md shadow-primary/30' : ''}
-                        ${isNow && !isSel ? 'ring-2 ring-primary/40 text-primary font-black' : ''}
-                        ${!isSel && isCurrentMonth ? 'text-slate-700 hover:bg-primary/10 hover:text-primary' : ''}
-                        ${!isCurrentMonth ? 'text-slate-300 hover:bg-slate-50' : ''}
+                        flex aspect-square w-full items-center justify-center rounded-chip text-[length:var(--text-body-sm)] font-semibold transition-colors
+                        ${isSel ? 'bg-primary text-on-primary shadow-md shadow-primary/30' : ''}
+                        ${isNow && !isSel ? 'ring-2 ring-primary/40 text-primary' : ''}
+                        ${!isSel && isCurrentMonth ? 'text-on-surface hover:bg-primary/10 hover:text-primary' : ''}
+                        ${!isCurrentMonth ? 'text-on-surface-variant/40 hover:bg-surface-variant/40' : ''}
                       `}
                     >
                       {format(day, 'd')}
@@ -166,16 +166,16 @@ export default function DatePicker({ value, onChange, placeholder = 'Chọn ngà
               </div>
 
               {/* Footer */}
-              <div className="flex justify-between mt-3 pt-3 border-t border-slate-100">
+              <div className="mt-3 flex justify-between border-t border-outline-variant/40 pt-3">
                 <button
                   onClick={() => { onChange(''); setOpen(false); }}
-                  className="text-[11px] font-black text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors"
+                  className="text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant transition-colors hover:text-on-surface"
                 >
                   Xóa
                 </button>
                 <button
                   onClick={() => select(new Date())}
-                  className="text-[11px] font-black text-primary hover:text-primary/70 uppercase tracking-widest transition-colors"
+                  className="text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-primary transition-colors hover:text-primary/70"
                 >
                   Hôm nay
                 </button>
