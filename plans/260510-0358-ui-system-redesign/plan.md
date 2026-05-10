@@ -196,7 +196,7 @@ See [`reports/current-tokens-inventory.md`](./reports/current-tokens-inventory.m
 | 2 | Design System Foundation (tokens + color + typography) | 1-1.5w | **completed** (2026-05-10) | [phase-02-design-system-foundation.md](./phase-02-design-system-foundation.md) |
 | 3 | Wireframe + Hi-fi Mockup (Stitch AI) | 1.5-2w | **completed** (2026-05-10, pivot to JIT) | [phase-03-wireframe-mockup.md](./phase-03-wireframe-mockup.md) |
 | 4 | Component Library Implementation | 1-1.5w | **implementation_done** (25 components shipped 2026-05-10, pending: user review for Phase 5 sign-off) | [phase-04-component-library.md](./phase-04-component-library.md) |
-| 5 | Pages Redesign — Auth/Profile/Settings (5 sub-tabs) | 1.5w | pending | [phase-05-pages-small.md](./phase-05-pages-small.md) |
+| 5 | Pages Redesign — Auth/Profile/Settings (5 sub-tabs) | 1.5w | **in_progress** (Batch 1: 3 page shells + ?v=2 toggle 2026-05-10) | [phase-05-pages-small.md](./phase-05-pages-small.md) |
 | 6 | Pages Redesign — DailySync/WeeklyCheckin/LeadTracker/MediaTracker/AdsTracker | 2.5-3w | pending | [phase-06-pages-medium.md](./phase-06-pages-medium.md) |
 | 7 | Pages Redesign — Dashboard/OKRs (hardest, most LOC) | 1.5-2w | pending | [phase-07-pages-large.md](./phase-07-pages-large.md) |
 | 8 | Polish + Migration + Documentation | 5-7d | pending | [phase-08-polish-migration.md](./phase-08-polish-migration.md) |

@@ -4,10 +4,11 @@
  */
 
 import { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useSearchParams } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout';
 import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ToastProvider } from './components/ui/v2';
 
 const OKRsManagement = lazy(() => import('./pages/OKRsManagement'));
 const WeeklyCheckin = lazy(() => import('./pages/WeeklyCheckin'));
@@ -19,6 +20,11 @@ const LeadTracker = lazy(() => import('./pages/LeadTracker'));
 const MediaTracker = lazy(() => import('./pages/MediaTracker'));
 const AdsTracker = lazy(() => import('./pages/AdsTracker'));
 
+// Phase 5 v2 page migrations — opt-in via `?v=2` query param.
+const ProfileV2 = lazy(() => import('./pages/v2/Profile'));
+const LoginPageV2 = lazy(() => import('./pages/v2/LoginPage'));
+const SettingsV2 = lazy(() => import('./pages/v2/Settings'));
+
 function PageLoader() {
   return (
     <div className="h-full w-full flex items-center justify-center bg-slate-50">
@@ -27,8 +33,19 @@ function PageLoader() {
   );
 }
 
+/**
+ * `?v=2` query param flips routes to v2 implementations.
+ * Use for preview/A/B testing during Phase 5-7 migration. Param sticks while
+ * navigating because react-router preserves search by default on `<Link>`.
+ */
+function useIsV2() {
+  const [params] = useSearchParams();
+  return params.get('v') === '2';
+}
+
 function AppContent() {
   const { currentUser, loading, logout } = useAuth();
+  const isV2 = useIsV2();
 
   if (loading) {
     return (
@@ -39,7 +56,13 @@ function AppContent() {
   }
 
   if (!currentUser) {
-    return <LoginPage />;
+    return isV2 ? (
+      <Suspense fallback={<PageLoader />}>
+        <LoginPageV2 />
+      </Suspense>
+    ) : (
+      <LoginPage />
+    );
   }
 
   return (
@@ -54,8 +77,8 @@ function AppContent() {
           <Route path="/lead-tracker" element={<LeadTracker />} />
           <Route path="/media-tracker" element={<MediaTracker />} />
           <Route path="/ads-tracker" element={<AdsTracker />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={isV2 ? <SettingsV2 /> : <Settings />} />
+          <Route path="/profile" element={isV2 ? <ProfileV2 /> : <Profile />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Suspense>
@@ -66,7 +89,9 @@ function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
     </AuthProvider>
   );
 }

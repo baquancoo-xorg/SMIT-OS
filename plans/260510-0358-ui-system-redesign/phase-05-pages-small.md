@@ -13,7 +13,7 @@
 | Date | 2026-05-10 |
 | Priority | P2 |
 | Effort | 1.5 tuần (expanded) |
-| Status | pending |
+| Status | in_progress (Batch 1: Profile + Login + Settings shell done 2026-05-10) |
 
 Redesign 3 small pages trước (Login, Profile, Settings) để **validate design system + component library** trên scope nhỏ trước khi vào pages phức tạp hơn. Nếu phát hiện component thiếu/sai → fix Phase 4 trước khi tiến tiếp.
 
@@ -95,17 +95,22 @@ src/App.tsx                    (route swap khi user OK)
 
 ## Todo List
 
-- [ ] Build LoginPage v2 (2-3d)
-- [ ] Build Profile v2 (1d)
-- [ ] Build Settings shell + tabs nav (0.5d)
-- [ ] Build Settings/Profile sub-tab (0.5d)
-- [ ] Build Settings/Users sub-tab (1d)
-- [ ] Build Settings/OKR Cycles sub-tab (0.5d)
-- [ ] Build Settings/FB Config sub-tab (1d)
-- [ ] Build Settings/Sheets Export sub-tab (0.5d)
-- [ ] Per-page checklist pass
-- [ ] User review 3 pages + 5 Settings sub-tabs
+- [x] Build LoginPage v2 → `src/pages/v2/LoginPage.tsx` (preserves 2FA flow + auth context)
+- [x] Build Profile v2 → `src/pages/v2/Profile.tsx`
+- [x] Build Settings shell + tabs nav → `src/pages/v2/Settings.tsx` (TabPill + ConfirmDialog v2, sub-tab content reuses v1)
+- [x] Wire `?v=2` toggle in `src/App.tsx` + global ToastProvider
+- [ ] Build Settings/Profile sub-tab content v2 (defer batch 2)
+- [ ] Build Settings/Users sub-tab content v2 (defer batch 2)
+- [ ] Build Settings/OKR Cycles sub-tab content v2 (defer batch 2)
+- [ ] Build Settings/FB Config sub-tab content v2 (defer batch 2)
+- [ ] Build Settings/Sheets Export sub-tab content v2 (defer batch 2)
+- [ ] Per-page checklist pass (manual smoke + Lighthouse)
+- [ ] User review 3 pages → sign-off
 - [ ] Component fix-back (nếu phát hiện thiếu)
+
+## Progress Log
+
+- **Batch 1 (2026-05-10)** — Profile + LoginPage + Settings shell migrated to v2 namespace. `?v=2` toggle wired. Sub-tab content blocks reuse v1. See `reports/phase-05-batch-1-profile-login-settings-shell.md`.
 
 ## Success Criteria
 
