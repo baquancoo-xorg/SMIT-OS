@@ -20,11 +20,11 @@ export default function CallPerformanceSection({ from, to }: Props) {
       </DashboardSectionTitle>
 
       {isLoading ? (
-        <DashboardPanel className="p-6 text-sm text-slate-500">
+        <DashboardPanel className="p-6 text-[length:var(--text-body-sm)] text-on-surface-variant">
           Đang tải dữ liệu call performance...
         </DashboardPanel>
       ) : error ? (
-        <DashboardPanel className="p-6 text-sm text-rose-600">
+        <DashboardPanel className="p-6 text-[length:var(--text-body-sm)] text-error">
           Lỗi tải dữ liệu: {(error as Error).message}
         </DashboardPanel>
       ) : (

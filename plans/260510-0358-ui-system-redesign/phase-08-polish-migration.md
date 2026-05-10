@@ -153,6 +153,18 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Sub-component migration — Batch 11 done 2026-05-11
+
+4 dashboard files (section wrappers + per-table headers):
+- [x] `dashboard/call-performance/call-performance-section.tsx` (40 LOC) — text colors → semantic tokens (text-on-surface-variant, text-error)
+- [x] `dashboard/lead-distribution/lead-distribution-section.tsx` (47 LOC) → v2 GlassCard + Spinner + EmptyState. Fix `rounded-2xl` legacy → `rounded-card`. Loading skeleton wrappers consolidated vào LoadingPanel helper.
+- [x] `dashboard/call-performance/call-performance-conversion.tsx` (51 LOC) — h3/p title tokens + rounded-2xl → rounded-card
+- [x] `dashboard/call-performance/call-performance-ae-table.tsx` (57 LOC) — h3/p title tokens + rounded-2xl → rounded-card
+
+Pattern: legacy `text-xs font-black uppercase tracking-widest text-slate-400` → token-driven `text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant`. Same pattern reusable cho remaining dashboard sub-components.
+
+vite build clean 2.31s ✓
+
 ### Sub-component migration — Batch 10 done 2026-05-11
 
 4 dashboard/ui small files (≤23 LOC each) migrated to v2 primitives:

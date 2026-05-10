@@ -13,7 +13,7 @@ export default function CallPerformanceConversion({ data }: Props) {
 
   if (data.length === 0) {
     return (
-      <DashboardPanel className="p-6 text-sm text-slate-500">
+      <DashboardPanel className="p-6 text-[length:var(--text-body-sm)] text-on-surface-variant">
         Không có dữ liệu chuyển đổi cuộc gọi trong khoảng thời gian này.
       </DashboardPanel>
     );
@@ -22,11 +22,11 @@ export default function CallPerformanceConversion({ data }: Props) {
   return (
     <DashboardPanel className="overflow-hidden p-4 md:p-5">
       <div className="mb-3">
-        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Call-to-Status Conversion</h3>
-        <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">Số cuộc gọi cần thiết trước khi lead Qualified / Unqualified</p>
+        <h3 className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">Call-to-Status Conversion</h3>
+        <p className="mt-0.5 text-[length:var(--text-caption)] font-medium italic text-on-surface-variant">Số cuộc gọi cần thiết trước khi lead Qualified / Unqualified</p>
       </div>
 
-      <TableShell variant="dense" className="rounded-2xl border border-slate-100" scrollClassName="overflow-x-auto" tableClassName="min-w-[760px]">
+      <TableShell variant="dense" className="rounded-card border border-outline-variant/40" scrollClassName="overflow-x-auto" tableClassName="min-w-[760px]">
         <thead>
           <tr className={denseTable.headerRow}>
             <th className={`${denseTable.headerCell} text-left`}>AE</th>
