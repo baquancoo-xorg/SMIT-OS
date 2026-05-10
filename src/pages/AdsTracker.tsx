@@ -11,25 +11,25 @@ import {
   Users,
   Calculator,
 } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import CampaignsTable from '../../components/ads-tracker/campaigns-table';
-import SpendChart from '../../components/ads-tracker/spend-chart';
-import AttributionTable from '../../components/ads-tracker/attribution-table';
+import { useAuth } from '../contexts/AuthContext';
+import CampaignsTable from '../components/ads-tracker/campaigns-table';
+import SpendChart from '../components/ads-tracker/spend-chart';
+import AttributionTable from '../components/ads-tracker/attribution-table';
 import {
   useAdsCampaignsQuery,
   useAdsAttributionQuery,
   useAdsAttributionUnmatchedQuery,
   useTriggerAdsSyncMutation,
-} from '../../hooks/use-ads-tracker';
-import { exportAdsCampaignsToCsv, exportAdsAttributionToCsv } from '../../components/ads-tracker/csv-export';
+} from '../hooks/use-ads-tracker';
+import { exportAdsCampaignsToCsv, exportAdsAttributionToCsv } from '../components/ads-tracker/csv-export';
 import {
   PageHeader,
   Button,
   TabPill,
   KpiCard,
   GlassCard,
-} from '../../components/ui/v2';
-import type { TabPillItem } from '../../components/ui/v2';
+} from '../components/ui/v2';
+import type { TabPillItem } from '../components/ui/v2';
 
 type Tab = 'campaigns' | 'performance' | 'attribution';
 

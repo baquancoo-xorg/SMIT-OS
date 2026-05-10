@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Download, RefreshCw, Plus, Users, Target, Facebook, UserCircle, FileSpreadsheet } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import {
   ProfileTabV2,
   UserManagementTabV2,
   OkrCyclesTabV2,
   FbConfigTabV2,
   SheetsExportTabV2,
-} from '../../components/settings/v2';
-import { PageHeader, TabPill, Button, ConfirmDialog } from '../../components/ui/v2';
-import type { TabPillItem } from '../../components/ui/v2';
+} from '../components/settings/v2';
+import { PageHeader, TabPill, Button, ConfirmDialog } from '../components/ui/v2';
+import type { TabPillItem } from '../components/ui/v2';
 
 type SettingsTabId = 'profile' | 'users' | 'okrs' | 'fb-config' | 'export';
 

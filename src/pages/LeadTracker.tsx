@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { format, startOfMonth } from 'date-fns';
 import { List, BarChart2, Download, RefreshCw, Users } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import LeadLogsTab from '../../components/lead-tracker/lead-logs-tab';
-import DailyStatsTab from '../../components/lead-tracker/daily-stats-tab';
-import { exportAllLeadsToCsv } from '../../components/lead-tracker/csv-export';
-import LastSyncIndicator from '../../components/lead-tracker/last-sync-indicator';
-import { useSyncNowMutation, useSyncStatusQuery } from '../../hooks/use-lead-sync';
+import { useAuth } from '../contexts/AuthContext';
+import LeadLogsTab from '../components/lead-tracker/lead-logs-tab';
+import DailyStatsTab from '../components/lead-tracker/daily-stats-tab';
+import { exportAllLeadsToCsv } from '../components/lead-tracker/csv-export';
+import LastSyncIndicator from '../components/lead-tracker/last-sync-indicator';
+import { useSyncNowMutation, useSyncStatusQuery } from '../hooks/use-lead-sync';
 import {
   PageHeader,
   Button,
   TabPill,
   GlassCard,
-} from '../../components/ui/v2';
-import type { TabPillItem } from '../../components/ui/v2';
+} from '../components/ui/v2';
+import type { TabPillItem } from '../components/ui/v2';
 
 type ActiveTab = 'logs' | 'stats';
 

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Eye, EyeOff, Shield, ArrowRight, ArrowLeft, Sparkles, Zap, LayoutDashboard } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Button, Input } from '../../components/ui/v2';
+import { Button, Input } from '../components/ui/v2';
 
 /**
  * LoginPage v2 — token-driven redesign.

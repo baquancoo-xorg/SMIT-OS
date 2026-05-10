@@ -1,24 +1,24 @@
 import { useMemo, useState } from 'react';
 import { Globe, Mic, Newspaper, Download, Plus, Eye, Heart, DollarSign, Newspaper as NewspaperIcon } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import MediaPostsTable from '../../components/media-tracker/media-posts-table';
-import MediaPostDialog from '../../components/media-tracker/media-post-dialog';
+import { useAuth } from '../contexts/AuthContext';
+import MediaPostsTable from '../components/media-tracker/media-posts-table';
+import MediaPostDialog from '../components/media-tracker/media-post-dialog';
 import {
   useMediaPostsQuery,
   useCreateMediaPostMutation,
   useUpdateMediaPostMutation,
   useDeleteMediaPostMutation,
-} from '../../hooks/use-media-tracker';
-import { exportMediaPostsToCsv } from '../../components/media-tracker/csv-export';
-import type { MediaPost, MediaPostType } from '../../types';
+} from '../hooks/use-media-tracker';
+import { exportMediaPostsToCsv } from '../components/media-tracker/csv-export';
+import type { MediaPost, MediaPostType } from '../types';
 import {
   PageHeader,
   Button,
   TabPill,
   KpiCard,
   GlassCard,
-} from '../../components/ui/v2';
-import type { TabPillItem } from '../../components/ui/v2';
+} from '../components/ui/v2';
+import type { TabPillItem } from '../components/ui/v2';
 
 type Tab = 'owned' | 'kol' | 'pr';
 

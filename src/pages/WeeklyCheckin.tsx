@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Plus, CalendarCheck2, ClipboardCheck, AlertTriangle, HelpCircle, Zap, Eye, Target } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import type { WeeklyReport, KrCheckin, WeeklyPriority } from '../../types';
-import WeeklyCheckinModal from '../../components/modals/WeeklyCheckinModal';
+import { useAuth } from '../contexts/AuthContext';
+import type { WeeklyReport, KrCheckin, WeeklyPriority } from '../types';
+import WeeklyCheckinModal from '../components/modals/WeeklyCheckinModal';
 import {
   PageHeader,
   Button,
@@ -11,8 +11,8 @@ import {
   KpiCard,
   Modal,
   DataTable,
-} from '../../components/ui/v2';
-import type { DataTableColumn } from '../../components/ui/v2';
+} from '../components/ui/v2';
+import type { DataTableColumn } from '../components/ui/v2';
 
 interface ParsedReport {
   krProgress: KrCheckin[];

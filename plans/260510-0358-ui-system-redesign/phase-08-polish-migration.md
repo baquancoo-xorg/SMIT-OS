@@ -153,6 +153,124 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Phase 8 Finalize — Cascade hard-delete v1 + flatten v2 done 2026-05-11
+
+User decision (2026-05-11 02:54 ICT): "Không cần rollback, cứ thiết kế mới. Nếu sai chỗ nào sẽ sửa sau." → unblocked Bucket B + C cascade.
+
+**Cascade Step 1 — App.tsx rewrite (v2-only):**
+- Removed `useIsV1` hook + `useSearchParams` import
+- Removed all 10 `isV1 ? <V1/> : <V2/>` ternaries
+- Removed 9 v1 page lazy imports
+- Single LoginPage import (was conditional)
+- `bg-slate-50` PageLoader → `bg-surface` token
+- 112 → 76 LOC
+
+**Cascade Step 2 — v2 → v1 dependency extraction:**
+- Discovered: `v2/OKRsManagement.tsx` reuses 3 named exports từ v1 `OKRsManagement.tsx`: `ObjectiveAccordionCard` + `ObjectiveAccordionCardL2` + `AddObjectiveModal` + transitively `ChildObjectiveCard` / `AddKRButton` / `KeyResultRow` / `DeleteConfirmModal` / `EditKRModal` / `UpdateProgressModal` / `LinkObjectiveModal`
+- Extraction: `git mv src/pages/OKRsManagement.tsx → src/components/okr/okr-accordion-cards.tsx`
+- Stripped default-export page component (lines 9-325 of original)
+- Fixed relative paths cascading 1 level up
+- Cleaned unused imports (Filter lucide, CustomFilter primitive)
+- 1324 → 1010 LOC
+
+**Cascade Step 3 — Hard-delete 9 v1 pages:**
+```
+git rm src/pages/{LoginPage, Profile, Settings, DailySync, WeeklyCheckin,
+                  LeadTracker, MediaTracker, AdsTracker, DashboardOverview}.tsx
+```
+
+**Cascade Step 4 — Flatten v2 pages → top-level:**
+- `git mv src/pages/v2/*.tsx → src/pages/*.tsx` (10 files)
+- `rmdir src/pages/v2/` (empty)
+- Bulk sed `from '../../` → `from '../` trong 10 pages
+- Updated `v2/OKRsManagement.tsx → OKRsManagement.tsx` import path: `'../../components/okr/okr-accordion-cards'` → `'../components/okr/okr-accordion-cards'`
+
+**Bundle impact (post-cascade):**
+- `index.js` 71.73 → 65.21 kB (-6.5 kB, -9%)
+- `OKRsManagement` 39.81 → 35.50 kB (-4.3 kB, -11%)
+- Settings duplicate chunks eliminated (was 36 + 42 kB cho 2 codepaths → 1 chunk 36 kB)
+- vite build clean 2.00s ✓
+
+**Net codebase delta:** 37 files changed, +2924 / -5314 LOC = **-2390 LOC removed**
+
+**Still pending (Bucket C — UI primitives namespace flatten):**
+- 18 files vẫn import v1 ui (PascalCase Badge/Button/Card/Input/Skeleton + CustomFilter/CustomSelect/CustomDatePicker/DatePicker/ErrorBoundary/PrimaryActionButton/SectionHeader/TableRowActions/TableShell/ViewToggle)
+- Now reduced từ 18 → 11 files (7 v1 page imports auto-cleaned khi v1 pages deleted)
+- Remaining 11 = 1 v2 page (`OKRsManagement.tsx` dùng CustomFilter) + 10 sub-components (settings/, lead-tracker/, dashboard/, board/)
+- Blocker: v2 chưa có CustomFilter primitive equivalent → cần build v2 CustomFilter trước khi ui flatten
+
+### Phase 8 Finalize — Audit + Bundle Baseline done 2026-05-11
+
+Auto-finalize attempt revealed 3 of 4 deferred buckets BLOCKED on user decisions, không phải AI capability:
+- ❌ **Hard-delete v1 pages** — blocked by `?v=1` rollback flag (App.tsx ternary routing 10 routes). User must set retirement date.
+- ❌ **UI namespace flatten** (drop `/v2/`) — blocked by 18 files still importing v1 ui primitives (PascalCase Badge/Button/Card/Input/Skeleton + CustomFilter/CustomSelect/CustomDatePicker/DatePicker/etc.). v2/OKRsManagement.tsx legitimately uses v1 CustomFilter (no v2 equivalent).
+- ❌ **Structural rewrites** (WeeklyCheckin wizard, OKRs modals, accordion extraction) — design input needed, không mechanical.
+
+Adoption metrics:
+- v2 ui imports: **55 files**
+- v1 ui imports: **18 files** (residual)
+
+Bundle baseline (2026-05-11):
+- Total JS uncompressed: **1618.4 kB**
+- Top chunks: recharts 261 / react-dom 181 / CSS 127 / headlessui 102 / acquisition-overview-tab 100 / motion-dom 94 / index 72 / Settings 43 kB
+
+Full audit + recommendations: `plans/reports/finalize-260511-0251-ui-redesign-blockers.md`
+
+### Sub-component migration — Batch 20 done 2026-05-11
+
+1 large file modernized (tokens-only):
+- [x] `dashboard/overview/KpiTable.tsx` (509 LOC) — **tokens-only modernization** (no structural change). Bespoke 3-table mosaic (sticky header + scrollable body + sticky total footer + sticky left date col + synchronized horizontal scroll) NOT compatible with DataTable v2 single-table model — losing UX would be regression. Patches:
+  - `KpiTableHeader` daily-breakdown caption + h3 token typography
+  - `SortableHeader` slate hover → on-surface-variant tokens
+  - `RateBadge` + `MqlBadgeWithTooltip` background classes: `bg-slate-100 text-slate-400` → `bg-surface-variant/60 text-on-surface-variant/70`, `text-white` → `text-on-primary`
+  - MQL tooltip popup: `bg-white shadow-sm text-slate-700` → `bg-surface border border-outline-variant/40 text-on-surface`, arrow border colors → surface tokens, Medal/Award/Trophy amber/slate icons → on-surface-variant tokens
+  - `KpiTableRow` row backgrounds: `bg-slate-50/50` → `bg-surface-variant/40`, even/odd alternation tokens, sticky date cell `bg-slate-50 z-30` → `bg-surface-variant/60 z-30`, ROAS `text-red-600` → `text-error`, em-dash placeholder `text-slate-400` → `text-on-surface-variant/60`
+  - `SkeletonTable` inline divs → Skeleton v2 primitive
+  - 18 header cells `bg-slate-100` → `bg-surface-variant/60` (sed bulk)
+  - Total scroll container `border-t-2 border-slate-200 bg-slate-50` → `border-outline-variant/40 bg-surface-variant/40`
+  - Error message `text-red-600` → `text-error`
+
+Why tokens-only: DataTable v2 không support 3-table mosaic với sticky footer + sticky left col + scroll-sync (similar reasoning to batch 9 lead-logs-tab). ROI cao hơn cho deep redesign session.
+
+vite build clean 2.10s ✓
+
+### Sub-component migration — Batch 19 done 2026-05-11
+
+2 product/ tables migrated to v2 DataTable primitive:
+- [x] `dashboard/product/product-touchpoint-table.tsx` (174 → 122 LOC, -52 LOC) → DataTable v2 với 3 columns (business name + ID composite render, sortable event count, sortable last-active). Controlled `sort` state (default `{ key: 'eventCount', direction: 'desc' }`) + controlled `pagination` (10/page). EmptyState v2. Removed custom SortableHeader + pagination buttons.
+- [x] `dashboard/product/product-online-time-table.tsx` (173 → 121 LOC, -52 LOC) → DataTable v2 với dynamic columns: business name + N day cells (heatmap colors via cellClass) + sortable Total. Heatmap cellClass refactored: emerald brand → token-driven semantic (success-container, success). Controlled sort + pagination. Compact density. EmptyState v2.
+
+Cumulative DataTable v2 adopters: media-posts-table (batch 3), campaigns-table (batch 4), attribution-table (batch 2), touchpoint-table + online-time-table (batch 19). 5 tables total.
+
+vite build clean 2.05s ✓
+
+### Sub-component migration — Batch 18 done 2026-05-11
+
+Mega-batch — 9 product/ chart files (token modernization parallel apply):
+- [x] `product-ttv-histogram.tsx` (107 LOC) — title/subtitle tokens, Skeleton v2 (280px), tooltip + chart wrapper tokens, step selector pill token-driven
+- [x] `product-pre-pql-trend.tsx` (107 LOC) — same pattern, Skeleton 300px, tooltip + chart wrapper tokens
+- [x] `product-funnel-with-time.tsx` (103 LOC) — title tokens + Skeleton + custom funnel bar viz tokens (slate-300 dividers → outline-variant, slate-100 bg → surface-variant/40, rose-500 drop-off → text-error, white bar label text → text-on-primary)
+- [x] `product-cohort-retention.tsx` (99 LOC) — title/subtitle + Skeleton + table grid tokens + heatmap caption tokens (level emerald color levels preserved as brand semantics)
+- [x] `product-cohort-activation-curve.tsx` (131 LOC) — title/subtitle + Skeleton + tooltip popup tokens. Multi-color legend lines preserved.
+- [x] `product-activation-heatmap.tsx` (127 LOC) — title/subtitle + Skeleton + table grid tokens + view selector pill + heatmap cells preserved
+- [x] `product-section.tsx` (117 LOC) — `RefreshButton` token-driven (rounded-chip + tracking-wide + on-surface-variant + focus-visible ring)
+- [x] `product-stuck-list.tsx` (143 → 145 LOC) — title with inline Badge "tracking-only" + count Badge (error variant) + Skeleton v2 + table tokens + severity Badge variants (≥14d → error, else warning) + pagination buttons token-driven. Removed inline `severityClass` (rose/orange/amber tints) → Badge variants.
+- [x] `product-top-features-table.tsx` (108 LOC) — Skeleton v2 for 5-row loading state + SortHeader tokens + table row tokens (border-outline-variant, hover surface-variant)
+
+Token pattern xác lập từ batch 11-17 reused across all 9 files. Build verify single round.
+
+vite build clean 2.01s ✓
+
+### Sub-component migration — Batch 17 done 2026-05-11
+
+2 product/ chart cards:
+- [x] `dashboard/product/product-prepql-by-source.tsx` (104 LOC) — title/subtitle tokens, Skeleton v2 cho 280px loading state, empty + chart wrapper `rounded-2xl border-slate-100` → `rounded-card border-outline-variant/40`, tooltip popup token-driven (`bg-surface/95`, `text-on-surface` / `text-on-surface-variant`). Recharts internals (axis ticks, PLG gate ReferenceLine green, bar fill `#16a34a`) giữ nguyên brand semantics.
+- [x] `dashboard/product/product-channel-breakdown.tsx` (104 LOC) — same modernization pattern + tooltip table rows tokens (Signups/First Sync neutral, Pre-PQL → `text-success` semantic). Skeleton 320px. Bar fill sky brand (`#0ea5e9`) giữ nguyên.
+
+Pattern cumulative: legacy `text-xs font-black uppercase tracking-widest text-slate-400` heading → token-driven, `animate-pulse bg-slate-100` → Skeleton v2, inline `rounded-xl border-black/5 bg-white/90` tooltip → token-driven (surface + outline + on-surface text). Reusable cho 11 product/ files còn lại.
+
+vite build clean 2.00s ✓
+
 ### Sub-component migration — Batch 16 done 2026-05-11
 
 2 product/ files:

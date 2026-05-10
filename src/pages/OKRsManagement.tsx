@@ -8,19 +8,19 @@ import {
   CalendarClock,
   SearchX,
 } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import type { Objective } from '../../types';
+import { useAuth } from '../contexts/AuthContext';
+import type { Objective } from '../types';
 import {
   ObjectiveAccordionCard,
   ObjectiveAccordionCardL2,
   AddObjectiveModal,
-} from '../OKRsManagement';
+} from '../components/okr/okr-accordion-cards';
 import {
   getDeptColor,
   getOkrStatus,
   getCriticalPathHealth,
   getQ2Deadline,
-} from '../../components/okr/v2/department-color-config';
+} from '../components/okr/v2/department-color-config';
 import {
   PageHeader,
   Button,
@@ -28,9 +28,9 @@ import {
   KpiCard,
   EmptyState,
   GlassCard,
-} from '../../components/ui/v2';
-import type { TabPillItem } from '../../components/ui/v2';
-import CustomFilter from '../../components/ui/CustomFilter';
+} from '../components/ui/v2';
+import type { TabPillItem } from '../components/ui/v2';
+import CustomFilter from '../components/ui/CustomFilter';
 
 type ActiveTab = 'L1' | 'L2';
 

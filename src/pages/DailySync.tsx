@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Plus, Calendar, CheckCircle, ListChecks, AlertTriangle, Target, Zap, Eye, Sun, Moon } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import type { DailyReport } from '../../types';
+import { useAuth } from '../contexts/AuthContext';
+import type { DailyReport } from '../types';
 import {
   PageHeader,
   Button,
@@ -12,8 +12,8 @@ import {
   Modal,
   FormDialog,
   DataTable,
-} from '../../components/ui/v2';
-import type { DataTableColumn } from '../../components/ui/v2';
+} from '../components/ui/v2';
+import type { DataTableColumn } from '../components/ui/v2';
 
 function todayIso(): string {
   return new Date().toISOString().split('T')[0];
