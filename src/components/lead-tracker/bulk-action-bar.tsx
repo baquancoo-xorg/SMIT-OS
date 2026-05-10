@@ -18,7 +18,7 @@ interface BulkActionBarProps {
   onClear: () => void;
 }
 
-const selCls = 'bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all';
+const selCls = 'bg-white border border-outline-variant/40 rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all';
 
 export default function BulkActionBar({
   count, editMode, bulkEdit, saving,
@@ -29,7 +29,7 @@ export default function BulkActionBar({
       initial={{ opacity: 0, y: 24, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 24, scale: 0.95 }}
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 p-5 bg-slate-900 text-white rounded-[2rem] shadow-2xl shadow-slate-900/40 min-w-[360px] max-w-[90vw]"
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 p-5 bg-on-surface text-white rounded-[2rem] shadow-2xl shadow-on-surface/40 min-w-[360px] max-w-[90vw]"
     >
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">

@@ -43,7 +43,7 @@ export function SettingsTabs({ activeTab, onTabChange, isAdmin }: SettingsTabsPr
             className={`flex items-center gap-2 px-5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
               isActive
                 ? 'bg-white text-primary shadow-sm'
-                : 'text-slate-500 hover:text-primary'
+                : 'text-on-surface-variant hover:text-primary'
             }`}
           >
             <Icon size={12} />

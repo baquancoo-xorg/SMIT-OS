@@ -34,7 +34,7 @@ export function ObjectiveAccordionCard({
       {/* L1 Objective Header - Clickable to expand/collapse */}
       <div
         onClick={onToggleExpand}
-        className="p-5 md:p-6 lg:p-8 cursor-pointer hover:bg-slate-50/50 transition-colors flex items-center justify-between"
+        className="p-5 md:p-6 lg:p-8 cursor-pointer hover:bg-surface-variant/30/50 transition-colors flex items-center justify-between"
       >
         <div className="flex items-center gap-4 md:gap-6 flex-1">
           <div className={`w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-3xl md:rounded-3xl ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
@@ -55,13 +55,13 @@ export function ObjectiveAccordionCard({
         </div>
         <div className="flex items-center gap-4 md:gap-6 flex-shrink-0 ml-4">
           <div className="text-right">
-            <div className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Progress</div>
+            <div className="text-[8px] md:text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mb-1">Progress</div>
             <div className={`text-xl md:text-2xl font-black ${colors.text} font-headline`}>{objective.progressPercentage}%</div>
           </div>
           {isExpanded ? (
-            <ChevronDown size={20} className="text-slate-400 flex-shrink-0 md:size-7" />
+            <ChevronDown size={20} className="text-on-surface-variant flex-shrink-0 md:size-7" />
           ) : (
-            <ChevronRight size={20} className="text-slate-400 flex-shrink-0 md:size-7" />
+            <ChevronRight size={20} className="text-on-surface-variant flex-shrink-0 md:size-7" />
           )}
         </div>
       </div>
@@ -79,7 +79,7 @@ export function ObjectiveAccordionCard({
             <div className="px-5 md:px-8 lg:px-10 pb-6 md:pb-8 lg:pb-10 space-y-6 md:space-y-8 border-t border-outline-variant/10">
               {/* L1 Key Results */}
               <div className="pt-4 md:pt-6">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 md:mb-4">Key Results</h4>
+                <h4 className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-3 md:mb-4">Key Results</h4>
                 <div className="space-y-3 md:space-y-4">
                   {objective.keyResults.length > 0 ? (
                     objective.keyResults.map((kr, index) => (
@@ -99,7 +99,7 @@ export function ObjectiveAccordionCard({
                       />
                     ))
                   ) : (
-                    <div className="text-center py-4 md:py-6 text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-300 italic">No key results established.</div>
+                    <div className="text-center py-4 md:py-6 text-[10px] md:text-xs font-black uppercase tracking-widest text-on-surface-variant/60 italic">No key results established.</div>
                   )}
                 </div>
               </div>
@@ -107,7 +107,7 @@ export function ObjectiveAccordionCard({
               {/* Child L2 Objectives */}
               {childObjectives.length > 0 && (
                 <div className="pt-4 md:pt-6 border-t border-outline-variant/10">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 md:mb-4">
+                  <h4 className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-3 md:mb-4">
                     Child Objectives (L2)
                   </h4>
                   <div className="space-y-3 md:space-y-4">
@@ -175,7 +175,7 @@ function ChildObjectiveCard({
           <div className="text-right">
             <div className={`text-base md:text-lg font-black ${colors.text} font-headline`}>{objective.progressPercentage}%</div>
           </div>
-          {isExpanded ? <ChevronDown size={16} className="text-slate-400 md:size-5" /> : <ChevronRight size={16} className="text-slate-400 md:size-5" />}
+          {isExpanded ? <ChevronDown size={16} className="text-on-surface-variant md:size-5" /> : <ChevronRight size={16} className="text-on-surface-variant md:size-5" />}
         </div>
       </div>
 
@@ -206,7 +206,7 @@ function ChildObjectiveCard({
                   />
                 ))
               ) : (
-                <div className="text-center py-3 md:py-4 text-[10px] font-black uppercase tracking-widest text-slate-300 italic">No key results.</div>
+                <div className="text-center py-3 md:py-4 text-[10px] font-black uppercase tracking-widest text-on-surface-variant/60 italic">No key results.</div>
               )}
               <AddKRButton objectiveId={objective.id} onRefresh={onRefresh} />
             </div>
@@ -305,7 +305,7 @@ export function ObjectiveAccordionCardL2({
       {/* Header - Clickable to expand/collapse */}
       <div
         onClick={() => setIsExpanded(!isExpanded)}
-        className="p-5 md:p-6 lg:p-8 cursor-pointer hover:bg-slate-50/50 transition-colors flex items-center justify-between"
+        className="p-5 md:p-6 lg:p-8 cursor-pointer hover:bg-surface-variant/30/50 transition-colors flex items-center justify-between"
       >
         <div className="flex items-center gap-4 md:gap-6 flex-1 min-w-0">
           <div className={`w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-3xl md:rounded-3xl ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
@@ -319,7 +319,7 @@ export function ObjectiveAccordionCardL2({
               {isEditingTitle ? (
                 <input
                   type="text"
-                  className="text-base md:text-lg font-black text-on-surface bg-slate-50 border-none focus:ring-2 focus:ring-primary/20 rounded-xl px-3 md:px-4 py-1 outline-none font-headline w-full"
+                  className="text-base md:text-lg font-black text-on-surface bg-surface-variant/30 border-none focus:ring-2 focus:ring-primary/35 rounded-xl px-3 md:px-4 py-1 outline-none font-headline w-full"
                   value={objective.title}
                   onChange={(e) => setObjective({ ...objective, title: e.target.value })}
                   onBlur={handleUpdateObjectiveTitle}
@@ -348,13 +348,13 @@ export function ObjectiveAccordionCardL2({
         </div>
         <div className="flex items-center gap-4 md:gap-6 flex-shrink-0 ml-4">
           <div className="text-right">
-            <div className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Progress</div>
+            <div className="text-[8px] md:text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mb-1">Progress</div>
             <div className={`text-xl md:text-2xl font-black ${colors.text} font-headline`}>{objective.progressPercentage}%</div>
           </div>
           {isExpanded ? (
-            <ChevronDown size={20} className="text-slate-400 flex-shrink-0 md:size-7" />
+            <ChevronDown size={20} className="text-on-surface-variant flex-shrink-0 md:size-7" />
           ) : (
-            <ChevronRight size={20} className="text-slate-400 flex-shrink-0 md:size-7" />
+            <ChevronRight size={20} className="text-on-surface-variant flex-shrink-0 md:size-7" />
           )}
         </div>
       </div>
@@ -390,7 +390,7 @@ export function ObjectiveAccordionCardL2({
                   />
                 ))
               ) : (
-                <div className="text-center py-4 md:py-6 text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-300 italic">No key results established.</div>
+                <div className="text-center py-4 md:py-6 text-[10px] md:text-xs font-black uppercase tracking-widest text-on-surface-variant/60 italic">No key results established.</div>
               )}
 
               <AddKRButton objectiveId={objective.id} onRefresh={onRefresh} />
@@ -428,7 +428,7 @@ function KeyResultRow({ kr, index, isL2, owner, objectives, onLinkObjective, onD
   const parentKR = krData.parentKrId ? objectives?.flatMap(o => o.keyResults).find(item => item.id === krData.parentKrId) : null;
 
   return (
-    <div className="flex flex-col gap-3 md:gap-4 p-4 md:p-6 rounded-3xl md:rounded-3xl hover:bg-slate-50/50 transition-all duration-500 group border border-transparent hover:border-outline-variant/10">
+    <div className="flex flex-col gap-3 md:gap-4 p-4 md:p-6 rounded-3xl md:rounded-3xl hover:bg-surface-variant/30/50 transition-all duration-500 group border border-transparent hover:border-outline-variant/10">
       {/* C3: Mobile-first stack, grid on md+ */}
       <div className="flex flex-col gap-4 md:grid md:grid-cols-12 md:items-center md:gap-6">
         {/* Title section - full width on mobile */}
@@ -439,10 +439,10 @@ function KeyResultRow({ kr, index, isL2, owner, objectives, onLinkObjective, onD
           </div>
           <div className="flex items-center gap-3 md:gap-4 mt-2 ml-0 md:ml-11 flex-wrap">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[8px] font-black text-slate-500 shadow-sm">
+              <div className="w-5 h-5 rounded-full bg-surface-variant/60 flex items-center justify-center text-[8px] font-black text-on-surface-variant shadow-sm">
                 {owner ? owner.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'N/A'}
               </div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{owner?.fullName || 'Unassigned'}</p>
+              <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">{owner?.fullName || 'Unassigned'}</p>
             </div>
             {parentKR && (
               <span className="text-[10px] font-black text-primary bg-primary/5 px-2 py-0.5 rounded-full flex items-center gap-1 border border-primary/10">
@@ -454,11 +454,11 @@ function KeyResultRow({ kr, index, isL2, owner, objectives, onLinkObjective, onD
         </div>
         {/* Progress section */}
         <div className="md:col-span-3">
-          <div className="flex justify-between items-end mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+          <div className="flex justify-between items-end mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">
             <span>Progress</span>
             <span className="text-on-surface">{krData.currentValue} / {krData.targetValue} {krData.unit}</span>
           </div>
-          <div className="h-2 bg-slate-100 rounded-full overflow-hidden relative">
+          <div className="h-2 bg-surface-variant/60 rounded-full overflow-hidden relative">
             <div
               className={`h-full transition-all duration-1000 ease-out ${progress === 100 ? 'bg-emerald-500' : 'bg-primary'}`}
               style={{ width: `${progress}%` }}
@@ -470,7 +470,7 @@ function KeyResultRow({ kr, index, isL2, owner, objectives, onLinkObjective, onD
           {isL2 && onLinkObjective && (
             <button
               onClick={() => setIsLinkModalOpen(true)}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
               title="Link to L1 Key Result"
             >
               <LinkIcon size={18} />
@@ -601,7 +601,7 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, title, message }: Dele
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-[60] backdrop-blur-sm">
+    <div className="fixed inset-0 bg-on-surface/50 flex items-center justify-center z-[60] backdrop-blur-sm">
       <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-md p-8 relative">
         <button
           onClick={onClose}
@@ -654,7 +654,7 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-on-surface/50 flex items-center justify-center z-50 backdrop-blur-sm">
       <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-lg p-8 relative">
         <button
           onClick={onClose}
@@ -670,7 +670,7 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Title</label>
             <input
               type="text"
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all"
               value={formData.title}
               onChange={e => setFormData({ ...formData, title: e.target.value })}
               placeholder="e.g., Increase user retention by 20%"
@@ -681,7 +681,7 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Target Value</label>
             <input
               type="number"
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all"
               value={formData.targetValue}
               onChange={e => setFormData({ ...formData, targetValue: Number(e.target.value) })}
             />
@@ -691,7 +691,7 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Unit</label>
             <input
               type="text"
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all"
               value={formData.unit}
               onChange={e => setFormData({ ...formData, unit: e.target.value })}
               placeholder="e.g., %, USD, Users"
@@ -738,7 +738,7 @@ function UpdateProgressModal({ isOpen, onClose, onSave, currentValue, targetValu
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-[70] backdrop-blur-sm">
+    <div className="fixed inset-0 bg-on-surface/50 flex items-center justify-center z-[70] backdrop-blur-sm">
       <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-sm p-8 relative">
         <button
           onClick={onClose}
@@ -755,7 +755,7 @@ function UpdateProgressModal({ isOpen, onClose, onSave, currentValue, targetValu
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Current Value ({unit})</label>
             <input
               type="number"
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-2xl font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-center"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-2xl font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all text-center"
               value={val}
               onChange={e => setVal(Number(e.target.value))}
               autoFocus
@@ -765,7 +765,7 @@ function UpdateProgressModal({ isOpen, onClose, onSave, currentValue, targetValu
           <div>
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Progress Note (Optional)</label>
             <textarea
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px] resize-none"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all min-h-[100px] resize-none"
               value={note}
               onChange={e => setNote(e.target.value)}
               placeholder="What changed? Any blockers?"
@@ -835,7 +835,7 @@ function LinkObjectiveModal({
   );
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-on-surface/50 flex items-center justify-center z-50 backdrop-blur-sm">
       <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-md p-8 relative">
         <button
           onClick={onClose}
@@ -912,19 +912,19 @@ export function AddObjectiveModal({
   const l1Objectives = objectives.filter(o => !o.parentId);
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-on-surface/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="bg-white/80 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
       >
-        <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <h2 className="text-2xl font-black font-headline text-slate-800">
+        <div className="px-8 py-6 border-b border-outline-variant/40 flex items-center justify-between bg-surface-variant/30/50">
+          <h2 className="text-2xl font-black font-headline text-on-surface">
             Add New {level} Objective
           </h2>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded-full transition-colors"
+            className="p-2 text-on-surface-variant hover:text-on-surface-variant hover:bg-surface-variant/50 rounded-full transition-colors"
           >
             <X size={20} />
           </button>
@@ -933,10 +933,10 @@ export function AddObjectiveModal({
         {/* M15: Responsive padding */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Objective Title</label>
+            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Objective Title</label>
             <input
               type="text"
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full px-4 py-3 bg-surface-variant/30 border border-outline-variant/40 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all"
               value={formData.title}
               onChange={e => setFormData({ ...formData, title: e.target.value })}
               placeholder="e.g., Achieve record revenue growth in Q3"
@@ -944,7 +944,7 @@ export function AddObjectiveModal({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Department</label>
+            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Department</label>
             <CustomSelect
               value={formData.department}
               onChange={(val) => setFormData({ ...formData, department: val })}
@@ -959,7 +959,7 @@ export function AddObjectiveModal({
 
           {level === 'L2' && (
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Parent Objective (L1)</label>
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Parent Objective (L1)</label>
               <CustomSelect
                 value={formData.parentId}
                 onChange={(val) => setFormData({ ...formData, parentId: val })}
@@ -972,9 +972,9 @@ export function AddObjectiveModal({
           )}
 
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Description</label>
+            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Description</label>
             <textarea
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all h-32 resize-none"
+              className="w-full px-4 py-3 bg-surface-variant/30 border border-outline-variant/40 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all h-32 resize-none"
               value={formData.description}
               onChange={e => setFormData({ ...formData, description: e.target.value })}
               placeholder="Describe the desired outcome and impact..."
@@ -982,9 +982,9 @@ export function AddObjectiveModal({
           </div>
         </div>
 
-        <div className="px-8 py-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50">
+        <div className="px-8 py-6 border-t border-outline-variant/40 flex justify-end gap-3 bg-surface-variant/30/50">
           <button
-            className="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200/50 rounded-xl transition-all"
+            className="px-6 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-variant/50 rounded-xl transition-all"
             onClick={onClose}
           >
             Cancel

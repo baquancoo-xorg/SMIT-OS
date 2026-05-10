@@ -24,7 +24,7 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
           className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
             activePreset === preset.key
               ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              : 'bg-surface-variant/60 text-on-surface hover:bg-surface-variant'
           }`}
         >
           {preset.label}

@@ -32,12 +32,12 @@ function TrendTooltipContent({ active, payload, label }: TrendTooltipProps) {
 
   return (
     <div className="rounded-xl border border-black/5 bg-white/90 p-3 shadow-lg backdrop-blur-sm">
-      <p className="mb-1 text-xs font-black text-slate-700">{label}</p>
+      <p className="mb-1 text-xs font-black text-on-surface">{label}</p>
       <div className="space-y-1">
         {payload.map((item) => (
           <div key={item.name} className="flex items-center justify-between gap-4 text-xs font-semibold">
             <span style={{ color: item.color ?? '#475569' }}>{item.name}</span>
-            <span className="text-slate-700 tabular-nums">{item.value}</span>
+            <span className="text-on-surface tabular-nums">{item.value}</span>
           </div>
         ))}
       </div>

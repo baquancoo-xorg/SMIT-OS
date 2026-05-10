@@ -259,15 +259,15 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
               const sla = getLeadSla(l, now);
               return sla.label.startsWith('Overdue');
             }).length;
-            const statCls = 'flex items-center gap-4 px-4 py-2 bg-white border border-slate-100 rounded-2xl shadow-sm text-[10px] font-black uppercase tracking-widest';
+            const statCls = 'flex items-center gap-4 px-4 py-2 bg-white border border-outline-variant/40 rounded-2xl shadow-sm text-[10px] font-black uppercase tracking-widest';
             const dot = (color: string) => <span className={`size-2 rounded-full inline-block ${color}`} />;
             const stat = (color: string, label: string, val: number) => (
-              <span className="flex items-center gap-1.5 text-slate-500">{dot(color)}{label}: {val}</span>
+              <span className="flex items-center gap-1.5 text-on-surface-variant">{dot(color)}{label}: {val}</span>
             );
             return (
               <div className="flex items-center gap-2">
                 <div className={statCls}>
-                  {stat('bg-slate-400', 'Total', filteredLeads.length)}
+                  {stat('bg-on-surface-variant', 'Total', filteredLeads.length)}
                   {stat('bg-violet-400', 'NEW', c('Mới'))}
                   {stat('bg-blue-400', 'ATT', c('Đang liên hệ'))}
                   {stat('bg-amber-400', 'NUR', c('Đang nuôi dưỡng'))}
@@ -296,7 +296,7 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                   <button
                     onClick={toggleSelectAll}
                     className={`size-4 rounded-[4px] border-2 flex items-center justify-center transition-all cursor-pointer ${
-                      allSelected ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary/60 bg-white'
+                      allSelected ? 'bg-primary border-primary' : 'border-outline hover:border-primary/60 bg-white'
                     }`}
                   >
                     {allSelected && <Check size={10} strokeWidth={3} className="text-white" />}
@@ -314,7 +314,7 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
             {loading && (
               <tr>
                 <td colSpan={isSale ? 14 : 13} className={standardTable.emptyState}>
-                  <p className="font-bold uppercase tracking-widest animate-pulse text-slate-400">Loading...</p>
+                  <p className="font-bold uppercase tracking-widest animate-pulse text-on-surface-variant">Loading...</p>
                 </td>
               </tr>
             )}
@@ -342,7 +342,7 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                 >
                   {isSale && (
                     <td className={`${standardTable.cell} pl-6`}>
-                      <button onClick={() => toggleSelect(lead.id)} className={`size-4 rounded-[4px] border-2 flex items-center justify-center transition-all cursor-pointer ${isSelected ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary/60 bg-white'}`}>
+                      <button onClick={() => toggleSelect(lead.id)} className={`size-4 rounded-[4px] border-2 flex items-center justify-center transition-all cursor-pointer ${isSelected ? 'bg-primary border-primary' : 'border-outline hover:border-primary/60 bg-white'}`}>
                         {isSelected && <Check size={10} strokeWidth={3} className="text-white" />}
                       </button>
                     </td>
@@ -350,9 +350,9 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                   <td className={`${standardTable.cell} text-[11px] font-semibold leading-5 text-on-surface`}>
                     <span>{lead.customerName}</span>
                   </td>
-                  <td className={`${standardTable.cell} text-[11px] font-semibold text-slate-600`}>{lead.ae}</td>
-                  <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500 whitespace-nowrap`}>{formatTableDateTime(lead.receivedDate)}</td>
-                  <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500 whitespace-nowrap`}>{formatTableDateTime(lead.resolvedDate)}</td>
+                  <td className={`${standardTable.cell} text-[11px] font-semibold text-on-surface-variant`}>{lead.ae}</td>
+                  <td className={`${standardTable.cell} text-[11px] font-medium text-on-surface-variant whitespace-nowrap`}>{formatTableDateTime(lead.receivedDate)}</td>
+                  <td className={`${standardTable.cell} text-[11px] font-medium text-on-surface-variant whitespace-nowrap`}>{formatTableDateTime(lead.resolvedDate)}</td>
                   <td className={standardTable.cell}>
                     <Badge variant={STATUS_VARIANT[lead.status] ?? 'neutral'}>
                       {toStatusLabel(lead.status)}
@@ -361,12 +361,12 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                   <td className={standardTable.cell}>
                     <Badge variant={sla.variant}>{sla.label}</Badge>
                   </td>
-                  <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500`}>{lead.leadType ?? '-'}</td>
-                  <td className={`${standardTable.cell} text-[11px] font-medium text-slate-500`}>{lead.unqualifiedType ?? '-'}</td>
+                  <td className={`${standardTable.cell} text-[11px] font-medium text-on-surface-variant`}>{lead.leadType ?? '-'}</td>
+                  <td className={`${standardTable.cell} text-[11px] font-medium text-on-surface-variant`}>{lead.unqualifiedType ?? '-'}</td>
                   <td className={`${standardTable.cell} text-[11px] italic max-w-[150px]`}>
-                    <span className="text-slate-400 truncate block">{lead.notes || '—'}</span>
+                    <span className="text-on-surface-variant truncate block">{lead.notes || '—'}</span>
                   </td>
-                  <td className={`${standardTable.cell} text-slate-400 text-[11px] font-medium whitespace-nowrap`}>
+                  <td className={`${standardTable.cell} text-on-surface-variant text-[11px] font-medium whitespace-nowrap`}>
                     {formatTableDateTime(lead.updatedAt)}
                   </td>
                   <td className={standardTable.actionCell}>

@@ -49,7 +49,7 @@ export default function NotificationCenter() {
         onClick={() => setIsOpen(!isOpen)}
         className="relative w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm hover:shadow-md transition-all"
       >
-        <Bell size={20} className="text-slate-600" />
+        <Bell size={20} className="text-on-surface-variant" />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-red-500 text-white text-[10px] leading-none font-bold rounded-full flex items-center justify-center shadow-sm">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -65,8 +65,8 @@ export default function NotificationCenter() {
             exit={{ opacity: 0, y: 10 }}
             className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-xl overflow-hidden z-50"
           >
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="font-bold text-slate-800">Notifications</h3>
+            <div className="p-4 border-b border-outline-variant/40 flex items-center justify-between">
+              <h3 className="font-bold text-on-surface">Notifications</h3>
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
@@ -81,8 +81,8 @@ export default function NotificationCenter() {
             <div className="max-h-96 overflow-y-auto">
               {notifications.length === 0 ? (
                 <div className="p-8 text-center">
-                  <Bell size={32} className="mx-auto text-slate-200 mb-2" />
-                  <p className="text-sm text-slate-400">No notifications</p>
+                  <Bell size={32} className="mx-auto mb-2 text-on-surface-variant/40" />
+                  <p className="text-sm text-on-surface-variant">No notifications</p>
                 </div>
               ) : (
                 notifications.map(n => (
@@ -96,14 +96,14 @@ export default function NotificationCenter() {
                         navigate(target);
                       }
                     }}
-                    className={`p-4 border-t border-slate-50 cursor-pointer hover:bg-slate-50 transition-colors ${!n.isRead ? 'bg-primary/5' : ''}`}
+                    className={`p-4 border-t border-outline-variant/30 cursor-pointer hover:bg-surface-variant/30 transition-colors ${!n.isRead ? 'bg-primary/5' : ''}`}
                   >
                     <div className="flex gap-3">
                       <span className="text-lg">{ICONS[n.type] ?? '🔔'}</span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-800 truncate">{n.title}</p>
-                        <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{n.message}</p>
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-sm font-medium text-on-surface truncate">{n.title}</p>
+                        <p className="text-xs text-on-surface-variant mt-0.5 line-clamp-2">{n.message}</p>
+                        <p className="text-xs text-on-surface-variant mt-1">
                           {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
                         </p>
                       </div>

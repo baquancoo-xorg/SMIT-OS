@@ -40,7 +40,7 @@ export default function SpendChart({ campaigns, dailySpend }: Props) {
         <h3 className="text-2xl font-black font-headline">
           Spend <span className="text-primary italic">trend</span>
         </h3>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+        <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">
           {dailySpend ? 'Daily' : 'Top campaigns'}
         </p>
       </div>

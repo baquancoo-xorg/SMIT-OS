@@ -10,7 +10,7 @@ interface Props {
 }
 
 function levelClass(value: number, max: number) {
-  if (value === 0 || max === 0) return 'bg-slate-100';
+  if (value === 0 || max === 0) return 'bg-surface-variant/60';
   const ratio = value / max;
   if (ratio < 0.2) return 'bg-blue-100';
   if (ratio < 0.4) return 'bg-blue-200';

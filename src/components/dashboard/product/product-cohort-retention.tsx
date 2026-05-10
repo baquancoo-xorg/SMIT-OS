@@ -20,7 +20,7 @@ const RETENTION_KEYS: Array<{ key: 'd0' | 'd1' | 'd7' | 'd14' | 'd30'; label: st
 ];
 
 function levelClass(pct: number) {
-  if (pct === 0) return 'bg-slate-100 text-slate-400';
+  if (pct === 0) return 'bg-surface-variant/60 text-on-surface-variant';
   if (pct < 20) return 'bg-blue-100 text-blue-700';
   if (pct < 40) return 'bg-blue-200 text-blue-800';
   if (pct < 60) return 'bg-blue-400 text-white';

@@ -19,7 +19,7 @@ export default function SegmentedTabs<T extends string>({
 }: SegmentedTabsProps<T>) {
   return (
     <div className="overflow-x-auto">
-      <div className="inline-flex bg-slate-100 rounded-full p-0.5 gap-0.5 min-w-max" role="tablist" aria-label="Dashboard domains">
+      <div className="inline-flex bg-surface-variant/60 rounded-full p-0.5 gap-0.5 min-w-max" role="tablist" aria-label="Dashboard domains">
         {options.map((option) => (
           <button
             key={option.value}
@@ -30,7 +30,7 @@ export default function SegmentedTabs<T extends string>({
             className={`flex items-center justify-center gap-1.5 h-7 px-3.5 rounded-full text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${
               value === option.value
                 ? 'bg-white text-primary shadow-sm'
-                : 'text-slate-400 hover:text-slate-600'
+                : 'text-on-surface-variant hover:text-on-surface-variant'
             }`}
           >
             {option.icon}

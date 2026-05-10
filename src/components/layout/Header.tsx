@@ -34,15 +34,15 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         <div className="flex items-center gap-4 flex-1 min-w-0">
           <button
             onClick={onMenuClick}
-            className="xl:hidden w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-xl transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/50"
+            className="xl:hidden w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-variant/30 rounded-xl transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/50"
             aria-label="Open navigation menu"
           >
             <Menu size={24} />
           </button>
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 truncate">
+          <div className="flex items-center gap-1.5 text-xs text-on-surface-variant truncate">
             <span>{section}</span>
-            <span className="text-slate-300">›</span>
-            <span className="font-semibold text-slate-700 truncate">{page}</span>
+            <span className="text-on-surface-variant/60">›</span>
+            <span className="font-semibold text-on-surface truncate">{page}</span>
           </div>
         </div>
 

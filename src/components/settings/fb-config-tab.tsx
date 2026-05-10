@@ -182,7 +182,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
     return formatTableDateTime(acc.lastSyncAt);
   };
 
-  if (loading) return <div className="text-center py-8 text-slate-400">Loading...</div>;
+  if (loading) return <div className="text-center py-8 text-on-surface-variant">Loading...</div>;
 
   return (
     <div className="space-y-8 max-w-5xl">
@@ -222,7 +222,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 px-1">Currency</label>
+                <label className="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1 px-1">Currency</label>
                 <div className="w-full bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-2.5 text-sm">
                   <select
                     value={formData.currency}
@@ -263,7 +263,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
                   <td className={standardTable.cell}>
                     <div>
                       <span className="text-sm font-bold text-on-surface block">{acc.accountName || acc.accountId}</span>
-                      <span className="text-[10px] text-slate-400 font-medium">{acc.accountId}</span>
+                      <span className="text-[10px] text-on-surface-variant font-medium">{acc.accountId}</span>
                     </div>
                   </td>
                   <td className={standardTable.cell}>
@@ -276,7 +276,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
                   </td>
                   <td className={standardTable.actionCell}>
                     <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => handleSync(acc.id)} disabled={syncingId === acc.id} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all disabled:animate-spin" title="Sync Now"><RefreshCw size={16} /></button>
+                      <button onClick={() => handleSync(acc.id)} disabled={syncingId === acc.id} className="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-xl transition-all disabled:animate-spin" title="Sync Now"><RefreshCw size={16} /></button>
                       <TableRowActions
                         onEdit={() => openEdit(acc)}
                         onDelete={() => handleDeleteAccount(acc.id)}
@@ -312,7 +312,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
                 <div className="text-sm font-bold text-on-surface">USD to VND Rate</div>
               </td>
               <td className={standardTable.cell}>
-                <div className="text-sm font-bold text-slate-500">1 USD</div>
+                <div className="text-sm font-bold text-on-surface-variant">1 USD</div>
               </td>
               <td className={standardTable.cell}>
                 <div className="max-w-xs">

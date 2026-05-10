@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 /**
  * Section title cho dashboard tab content (e.g. "Lead Flow & Clearance").
  *
- * Phase 8 follow-up batch 10 (2026-05-11): switched từ `text-slate-700` →
+ * Phase 8 follow-up batch 10 (2026-05-11): switched từ `text-on-surface` →
  * `text-on-surface` (semantic token). Bar accent giữ nguyên primary.
  */
 

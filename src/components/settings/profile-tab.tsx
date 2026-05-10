@@ -89,7 +89,7 @@ export function ProfileTab() {
   return (
     <div className="max-w-5xl space-y-6">
       <Card variant="glass" className="p-6 space-y-6">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Profile Information</p>
+        <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Profile Information</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <Input
             label="Display Name"
@@ -110,7 +110,7 @@ export function ProfileTab() {
       </Card>
 
       <Card variant="glass" className="p-6 space-y-6">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Two-Factor Authentication</p>
+        <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Two-Factor Authentication</p>
 
         {setupState === 'backup-codes' && (
           <div className="max-w-md space-y-6">
@@ -126,7 +126,7 @@ export function ProfileTab() {
                 </p>
               </div>
             </div>
-            <div className="bg-slate-900 rounded-2xl p-4">
+            <div className="bg-on-surface rounded-2xl p-4">
               <div className="grid grid-cols-2 gap-2">
                 {backupCodes.map(code => (
                   <span key={code} className="font-mono text-sm text-emerald-400 text-center py-1">{code}</span>
@@ -156,17 +156,17 @@ export function ProfileTab() {
         {setupState === 'setup' && (
           <div className="max-w-sm space-y-6">
             <h4 className="text-xl font-bold flex items-center gap-2"><QrCode size={24} /> Set up 2FA</h4>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-on-surface-variant">
               Scan the QR code with <strong>Google Authenticator</strong> or <strong>Microsoft Authenticator</strong>:
             </p>
             <div className="flex justify-center">
-              <img src={qrUrl} alt="2FA QR Code" className="border border-slate-200" width={200} height={200} />
+              <img src={qrUrl} alt="2FA QR Code" className="border border-outline-variant/40" width={200} height={200} />
             </div>
-            <p className="text-xs text-slate-400 text-center">
-              Or enter manually: <code className="font-mono bg-slate-100 px-1 rounded">{secret}</code>
+            <p className="text-xs text-on-surface-variant text-center">
+              Or enter manually: <code className="font-mono bg-surface-variant/60 px-1 rounded">{secret}</code>
             </p>
             <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">
                 Enter 6-digit code from app
               </label>
               <input
@@ -176,7 +176,7 @@ export function ProfileTab() {
                 value={verifyCode}
                 onChange={e => setVerifyCode(e.target.value.replace(/\D/g, ''))}
                 placeholder="000000"
-                className="w-full text-center font-mono text-2xl tracking-[0.5em] bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 outline-none transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary/40"
+                className="w-full text-center font-mono text-2xl tracking-[0.5em] bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 outline-none transition-all focus:ring-2 focus:ring-primary/35 focus:border-primary/40"
               />
             </div>
             {twoFaError && <p className="text-red-500 text-sm">{twoFaError}</p>}
@@ -201,19 +201,19 @@ export function ProfileTab() {
         {setupState === 'idle' && (
           <div className="max-w-md space-y-4">
             <div className={`rounded-2xl p-5 border ${
-              totpEnabled ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'
+              totpEnabled ? 'bg-emerald-50 border-emerald-200' : 'bg-surface-variant/30 border-outline-variant/40'
             }`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-bold text-slate-800">{totpEnabled ? '2FA is enabled' : '2FA is disabled'}</p>
-                  <p className="text-sm text-slate-500 mt-0.5">
+                  <p className="font-bold text-on-surface">{totpEnabled ? '2FA is enabled' : '2FA is disabled'}</p>
+                  <p className="text-sm text-on-surface-variant mt-0.5">
                     {totpEnabled
                       ? 'Your account is protected by an authenticator app'
                       : 'Enable 2FA to add an extra layer of security'}
                   </p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                  totpEnabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-500'
+                  totpEnabled ? 'bg-emerald-100 text-emerald-700' : 'bg-surface-variant text-on-surface-variant'
                 }`}>{totpEnabled ? 'On' : 'Off'}</span>
               </div>
             </div>
@@ -241,7 +241,7 @@ export function ProfileTab() {
 
             {showDisable && (
               <div className="space-y-3">
-                <p className="text-sm text-slate-600">Enter your password to confirm disabling 2FA:</p>
+                <p className="text-sm text-on-surface-variant">Enter your password to confirm disabling 2FA:</p>
                 <Input
                   type="password"
                   value={disablePassword}

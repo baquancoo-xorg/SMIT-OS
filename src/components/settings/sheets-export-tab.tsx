@@ -220,7 +220,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
           <Card variant="glass" className="p-6 space-y-6 h-full">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-2">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Google Account</p>
+                <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Google Account</p>
                 <div className="flex items-center gap-2">
                   <Badge variant={statusBadgeVariant}>{googleStatus?.connected ? 'Connected' : 'Not connected'}</Badge>
                   {googleStatus?.connected && googleStatus.email && (
@@ -326,7 +326,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
 
         <div className="lg:col-span-1">
           <Card variant="glass" className="p-5 space-y-2 h-full">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scheduled Export</p>
+            <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Scheduled Export</p>
             <p className="text-sm font-bold text-on-surface">Daily at 11:00 AM</p>
             <Badge variant={googleStatus?.connected ? 'success' : 'neutral'}>
               {googleStatus?.connected ? 'Active' : 'Inactive'}
@@ -336,7 +336,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
 
         <div className="lg:col-span-1">
           <Card variant="glass" className="p-5 space-y-2 h-full">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sheets Created</p>
+            <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Sheets Created</p>
             <p className="text-sm font-bold text-on-surface">Per export cycle</p>
             <p className="text-4xl font-black font-headline text-primary">13</p>
           </Card>

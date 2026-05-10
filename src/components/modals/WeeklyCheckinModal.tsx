@@ -122,23 +122,23 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+    <div className="fixed inset-0 bg-on-surface/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
       >
-        <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="px-8 py-6 border-b border-outline-variant/40 flex items-center justify-between bg-surface-variant/30/50">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-3xl bg-primary/10 flex items-center justify-center text-primary">
               <Calendar size={24} />
             </div>
             <div>
-              <h2 className="text-2xl font-black font-headline text-slate-800">Weekly Check-in</h2>
-              <p className="text-sm text-slate-500 font-medium">Tuần {weekNumber} • End: {weekEnding.toLocaleDateString('vi-VN')}</p>
+              <h2 className="text-2xl font-black font-headline text-on-surface">Weekly Check-in</h2>
+              <p className="text-sm text-on-surface-variant font-medium">Tuần {weekNumber} • End: {weekEnding.toLocaleDateString('vi-VN')}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded-full">
+          <button onClick={onClose} className="p-2 text-on-surface-variant hover:text-on-surface-variant hover:bg-surface-variant/50 rounded-full">
             <X size={20} />
           </button>
         </div>
@@ -146,12 +146,12 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
         <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8">
           {/* Block 1: KR Check-in */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+            <div className="flex items-center gap-2 border-b border-outline-variant/40 pb-2">
               <Target className="text-primary" size={20} />
-              <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">① OKR Check-in</h3>
+              <h3 className="text-lg font-black font-headline text-on-surface uppercase tracking-tight">① OKR Check-in</h3>
             </div>
             {krs.length === 0 ? (
-              <p className="text-sm text-slate-500 italic">Bạn chưa được gán Key Result nào. Liên hệ Admin để được gán.</p>
+              <p className="text-sm text-on-surface-variant italic">Bạn chưa được gán Key Result nào. Liên hệ Admin để được gán.</p>
             ) : (
               <div className="space-y-4">
                 {krs.map((kr, idx) => (
@@ -168,10 +168,10 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
 
           {/* Block 2: Last week priorities */}
           <section className="space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <div className="flex items-center justify-between border-b border-outline-variant/40 pb-2">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="text-primary" size={20} />
-                <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">② Ưu tiên tuần trước (kết quả)</h3>
+                <h3 className="text-lg font-black font-headline text-on-surface uppercase tracking-tight">② Ưu tiên tuần trước (kết quả)</h3>
               </div>
               <button onClick={addPriorityRow} className="text-primary text-xs font-bold hover:bg-primary/5 px-3 py-1.5 rounded-lg">
                 + Thêm
@@ -179,7 +179,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
             </div>
             <div className="space-y-2">
               {lastWeekPriorities.map((row, idx) => (
-                <div key={idx} className="flex items-center gap-3 bg-slate-50 rounded-2xl px-4 py-2 border border-slate-200">
+                <div key={idx} className="flex items-center gap-3 bg-surface-variant/30 rounded-2xl px-4 py-2 border border-outline-variant/40">
                   <input
                     type="checkbox"
                     checked={row.done}
@@ -191,10 +191,10 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                     value={row.text}
                     onChange={(e) => updatePriorityRow(idx, { text: e.target.value })}
                     placeholder="Mô tả ưu tiên + kết quả..."
-                    className={`flex-1 bg-transparent border-none focus:ring-0 text-sm font-medium outline-none ${row.done ? 'line-through text-slate-400' : ''}`}
+                    className={`flex-1 bg-transparent border-none focus:ring-0 text-sm font-medium outline-none ${row.done ? 'line-through text-on-surface-variant' : ''}`}
                   />
                   {lastWeekPriorities.length > 1 && (
-                    <button onClick={() => removePriorityRow(idx)} className="text-slate-400 hover:text-rose-500 text-xs">
+                    <button onClick={() => removePriorityRow(idx)} className="text-on-surface-variant hover:text-rose-500 text-xs">
                       Xoá
                     </button>
                   )}
@@ -205,9 +205,9 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
 
           {/* Block 3: Top 3 next week */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+            <div className="flex items-center gap-2 border-b border-outline-variant/40 pb-2">
               <Target className="text-primary" size={20} />
-              <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">③ Top 3 ưu tiên tuần tới</h3>
+              <h3 className="text-lg font-black font-headline text-on-surface uppercase tracking-tight">③ Top 3 ưu tiên tuần tới</h3>
             </div>
             <div className="space-y-2">
               {[0, 1, 2].map(i => (
@@ -221,7 +221,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                     setTopThree(next);
                   }}
                   placeholder={`Ưu tiên #${i + 1}`}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  className="w-full bg-surface-variant/30 border border-outline-variant/40 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary"
                 />
               ))}
             </div>
@@ -231,7 +231,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
           <section className="space-y-3">
             <div className="flex items-center gap-2">
               <AlertCircle className="text-rose-500" size={20} />
-              <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">④ Rủi ro & Blockers</h3>
+              <h3 className="text-lg font-black font-headline text-on-surface uppercase tracking-tight">④ Rủi ro & Blockers</h3>
             </div>
             <textarea
               value={risks}
@@ -245,7 +245,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
           <section className="space-y-3">
             <div className="flex items-center gap-2">
               <HelpCircle className="text-amber-500" size={20} />
-              <h3 className="text-lg font-black font-headline text-slate-800 uppercase tracking-tight">⑤ Cần hỗ trợ</h3>
+              <h3 className="text-lg font-black font-headline text-on-surface uppercase tracking-tight">⑤ Cần hỗ trợ</h3>
             </div>
             <textarea
               value={helpNeeded}
@@ -256,8 +256,8 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
           </section>
         </div>
 
-        <div className="px-8 py-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50">
-          <button onClick={onClose} className="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200/50 rounded-full">
+        <div className="px-8 py-6 border-t border-outline-variant/40 flex items-center justify-end gap-3 bg-surface-variant/30/50">
+          <button onClick={onClose} className="px-6 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-variant/50 rounded-full">
             Huỷ
           </button>
           <button

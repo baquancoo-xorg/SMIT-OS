@@ -34,8 +34,8 @@ function PostHogTooltip({ active, payload }: PostHogTooltipProps) {
   const item = payload[0].payload;
   return (
     <div className="rounded-xl border border-black/5 bg-white/90 p-3 shadow-lg backdrop-blur-sm">
-      <p className="mb-1 text-xs font-black text-slate-700 capitalize">{item.domain}</p>
-      <p className="text-xs font-semibold text-slate-600 tabular-nums">{item.count.toLocaleString()} signup events</p>
+      <p className="mb-1 text-xs font-black text-on-surface capitalize">{item.domain}</p>
+      <p className="text-xs font-semibold text-on-surface-variant tabular-nums">{item.count.toLocaleString()} signup events</p>
     </div>
   );
 }

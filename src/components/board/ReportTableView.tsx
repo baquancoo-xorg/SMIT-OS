@@ -89,21 +89,21 @@ export default function ReportTableView({
               )}
               <td className={standardTable.cell}>
                 <div className="flex items-center gap-2 text-sm text-on-surface-variant">
-                  <span className="material-symbols-outlined text-base text-slate-400">calendar_today</span>
+                  <span className="material-symbols-outlined text-base text-on-surface-variant">calendar_today</span>
                   {formatTableDate(report.createdAt)}
                 </div>
               </td>
 
               <td className={standardTable.cell}>
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center font-black text-on-surface text-xs shadow-sm group-hover:scale-110 transition-transform">
+                  <div className="w-10 h-10 rounded-xl bg-surface-variant/30 flex items-center justify-center font-black text-on-surface text-xs shadow-sm group-hover:scale-110 transition-transform">
                     {user?.fullName.split(' ').map(n => n[0]).join('') || '?'}
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-black text-on-surface group-hover:text-primary transition-colors">
                       {user?.fullName || 'Unknown'}
                     </span>
-                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                    <span className="text-xs font-black text-on-surface-variant uppercase tracking-widest">
                       {user?.role || 'N/A'}
                     </span>
                   </div>
@@ -132,17 +132,17 @@ export default function ReportTableView({
                     }`}>
                       {dept}
                     </span>
-                  )) || <span className="text-slate-400 text-xs">N/A</span>}
+                  )) || <span className="text-on-surface-variant text-xs">N/A</span>}
                 </div>
               </td>
 
               <td className={standardTable.cell}>
                 <div className="flex items-center gap-2 text-sm text-on-surface-variant">
-                  <span className="material-symbols-outlined text-base text-slate-400">date_range</span>
+                  <span className="material-symbols-outlined text-base text-on-surface-variant">date_range</span>
                   <span>
                     {formatTableDate(weekStart)} - {formatTableDate(weekEnding)}
                   </span>
-                  <span className="text-xs font-bold text-slate-400 ml-1">
+                  <span className="text-xs font-bold text-on-surface-variant ml-1">
                     (W{weekNumber})
                   </span>
                 </div>
