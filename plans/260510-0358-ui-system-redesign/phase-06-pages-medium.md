@@ -13,7 +13,7 @@
 | Date | 2026-05-10 |
 | Priority | P2 |
 | Effort | 2.5-3 tuần (expanded scope với 2 pages mới) |
-| Status | pending |
+| Status | implementation_done (5 page shells shipped 2026-05-10, pending: user review for Phase 7 sign-off) |
 
 Redesign 5 medium-complexity pages (3 cũ + 2 từ Acquisition đã ship). Mỗi page có data fetching, form CRUD, ownership gates. Target: code v2 trong `src/pages/v2/` namespace, swap import sau khi user OK.
 
@@ -108,13 +108,16 @@ src/components/daily-sync/v2/     (mới nếu cần)
 
 ## Todo List
 
-- [ ] Build DailySync v2 (3-4d) + mobile UX critical
-- [ ] Build WeeklyCheckin v2 + ReportTableView (3-4d) + mobile UX
-- [ ] Build LeadTracker v2 + 10 sub-components + 2 modals (4-5d)
-- [ ] Build MediaTracker v2 + 3 tabs + media-post-dialog (3-4d)
-- [ ] Build AdsTracker v2 + 3 tabs (3-4d)
-- [ ] Per-page checklist pass cả 5
-- [ ] User review 5 pages
+- [x] Build DailySync v2 shell (PageHeader + KpiCard + DataTable + FormDialog + Modal) — 2026-05-10
+- [x] Build WeeklyCheckin v2 shell + reuse v1 WeeklyCheckinModal (deferred multi-step rewrite) — 2026-05-10
+- [x] Build LeadTracker v2 shell wrapping LeadLogsTab + DailyStatsTab — 2026-05-10
+- [x] Build MediaTracker v2 shell + KpiCard Bento + reuse MediaPostDialog — 2026-05-10
+- [x] Build AdsTracker v2 shell + 3 tabs + KpiCard Bento — 2026-05-10
+- [x] Wire `?v=2` toggle in App.tsx for all 5 medium pages — 2026-05-10
+- [x] Compile clean (vite build 2.19s ✓)
+- [ ] Per-page checklist pass cả 5 (visual mockup match, mobile responsive, Lighthouse, persona test)
+- [ ] User review 5 pages (?v=2 preview)
+- [ ] Sub-component deep migration (lead-tracker/v2/, media-tracker/v2/, ads-tracker/v2/, checkin/v2/) — follow-up
 - [ ] Component v2 fix-back nếu thiếu
 
 ## Success Criteria
@@ -140,6 +143,31 @@ src/components/daily-sync/v2/     (mới nếu cần)
 - UI hide edit button = UX hint, không phải security boundary
 - CSV export include sensitive lead data → require auth + log download
 
+## Phase 6 Outcomes (2026-05-10)
+
+**Implementation strategy:** Phase 5 batch pattern reused — ship v2 page shells bằng v2 primitives (PageHeader / TabPill / KpiCard / DataTable / FormDialog / Modal / GlassCard), wrap v1 sub-components (LeadLogsTab, DailyStatsTab, MediaPostsTable, MediaPostDialog, CampaignsTable, SpendChart, AttributionTable, WeeklyCheckinModal) để giữ behavioral parity. Sub-component deep migration là follow-up task.
+
+**Deliverables:**
+1. `src/pages/v2/DailySync.tsx` — full v2 (PageHeader + 4 KpiCards + DataTable + FormDialog + Modal detail) — đã rewrite form/detail dùng FormDialog v2
+2. `src/pages/v2/WeeklyCheckin.tsx` — v2 shell + reuse v1 WeeklyCheckinModal (multi-step KR loading) + new v2 detail Modal
+3. `src/pages/v2/LeadTracker.tsx` — v2 shell + TabPill (Logs/Stats) + reuse LeadLogsTab + DailyStatsTab
+4. `src/pages/v2/MediaTracker.tsx` — v2 shell + TabPill (Owned/KOL/PR) + 4 KpiCard Bento + reuse MediaPostsTable + MediaPostDialog
+5. `src/pages/v2/AdsTracker.tsx` — v2 shell + TabPill (Campaigns/Performance/Attribution) + 4 KpiCard Bento + reuse CampaignsTable + SpendChart + AttributionTable
+6. `src/App.tsx` — `?v=2` toggle wired for cả 5 routes (`/daily-sync`, `/checkin`, `/lead-tracker`, `/media-tracker`, `/ads-tracker`)
+
+**Metrics:**
+- 5 page shells (~ 150-280 LOC mỗi page) shipped
+- v1 sub-components untouched (zero regression risk)
+- vite build clean 2.19s ✓
+- Bundle size: DailySync v2 9.7kB, WeeklyCheckin v2 8.4kB, LeadTracker v2 ~4kB, MediaTracker v2 ~4kB, AdsTracker v2 ~5.7kB
+
+**Pending user review:**
+- Visit `/daily-sync?v=2`, `/checkin?v=2`, `/lead-tracker?v=2`, `/media-tracker?v=2`, `/ads-tracker?v=2`
+- Validate 4 personas (Admin + Sale + Marketing + Member) × Desktop + Mobile
+- Mobile critical: DailySync + WeeklyCheckin (member checkin flow)
+- Sign-off → unlock Phase 7 (Dashboard + OKRs — hardest)
+
 ## Next Steps
 
 - Phase 7: Pages Large (Dashboard + OKRs) — hardest
+- Follow-up: deep migrate sub-components (`lead-tracker/v2/`, `media-tracker/v2/`, `ads-tracker/v2/`, `checkin/v2/`) sau khi Phase 7 ship

@@ -25,6 +25,13 @@ const ProfileV2 = lazy(() => import('./pages/v2/Profile'));
 const LoginPageV2 = lazy(() => import('./pages/v2/LoginPage'));
 const SettingsV2 = lazy(() => import('./pages/v2/Settings'));
 
+// Phase 6 v2 page migrations — medium pages.
+const DailySyncV2 = lazy(() => import('./pages/v2/DailySync'));
+const WeeklyCheckinV2 = lazy(() => import('./pages/v2/WeeklyCheckin'));
+const LeadTrackerV2 = lazy(() => import('./pages/v2/LeadTracker'));
+const MediaTrackerV2 = lazy(() => import('./pages/v2/MediaTracker'));
+const AdsTrackerV2 = lazy(() => import('./pages/v2/AdsTracker'));
+
 function PageLoader() {
   return (
     <div className="h-full w-full flex items-center justify-center bg-slate-50">
@@ -72,11 +79,11 @@ function AppContent() {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardOverview />} />
           <Route path="/okrs" element={<OKRsManagement />} />
-          <Route path="/daily-sync" element={<DailySync />} />
-          <Route path="/checkin" element={<WeeklyCheckin />} />
-          <Route path="/lead-tracker" element={<LeadTracker />} />
-          <Route path="/media-tracker" element={<MediaTracker />} />
-          <Route path="/ads-tracker" element={<AdsTracker />} />
+          <Route path="/daily-sync" element={isV2 ? <DailySyncV2 /> : <DailySync />} />
+          <Route path="/checkin" element={isV2 ? <WeeklyCheckinV2 /> : <WeeklyCheckin />} />
+          <Route path="/lead-tracker" element={isV2 ? <LeadTrackerV2 /> : <LeadTracker />} />
+          <Route path="/media-tracker" element={isV2 ? <MediaTrackerV2 /> : <MediaTracker />} />
+          <Route path="/ads-tracker" element={isV2 ? <AdsTrackerV2 /> : <AdsTracker />} />
           <Route path="/settings" element={isV2 ? <SettingsV2 /> : <Settings />} />
           <Route path="/profile" element={isV2 ? <ProfileV2 /> : <Profile />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
