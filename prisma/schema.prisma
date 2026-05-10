@@ -16,7 +16,7 @@ model User {
   username             String         @unique
   password             String
   departments          String[] // Multiple departments supported
-  role                 String // Admin, Leader, Member
+  role                 String // Admin, Member
   scope                String? // Vị trí công việc (e.g., "Backend Developer")
   avatar               String
   isAdmin              Boolean        @default(false)
