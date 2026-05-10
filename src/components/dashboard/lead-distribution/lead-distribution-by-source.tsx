@@ -1,6 +1,7 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Globe } from 'lucide-react';
 import type { LeadDistributionBySourceItem } from '../../../types/lead-distribution';
+import { GlassCard } from '../../ui/v2';
 
 const COLORS = [
   '#0059b6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
@@ -14,22 +15,22 @@ interface Props {
 export function LeadDistributionBySource({ data }: Props) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 h-full flex items-center justify-center">
-        <p className="text-sm text-slate-400">Không có dữ liệu</p>
-      </div>
+      <GlassCard variant="surface" padding="md" className="flex h-full items-center justify-center">
+        <p className="text-[length:var(--text-body-sm)] text-on-surface-variant">Không có dữ liệu</p>
+      </GlassCard>
     );
   }
 
   const total = data.reduce((sum, d) => sum + d.count, 0);
 
   return (
-    <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 h-full">
-      <div className="flex items-center justify-between mb-4">
+    <GlassCard variant="surface" padding="md" className="h-full">
+      <div className="mb-4 flex items-center justify-between">
         <div>
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Lead By Source</h3>
-          <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">Lead acquisition channels</p>
+          <h3 className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">Lead By Source</h3>
+          <p className="mt-0.5 text-[length:var(--text-caption)] font-medium italic text-on-surface-variant">Lead acquisition channels</p>
         </div>
-        <div className="size-7 bg-slate-50 text-slate-400 rounded-lg flex items-center justify-center">
+        <div className="flex size-7 items-center justify-center rounded-button bg-surface-container text-on-surface-variant">
           <Globe size={14} />
         </div>
       </div>
@@ -82,10 +83,10 @@ export function LeadDistributionBySource({ data }: Props) {
           </PieChart>
         </ResponsiveContainer>
       </div>
-      <div className="text-center mt-2">
-        <span className="text-lg font-black text-slate-900">{total}</span>
-        <span className="text-xs font-bold text-slate-400 ml-1">total leads</span>
+      <div className="mt-2 text-center">
+        <span className="font-headline text-[length:var(--text-h6)] font-bold text-on-surface">{total}</span>
+        <span className="ml-1 text-[length:var(--text-caption)] font-semibold text-on-surface-variant">total leads</span>
       </div>
-    </div>
+    </GlassCard>
   );
 }

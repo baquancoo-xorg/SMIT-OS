@@ -27,13 +27,13 @@ export default function CallPerformanceHeatmap({ data }: Props) {
   return (
     <DashboardPanel className="p-4 md:p-5">
       <div className="mb-3">
-        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Call Distribution Heatmap</h3>
-        <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">Phân bổ cuộc gọi theo ngày trong tuần và khung giờ</p>
+        <h3 className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">Call Distribution Heatmap</h3>
+        <p className="mt-0.5 text-[length:var(--text-caption)] font-medium italic text-on-surface-variant">Phân bổ cuộc gọi theo ngày trong tuần và khung giờ</p>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-slate-100 p-3 md:p-4">
+      <div className="overflow-x-auto rounded-card border border-outline-variant/40 p-3 md:p-4">
         <div className="min-w-[900px] space-y-2">
-          <div className="grid grid-cols-[60px_repeat(24,minmax(24px,1fr))] gap-1 text-[10px] text-slate-400">
+          <div className="grid grid-cols-[60px_repeat(24,minmax(24px,1fr))] gap-1 text-[length:var(--text-caption)] text-on-surface-variant">
             <div />
             {Array.from({ length: 24 }, (_, h) => (
               <div key={h} className="text-center">{h}</div>
@@ -41,8 +41,8 @@ export default function CallPerformanceHeatmap({ data }: Props) {
           </div>
 
           {DAYS.map((day, dow) => (
-            <div key={day} className="grid grid-cols-[60px_repeat(24,minmax(24px,1fr))] gap-1 items-center">
-              <div className="text-xs font-semibold text-slate-500">{day}</div>
+            <div key={day} className="grid grid-cols-[60px_repeat(24,minmax(24px,1fr))] items-center gap-1">
+              <div className="text-[length:var(--text-body-sm)] font-semibold text-on-surface-variant">{day}</div>
               {Array.from({ length: 24 }, (_, hour) => {
                 const count = map.get(`${dow}-${hour}`) ?? 0;
                 const label = `${day} ${hour}h: ${count} calls`;
@@ -54,14 +54,14 @@ export default function CallPerformanceHeatmap({ data }: Props) {
                     onMouseEnter={() => setActiveCellLabel(label)}
                     onFocus={() => setActiveCellLabel(label)}
                     onTouchStart={() => setActiveCellLabel(label)}
-                    className={`h-6 w-full rounded ${levelClass(count, max)} focus:outline-none focus:ring-2 focus:ring-primary/35`}
+                    className={`h-6 w-full rounded ${levelClass(count, max)} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35`}
                   />
                 );
               })}
             </div>
           ))}
         </div>
-        <p className="mt-3 text-[11px] font-semibold text-slate-500">
+        <p className="mt-3 text-[length:var(--text-body-sm)] font-semibold text-on-surface-variant">
           {activeCellLabel ?? 'Di chuột hoặc chạm vào ô để xem số cuộc gọi.'}
         </p>
       </div>

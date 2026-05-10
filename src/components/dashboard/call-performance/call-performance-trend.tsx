@@ -48,7 +48,7 @@ function TrendTooltipContent({ active, payload, label }: TrendTooltipProps) {
 export default function CallPerformanceTrend({ data }: Props) {
   if (data.length === 0) {
     return (
-      <DashboardPanel className="p-6 text-sm text-slate-500">
+      <DashboardPanel className="p-6 text-[length:var(--text-body-sm)] text-on-surface-variant">
         Không có dữ liệu xu hướng cuộc gọi.
       </DashboardPanel>
     );
@@ -57,11 +57,11 @@ export default function CallPerformanceTrend({ data }: Props) {
   return (
     <DashboardPanel className="p-4 md:p-5">
       <div className="mb-3">
-        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Call Trend Over Time</h3>
-        <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">Xu hướng Calls, Answered và Avg Duration theo ngày</p>
+        <h3 className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">Call Trend Over Time</h3>
+        <p className="mt-0.5 text-[length:var(--text-caption)] font-medium italic text-on-surface-variant">Xu hướng Calls, Answered và Avg Duration theo ngày</p>
       </div>
 
-      <div className="h-[300px] rounded-2xl border border-slate-100 p-2">
+      <div className="h-[300px] rounded-card border border-outline-variant/40 p-2">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 8, right: 16, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />

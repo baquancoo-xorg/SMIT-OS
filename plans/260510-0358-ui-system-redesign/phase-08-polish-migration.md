@@ -153,6 +153,19 @@ plans/260510-0358-ui-system-redesign/reports/
 
 vite build clean 2.29s ✓
 
+### Sub-component migration — Batch 12 done 2026-05-11
+
+5 dashboard leaf files (call-performance + lead-distribution):
+- [x] `call-performance-heatmap.tsx` (70 LOC) — title tokens + rounded-card + focus-visible ring (was focus:outline-none focus:ring)
+- [x] `call-performance-trend.tsx` (81 LOC) — title tokens + rounded-card + empty state tokens
+- [x] `lead-distribution-by-source.tsx` (91 LOC) → v2 GlassCard wrapper + title tokens + total stat tokens (text-h6 + text-caption)
+- [x] `lead-distribution-by-country.tsx` (89 LOC) — title tokens + rounded-card + total stat tokens
+- [x] `lead-distribution-by-ae.tsx` (71 LOC) — title tokens + rounded-card + icon container
+
+Cumulative effect: ALL 3 sub-dirs `dashboard/{call-performance, lead-distribution, ui}` đã touch. Tổng 11 files modernized chỉ riêng cho dashboard.
+
+vite build clean 2.20s ✓
+
 ### Sub-component migration — Batch 11 done 2026-05-11
 
 4 dashboard files (section wrappers + per-table headers):

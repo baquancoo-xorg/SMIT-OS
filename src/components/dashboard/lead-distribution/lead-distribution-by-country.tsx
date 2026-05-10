@@ -11,8 +11,8 @@ interface Props {
 export function LeadDistributionByCountry({ data }: Props) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 h-full flex items-center justify-center">
-        <p className="text-sm text-slate-400">Không có dữ liệu</p>
+      <div className="flex h-full items-center justify-center rounded-card border border-outline-variant/40 bg-white/70 backdrop-blur-md p-5 shadow-sm">
+        <p className="text-[length:var(--text-body-sm)] text-on-surface-variant">Không có dữ liệu</p>
       </div>
     );
   }
@@ -20,13 +20,13 @@ export function LeadDistributionByCountry({ data }: Props) {
   const total = data.reduce((sum, d) => sum + d.count, 0);
 
   return (
-    <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 h-full">
-      <div className="flex items-center justify-between mb-4">
+    <div className="h-full rounded-card border border-outline-variant/40 bg-white/70 backdrop-blur-md p-5 shadow-sm">
+      <div className="mb-4 flex items-center justify-between">
         <div>
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Lead By Country</h3>
-          <p className="text-[10px] font-bold text-slate-400 italic mt-0.5">Distribution by region</p>
+          <h3 className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">Lead By Country</h3>
+          <p className="mt-0.5 text-[length:var(--text-caption)] font-medium italic text-on-surface-variant">Distribution by region</p>
         </div>
-        <div className="size-7 bg-slate-50 text-slate-400 rounded-lg flex items-center justify-center">
+        <div className="flex size-7 items-center justify-center rounded-button bg-surface-container text-on-surface-variant">
           <Globe size={14} />
         </div>
       </div>
@@ -81,8 +81,8 @@ export function LeadDistributionByCountry({ data }: Props) {
         </ResponsiveContainer>
       </div>
       <div className="text-center mt-2">
-        <span className="text-lg font-black text-slate-900">{total}</span>
-        <span className="text-xs font-bold text-slate-400 ml-1">total leads</span>
+        <span className="font-headline text-[length:var(--text-h6)] font-bold text-on-surface">{total}</span>
+        <span className="ml-1 text-[length:var(--text-caption)] font-semibold text-on-surface-variant">total leads</span>
       </div>
     </div>
   );
