@@ -126,11 +126,11 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-white rounded-card shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
       >
         <div className="px-8 py-6 border-b border-outline-variant/40 flex items-center justify-between bg-surface-variant/30/50">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-3xl bg-primary/10 flex items-center justify-center text-primary">
+            <div className="w-12 h-12 rounded-card bg-primary/10 flex items-center justify-center text-primary">
               <Calendar size={24} />
             </div>
             <div>
@@ -179,7 +179,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
             </div>
             <div className="space-y-2">
               {lastWeekPriorities.map((row, idx) => (
-                <div key={idx} className="flex items-center gap-3 bg-surface-variant/30 rounded-2xl px-4 py-2 border border-outline-variant/40">
+                <div key={idx} className="flex items-center gap-3 bg-surface-variant/30 rounded-card px-4 py-2 border border-outline-variant/40">
                   <input
                     type="checkbox"
                     checked={row.done}
@@ -194,7 +194,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                     className={`flex-1 bg-transparent border-none focus:ring-0 text-sm font-medium outline-none ${row.done ? 'line-through text-on-surface-variant' : ''}`}
                   />
                   {lastWeekPriorities.length > 1 && (
-                    <button onClick={() => removePriorityRow(idx)} className="text-on-surface-variant hover:text-rose-500 text-xs">
+                    <button onClick={() => removePriorityRow(idx)} className="text-on-surface-variant hover:text-error text-xs">
                       Xoá
                     </button>
                   )}
@@ -221,7 +221,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
                     setTopThree(next);
                   }}
                   placeholder={`Ưu tiên #${i + 1}`}
-                  className="w-full bg-surface-variant/30 border border-outline-variant/40 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary"
+                  className="w-full bg-surface-variant/30 border border-outline-variant/40 rounded-card px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary"
                 />
               ))}
             </div>
@@ -230,28 +230,28 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
           {/* Block 4: Risks */}
           <section className="space-y-3">
             <div className="flex items-center gap-2">
-              <AlertCircle className="text-rose-500" size={20} />
+              <AlertCircle className="text-error" size={20} />
               <h3 className="text-lg font-black font-headline text-on-surface uppercase tracking-tight">④ Rủi ro & Blockers</h3>
             </div>
             <textarea
               value={risks}
               onChange={(e) => setRisks(e.target.value)}
               placeholder="Khó khăn, blocker, rủi ro..."
-              className="w-full px-4 py-3 bg-rose-50/50 border border-rose-100 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-200 min-h-[100px] resize-none"
+              className="w-full px-4 py-3 bg-error-container/30/50 border border-error-container/40 rounded-card text-sm font-medium focus:outline-none focus:ring-2 focus:ring-error/35 min-h-[100px] resize-none"
             />
           </section>
 
           {/* Block 5: Help needed */}
           <section className="space-y-3">
             <div className="flex items-center gap-2">
-              <HelpCircle className="text-amber-500" size={20} />
+              <HelpCircle className="text-warning" size={20} />
               <h3 className="text-lg font-black font-headline text-on-surface uppercase tracking-tight">⑤ Cần hỗ trợ</h3>
             </div>
             <textarea
               value={helpNeeded}
               onChange={(e) => setHelpNeeded(e.target.value)}
               placeholder="Cần ai hỗ trợ điều gì..."
-              className="w-full px-4 py-3 bg-amber-50/50 border border-amber-100 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-200 min-h-[100px] resize-none"
+              className="min-h-[100px] w-full resize-none rounded-card border border-warning-container/40 bg-warning-container/30 px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-warning/35"
             />
           </section>
         </div>

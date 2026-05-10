@@ -259,7 +259,7 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
               const sla = getLeadSla(l, now);
               return sla.label.startsWith('Overdue');
             }).length;
-            const statCls = 'flex items-center gap-4 px-4 py-2 bg-white border border-outline-variant/40 rounded-2xl shadow-sm text-[10px] font-black uppercase tracking-widest';
+            const statCls = 'flex items-center gap-4 px-4 py-2 bg-white border border-outline-variant/40 rounded-card shadow-sm text-[10px] font-black uppercase tracking-widest';
             const dot = (color: string) => <span className={`size-2 rounded-full inline-block ${color}`} />;
             const stat = (color: string, label: string, val: number) => (
               <span className="flex items-center gap-1.5 text-on-surface-variant">{dot(color)}{label}: {val}</span>
@@ -270,14 +270,14 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                   {stat('bg-on-surface-variant', 'Total', filteredLeads.length)}
                   {stat('bg-violet-400', 'NEW', c('Mới'))}
                   {stat('bg-blue-400', 'ATT', c('Đang liên hệ'))}
-                  {stat('bg-amber-400', 'NUR', c('Đang nuôi dưỡng'))}
+                  {stat('bg-warning/80', 'NUR', c('Đang nuôi dưỡng'))}
                   {stat('bg-emerald-500', 'QLD', c('Qualified'))}
-                  {stat('bg-rose-400', 'UQLD', c('Unqualified'))}
+                  {stat('bg-error/80', 'UQLD', c('Unqualified'))}
                   {stat('bg-emerald-400', 'OT', onTime)}
-                  {stat('bg-red-500', 'OVD', overdue)}
+                  {stat('bg-error', 'OVD', overdue)}
                 </div>
                 <div className={statCls}>
-                  {stat('bg-red-400', 'VN', vn)}
+                  {stat('bg-error/80', 'VN', vn)}
                   {stat('bg-sky-400', 'QT', intl)}
                 </div>
               </div>
@@ -287,7 +287,7 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
         </div>
       </GlassCard>
 
-      <div className="flex-1 min-h-0 bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm overflow-hidden">
+      <div className="flex-1 min-h-0 bg-white/50 backdrop-blur-md border border-white/20 rounded-card shadow-sm overflow-hidden">
         <TableShell variant="standard" className="h-full bg-transparent border-0 shadow-none rounded-none" scrollClassName="h-full overflow-y-auto overflow-x-auto custom-scrollbar" tableClassName="min-w-[1180px]">
           <thead className="sticky top-0 z-20 bg-white">
             <tr className={`${standardTable.headerRow} bg-white`}>
@@ -338,7 +338,7 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
                   key={lead.id}
                   className={`${standardTable.row}
                     ${isSelected ? standardTable.rowSelected : ''}
-                    ${hasPendingDelete && isLeadAdmin ? 'border-l-2 border-rose-400' : ''}`}
+                    ${hasPendingDelete && isLeadAdmin ? 'border-l-2 border-error/80' : ''}`}
                 >
                   {isSale && (
                     <td className={`${standardTable.cell} pl-6`}>

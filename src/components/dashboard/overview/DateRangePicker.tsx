@@ -68,7 +68,7 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
       {isOpen && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => { setIsOpen(false); setShowCustom(false); }} />
-          <div className="absolute right-0 top-full mt-2 z-20 bg-white rounded-2xl shadow-xl border border-outline-variant/40 overflow-hidden min-w-[200px]">
+          <div className="absolute right-0 top-full mt-2 z-20 bg-white rounded-card shadow-xl border border-outline-variant/40 overflow-hidden min-w-[200px]">
             {!showCustom ? (
               <div className="py-1.5">
                 {PRESETS.map((p) => (

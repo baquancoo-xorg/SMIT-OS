@@ -12,7 +12,7 @@ interface Props {
 
 const STAGE_STYLE = {
   pre: { label: 'Pre-product', bg: 'bg-[#0866FF]/5', accent: 'bg-[#0866FF]', text: 'text-[#0866FF]', border: 'border-[#0866FF]/15' },
-  in: { label: 'In-product', bg: 'bg-amber-500/5', accent: 'bg-amber-500', text: 'text-amber-600', border: 'border-amber-500/15' },
+  in: { label: 'In-product', bg: 'bg-warning/5', accent: 'bg-warning', text: 'text-warning', border: 'border-warning/15' },
   post: { label: 'Post-product', bg: 'bg-tertiary/5', accent: 'bg-tertiary', text: 'text-tertiary', border: 'border-tertiary/15' },
 } as const;
 

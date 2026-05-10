@@ -53,7 +53,7 @@ export default function BulkActionBar({
             <button
               onClick={onDelete}
               disabled={saving}
-              className="flex items-center gap-2 px-5 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-xl text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2 bg-error/20 hover:bg-error/30 text-error/70 rounded-xl text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50"
             >
               <Trash2 size={13} />
               Xóa ({count})

@@ -278,7 +278,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
                     />
 
                     {showFolderDropdown && (
-                      <div className="absolute z-20 mt-2 max-h-64 w-full overflow-auto rounded-2xl border border-outline-variant/20 bg-surface-container-lowest shadow-sm">
+                      <div className="absolute z-20 mt-2 max-h-64 w-full overflow-auto rounded-card border border-outline-variant/20 bg-surface-container-lowest shadow-sm">
                         <button
                           type="button"
                           onClick={() => {
@@ -345,7 +345,7 @@ export function SheetsExportTab({ exportTrigger, onExportingChange }: SheetsExpo
 
       {exportStatus && (
         <div
-          className={`p-5 rounded-2xl border backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-500 ${
+          className={`p-5 rounded-card border backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-500 ${
             exportStatus.status === 'completed'
               ? 'bg-emerald-50/50 border-emerald-200'
               : exportStatus.status === 'failed'

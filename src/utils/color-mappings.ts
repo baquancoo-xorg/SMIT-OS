@@ -3,11 +3,11 @@ export const TYPE_COLORS: Record<string, string> = {
   UserStory: 'bg-blue-100 text-blue-700 border-blue-200',
   TechTask: 'bg-surface-variant/60 text-on-surface border-outline-variant/40',
   Campaign: 'bg-orange-100 text-orange-700 border-orange-200',
-  MktTask: 'bg-amber-100 text-amber-700 border-amber-200',
+  MktTask: 'bg-warning-container/40 text-warning border-warning-container/60',
   MediaTask: 'bg-pink-100 text-pink-700 border-pink-200',
   SaleTask: 'bg-emerald-100 text-emerald-700 border-emerald-200',
   Deal: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-  DealLost: 'bg-rose-100 text-rose-700 border-rose-200',
+  DealLost: 'bg-error-container/40 text-error border-error-container/60',
 };
 
 export const PRIORITY_COLORS: Record<string, string> = {
@@ -25,7 +25,7 @@ export const STATUS_COLORS: Record<string, string> = {
   Review: 'bg-purple-50 text-purple-600 border-purple-100',
   Done: 'bg-emerald-50 text-emerald-600 border-emerald-100',
   Won: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-  Void: 'bg-yellow-50 text-yellow-600 border-yellow-100',
+  Void: 'bg-warning-container/30 text-warning border-warning-container/40',
 };
 
 export const TEAM_COLORS: Record<string, string> = {

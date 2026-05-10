@@ -85,7 +85,7 @@ export function OkrCyclesTab({ onDeleteConfirm, isAddingCycle, setIsAddingCycle 
   return (
     <div className="space-y-6">
       {isAddingCycle && (
-        <div className="bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-white/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="bg-white/50 backdrop-blur-md p-6 rounded-card border border-white/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
           <Input label="Cycle Name" placeholder="e.g., Q2/2026" value={newCycle.name} onChange={e => setNewCycle({ ...newCycle, name: e.target.value })} />
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -105,7 +105,7 @@ export function OkrCyclesTab({ onDeleteConfirm, isAddingCycle, setIsAddingCycle 
       )}
 
       {editingCycle && (
-        <div className="bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-white/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="bg-white/50 backdrop-blur-md p-6 rounded-card border border-white/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex items-center justify-between mb-2">
             <h4 className="text-sm font-bold text-on-surface">Edit Cycle</h4>
             <button onClick={() => setEditingCycle(null)} className="text-on-surface-variant hover:text-on-surface"><X size={18} /></button>

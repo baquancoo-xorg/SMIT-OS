@@ -105,7 +105,7 @@ function MqlBadgeWithTooltip({ value, rate, tiers, rowIndex }: { value: number; 
         <div className="mb-2 text-[length:var(--text-caption)] font-semibold text-on-surface">MQL Tier Breakdown</div>
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-2">
-            <Medal className="h-3.5 w-3.5 text-amber-600" />
+            <Medal className="h-3.5 w-3.5 text-warning" />
             <span className="text-on-surface-variant">Bronze:</span>
             <span className="ml-auto font-medium tabular-nums">{tiers.bronze} <span className="font-normal text-on-surface-variant/70">({bronzePercent.toFixed(1)}%)</span></span>
           </div>
@@ -115,7 +115,7 @@ function MqlBadgeWithTooltip({ value, rate, tiers, rowIndex }: { value: number; 
             <span className="ml-auto font-medium tabular-nums">{tiers.silver} <span className="font-normal text-on-surface-variant/70">({silverPercent.toFixed(1)}%)</span></span>
           </div>
           <div className="flex items-center gap-2">
-            <Trophy className="h-3.5 w-3.5 text-amber-500" />
+            <Trophy className="h-3.5 w-3.5 text-warning" />
             <span className="text-on-surface-variant">Gold:</span>
             <span className="ml-auto font-medium tabular-nums">{tiers.gold} <span className="font-normal text-on-surface-variant/70">({goldPercent.toFixed(1)}%)</span></span>
           </div>

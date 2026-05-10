@@ -30,14 +30,14 @@ export function ObjectiveAccordionCard({
   const colors = getDeptColor(objective.department);
 
   return (
-    <div className="bg-white/50 backdrop-blur-md rounded-3xl shadow-sm border border-white/20 overflow-hidden group">
+    <div className="bg-white/50 backdrop-blur-md rounded-card shadow-sm border border-white/20 overflow-hidden group">
       {/* L1 Objective Header - Clickable to expand/collapse */}
       <div
         onClick={onToggleExpand}
         className="p-5 md:p-6 lg:p-8 cursor-pointer hover:bg-surface-variant/30/50 transition-colors flex items-center justify-between"
       >
         <div className="flex items-center gap-4 md:gap-6 flex-1">
-          <div className={`w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-3xl md:rounded-3xl ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
+          <div className={`w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-card md:rounded-card ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
             <span className="material-symbols-outlined text-2xl md:text-3xl">ads_click</span>
           </div>
           <div className="flex-1 min-w-0">
@@ -151,13 +151,13 @@ function ChildObjectiveCard({
   const colors = getDeptColor(objective.department);
 
   return (
-    <div className="rounded-3xl md:rounded-3xl border-2 border-outline-variant/10 bg-surface-container-low/30 overflow-hidden">
+    <div className="rounded-card md:rounded-card border-2 border-outline-variant/10 bg-surface-container-low/30 overflow-hidden">
       <div
         onClick={() => setIsExpanded(!isExpanded)}
         className="p-4 md:p-6 cursor-pointer hover:bg-surface-container-low/50 transition-colors flex items-center justify-between"
       >
         <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
-          <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-3xl ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
+          <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-card ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
             <span className="material-symbols-outlined text-xl md:text-2xl">track_changes</span>
           </div>
           <div className="min-w-0 flex-1">
@@ -301,14 +301,14 @@ export function ObjectiveAccordionCardL2({
   };
 
   return (
-    <div className="bg-white/50 backdrop-blur-md rounded-3xl shadow-sm border border-white/20 overflow-hidden group">
+    <div className="bg-white/50 backdrop-blur-md rounded-card shadow-sm border border-white/20 overflow-hidden group">
       {/* Header - Clickable to expand/collapse */}
       <div
         onClick={() => setIsExpanded(!isExpanded)}
         className="p-5 md:p-6 lg:p-8 cursor-pointer hover:bg-surface-variant/30/50 transition-colors flex items-center justify-between"
       >
         <div className="flex items-center gap-4 md:gap-6 flex-1 min-w-0">
-          <div className={`w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-3xl md:rounded-3xl ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
+          <div className={`w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-card md:rounded-card ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
             <span className="material-symbols-outlined text-2xl md:text-3xl">track_changes</span>
           </div>
           <div className="flex-1 min-w-0">
@@ -428,7 +428,7 @@ function KeyResultRow({ kr, index, isL2, owner, objectives, onLinkObjective, onD
   const parentKR = krData.parentKrId ? objectives?.flatMap(o => o.keyResults).find(item => item.id === krData.parentKrId) : null;
 
   return (
-    <div className="flex flex-col gap-3 md:gap-4 p-4 md:p-6 rounded-3xl md:rounded-3xl hover:bg-surface-variant/30/50 transition-all duration-500 group border border-transparent hover:border-outline-variant/10">
+    <div className="flex flex-col gap-3 md:gap-4 p-4 md:p-6 rounded-card md:rounded-card hover:bg-surface-variant/30/50 transition-all duration-500 group border border-transparent hover:border-outline-variant/10">
       {/* C3: Mobile-first stack, grid on md+ */}
       <div className="flex flex-col gap-4 md:grid md:grid-cols-12 md:items-center md:gap-6">
         {/* Title section - full width on mobile */}
@@ -501,10 +501,10 @@ function KeyResultRow({ kr, index, isL2, owner, objectives, onLinkObjective, onD
 
       {/* Last Check-in Note */}
       {krData.lastNote && (
-        <div className="mt-1 flex items-start gap-2 bg-amber-50/50 p-2 rounded-lg border border-amber-100/50">
-          <span className="material-symbols-outlined text-amber-600 text-xs mt-0.5">chat_bubble</span>
+        <div className="mt-1 flex items-start gap-2 bg-warning-container/30/50 p-2 rounded-lg border border-warning-container/40/50">
+          <span className="material-symbols-outlined text-warning text-xs mt-0.5">chat_bubble</span>
           <p className="text-[10px] text-on-surface-variant italic leading-relaxed">
-            <span className="font-bold text-amber-700 not-italic mr-1">Latest Note:</span>
+            <span className="font-bold text-warning not-italic mr-1">Latest Note:</span>
             {krData.lastNote}
           </p>
         </div>
@@ -602,7 +602,7 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, title, message }: Dele
 
   return (
     <div className="fixed inset-0 bg-on-surface/50 flex items-center justify-center z-[60] backdrop-blur-sm">
-      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-md p-8 relative">
+      <div className="bg-surface rounded-card shadow-2xl w-full max-w-md p-8 relative">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
@@ -611,8 +611,8 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, title, message }: Dele
         </button>
 
         <div className="flex flex-col items-center text-center">
-          <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-6">
-            <span className="material-symbols-outlined text-rose-600 text-3xl">warning</span>
+          <div className="w-16 h-16 bg-error-container/30 rounded-full flex items-center justify-center mb-6">
+            <span className="material-symbols-outlined text-error text-3xl">warning</span>
           </div>
           <h3 className="text-xl font-bold text-on-surface mb-2">{title}</h3>
           <p className="text-sm text-on-surface-variant mb-8 leading-relaxed">
@@ -628,7 +628,7 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, title, message }: Dele
               Cancel
             </button>
             <button
-              className="flex-1 px-6 py-3 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-all shadow-lg shadow-rose-200 min-h-[48px]"
+              className="flex-1 px-6 py-3 text-sm font-bold text-white bg-error hover:bg-error rounded-xl transition-all shadow-lg shadow-error/20 min-h-[48px]"
               onClick={onConfirm}
             >
               Delete
@@ -655,7 +655,7 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
 
   return (
     <div className="fixed inset-0 bg-on-surface/50 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-lg p-8 relative">
+      <div className="bg-surface rounded-card shadow-2xl w-full max-w-lg p-8 relative">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
@@ -670,7 +670,7 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Title</label>
             <input
               type="text"
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-card px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all"
               value={formData.title}
               onChange={e => setFormData({ ...formData, title: e.target.value })}
               placeholder="e.g., Increase user retention by 20%"
@@ -681,7 +681,7 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Target Value</label>
             <input
               type="number"
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-card px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all"
               value={formData.targetValue}
               onChange={e => setFormData({ ...formData, targetValue: Number(e.target.value) })}
             />
@@ -691,7 +691,7 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Unit</label>
             <input
               type="text"
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-card px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all"
               value={formData.unit}
               onChange={e => setFormData({ ...formData, unit: e.target.value })}
               placeholder="e.g., %, USD, Users"
@@ -739,7 +739,7 @@ function UpdateProgressModal({ isOpen, onClose, onSave, currentValue, targetValu
 
   return (
     <div className="fixed inset-0 bg-on-surface/50 flex items-center justify-center z-[70] backdrop-blur-sm">
-      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-sm p-8 relative">
+      <div className="bg-surface rounded-card shadow-2xl w-full max-w-sm p-8 relative">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
@@ -765,7 +765,7 @@ function UpdateProgressModal({ isOpen, onClose, onSave, currentValue, targetValu
           <div>
             <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Progress Note (Optional)</label>
             <textarea
-              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all min-h-[100px] resize-none"
+              className="w-full bg-surface-container-low border border-outline-variant/30 rounded-card px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all min-h-[100px] resize-none"
               value={note}
               onChange={e => setNote(e.target.value)}
               placeholder="What changed? Any blockers?"
@@ -836,7 +836,7 @@ function LinkObjectiveModal({
 
   return (
     <div className="fixed inset-0 bg-on-surface/50 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-surface rounded-3xl shadow-2xl w-full max-w-md p-8 relative">
+      <div className="bg-surface rounded-card shadow-2xl w-full max-w-md p-8 relative">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-on-surface-variant hover:text-on-surface transition-colors"
@@ -916,7 +916,7 @@ export function AddObjectiveModal({
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white/80 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-white/80 backdrop-blur-xl border border-white/20 rounded-card shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
       >
         <div className="px-8 py-6 border-b border-outline-variant/40 flex items-center justify-between bg-surface-variant/30/50">
           <h2 className="text-2xl font-black font-headline text-on-surface">

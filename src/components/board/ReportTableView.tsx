@@ -114,7 +114,7 @@ export default function ReportTableView({
                 <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${
                   report.status === 'Approved'
                     ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-amber-100 text-amber-700'
+                    : 'bg-warning-container/40 text-warning'
                 }`}>
                   {report.status || 'Review'}
                 </span>

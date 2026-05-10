@@ -3,8 +3,8 @@ import { useActiveOkrCycle } from '../../hooks/use-active-okr-cycle';
 
 const COLOR_MAP: Record<string, string> = {
   green: 'text-emerald-700 bg-emerald-50 border-emerald-100',
-  amber: 'text-amber-700 bg-amber-50 border-amber-100',
-  red: 'text-rose-700 bg-rose-50 border-rose-100',
+  amber: 'text-warning bg-warning-container/30 border-warning-container/40',
+  red: 'text-error bg-error-container/30 border-error-container/40',
 };
 
 export default function OkrCycleCountdown() {

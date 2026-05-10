@@ -9,7 +9,7 @@ import { GlassCard, Spinner } from '../ui/v2';
  * Pie chart visualizing leads distribution by leadType (e.g. Việt Nam vs Quốc Tế).
  *
  * Phase 8 follow-up batch 5 (2026-05-10): wrapper migrated to v2 GlassCard
- * (`rounded-2xl` drift fixed → `rounded-card` token) + Spinner v2 + token
+ * (`rounded-card` drift fixed → `rounded-card` token) + Spinner v2 + token
  * typography. Recharts internals giữ nguyên (chart-specific brand colors).
  */
 

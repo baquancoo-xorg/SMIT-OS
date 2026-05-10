@@ -110,7 +110,7 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
   return (
     <div className="space-y-8">
       {isAddingUser && (
-        <div className="bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-white/20 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="bg-white/50 backdrop-blur-md p-6 rounded-card border border-white/20 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input label="Full Name" placeholder="Nguyen Van A" value={newUser.fullName} onChange={e => setNewUser({ ...newUser, fullName: e.target.value })} />
             <Input label="Username" placeholder="nva_smit" value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} />

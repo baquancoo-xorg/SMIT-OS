@@ -88,12 +88,12 @@ function KpiBand({
 }) {
   const stageStyle = {
     pre: 'border-[#0866FF]/15 bg-[#0866FF]/5',
-    in: 'border-amber-500/15 bg-amber-500/5',
+    in: 'border-warning/15 bg-warning/5',
     post: 'border-tertiary/15 bg-tertiary/5',
   }[stage];
   const stageDot = {
     pre: 'bg-[#0866FF]',
-    in: 'bg-amber-500',
+    in: 'bg-warning-container/300',
     post: 'bg-tertiary',
   }[stage];
 

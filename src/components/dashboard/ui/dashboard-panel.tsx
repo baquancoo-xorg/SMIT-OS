@@ -5,7 +5,7 @@ import { GlassCard } from '../../ui/v2';
  * Generic dashboard panel wrapper — used as base by other dashboard/ui components.
  *
  * Phase 8 follow-up batch 10 (2026-05-11): re-export over v2 GlassCard
- * (variant=surface) — fixes legacy `rounded-3xl` inline class to `rounded-card`
+ * (variant=surface) — fixes legacy `rounded-card` inline class to `rounded-card`
  * token. API identical.
  */
 

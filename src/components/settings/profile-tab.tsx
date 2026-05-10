@@ -118,15 +118,15 @@ export function ProfileTab() {
               <ShieldCheck size={28} />
               <h4 className="text-xl font-bold">2FA Enabled!</h4>
             </div>
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+            <div className="bg-warning-container/30 border border-warning-container/60 rounded-card p-4">
               <div className="flex items-start gap-2">
-                <AlertTriangle size={18} className="text-amber-600 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-amber-800">
+                <AlertTriangle size={18} className="text-warning mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-warning">
                   Save your <strong>backup codes</strong> below. They will not be shown again.
                 </p>
               </div>
             </div>
-            <div className="bg-on-surface rounded-2xl p-4">
+            <div className="bg-on-surface rounded-card p-4">
               <div className="grid grid-cols-2 gap-2">
                 {backupCodes.map(code => (
                   <span key={code} className="font-mono text-sm text-emerald-400 text-center py-1">{code}</span>
@@ -179,7 +179,7 @@ export function ProfileTab() {
                 className="w-full text-center font-mono text-2xl tracking-[0.5em] bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 outline-none transition-all focus:ring-2 focus:ring-primary/35 focus:border-primary/40"
               />
             </div>
-            {twoFaError && <p className="text-red-500 text-sm">{twoFaError}</p>}
+            {twoFaError && <p className="text-error text-sm">{twoFaError}</p>}
             <div className="flex gap-3">
               <Button
                 onClick={() => { setSetupState('idle'); setTwoFaError(''); }}
@@ -200,7 +200,7 @@ export function ProfileTab() {
 
         {setupState === 'idle' && (
           <div className="max-w-md space-y-4">
-            <div className={`rounded-2xl p-5 border ${
+            <div className={`rounded-card p-5 border ${
               totpEnabled ? 'bg-emerald-50 border-emerald-200' : 'bg-surface-variant/30 border-outline-variant/40'
             }`}>
               <div className="flex items-center justify-between">
@@ -248,7 +248,7 @@ export function ProfileTab() {
                   onChange={e => setDisablePassword(e.target.value)}
                   placeholder="Current password"
                 />
-                {twoFaError && <p className="text-red-500 text-sm">{twoFaError}</p>}
+                {twoFaError && <p className="text-error text-sm">{twoFaError}</p>}
                 <div className="flex gap-3">
                   <Button
                     onClick={() => { setShowDisable(false); setDisablePassword(''); setTwoFaError(''); }}

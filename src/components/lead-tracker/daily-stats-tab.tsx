@@ -77,7 +77,7 @@ export default function DailyStatsTab({ dateFrom, dateTo }: Props) {
                   return [
                     <td key={`${ae}-${date}-add`} className="px-3 py-3 text-center text-xs font-bold text-on-surface-variant border-r border-outline-variant/40/50">{s?.added ?? 0}</td>,
                     <td key={`${ae}-${date}-proc`} className="px-3 py-3 text-center text-xs font-bold text-emerald-600 border-r border-outline-variant/40/50">{s?.processed ?? 0}</td>,
-                    <td key={`${ae}-${date}-rem`} className={`px-3 py-3 text-center text-xs font-black border-r border-outline-variant/40/50 ${isHighRemaining ? 'text-rose-500' : 'text-on-surface'}`}>{s?.remaining ?? 0}</td>,
+                    <td key={`${ae}-${date}-rem`} className={`px-3 py-3 text-center text-xs font-black border-r border-outline-variant/40/50 ${isHighRemaining ? 'text-error' : 'text-on-surface'}`}>{s?.remaining ?? 0}</td>,
                     <td key={`${ae}-${date}-dr`} className="px-3 py-3 text-center text-xs font-bold text-on-surface-variant border-r border-outline-variant/40/50 italic">{s ? fmt(s.dailyRate) : '-'}</td>,
                     <td key={`${ae}-${date}-tr`} className="px-3 py-3 text-center text-xs font-bold text-primary/60 border-r border-outline-variant/40 italic">{s ? fmt(s.totalRate) : '-'}</td>,
                   ];

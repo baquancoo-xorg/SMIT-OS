@@ -9,7 +9,7 @@ import { GlassCard, Spinner, EmptyState } from '../../ui/v2';
  * Lead distribution 3-column section: by source / by country / by AE.
  *
  * Phase 8 follow-up batch 11 (2026-05-11): wrapper migrated to v2 GlassCard
- * + Spinner + EmptyState. Removed `rounded-2xl` legacy + manual spinner divs.
+ * + Spinner + EmptyState. Removed `rounded-card` legacy + manual spinner divs.
  */
 
 interface Props {

@@ -51,7 +51,7 @@ export default function NotificationCenter() {
       >
         <Bell size={20} className="text-on-surface-variant" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-red-500 text-white text-[10px] leading-none font-bold rounded-full flex items-center justify-center shadow-sm">
+          <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-error text-white text-[10px] leading-none font-bold rounded-full flex items-center justify-center shadow-sm">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -63,7 +63,7 @@ export default function NotificationCenter() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-xl overflow-hidden z-50"
+            className="absolute right-0 top-full mt-2 w-80 bg-white rounded-card shadow-xl overflow-hidden z-50"
           >
             <div className="p-4 border-b border-outline-variant/40 flex items-center justify-between">
               <h3 className="font-bold text-on-surface">Notifications</h3>

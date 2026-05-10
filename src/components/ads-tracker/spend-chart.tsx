@@ -34,7 +34,7 @@ export default function SpendChart({ campaigns, dailySpend }: Props) {
   }, [campaigns, dailySpend]);
 
   return (
-    <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-3xl shadow-sm p-4 xl:p-6 relative overflow-hidden">
+    <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-card shadow-sm p-4 xl:p-6 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16" />
       <div className="flex items-center justify-between mb-4 relative z-10">
         <h3 className="text-2xl font-black font-headline">
