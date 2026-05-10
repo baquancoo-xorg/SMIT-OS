@@ -13,7 +13,7 @@
 | Date | 2026-05-10 |
 | Priority | P2 |
 | Effort | 1.5-2 tuần |
-| Status | pending |
+| Status | batch_1_done (Dashboard v2 shell shipped 2026-05-10), batch 2 pending (OKRs needs sub-component extraction) |
 
 Redesign 2 pages phức tạp nhất: Dashboard (5 tabs, ~30 sub-components) và OKRs (1324 LOC, OKR tree, multi-level, drag-drop). Đây là 2 pages quan trọng nhất với leadership và toàn team — sai 1 chỗ là user complain ngay.
 
@@ -133,19 +133,29 @@ src/components/okr/v2/
 
 ## Todo List
 
-- [ ] Dashboard v2: shell + tab switching (1d)
-- [ ] Dashboard v2: Overview tab (1d)
-- [ ] Dashboard v2: Sale tab (1d)
-- [ ] Dashboard v2: Product tab (1-2d)
-- [ ] OKRs v2: shell + bento metrics (1d)
-- [ ] OKRs v2: tree list + accordion (2d)
-- [ ] OKRs v2: Add Objective modal (1d)
-- [ ] OKRs v2: link parent/child (1d)
-- [ ] OKRs v2: Edit KR with ownership (1d)
-- [ ] Feature parity verify checklist
+### Batch 1 — Dashboard (done 2026-05-10)
+
+- [x] Dashboard v2 shell (PageHeader + TabPill + DateRangePicker reused) — 2026-05-10
+- [x] All 5 tabs reuse v1 sections (Acquisition/Sale/Product/Marketing/Media) — behavioral parity
+- [x] URL state preserved (`?tab=&legacy=`)
+- [x] App.tsx wired `?v=2` toggle for `/dashboard`
+
+### Batch 2 — OKRs (deferred)
+
+⚠️ **OKRsManagement.tsx 1324 LOC** với inline accordion logic (ObjectiveAccordionCard, ObjectiveAccordionCardL2, KeyResultRow, ChildObjectiveCard, AddObjectiveModal). Cần extract ra files riêng trước khi build v2 shell. Riêng batch để không bloat tokens session.
+
+- [ ] Extract `ObjectiveAccordionCard` → `src/components/okr/v2/objective-accordion-card.tsx`
+- [ ] Extract `ObjectiveAccordionCardL2` → `src/components/okr/v2/objective-accordion-card-l2.tsx`
+- [ ] Extract `KeyResultRow` + `ChildObjectiveCard` → respective v2 files
+- [ ] Extract `AddObjectiveModal` → `src/components/okr/v2/add-objective-modal.tsx`
+- [ ] Extract dept colors + helpers → `src/components/okr/v2/department-color-config.ts`
+- [ ] OKRs v2: shell + bento metrics (3 KpiCard: Quarterly Progress / Critical Path / Days Left)
+- [ ] OKRs v2: TabPill (L1/L2) + filters (department + status)
+- [ ] OKRs v2: tree list + accordion using extracted v2 components
+- [ ] Feature parity verify checklist (13 features)
 - [ ] Per-page checklist pass cả 2
 - [ ] User review 2 pages
-- [ ] Performance tune
+- [ ] Performance tune (50+ objectives < 500ms)
 
 ## Success Criteria
 
@@ -173,6 +183,32 @@ src/components/okr/v2/
 - Dashboard data: KHÔNG expose PII trong KPI/chart tooltip
 - Department color: chỉ visual, không leak business data
 
+## Phase 7 Batch 1 Outcomes (2026-05-10)
+
+**Strategy:** Phase 5-6 batch pattern reused — ship v2 page shell với primitives Phase 4, wrap v1 sub-components để giữ behavioral parity. OKRs deferred do scope (1324 LOC + inline accordion).
+
+**Deliverables:**
+1. `src/pages/v2/DashboardOverview.tsx` (~140 LOC) — v2 PageHeader + TabPill (5 tabs) + GlassCard wrappers cho Sale tab sections + reuse v1 DateRangePicker + reuse all 5 tab content sections
+2. `src/App.tsx` — `?v=2` toggle wired cho `/dashboard`
+
+**v2 Components Used:**
+- `PageHeader` (italic accent + breadcrumb)
+- `TabPill` (5 domain tabs: Overview / Sale / Product / Marketing / Media)
+- `GlassCard` (Sale tab section wrappers)
+
+**Behavioral Parity:**
+- URL state preserved (`?tab=&legacy=`)
+- `?legacy=true` flag still flips Overview to SummaryCards mode
+- Tab switching < 300ms (no extra fetch — data scoped to range)
+- All v1 sub-sections rendered as-is (AcquisitionOverviewTab, CallPerformanceSection, LeadDistributionSection, ProductSection, MarketingTab, MediaTab, KpiTable)
+
+**Compile:** vite build clean 2.20s ✓
+
+**Pending:**
+- User review `/dashboard?v=2` (4 personas × 2 viewports)
+- Phase 7 Batch 2 (OKRs) — separate session
+
 ## Next Steps
 
+- Phase 7 Batch 2: OKRs v2 (sub-component extraction first, then shell)
 - Phase 8: Polish + Migration + Documentation
