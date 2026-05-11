@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { authService } from '../services/auth.service';
 import { JWT_COOKIE_NAME, JWT_COOKIE_OPTIONS } from '../lib/cookie-options';
 
-const REFRESH_THRESHOLD_SECONDS = 60 * 60; // 1 hour
+const REFRESH_THRESHOLD_SECONDS = 8 * 60 * 60; // 8 hours — refresh khi token còn <8h (1/3 lifetime). Active user mỗi 16h dùng 1 lần là never expire.
 
 export function createAuthMiddleware(prisma: PrismaClient) {
   return async (req: Request, res: Response, next: NextFunction) => {

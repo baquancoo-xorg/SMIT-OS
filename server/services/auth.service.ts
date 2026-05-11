@@ -6,7 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET || JWT_SECRET.length < 32) {
   throw new Error('FATAL: JWT_SECRET must be set and >= 32 chars');
 }
-const JWT_EXPIRES_IN = '4h'; // Reduced from 7d for security
+const JWT_EXPIRES_IN = '24h'; // 24h base + sliding refresh = active user gần như never expires
 
 export interface JWTPayload {
   userId: string;
