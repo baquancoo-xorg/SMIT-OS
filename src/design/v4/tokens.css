@@ -1,0 +1,288 @@
+/* =============================================================
+   SMIT-OS DESIGN TOKENS — v4 Warm Cinematic Foundation (2026-05-12)
+   Direction: Dark-first warm B2B operations
+   Palette anchor: #FF6D29 (orange) · #453027 (warm brown) · #161316 (base) · #BABABA (text-secondary) · #FFFFFF
+   Font: Inter Display (free Google Fonts alternative to Neue Montreal)
+   Light mode: deferred to Phase 8 (will inject under [data-theme="light"])
+   ============================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* ===== TIER 1 — PRIMITIVE SCALES ===== */
+
+  /* Brand orange (anchored on #FF6D29 = 500) */
+  --color-brand-50:  #fff5ee;
+  --color-brand-100: #ffe5d4;
+  --color-brand-200: #ffcda8;
+  --color-brand-300: #ffaa70;
+  --color-brand-400: #ff8a47;
+  --color-brand-500: #ff6d29;
+  --color-brand-600: #e5511a;
+  --color-brand-700: #bd3d11;
+  --color-brand-800: #8f2d0a;
+  --color-brand-900: #6a1f05;
+  --color-brand-950: #3b0f02;
+
+  /* Warm brown (anchored on #453027 = 700) */
+  --color-warm-50:  #f7f0eb;
+  --color-warm-100: #ecdcd0;
+  --color-warm-200: #d4b8a3;
+  --color-warm-300: #b9967a;
+  --color-warm-400: #957058;
+  --color-warm-500: #71523f;
+  --color-warm-600: #5a4031;
+  --color-warm-700: #453027;
+  --color-warm-800: #30221c;
+  --color-warm-900: #1f1612;
+
+  /* Neutral (anchored on #BABABA = 400 and #161316 = 950) */
+  --color-neutral-50:  #fafafa;
+  --color-neutral-100: #f4f4f5;
+  --color-neutral-200: #e4e4e7;
+  --color-neutral-300: #d4d4d8;
+  --color-neutral-400: #bababa;
+  --color-neutral-500: #8a8a8c;
+  --color-neutral-600: #5e5e60;
+  --color-neutral-700: #3f3d40;
+  --color-neutral-800: #27252a;
+  --color-neutral-900: #1d1a1c;
+  --color-neutral-950: #161316;
+
+  /* Status raw colors (10 states from reference Image 2) */
+  --color-raw-in-progress:   #06b6d4;  /* cyan */
+  --color-raw-to-do:         #8b5cf6;  /* violet */
+  --color-raw-in-review:     #d4a017;  /* amber */
+  --color-raw-design-review: #a855f7;  /* purple */
+  --color-raw-rework:        #dc2626;  /* red */
+  --color-raw-done:          #10b981;  /* emerald */
+  --color-raw-not-started:   #f43f5e;  /* rose */
+  --color-raw-blocked:       #ef4444;  /* red-bright */
+  --color-raw-on-hold:       #0ea5e9;  /* sky */
+  --color-raw-archived:      #a1a1aa;  /* zinc */
+
+  /* Feedback raw colors (legacy v3 semantic — kept for status feedback parity) */
+  --color-raw-success: #10b981;
+  --color-raw-warning: #f59e0b;
+  --color-raw-error:   #ef4444;
+  --color-raw-info:    #0ea5e9;
+
+  /* ===== TIER 2 — SEMANTIC ===== */
+
+  /* Surface family (dark-first) */
+  --color-bg-base:      var(--color-neutral-950);  /* app shell */
+  --color-bg-elevated:  var(--color-neutral-900);  /* cards */
+  --color-bg-overlay:   var(--color-neutral-800);  /* hover/active rows */
+  --color-bg-popover:   #221f23;                    /* modal/dropdown */
+  --color-bg-warm:      var(--color-warm-700);     /* orange-tinted callouts */
+
+  /* Text family */
+  --color-text-primary:   #ffffff;
+  --color-text-secondary: var(--color-neutral-400);
+  --color-text-tertiary:  var(--color-neutral-500);
+  --color-text-muted:     var(--color-neutral-600);
+  --color-text-disabled:  var(--color-neutral-700);
+  --color-text-inverse:   var(--color-neutral-950);
+
+  /* Border family */
+  --color-border-subtle:   color-mix(in srgb, var(--color-neutral-800) 60%, transparent);
+  --color-border-default:  var(--color-neutral-700);
+  --color-border-emphasis: var(--color-neutral-600);
+
+  /* Accent (orange brand) */
+  --color-accent:       var(--color-brand-500);
+  --color-accent-hover: var(--color-brand-400);
+  --color-accent-active: var(--color-brand-600);
+  --color-accent-soft:  color-mix(in srgb, var(--color-brand-500) 15%, transparent);
+  --color-accent-on:    #ffffff;
+
+  /* Status fg + soft bg (10 task states) */
+  --color-in-progress:        var(--color-raw-in-progress);
+  --color-in-progress-soft:   color-mix(in srgb, var(--color-raw-in-progress) 18%, transparent);
+  --color-to-do:              var(--color-raw-to-do);
+  --color-to-do-soft:         color-mix(in srgb, var(--color-raw-to-do) 18%, transparent);
+  --color-in-review:          var(--color-raw-in-review);
+  --color-in-review-soft:     color-mix(in srgb, var(--color-raw-in-review) 18%, transparent);
+  --color-design-review:      var(--color-raw-design-review);
+  --color-design-review-soft: color-mix(in srgb, var(--color-raw-design-review) 18%, transparent);
+  --color-rework:             var(--color-raw-rework);
+  --color-rework-soft:        color-mix(in srgb, var(--color-raw-rework) 18%, transparent);
+  --color-done:               var(--color-raw-done);
+  --color-done-soft:          color-mix(in srgb, var(--color-raw-done) 18%, transparent);
+  --color-not-started:        var(--color-raw-not-started);
+  --color-not-started-soft:   color-mix(in srgb, var(--color-raw-not-started) 18%, transparent);
+  --color-blocked:            var(--color-raw-blocked);
+  --color-blocked-soft:       color-mix(in srgb, var(--color-raw-blocked) 18%, transparent);
+  --color-on-hold:            var(--color-raw-on-hold);
+  --color-on-hold-soft:       color-mix(in srgb, var(--color-raw-on-hold) 18%, transparent);
+  --color-archived:           var(--color-raw-archived);
+  --color-archived-soft:      color-mix(in srgb, var(--color-raw-archived) 18%, transparent);
+
+  /* Feedback semantic (keep v3 names for cross-domain reuse) */
+  --color-success:      var(--color-raw-success);
+  --color-success-soft: color-mix(in srgb, var(--color-raw-success) 18%, transparent);
+  --color-warning:      var(--color-raw-warning);
+  --color-warning-soft: color-mix(in srgb, var(--color-raw-warning) 18%, transparent);
+  --color-error:        var(--color-raw-error);
+  --color-error-soft:   color-mix(in srgb, var(--color-raw-error) 18%, transparent);
+  --color-info:         var(--color-raw-info);
+  --color-info-soft:    color-mix(in srgb, var(--color-raw-info) 18%, transparent);
+
+  /* ===== TIER 3 — COMPONENT ===== */
+
+  /* Buttons */
+  --color-button-primary-bg:       var(--color-accent);
+  --color-button-primary-bg-hover: var(--color-accent-hover);
+  --color-button-primary-fg:       var(--color-accent-on);
+  --color-button-secondary-bg:     var(--color-bg-overlay);
+  --color-button-secondary-fg:     var(--color-text-primary);
+  --color-button-ghost-fg:         var(--color-text-secondary);
+  --color-button-ghost-hover-bg:   var(--color-bg-overlay);
+
+  /* Cards */
+  --color-card-bg:     var(--color-bg-elevated);
+  --color-card-border: var(--color-border-subtle);
+
+  /* Inputs */
+  --color-input-bg:          var(--color-bg-overlay);
+  --color-input-border:      var(--color-border-default);
+  --color-input-fg:          var(--color-text-primary);
+  --color-input-placeholder: var(--color-text-tertiary);
+  --color-input-focus-ring:  var(--color-accent);
+
+  /* Sidebar */
+  --color-sidebar-bg:                var(--color-bg-base);
+  --color-sidebar-item-fg:           var(--color-text-secondary);
+  --color-sidebar-item-hover-bg:     var(--color-bg-overlay);
+  --color-sidebar-item-active-bg:    var(--color-accent-soft);
+  --color-sidebar-item-active-fg:    var(--color-text-primary);
+  --color-sidebar-section-label-fg:  var(--color-text-tertiary);
+
+  /* ===== TYPOGRAPHY ===== */
+
+  --font-sans:    "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter", "Inter Display", ui-sans-serif, system-ui, sans-serif;
+
+  --text-caption: 0.6875rem;  /* 11px */
+  --text-label:   0.75rem;    /* 12px */
+  --text-body-sm: 0.8125rem;  /* 13px */
+  --text-body:    0.875rem;   /* 14px */
+  --text-body-lg: 1rem;       /* 16px */
+  --text-h6:      1.125rem;
+  --text-h5:      1.25rem;
+  --text-h4:      1.5rem;
+  --text-h3:      1.875rem;
+  --text-h2:      2.25rem;
+  --text-h1:      3rem;
+  --text-display: 3.75rem;
+
+  --leading-tight: 1.2;
+  --leading-snug:  1.35;
+  --leading-base:  1.5;
+  --leading-loose: 1.75;
+
+  --tracking-tighter: -0.025em;
+  --tracking-tight:   -0.015em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.015em;
+  --tracking-widest:  0.08em;
+
+  /* ===== SPACING (clamp-based, semantic) ===== */
+
+  --space-xs:  clamp(0.25rem, 0.5vw, 0.5rem);
+  --space-sm:  clamp(0.5rem, 1vw, 0.75rem);
+  --space-md:  clamp(0.75rem, 1.5vw, 1rem);
+  --space-lg:  clamp(1rem, 2vw, 1.5rem);
+  --space-xl:  clamp(1.5rem, 3vw, 2rem);
+  --space-2xl: clamp(2rem, 4vw, 3rem);
+  --space-3xl: clamp(3rem, 6vw, 4rem);
+
+  /* ===== RADIUS (semantic only — no generic stops in v4) ===== */
+
+  --radius-input:   0.75rem;   /* 12px */
+  --radius-card:    1.25rem;   /* 20px */
+  --radius-callout: 1.5rem;    /* 24px — sidebar promo, big container */
+  --radius-modal:   1.5rem;    /* 24px */
+  --radius-pill:    9999px;    /* CTAs, status, search */
+
+  /* ===== SHADOW / GLOW ===== */
+
+  /* Dark surface drop shadows */
+  --shadow-card:     0 1px 2px 0 rgb(0 0 0 / 0.4), 0 1px 3px 0 rgb(0 0 0 / 0.3);
+  --shadow-elevated: 0 4px 12px -2px rgb(0 0 0 / 0.5), 0 2px 4px -1px rgb(0 0 0 / 0.4);
+  --shadow-modal:    0 20px 50px -10px rgb(0 0 0 / 0.7), 0 8px 16px -4px rgb(0 0 0 / 0.5);
+
+  /* Signature orange glow (Image 3 effect) */
+  --glow-accent-sm: 0 0 12px 0 color-mix(in srgb, var(--color-brand-500) 35%, transparent);
+  --glow-accent-md: 0 0 24px 0 color-mix(in srgb, var(--color-brand-500) 45%, transparent);
+  --glow-accent-lg: 0 0 60px 6px color-mix(in srgb, var(--color-brand-500) 50%, transparent);
+
+  /* Focus ring (accent at 50%) */
+  --shadow-focus: 0 0 0 2px var(--color-bg-base), 0 0 0 4px color-mix(in srgb, var(--color-accent) 60%, transparent);
+
+  /* ===== MOTION ===== */
+
+  --duration-instant: 75ms;
+  --duration-fast:    150ms;
+  --duration-medium:  250ms;
+  --duration-slow:    400ms;
+  --duration-slower:  600ms;
+
+  --ease-standard:   cubic-bezier(0.2, 0, 0, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0, 1);
+  --ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ===== Z-INDEX (preserve v3 order — battle-tested) ===== */
+
+  --z-base:     0;
+  --z-sticky:   10;
+  --z-sidebar:  20;
+  --z-header:   30;
+  --z-dropdown: 40;
+  --z-modal:    50;
+  --z-toast:    60;
+  --z-tooltip:  70;
+
+  /* ===== TOUCH / LAYOUT ===== */
+
+  --touch-min:     44px;
+  --touch-comfort: 48px;
+  --header-h:      4rem;
+  --content-h:     calc(100dvh - var(--header-h));
+}
+
+/* =============================================================
+   BASE — applies only when v4 root marker present.
+   Phase 4+ will set `<html data-ui="v4">` on /v4/* routes.
+   v3 routes unaffected (this block scoped).
+   ============================================================= */
+[data-ui="v4"] {
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[data-ui="v4"] :focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: inherit;
+}
+
+[data-ui="v4"] ::selection {
+  background: color-mix(in srgb, var(--color-accent) 40%, transparent);
+  color: var(--color-text-primary);
+}
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="v4"] *,
+  [data-ui="v4"] *::before,
+  [data-ui="v4"] *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

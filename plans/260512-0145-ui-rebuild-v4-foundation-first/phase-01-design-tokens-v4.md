@@ -10,9 +10,11 @@
 
 ## Overview
 
-- Date: week 1
+- Date: 2026-05-12 (week 1)
 - Priority: P1
-- Status: pending
+- Status: **completed** 2026-05-12 02:42
+- User decisions captured: font = Inter (free), dark = primary + light follow Phase 8, status taxonomy = all 10 states
+- Visual reference brief: [reports/01-visual-reference-analysis.md](./reports/01-visual-reference-analysis.md)
 - Goal: lock the source-of-truth token file before any component is written. Three tiers (primitive → semantic → component). Component layer can rebrand without touching primitives.
 
 ## Key Insights

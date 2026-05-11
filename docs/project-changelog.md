@@ -2,6 +2,32 @@
 
 Tracks significant changes — features, removals, migrations, infra updates.
 
+## 2026-05-12 — UI Rebuild v4 Phase 1 (Design Tokens v4)
+
+User decisions (locked):
+- Direction: dark-first warm cinematic B2B. Anchored on `#FF6D29` (orange) + `#453027` (warm brown) + `#161316` (base).
+- Font: Inter (free Google Fonts) — Neue Montreal alternative.
+- Dark mode: primary; light mode tokens deferred to Phase 8 under `[data-theme="light"]`.
+- Status taxonomy: 10 task states (in-progress, to-do, in-review, design-review, rework, done, not-started, blocked, on-hold, archived) + 4 feedback (success/warning/error/info) retained for parity.
+
+### Created
+- `src/design/v4/tokens.css` — 3-tier CSS variables (primitive → semantic → component). Activates under `[data-ui="v4"]` selector. v3 untouched.
+- `src/design/v4/lib/cn.ts` — zero-dep className combiner.
+- `src/design/v4/index.ts` — barrel export.
+- `src/design/v4/README.md` — usage guide + DO/DON'T + status taxonomy + signature glow utility.
+- `plans/.../reports/01-visual-reference-analysis.md` — visual reference brief from 4 user-provided images.
+
+### Validation
+- Temp-imported `tokens.css` into `src/main.tsx`, ran `npm run build` → exit 0, CSS 168.24 kB (gzip 28.07 kB). Revert applied.
+- `npm run lint` exit 0 (token gate + tsc clean).
+
+### Resolved Open Questions
+- OQ1 (dark mode) → dark-primary, light follow Phase 8.
+- New OQ-A (font licensing) → Inter (free).
+- New OQ-C (status taxonomy) → all 10 states.
+
+---
+
 ## 2026-05-12 — UI Rebuild v4 Phase 0 (Audit + Lint Gate)
 
 Branch `feat/api-key-middleware`. Foundation-first parallel migration kickoff per brainstorm `plans/reports/brainstorm-260512-0145-ui-rebuild-v4-foundation-first.md`.

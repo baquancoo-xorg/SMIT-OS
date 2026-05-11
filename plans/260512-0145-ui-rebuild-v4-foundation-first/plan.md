@@ -26,7 +26,7 @@ Foundation-first parallel migration. Build `src/design/v4/` (tokens + 30 self-bu
 | # | Name | Status | Effort | Depends On | Link |
 |---|---|---|---|---|---|
 | 00 | Audit + Lint Gate | **completed** 2026-05-12 | <1d (actual) | — | [phase-00-audit-and-lint-gate.md](./phase-00-audit-and-lint-gate.md) |
-| 01 | Design Tokens v4 | pending | 4-5d | 00 + visual ref | [phase-01-design-tokens-v4.md](./phase-01-design-tokens-v4.md) |
+| 01 | Design Tokens v4 | **completed** 2026-05-12 | <1d (actual) | 00 + visual ref ✅ | [phase-01-design-tokens-v4.md](./phase-01-design-tokens-v4.md) |
 | 02 | Components Batch 1 (8) | pending | 5-6d | 01 | [phase-02-component-primitives-batch-1.md](./phase-02-component-primitives-batch-1.md) |
 | 03 | Visual Integration + Batch 2 (22) | pending | 7-8d | 02 + 5-screen approval | [phase-03-visual-integration-and-batch-2.md](./phase-03-visual-integration-and-batch-2.md) |
 | 04 | Dashboard Rebuild + Feature Flag | pending | 5-6d | 03 | [phase-04-dashboard-rebuild.md](./phase-04-dashboard-rebuild.md) |
@@ -38,7 +38,7 @@ Foundation-first parallel migration. Build `src/design/v4/` (tokens + 30 self-bu
 
 ## Open Questions (resolve at Phase 1 design review)
 
-1. Dark mode v4: include or defer? — recommend defer
+1. ~~Dark mode v4: include or defer?~~ — **resolved 2026-05-12: dark-primary + light-follow (light tokens added at Phase 8). All references user-provided are dark.**
 2. Mobile responsive v4: include or defer? — recommend defer (desktop-first like v3)
 3. Feature flag storage: DB column vs localStorage — recommend DB (`User.uiVersion`)
 4. Cutover notification lead time — recommend 1 week
