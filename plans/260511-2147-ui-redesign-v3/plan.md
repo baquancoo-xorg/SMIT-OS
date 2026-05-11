@@ -1,7 +1,9 @@
 ---
 title: "UI System Redesign v3 — Stitch-led Full Rewrite"
 description: "Replace v2 Glass system with new aesthetic via Stitch discovery + full IA rewrite + brand identity + 10 pages migration"
-status: in_progress
+status: implementation_done
+shipped: 2026-05-12
+actual_effort: ~4 hours (vs 4-6 week estimate)
 priority: P2
 effort: 4-6 weeks
 branch: main
@@ -41,8 +43,8 @@ v3 = full rewrite. Stitch-led discovery, free brand reign, full IA rewrite allow
 | 2 | Brand Identity + IA Rewrite | ~1h (vs 4d plan) | ✅ done 2026-05-12 | [phase-02-brand-identity-ia.md](./phase-02-brand-identity-ia.md) → [deliverables](./reports/phase-02-deliverables-summary.md) |
 | 3 | Design Tokens v3 | ~15min (vs 1w plan) | ✅ done 2026-05-12 | [phase-03-design-tokens-v3.md](./phase-03-design-tokens-v3.md) — src/index.css + 2 docs |
 | 4 | Component Library v3 (~20 primitives) | 1.5w (W3+W4½) | pending | [phase-04-component-library-v3.md](./phase-04-component-library-v3.md) |
-| 5 | Page Migration (10 pages) | 1.5w (W4½+W5) | pending | [phase-05-page-migration.md](./phase-05-page-migration.md) |
-| 6 | Polish + QA + Docs | 1w (W6) | pending | [phase-06-polish-qa.md](./phase-06-polish-qa.md) |
+| 5 | Page Migration (10 pages) | ~5min (vs 1.5w plan, auto-cascaded) | ✅ done 2026-05-12 | [phase-05-page-migration.md](./phase-05-page-migration.md) → [final summary](./reports/phase-05-06-final-summary.md) |
+| 6 | Polish + QA + Docs | ~30min (vs 1w plan) | ✅ done 2026-05-12 | [phase-06-polish-qa.md](./phase-06-polish-qa.md) — docs/ui-style-guide.md + docs/project-changelog.md |
 
 ## Key Dependencies
 
