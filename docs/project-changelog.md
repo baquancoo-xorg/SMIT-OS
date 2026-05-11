@@ -4,10 +4,10 @@ Tracks significant changes — features, removals, migrations, infra updates.
 
 ## 2026-05-12 — UI Rebuild v4 Hotfix (spacing tokens + lucide-react icons)
 
-### Bug fix: `max-w-{name}` collapsing to a few px
-- Root cause: Tailwind v4 falls back `max-w-{name}` to `--spacing-{name}` when `--container-{name}` is undefined. Our `--spacing-{xs..3xl}` clamp values (8-48px) collided with the same names used by `max-w-sm/md/lg/xl/2xl/3xl`, breaking layouts (inputs collapsed to circles, EmptyState description wrapped one word per line).
-- Fix: renamed spacing scale to non-colliding semantic names: `tight, snug, cozy, comfy, wide, vast, huge`. Plus added explicit `--container-{tight..huge}` values so `max-w-cozy` etc. work.
-- Files updated: all 32 v4 .tsx files via perl bulk rename of utility classes (`p-md` → `p-cozy`, `gap-sm` → `gap-snug`, etc.). 193 utility replacements.
+### Bug fix: max-w utilities collapsing to a few px
+- Root cause: Tailwind v4 falls back max-w sizes to spacing tokens when container tokens are undefined. Our clamp spacing values (8-48px) collided with same-named max-w sizes, breaking layouts (inputs collapsed to circles, EmptyState description wrapped one word per line).
+- Fix: renamed spacing scale to non-colliding semantic names. Mapped: tight, snug, cozy (the comfy one), comfy, wide, vast (huge sized), huge. See tokens.css for canonical list.
+- Files updated: all 32 v4 .tsx files via perl bulk rename of utility classes. 193 utility replacements.
 
 ### Icons: replaced unicode/emoji with lucide-react (already in deps)
 - Components: modal/notification-toast/filter-chip (X), select/custom-select/sidebar/data-table (ChevronDown/Up/sUpDown/Right), page-header (ChevronRight), date-range-picker (ArrowRight), table-row-actions (MoreVertical), kpi-card (ArrowUp/Down/Minus for trend).

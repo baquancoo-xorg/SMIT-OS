@@ -44,7 +44,7 @@ export function EmptyState({
         </div>
       )}
       <h3 className="text-h6 font-semibold text-fg tracking-tight">{title}</h3>
-      {description && <p className="mt-tight max-w-snug text-body-sm text-fg-muted">{description}</p>}
+      {description && <p className="mt-tight max-w-sm text-body-sm text-fg-muted">{description}</p>}
       {action && <div className="mt-cozy">{action}</div>}
     </div>
   );

@@ -98,7 +98,7 @@ export default function PlaygroundBatch2() {
         </Section>
 
         <Section title="09 · Skeleton">
-          <div className="flex items-start gap-cozy max-w-cozy">
+          <div className="flex items-start gap-cozy max-w-md">
             <Skeleton shape="circle" width="size-10" height="" />
             <div className="flex-1">
               <Skeleton shape="text" lines={3} height="h-3" />
@@ -107,7 +107,7 @@ export default function PlaygroundBatch2() {
         </Section>
 
         <Section title="10 · StatusDot inline">
-          <ul className="flex flex-col gap-tight text-body-sm text-fg-muted max-w-tight">
+          <ul className="flex flex-col gap-tight text-body-sm text-fg-muted max-w-sm">
             <li className="flex items-center gap-snug"><StatusDot intent="done" /> Server healthy</li>
             <li className="flex items-center gap-snug"><StatusDot intent="warning" /> Queue backing up</li>
             <li className="flex items-center gap-snug"><StatusDot intent="error" /> Sync failed</li>
@@ -172,7 +172,7 @@ export default function PlaygroundBatch2() {
         </Section>
 
         <Section title="16 · Select (native)  ·  17 · CustomSelect (rich)">
-          <div className="grid grid-cols-2 gap-comfy max-w-vast">
+          <div className="grid grid-cols-2 gap-comfy max-w-4xl">
             <Select
               label="Surface variant"
               value={select}
@@ -197,7 +197,7 @@ export default function PlaygroundBatch2() {
         </Section>
 
         <Section title="18 · DatePicker  ·  19 · DateRangePicker">
-          <div className="flex flex-col gap-comfy max-w-vast">
+          <div className="flex flex-col gap-comfy max-w-4xl">
             <DatePicker label="Single date" value={dateA} onChange={(e) => setDateA(e.target.value)} />
             <DateRangePicker
               label="Date range"

@@ -145,7 +145,7 @@ export default function DesignV4Playground() {
           <h2 className="text-caption font-semibold uppercase tracking-widest text-fg-subtle mb-cozy">
             04 · Input
           </h2>
-          <div className="grid grid-cols-2 gap-comfy max-w-vast">
+          <div className="grid grid-cols-2 gap-comfy max-w-4xl">
             <Input label="Email" type="email" placeholder="you@example.com" helper="We will never share." />
             <Input label="Token" error="Invalid format" defaultValue="abc-123" />
             <Input pill leftIcon={<Search size={16} />} placeholder="Search anything..." value={search} onChange={(e) => setSearch(e.target.value)} />

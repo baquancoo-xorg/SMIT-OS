@@ -33,7 +33,7 @@ export function NotFoundPage({
       >
         {title}
       </div>
-      <p className="mt-cozy max-w-cozy text-body text-fg-muted">{description}</p>
+      <p className="mt-cozy max-w-md text-body text-fg-muted">{description}</p>
       {children && <div className="mt-cozy">{children}</div>}
       {action && <div className="mt-comfy">{action}</div>}
     </div>

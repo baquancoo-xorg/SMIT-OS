@@ -178,16 +178,9 @@
   --spacing-vast:  clamp(2rem, 4vw, 3rem);         /* 32-48px */
   --spacing-huge:  clamp(3rem, 6vw, 4rem);         /* 48-64px */
 
-  /* ---------- Container scale (max-w-{name} resolves here) ----------
-     Provide values for the semantic spacing names so `max-w-cozy`,
-     `max-w-vast` etc. produce real max-widths, not 12-48px clamps. */
-  --container-tight: 16rem;   /* 256px — popovers, dropdowns */
-  --container-snug:  20rem;   /* 320px — toasts, narrow modals */
-  --container-cozy:  28rem;   /* 448px — sm modal, form column */
-  --container-comfy: 36rem;   /* 576px — md modal */
-  --container-wide:  42rem;   /* 672px — lg modal, content sections */
-  --container-vast:  56rem;   /* 896px — wide layouts */
-  --container-huge:  72rem;   /* 1152px — page max width */
+  /* Container scale: not needed — Tailwind v4 ships defaults for max-w-{xs..7xl}.
+     We map our custom max-w names to those defaults in code instead of defining
+     conflicting custom container names. See playground for example. */
 
   /* ---------- Radius (semantic only) ---------- */
   --radius-input:   0.75rem;

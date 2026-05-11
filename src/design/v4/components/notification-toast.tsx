@@ -47,7 +47,7 @@ export function NotificationToast({ id, intent = 'neutral', title, description, 
       role="status"
       className={cn(
         'flex items-start gap-snug rounded-card border bg-surface-popover px-cozy py-snug shadow-elevated',
-        'min-w-[280px] max-w-snug pointer-events-auto backdrop-blur-md',
+        'min-w-[280px] max-w-sm pointer-events-auto backdrop-blur-md',
         intentClass[intent],
       )}
     >

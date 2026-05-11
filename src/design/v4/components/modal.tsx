@@ -27,9 +27,9 @@ export interface ModalProps {
 }
 
 const sizeClass: Record<ModalSize, string> = {
-  sm: 'max-w-cozy',
-  md: 'max-w-wide',
-  lg: 'max-w-vast',
+  sm: 'max-w-md',
+  md: 'max-w-2xl',
+  lg: 'max-w-4xl',
   full: 'max-w-[min(96vw,1400px)]',
 };
 
