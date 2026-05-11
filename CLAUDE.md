@@ -78,9 +78,15 @@ npm run dev
 ```
 
 ## Tech Stack
-- React 19 + TypeScript + TailwindCSS
+- React 19 + TypeScript + TailwindCSS v4
 - Express 5 + Prisma ORM
 - PostgreSQL 15
+
+## UI v4 (default 2026-05-12)
+- Root `/` redirects to `/v4/dashboard`. Pages live in `src/pages-v4/`, design system in `src/design/v4/`.
+- v3 pages remain alive at original paths (`/dashboard`, `/leads`, `/settings`, ...) for 7-day eval window — delete after user confirmation.
+- v4 tokens scoped under `[data-ui="v4"]`. Lint gate: `npm run lint:tokens` blocks raw Tailwind colors / radius / spacing under `src/design/v4/**` + `src/pages-v4/**`.
+- Plan + reports: `plans/260512-0145-ui-rebuild-v4-foundation-first/`.
 
 ## API Keys & MCP Cowork
 

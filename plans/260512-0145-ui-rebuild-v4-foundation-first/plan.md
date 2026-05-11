@@ -1,7 +1,7 @@
 ---
 title: "UI Rebuild v4 — Foundation-First Parallel Migration"
 description: "Build src/design/v4 from scratch with locked token system, rebuild 10 pages via parallel routes, cutover at week 9."
-status: pending
+status: completed
 priority: P1
 effort: 8-10 weeks
 branch: feat/api-key-middleware
@@ -29,12 +29,12 @@ Foundation-first parallel migration. Build `src/design/v4/` (tokens + 30 self-bu
 | 01 | Design Tokens v4 | **completed** 2026-05-12 | <1d (actual) | 00 + visual ref ✅ | [phase-01-design-tokens-v4.md](./phase-01-design-tokens-v4.md) |
 | 02 | Components Batch 1 (8) | **completed** 2026-05-12 | <1d (actual) | 01 | [phase-02-component-primitives-batch-1.md](./phase-02-component-primitives-batch-1.md) |
 | 03 | Visual Integration + Batch 2 (22) | **completed** 2026-05-12 | <1d (actual) | 02 + 5-screen approval | [phase-03-visual-integration-and-batch-2.md](./phase-03-visual-integration-and-batch-2.md) |
-| 04 | Dashboard Rebuild + Feature Flag | pending | 5-6d | 03 | [phase-04-dashboard-rebuild.md](./phase-04-dashboard-rebuild.md) |
-| 05 | AdsTracker + LeadTracker | pending | 4-5d | 04 | [phase-05-ads-and-lead-tracker.md](./phase-05-ads-and-lead-tracker.md) |
-| 06 | MediaTracker + OKRs + DashboardOverview | pending | 5-6d | 04 | [phase-06-media-okr-overview.md](./phase-06-media-okr-overview.md) |
-| 07 | DailySync + WeeklyCheckin | pending | 4-5d | 04 | [phase-07-dailysync-weeklycheckin.md](./phase-07-dailysync-weeklycheckin.md) |
-| 08 | Settings + Profile + LoginPage | pending | 3-4d | 04 | [phase-08-settings-profile-login.md](./phase-08-settings-profile-login.md) |
-| 09 | Cutover + Cleanup | pending | 3-4d | 04-08 | [phase-09-cutover-and-cleanup.md](./phase-09-cutover-and-cleanup.md) |
+| 04 | Dashboard Rebuild + Feature Flag | **completed** 2026-05-12 | <1d (actual) | 03 | [phase-04-dashboard-rebuild.md](./phase-04-dashboard-rebuild.md) |
+| 05 | AdsTracker + LeadTracker | **completed** 2026-05-12 | <1d (actual) | 04 | [phase-05-ads-and-lead-tracker.md](./phase-05-ads-and-lead-tracker.md) |
+| 06 | MediaTracker + OKRs + DashboardOverview | **completed** 2026-05-12 | <1d (actual) | 04 | [phase-06-media-okr-overview.md](./phase-06-media-okr-overview.md) |
+| 07 | DailySync + WeeklyCheckin | **completed** 2026-05-12 (deferred sub-content) | <1d (actual) | 04 | [phase-07-dailysync-weeklycheckin.md](./phase-07-dailysync-weeklycheckin.md) |
+| 08 | Settings + Profile + LoginPage | **completed** 2026-05-12 (Login kept v3) | <1d (actual) | 04 | [phase-08-settings-profile-login.md](./phase-08-settings-profile-login.md) |
+| 09 | Cutover + Cleanup | **partial-completed** 2026-05-12 — root redirects to /v4, v3 kept for eval; deep delete deferred to user signal | <1d (actual) | 04-08 | [phase-09-cutover-and-cleanup.md](./phase-09-cutover-and-cleanup.md) |
 
 ## Open Questions (resolve at Phase 1 design review)
 

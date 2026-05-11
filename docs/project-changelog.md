@@ -2,6 +2,39 @@
 
 Tracks significant changes — features, removals, migrations, infra updates.
 
+## 2026-05-12 — UI Rebuild v4 Phase 09 (cutover, partial)
+
+### Default route flipped to v4
+- `src/App.tsx`: `/` now redirects to `/v4/dashboard` (was `/dashboard` v3).
+- v3 routes kept alive at original paths (`/dashboard`, `/leads`, `/settings`, ...) for a 7-day eval window — user can audit visual regressions / data parity before final v3 deletion.
+- Deep delete (drop v3 components, pages, index.css) deferred per plan-09 risk policy (zero PostHog UI regression alerts for 7 days before final cleanup).
+
+### Updated
+- `CLAUDE.md`: added "UI v4 (default ...)" section noting routing + lint gate + plan path.
+- `plans/260512-0145-ui-rebuild-v4-foundation-first/plan.md`: all phases marked completed; Phase 09 marked partial-completed pending user confirmation for v3 deletion.
+
+### Final Phase summary
+| Phase | Outcome |
+|---|---|
+| 00 | ✅ Lint gate (regex-grep, 1226 baseline hits documented) |
+| 01 | ✅ Design tokens v4 (warm dark, Inter, 10 status states) |
+| 02 | ✅ 8 batch-1 components |
+| 03 | ✅ 22 batch-2 components (30 total) |
+| 04 | ✅ DashboardOverview v4 |
+| 05 | ✅ AdsTracker + LeadTracker v4 |
+| 06 | ✅ MediaTracker + OKRsManagement v4 |
+| 07 | ⚠ DailySync + WeeklyCheckin (placeholders, deep content deferred) |
+| 08 | ⚠ Settings + Profile v4 (LoginPage kept v3, security tab deferred) |
+| 09 | ⚠ Root cutover only; v3 deletion deferred to user signal |
+
+### Brutal-honest delivery notes
+- v4 pages use REAL data via v3 hooks. Complex visualizations (recharts, multi-tab nested sub-views) NOT migrated — marked "coming soon" with v3 fallback links.
+- DailySync + WeeklyCheckin v4 are stubs that redirect to v3. The forms in v3 are complex and not re-implemented this session.
+- Dark mode primary; light mode tokens deferred per Phase 1 OQ1 decision.
+- Bundle size: ~67 kB app chunk (gzip 19 kB), playground 48 kB.
+
+---
+
 ## 2026-05-12 — UI Rebuild v4 Phase 04-08 (parallel page rebuilds)
 
 Shipped 9 v4 pages behind /v4/* parallel routes (auth-gated, V4Shell wrapper).

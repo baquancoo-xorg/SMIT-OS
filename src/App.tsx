@@ -95,7 +95,8 @@ function AppContent() {
     <AppLayout onLogout={logout}>
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* Phase 09 cutover (2026-05-12): root now lands on v4. v3 routes kept alive for 7-day evaluation window. */}
+          <Route path="/" element={<Navigate to="/v4/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardOverview />} />
           <Route path="/okrs" element={<OKRsManagement />} />
           <Route path="/daily-sync" element={<DailySync />} />
