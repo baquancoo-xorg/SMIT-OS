@@ -86,4 +86,4 @@ All data is managed through:
 - **Kanban boards**: Work items management
 - **OKRs page**: Objectives & Key Results
 
-See [DATABASE.md](./DATABASE.md) for more details.
+See [DATABASE.md](./docs/DATABASE.md) for more details.

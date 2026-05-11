@@ -29,12 +29,12 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed-exchange": "tsx scripts/seed-exchange-rate.ts",
-    "db:seed-okrs": "tsx scripts/seed-okrs.ts",
+    "db:seed-exchange": "tsx scripts/archive/seed-exchange-rate.ts",
+    "db:seed-okrs": "tsx scripts/archive/seed-okrs.ts",
     "db:seed:lead-status": "tsx prisma/seeds/lead-status-mapping.seed.ts",
     "db:seed:acquisition": "tsx prisma/seeds/acquisition.seed.ts",
-    "backfill:leads": "tsx scripts/backfill-crm-leads.ts",
-    "backfill:lead-source": "tsx scripts/backfill-lead-source.ts",
+    "backfill:leads": "tsx scripts/archive/backfill-crm-leads.ts",
+    "backfill:lead-source": "tsx scripts/archive/backfill-lead-source.ts",
     "monitor:ui-regression": "tsx --env-file=.env scripts/posthog-ui-regression-monitor.ts"
   },
   "dependencies": {
