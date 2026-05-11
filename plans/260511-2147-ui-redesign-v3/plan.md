@@ -1,7 +1,7 @@
 ---
 title: "UI System Redesign v3 — Stitch-led Full Rewrite"
 description: "Replace v2 Glass system with new aesthetic via Stitch discovery + full IA rewrite + brand identity + 10 pages migration"
-status: pending
+status: in_progress
 priority: P2
 effort: 4-6 weeks
 branch: main
@@ -37,9 +37,9 @@ v3 = full rewrite. Stitch-led discovery, free brand reign, full IA rewrite allow
 
 | # | Phase | Effort | Status | File |
 |---|---|---|---|---|
-| 1 | Stitch Discovery (variant generation + direction pick) | 3d (W1) | pending | [phase-01-stitch-discovery.md](./phase-01-stitch-discovery.md) |
-| 2 | Brand Identity + IA Rewrite | 4d (W1) | pending | [phase-02-brand-identity-ia.md](./phase-02-brand-identity-ia.md) |
-| 3 | Design Tokens v3 | 1w (W2) | pending | [phase-03-design-tokens-v3.md](./phase-03-design-tokens-v3.md) |
+| 1 | Stitch Discovery (variant generation + direction pick) | ~1h (vs 3d plan) | ✅ done 2026-05-11 | [phase-01-stitch-discovery.md](./phase-01-stitch-discovery.md) → [winner report](./reports/phase-01-direction-winner.md) |
+| 2 | Brand Identity + IA Rewrite | ~1h (vs 4d plan) | ✅ done 2026-05-12 | [phase-02-brand-identity-ia.md](./phase-02-brand-identity-ia.md) → [deliverables](./reports/phase-02-deliverables-summary.md) |
+| 3 | Design Tokens v3 | ~15min (vs 1w plan) | ✅ done 2026-05-12 | [phase-03-design-tokens-v3.md](./phase-03-design-tokens-v3.md) — src/index.css + 2 docs |
 | 4 | Component Library v3 (~20 primitives) | 1.5w (W3+W4½) | pending | [phase-04-component-library-v3.md](./phase-04-component-library-v3.md) |
 | 5 | Page Migration (10 pages) | 1.5w (W4½+W5) | pending | [phase-05-page-migration.md](./phase-05-page-migration.md) |
 | 6 | Polish + QA + Docs | 1w (W6) | pending | [phase-06-polish-qa.md](./phase-06-polish-qa.md) |
