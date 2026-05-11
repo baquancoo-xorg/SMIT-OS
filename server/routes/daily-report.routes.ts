@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { RBAC } from '../middleware/rbac.middleware';
 import { handleAsync } from '../utils/async-handler';
 import { validate } from '../middleware/validate.middleware';
-import { createDailyReportSchema } from '../schemas/report.schema';
+import { createDailyReportSchema, approveReportSchema } from '../schemas/report.schema';
 import { createOwnershipMiddleware } from '../middleware/ownership.middleware';
 import { createNotificationService } from '../services/notification.service';
 import { childLogger } from '../lib/logger';
@@ -121,9 +121,10 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
     res.json(updated);
   }));
 
-  router.post('/:id/approve', RBAC.adminOnly, handleAsync(async (req: any, res: any) => {
+  router.post('/:id/approve', RBAC.adminOnly, validate(approveReportSchema), handleAsync(async (req: any, res: any) => {
     const { id } = req.params;
     const user = req.user!;
+    const comment: string = req.body.comment.trim();
 
     const report = await prisma.dailyReport.findUnique({
       where: { id },
@@ -140,6 +141,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
         status: 'Approved',
         approvedBy: user.userId,
         approvedAt: new Date(),
+        approvalComment: comment,
       },
       include: { user: true },
     });

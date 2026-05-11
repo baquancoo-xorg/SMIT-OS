@@ -5,7 +5,7 @@ import { createNotificationService } from '../services/notification.service';
 import { RBAC } from '../middleware/rbac.middleware';
 import { handleAsync } from '../utils/async-handler';
 import { validate } from '../middleware/validate.middleware';
-import { createWeeklyReportSchema, updateWeeklyReportSchema } from '../schemas/report.schema';
+import { createWeeklyReportSchema, updateWeeklyReportSchema, approveReportSchema } from '../schemas/report.schema';
 import { createOwnershipMiddleware } from '../middleware/ownership.middleware';
 
 export function createReportRoutes(prisma: PrismaClient) {
@@ -90,9 +90,10 @@ export function createReportRoutes(prisma: PrismaClient) {
     res.json(updated);
   }));
 
-  router.post('/:id/approve', RBAC.adminOnly, handleAsync(async (req: any, res: any) => {
+  router.post('/:id/approve', RBAC.adminOnly, validate(approveReportSchema), handleAsync(async (req: any, res: any) => {
     const { id } = req.params;
     const user = req.user!;
+    const comment: string = req.body.comment.trim();
 
     const report = await prisma.weeklyReport.findUnique({
       where: { id },
@@ -109,6 +110,7 @@ export function createReportRoutes(prisma: PrismaClient) {
         status: 'Approved',
         approvedBy: user.userId,
         approvedAt: new Date(),
+        approvalComment: comment,
       },
       include: { user: true },
     });

@@ -100,6 +100,7 @@ model WeeklyReport {
   approvedBy  String?
   approver    User?     @relation("ApprovedReports", fields: [approvedBy], references: [id])
   approvedAt  DateTime?
+  approvalComment String    @default("") // Nhận xét bắt buộc của admin khi duyệt
   rawData     Json? // Full snapshot of submitted payload for recovery
   createdAt   DateTime  @default(now())
 }
@@ -119,6 +120,7 @@ model DailyReport {
   approvedBy          String?
   approver            User?     @relation("ApprovedDailyReports", fields: [approvedBy], references: [id])
   approvedAt          DateTime?
+  approvalComment     String    @default("") // Nhận xét bắt buộc của admin khi duyệt
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 

@@ -27,20 +27,46 @@ interface SubmissionStatus {
   type: 'early' | 'ontime' | 'late';
 }
 
+// Format minutes → "Xh Ym" (>= 60 min) hoặc "X min" (< 60 min).
+function formatMinutes(min: number): string {
+  if (min < 60) return `${min} min`;
+  const hours = Math.floor(min / 60);
+  const mins = min % 60;
+  return mins === 0 ? `${hours}h` : `${hours}h ${mins}m`;
+}
+
+/**
+ * Submission window:
+ *  - Work hours: 08:30 → 18:30 (giờ làm việc).
+ *  - Reporting window: 18:30 hôm nay → 10:00 sáng hôm sau (~15.5h).
+ *  - Standard cutoff: 10:00 sáng.
+ *  - < 10:00 (trong window) → Early, đếm phút sớm so với 10:00.
+ *  - = 10:00          → On Time.
+ *  - > 10:00 (trong giờ làm)→ Late, đếm phút muộn so với 10:00.
+ */
 function getSubmissionStatus(dateStr: string): SubmissionStatus {
   const d = new Date(dateStr);
-  const totalMinutes = d.getHours() * 60 + d.getMinutes();
-  const windowStart = 8 * 60 + 30;
-  const windowEnd = 10 * 60;
-  if (totalMinutes < windowStart) {
-    const diff = windowStart - totalMinutes;
-    return { label: 'Early', detail: `${diff} min early`, type: 'early' };
+  const totalMin = d.getHours() * 60 + d.getMinutes();
+  const WINDOW_START = 18 * 60 + 30; // 18:30
+  const CUTOFF = 10 * 60;            // 10:00
+
+  // Buổi tối (18:30 → 23:59): early so với deadline 10:00 sáng hôm sau.
+  if (totalMin >= WINDOW_START) {
+    const minutesEarly = (24 * 60 - totalMin) + CUTOFF;
+    return { label: 'Early', detail: `${formatMinutes(minutesEarly)} early`, type: 'early' };
   }
-  if (totalMinutes <= windowEnd) {
+  // Rạng sáng (00:00 → 09:59): early so với deadline 10:00 sáng hôm nay.
+  if (totalMin < CUTOFF) {
+    const minutesEarly = CUTOFF - totalMin;
+    return { label: 'Early', detail: `${formatMinutes(minutesEarly)} early`, type: 'early' };
+  }
+  // Đúng 10:00 sáng.
+  if (totalMin === CUTOFF) {
     return { label: 'On Time', detail: '', type: 'ontime' };
   }
-  const diff = totalMinutes - windowEnd;
-  return { label: 'Late', detail: `+${diff} min`, type: 'late' };
+  // 10:01 → 18:29: muộn so với deadline 10:00 sáng.
+  const minutesLate = totalMin - CUTOFF;
+  return { label: 'Late', detail: `+${formatMinutes(minutesLate)}`, type: 'late' };
 }
 
 function SubmissionBadge({ createdAt }: { createdAt: string }) {
@@ -155,21 +181,34 @@ const accessor = (row: DailyReport, key: SortKey): SortableValue => {
  * Approve gated by admin (matches v1 + backend RBAC.adminOnly).
  */
 export default function DailySyncV2() {
-  const { currentUser } = useAuth();
+  const { currentUser, setCurrentUser } = useAuth();
   const [reports, setReports] = useState<DailyReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<DailyReport | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
+  const [approveComment, setApproveComment] = useState('');
+  const [approving, setApproving] = useState(false);
 
   const canApprove = !!currentUser?.isAdmin;
   const contract = getTableContract('standard');
+
+  // Session expired (4h JWT cookie) → clear user + redirect login.
+  function handleSessionExpired() {
+    setCurrentUser(null);
+    alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+    window.location.href = '/login';
+  }
 
   async function fetchReports() {
     setLoading(true);
     try {
       const res = await fetch('/api/daily-reports', { credentials: 'include' });
+      if (res.status === 401) {
+        handleSessionExpired();
+        return;
+      }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setReports(await res.json());
     } catch (err) {
@@ -219,6 +258,10 @@ export default function DailySyncV2() {
         credentials: 'include',
         body: JSON.stringify(payload),
       });
+      if (res.status === 401) {
+        handleSessionExpired();
+        return;
+      }
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         alert(`Lỗi: ${err.error || 'Submit thất bại'}`);
@@ -235,22 +278,42 @@ export default function DailySyncV2() {
   }
 
   async function handleApprove(id: string) {
+    const comment = approveComment.trim();
+    if (!comment) {
+      alert('Vui lòng nhập nhận xét trước khi duyệt.');
+      return;
+    }
+    setApproving(true);
     try {
       const res = await fetch(`/api/daily-reports/${id}/approve`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        body: JSON.stringify({ comment }),
       });
+      if (res.status === 401) {
+        handleSessionExpired();
+        return;
+      }
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         alert(`Approve thất bại: ${err.error || res.status}`);
         return;
       }
       await fetchReports();
+      setApproveComment('');
       setSelectedReport(null);
     } catch (err) {
       console.error(err);
+    } finally {
+      setApproving(false);
     }
   }
+
+  // Reset comment khi đổi report.
+  useEffect(() => {
+    setApproveComment('');
+  }, [selectedReport?.id]);
 
 
   return (
@@ -463,8 +526,9 @@ export default function DailySyncV2() {
                 variant="primary"
                 iconLeft={<Zap />}
                 onClick={() => selectedReport && handleApprove(selectedReport.id)}
+                disabled={!approveComment.trim() || approving}
               >
-                Duyệt
+                {approving ? 'Đang duyệt...' : 'Duyệt'}
               </Button>
             )}
             <Button variant="ghost" onClick={() => setSelectedReport(null)}>
@@ -479,6 +543,30 @@ export default function DailySyncV2() {
             <DetailBlock title="② Đang thực hiện hôm qua" body={selectedReport.doingYesterday} />
             <DetailBlock title="③ Khó khăn / Vấn đề" body={selectedReport.blockers} tone="warning" />
             <DetailBlock title="④ Sẽ thực hiện hôm nay" body={selectedReport.planToday} />
+
+            {/* Đã duyệt → hiện nhận xét read-only */}
+            {selectedReport.status === 'Approved' && selectedReport.approvalComment && (
+              <DetailBlock
+                title={`Nhận xét từ ${selectedReport.approver?.fullName ?? 'admin'}`}
+                body={selectedReport.approvalComment}
+              />
+            )}
+
+            {/* Admin đang review → textarea bắt buộc */}
+            {canApprove && selectedReport.status === 'Review' && (
+              <label className="flex flex-col gap-2">
+                <span className="flex items-center gap-2 text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">
+                  <span className="text-primary">★</span>
+                  Nhận xét (bắt buộc)
+                </span>
+                <textarea
+                  value={approveComment}
+                  onChange={(e) => setApproveComment(e.target.value)}
+                  placeholder="Nhập nhận xét của bạn trước khi duyệt..."
+                  className="min-h-[100px] w-full resize-y rounded-input border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-[length:var(--text-body)] text-on-surface placeholder:text-on-surface-variant/60 focus-visible:outline-none focus-visible:border-primary transition-colors motion-fast ease-standard"
+                />
+              </label>
+            )}
           </div>
         )}
       </Modal>

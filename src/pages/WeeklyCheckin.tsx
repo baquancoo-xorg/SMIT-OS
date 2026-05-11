@@ -117,8 +117,15 @@ export default function WeeklyCheckinV2() {
   const [selectedReport, setSelectedReport] = useState<WeeklyReport | null>(null);
   const [reports, setReports] = useState<WeeklyReport[]>([]);
   const [loading, setLoading] = useState(true);
+  const [approveComment, setApproveComment] = useState('');
+  const [approving, setApproving] = useState(false);
 
   const canApprove = !!currentUser?.isAdmin;
+
+  // Reset comment khi đổi report.
+  useEffect(() => {
+    setApproveComment('');
+  }, [selectedReport?.id]);
 
   async function fetchReports() {
     setLoading(true);
@@ -146,17 +153,31 @@ export default function WeeklyCheckinV2() {
   }, [reports, currentUser]);
 
   async function handleApprove(id: string) {
+    const comment = approveComment.trim();
+    if (!comment) {
+      alert('Vui lòng nhập nhận xét trước khi duyệt.');
+      return;
+    }
+    setApproving(true);
     try {
-      const res = await fetch(`/api/reports/${id}/approve`, { method: 'POST', credentials: 'include' });
+      const res = await fetch(`/api/reports/${id}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ comment }),
+      });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         alert(`Approve thất bại: ${err.error || res.status}`);
         return;
       }
       await fetchReports();
+      setApproveComment('');
       setSelectedReport(null);
     } catch (err) {
       console.error(err);
+    } finally {
+      setApproving(false);
     }
   }
 
@@ -323,8 +344,9 @@ export default function WeeklyCheckinV2() {
                 variant="primary"
                 iconLeft={<Zap />}
                 onClick={() => selectedReport && handleApprove(selectedReport.id)}
+                disabled={!approveComment.trim() || approving}
               >
-                Duyệt
+                {approving ? 'Đang duyệt...' : 'Duyệt'}
               </Button>
             )}
             <Button variant="ghost" onClick={() => setSelectedReport(null)}>
@@ -408,6 +430,31 @@ export default function WeeklyCheckinV2() {
                 <EmptyMark />
               )}
             </Section>
+
+            {/* Đã duyệt → hiện nhận xét read-only */}
+            {selectedReport?.status === 'Approved' && selectedReport.approvalComment && (
+              <Section title={`Nhận xét từ ${selectedReport.approver?.fullName ?? 'admin'}`}>
+                <p className="whitespace-pre-wrap text-[length:var(--text-body-sm)] text-on-surface">
+                  {selectedReport.approvalComment}
+                </p>
+              </Section>
+            )}
+
+            {/* Admin đang review → textarea bắt buộc */}
+            {canApprove && selectedReport?.status === 'Review' && (
+              <label className="flex flex-col gap-2">
+                <span className="flex items-center gap-2 text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">
+                  <span className="text-primary">★</span>
+                  Nhận xét (bắt buộc)
+                </span>
+                <textarea
+                  value={approveComment}
+                  onChange={(e) => setApproveComment(e.target.value)}
+                  placeholder="Nhập nhận xét của bạn trước khi duyệt..."
+                  className="min-h-[100px] w-full resize-y rounded-input border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-[length:var(--text-body)] text-on-surface placeholder:text-on-surface-variant/60 focus-visible:outline-none focus-visible:border-primary transition-colors motion-fast ease-standard"
+                />
+              </label>
+            )}
 
             <span className="sr-only">
               <HelpCircle aria-hidden="true" />

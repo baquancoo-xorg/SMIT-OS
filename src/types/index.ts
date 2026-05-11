@@ -78,6 +78,7 @@ export interface WeeklyReport {
   approvedBy?: string;
   approver?: { id: string; fullName: string };
   approvedAt?: string;
+  approvalComment?: string;
   rawData?: Record<string, unknown> | null;
   createdAt: string;
 }
@@ -97,6 +98,7 @@ export interface DailyReport {
   approvedBy?: string;
   approver?: { id: string; fullName: string };
   approvedAt?: string;
+  approvalComment?: string;
   createdAt: string;
   updatedAt: string;
 }

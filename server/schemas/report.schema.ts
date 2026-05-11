@@ -29,5 +29,11 @@ export const createDailyReportSchema = z.object({
 export const updateWeeklyReportSchema = createWeeklyReportSchema.partial();
 export const updateDailyReportSchema = createDailyReportSchema.partial();
 
+// Approval comment — bắt buộc non-empty, max 2000 chars.
+export const approveReportSchema = z.object({
+  comment: z.string().trim().min(1, 'Nhận xét là bắt buộc').max(2000),
+});
+
 export type CreateWeeklyReportInput = z.infer<typeof createWeeklyReportSchema>;
 export type CreateDailyReportInput = z.infer<typeof createDailyReportSchema>;
+export type ApproveReportInput = z.infer<typeof approveReportSchema>;
