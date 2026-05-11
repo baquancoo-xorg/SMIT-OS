@@ -1,12 +1,16 @@
-import DatePicker from '../ui/v2/date-picker';
 import { useState, useEffect } from 'react';
-import { Save, X } from 'lucide-react';
-import { OkrCycle } from '../../types';
-import { Input, Button } from '../ui/v2';
-import { TableShell } from '../ui/v2/table-shell';
-import { getTableContract } from '../ui/v2/table-contract';
-import { formatTableDate } from '../ui/v2/table-date-format';
-import { TableRowActions } from '../ui/v2/table-row-actions';
+import { Pencil, Trash2, MoreHorizontal, Calendar } from 'lucide-react';
+import type { OkrCycle } from '../../types';
+import {
+  DataTable,
+  Badge,
+  Button,
+  Input,
+  FormDialog,
+  EmptyState,
+  DropdownMenu,
+} from '../ui';
+import type { DataTableColumn } from '../ui';
 
 interface OkrCyclesTabProps {
   onDeleteConfirm: (type: 'cycle', id: string) => void;
@@ -14,11 +18,32 @@ interface OkrCyclesTabProps {
   setIsAddingCycle: (v: boolean) => void;
 }
 
-export function OkrCyclesTab({ onDeleteConfirm, isAddingCycle, setIsAddingCycle }: OkrCyclesTabProps) {
+interface CycleFormState {
+  name: string;
+  startDate: string;
+  endDate: string;
+}
+
+const EMPTY_FORM: CycleFormState = { name: '', startDate: '', endDate: '' };
+
+function formatDate(d: string) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('vi-VN');
+}
+
+/**
+ * OkrCyclesTab v2 — DataTable + FormDialog visual layer.
+ *
+ * Logic + API identical to v1: GET/POST/PUT /api/okr-cycles.
+ * Inline form panels replaced with FormDialog (one for add, one for edit).
+ * Status pill replaced with Badge v2; row actions via DropdownMenu.
+ */
+export function OkrCyclesTabV2({ onDeleteConfirm, isAddingCycle, setIsAddingCycle }: OkrCyclesTabProps) {
   const [okrCycles, setOkrCycles] = useState<OkrCycle[]>([]);
   const [editingCycle, setEditingCycle] = useState<OkrCycle | null>(null);
-  const [newCycle, setNewCycle] = useState({ name: '', startDate: '', endDate: '' });
-  const standardTable = getTableContract('standard');
+  const [newCycle, setNewCycle] = useState<CycleFormState>(EMPTY_FORM);
+  const [editForm, setEditForm] = useState<CycleFormState>(EMPTY_FORM);
+  const [submitting, setSubmitting] = useState(false);
 
   const fetchOkrCycles = async () => {
     try {
@@ -35,30 +60,44 @@ export function OkrCyclesTab({ onDeleteConfirm, isAddingCycle, setIsAddingCycle 
   }, []);
 
   const handleAddCycle = async () => {
+    setSubmitting(true);
     try {
       const res = await fetch('/api/okr-cycles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(newCycle)
+        body: JSON.stringify(newCycle),
       });
       if (res.ok) {
         await fetchOkrCycles();
         setIsAddingCycle(false);
-        setNewCycle({ name: '', startDate: '', endDate: '' });
+        setNewCycle(EMPTY_FORM);
       }
     } catch (error) {
       console.error('Failed to add OKR cycle:', error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleUpdateCycle = async (cycle: OkrCycle) => {
+  const openEdit = (cycle: OkrCycle) => {
+    setEditingCycle(cycle);
+    setEditForm({
+      name: cycle.name,
+      startDate: cycle.startDate.split('T')[0],
+      endDate: cycle.endDate.split('T')[0],
+    });
+  };
+
+  const handleUpdateCycle = async () => {
+    if (!editingCycle) return;
+    setSubmitting(true);
     try {
-      const res = await fetch(`/api/okr-cycles/${cycle.id}`, {
+      const res = await fetch(`/api/okr-cycles/${editingCycle.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(cycle)
+        body: JSON.stringify({ ...editingCycle, ...editForm }),
       });
       if (res.ok) {
         await fetchOkrCycles();
@@ -66,6 +105,8 @@ export function OkrCyclesTab({ onDeleteConfirm, isAddingCycle, setIsAddingCycle 
       }
     } catch (error) {
       console.error('Failed to update OKR cycle:', error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -74,7 +115,7 @@ export function OkrCyclesTab({ onDeleteConfirm, isAddingCycle, setIsAddingCycle 
       const res = await fetch(`/api/okr-cycles/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: true })
+        body: JSON.stringify({ isActive: true }),
       });
       if (res.ok) await fetchOkrCycles();
     } catch (error) {
@@ -82,90 +123,162 @@ export function OkrCyclesTab({ onDeleteConfirm, isAddingCycle, setIsAddingCycle 
     }
   };
 
+  const columns: DataTableColumn<OkrCycle>[] = [
+    {
+      key: 'name',
+      label: 'Cycle',
+      sortable: true,
+      sort: (a, b) => a.name.localeCompare(b.name),
+      render: (c) => <span className="font-semibold text-on-surface">{c.name}</span>,
+    },
+    {
+      key: 'duration',
+      label: 'Duration',
+      hideBelow: 'md',
+      render: (c) => (
+        <span className="text-on-surface-variant">
+          {formatDate(c.startDate)} – {formatDate(c.endDate)}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (c) =>
+        c.isActive ? (
+          <Badge variant="success">Active</Badge>
+        ) : (
+          <Button variant="ghost" size="sm" onClick={() => handleSetActiveCycle(c.id)}>
+            Set active
+          </Button>
+        ),
+    },
+    {
+      key: 'actions',
+      label: '',
+      align: 'right',
+      width: 'w-12',
+      render: (c) => (
+        <DropdownMenu
+          label={`Actions for ${c.name}`}
+          trigger={
+            <button
+              type="button"
+              aria-label={`Actions for ${c.name}`}
+              className="inline-flex size-8 items-center justify-center rounded-button text-on-surface-variant hover:bg-surface-container focus-visible:outline-none"
+            >
+              <MoreHorizontal className="size-4" aria-hidden="true" />
+            </button>
+          }
+          items={[
+            { key: 'edit', label: 'Edit cycle', icon: <Pencil />, onClick: () => openEdit(c) },
+            {
+              key: 'delete',
+              label: 'Delete',
+              icon: <Trash2 />,
+              destructive: true,
+              onClick: () => onDeleteConfirm('cycle', c.id),
+            },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      {isAddingCycle && (
-        <div className="bg-white/50 backdrop-blur-md p-6 rounded-card border border-white/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
-          <Input label="Cycle Name" placeholder="e.g., Q2/2026" value={newCycle.name} onChange={e => setNewCycle({ ...newCycle, name: e.target.value })} />
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase mb-1">Start Date</label>
-              <DatePicker value={newCycle.startDate} onChange={(v) => setNewCycle({ ...newCycle, startDate: v })} />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase mb-1">End Date</label>
-              <DatePicker value={newCycle.endDate} onChange={(v) => setNewCycle({ ...newCycle, endDate: v })} />
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={handleAddCycle} className="flex-1">Create Cycle</Button>
-            <Button onClick={() => { setIsAddingCycle(false); setNewCycle({ name: '', startDate: '', endDate: '' }); }} variant="ghost">Cancel</Button>
-          </div>
-        </div>
+    <div className="flex flex-col gap-4">
+      {okrCycles.length > 0 ? (
+        <DataTable<OkrCycle>
+          label="OKR cycles"
+          data={okrCycles}
+          rowKey={(c) => c.id}
+          columns={columns}
+        />
+      ) : (
+        <EmptyState
+          icon={<Calendar />}
+          title="No OKR cycles yet"
+          description="Create a cycle to start tracking quarterly objectives."
+          actions={
+            <Button variant="primary" onClick={() => setIsAddingCycle(true)}>
+              Create cycle
+            </Button>
+          }
+          decorative
+        />
       )}
 
-      {editingCycle && (
-        <div className="bg-white/50 backdrop-blur-md p-6 rounded-card border border-white/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="flex items-center justify-between mb-2">
-            <h4 className="text-sm font-bold text-on-surface">Edit Cycle</h4>
-            <button onClick={() => setEditingCycle(null)} className="text-on-surface-variant hover:text-on-surface"><X size={18} /></button>
-          </div>
-          <Input label="Cycle Name" value={editingCycle.name} onChange={e => setEditingCycle({ ...editingCycle, name: e.target.value })} />
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase mb-1">Start Date</label>
-              <DatePicker className="w-full" value={editingCycle.startDate.split('T')[0]} onChange={(v) => setEditingCycle({ ...editingCycle, startDate: v })} />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase mb-1">End Date</label>
-              <DatePicker className="w-full" value={editingCycle.endDate.split('T')[0]} onChange={(v) => setEditingCycle({ ...editingCycle, endDate: v })} />
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={() => handleUpdateCycle(editingCycle)} className="flex-1 gap-2"><Save size={14} />Save</Button>
-            <Button onClick={() => setEditingCycle(null)} variant="ghost">Cancel</Button>
-          </div>
+      {/* Add dialog */}
+      <FormDialog
+        open={isAddingCycle}
+        onClose={() => {
+          setIsAddingCycle(false);
+          setNewCycle(EMPTY_FORM);
+        }}
+        onSubmit={handleAddCycle}
+        title="New OKR cycle"
+        description="Set the name and date range for the cycle."
+        submitLabel="Create cycle"
+        isSubmitting={submitting}
+      >
+        <Input
+          label="Cycle name"
+          placeholder="e.g., Q2/2026"
+          value={newCycle.name}
+          onChange={(e) => setNewCycle({ ...newCycle, name: e.target.value })}
+          required
+          autoFocus
+        />
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            label="Start date"
+            type="date"
+            value={newCycle.startDate}
+            onChange={(e) => setNewCycle({ ...newCycle, startDate: e.target.value })}
+            required
+          />
+          <Input
+            label="End date"
+            type="date"
+            value={newCycle.endDate}
+            min={newCycle.startDate}
+            onChange={(e) => setNewCycle({ ...newCycle, endDate: e.target.value })}
+            required
+          />
         </div>
-      )}
+      </FormDialog>
 
-      <TableShell variant="standard" className="border border-white/20">
-        <thead>
-          <tr className={standardTable.headerRow}>
-            <th className={standardTable.headerCell}>Cycle</th>
-            <th className={standardTable.headerCell}>Duration</th>
-            <th className={standardTable.headerCell}>Status</th>
-            <th className={standardTable.actionHeaderCell}>Actions</th>
-          </tr>
-        </thead>
-        <tbody className={standardTable.body}>
-          {okrCycles.map(cycle => (
-            <tr key={cycle.id} className={standardTable.row}>
-              <td className={standardTable.cell}><span className="text-sm font-bold text-on-surface">{cycle.name}</span></td>
-              <td className={standardTable.cell}><span className="text-xs font-medium text-on-surface-variant">{formatTableDate(cycle.startDate)} - {formatTableDate(cycle.endDate)}</span></td>
-              <td className={standardTable.cell}>
-                {cycle.isActive ? (
-                  <span className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold">Active</span>
-                ) : (
-                  <button onClick={() => handleSetActiveCycle(cycle.id)} className="px-2 py-1 bg-surface-variant/60 text-on-surface-variant rounded-full text-[10px] font-bold hover:bg-primary/10 hover:text-primary transition-colors">Set Active</button>
-                )}
-              </td>
-              <td className={standardTable.actionCell}>
-                <TableRowActions
-                  onEdit={() => setEditingCycle(cycle)}
-                  onDelete={() => onDeleteConfirm('cycle', cycle.id)}
-                  size={16}
-                  variant="standard"
-                />
-              </td>
-            </tr>
-          ))}
-          {okrCycles.length === 0 && (
-            <tr>
-              <td colSpan={4} className={standardTable.emptyState}>No OKR cycles created yet. Create one to start tracking quarterly objectives.</td>
-            </tr>
-          )}
-        </tbody>
-      </TableShell>
+      {/* Edit dialog */}
+      <FormDialog
+        open={!!editingCycle}
+        onClose={() => setEditingCycle(null)}
+        onSubmit={handleUpdateCycle}
+        title="Edit OKR cycle"
+        submitLabel="Save changes"
+        isSubmitting={submitting}
+      >
+        <Input
+          label="Cycle name"
+          value={editForm.name}
+          onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+          required
+        />
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            label="Start date"
+            type="date"
+            value={editForm.startDate}
+            onChange={(e) => setEditForm({ ...editForm, startDate: e.target.value })}
+          />
+          <Input
+            label="End date"
+            type="date"
+            value={editForm.endDate}
+            min={editForm.startDate}
+            onChange={(e) => setEditForm({ ...editForm, endDate: e.target.value })}
+          />
+        </div>
+      </FormDialog>
     </div>
   );
 }

@@ -1,10 +1,18 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, Save, X } from 'lucide-react';
-import { Input, Button, GlassCard as Card, Badge } from '../ui/v2';
-import { TableRowActions } from '../ui/v2/table-row-actions';
-import { TableShell } from '../ui/v2/table-shell';
-import { getTableContract } from '../ui/v2/table-contract';
-import { formatTableDateTime } from '../ui/v2/table-date-format';
+import { RefreshCw, Pencil, Trash2, MoreHorizontal, Save, Facebook } from 'lucide-react';
+import {
+  DataTable,
+  Badge,
+  Button,
+  Input,
+  FormDialog,
+  EmptyState,
+  DropdownMenu,
+  GlassCard,
+  Spinner,
+  useToast,
+} from '../ui';
+import type { DataTableColumn, BadgeVariant } from '../ui';
 
 interface FbAccount {
   id: number;
@@ -16,23 +24,50 @@ interface FbAccount {
   lastSyncStatus: string | null;
 }
 
+interface FbFormState {
+  accountId: string;
+  accountName: string;
+  accessToken: string;
+  currency: string;
+}
+
+const EMPTY_FORM: FbFormState = { accountId: '', accountName: '', accessToken: '', currency: 'USD' };
+
 interface FbConfigTabProps {
   isAddingFb: boolean;
   setIsAddingFb: (v: boolean) => void;
 }
 
-export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
+function formatDateTime(s: string | null) {
+  if (!s) return 'Never';
+  return new Date(s).toLocaleString('vi-VN');
+}
+
+const SYNC_STATUS_BADGE: Record<string, BadgeVariant> = {
+  success: 'success',
+  failed: 'error',
+};
+
+/**
+ * FbConfigTab v2 — CRITICAL tab for Acquisition (Meta Ads token + ad accounts).
+ *
+ * Logic + API identical to v1: /api/admin/fb-accounts (GET/POST/PUT/DELETE/sync)
+ * + /api/admin/exchange-rates (GET/PUT). Visual layer migrated to v2.
+ */
+export function FbConfigTabV2({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
+  const { toast } = useToast();
   const [accounts, setAccounts] = useState<FbAccount[]>([]);
   const [exchangeRate, setExchangeRate] = useState<number>(27000);
   const [loading, setLoading] = useState(true);
-  const isAdding = isAddingFb;
   const [editingId, setEditingId] = useState<number | null>(null);
   const [syncingId, setSyncingId] = useState<number | null>(null);
-  const [formData, setFormData] = useState({ accountId: '', accountName: '', accessToken: '', currency: 'USD' });
-  const [formError, setFormError] = useState<string | null>(null);
-  const [rateError, setRateError] = useState<string | null>(null);
-  const [rateSaved, setRateSaved] = useState(false);
-  const standardTable = getTableContract('standard');
+  const [formData, setFormData] = useState<FbFormState>(EMPTY_FORM);
+  const [submitting, setSubmitting] = useState(false);
+  const [savingRate, setSavingRate] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const isEditing = editingId !== null;
+  const dialogOpen = isAddingFb || isEditing;
 
   useEffect(() => {
     fetchAccounts();
@@ -61,69 +96,82 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
     }
   };
 
-  const handleAddAccount = async () => {
-    setFormError(null);
+  const closeDialog = () => {
+    setIsAddingFb(false);
+    setEditingId(null);
+    setFormData(EMPTY_FORM);
+  };
+
+  const openEdit = (acc: FbAccount) => {
+    setEditingId(acc.id);
+    setFormData({ accountId: acc.accountId, accountName: acc.accountName ?? '', accessToken: '', currency: acc.currency });
+  };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
     try {
-      const res = await fetch('/api/admin/fb-accounts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        await fetchAccounts();
-        resetForm();
+      if (isEditing && editingId !== null) {
+        const body: Record<string, string> = {};
+        if (formData.accountName) body.accountName = formData.accountName;
+        if (formData.accessToken) body.accessToken = formData.accessToken;
+        if (formData.currency) body.currency = formData.currency;
+
+        const res = await fetch(`/api/admin/fb-accounts/${editingId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          await fetchAccounts();
+          closeDialog();
+          toast({ tone: 'success', title: 'Account updated' });
+        } else {
+          toast({ tone: 'error', title: 'Update failed', description: data.error || 'Network error' });
+        }
       } else {
-        setFormError(data.error || 'Failed to add account');
+        const res = await fetch('/api/admin/fb-accounts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(formData),
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          await fetchAccounts();
+          closeDialog();
+          toast({ tone: 'success', title: 'Account added' });
+        } else {
+          toast({ tone: 'error', title: 'Add failed', description: data.error || 'Network error' });
+        }
       }
     } catch (err) {
-      setFormError('Network error');
-      console.error('Failed to add account:', err);
+      console.error('Failed to save account:', err);
+      toast({ tone: 'error', title: 'Network error' });
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleUpdateAccount = async (id: number) => {
-    setFormError(null);
-    try {
-      const body: Record<string, string> = {};
-      if (formData.accountName) body.accountName = formData.accountName;
-      if (formData.accessToken) body.accessToken = formData.accessToken;
-      if (formData.currency) body.currency = formData.currency;
-
-      const res = await fetch(`/api/admin/fb-accounts/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        await fetchAccounts();
-        resetForm();
-      } else {
-        setFormError(data.error || 'Failed to update account');
-      }
-    } catch (err) {
-      setFormError('Network error');
-      console.error('Failed to update account:', err);
-    }
-  };
-
-  const handleDeleteAccount = async (id: number) => {
+  const handleDelete = async (id: number) => {
     if (!confirm('Delete this account?')) return;
+    setDeletingId(id);
     try {
       await fetch(`/api/admin/fb-accounts/${id}`, { method: 'DELETE', credentials: 'include' });
       await fetchAccounts();
+      toast({ tone: 'success', title: 'Account deleted' });
     } catch (err) {
       console.error('Failed to delete account:', err);
+    } finally {
+      setDeletingId(null);
     }
   };
 
   const handleSync = async (id: number) => {
     setSyncingId(id);
     const today = new Date().toISOString().slice(0, 10);
-    const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+    const weekAgo = new Date(Date.now() - 7 * 86_400_000).toISOString().slice(0, 10);
 
     try {
       await fetch(`/api/admin/fb-accounts/${id}/sync`, {
@@ -135,6 +183,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
       setTimeout(() => {
         setSyncingId(null);
         fetchAccounts();
+        toast({ tone: 'success', title: 'Sync triggered', description: 'Last 7 days requested.' });
       }, 2000);
     } catch (err) {
       setSyncingId(null);
@@ -143,8 +192,7 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
   };
 
   const handleUpdateExchangeRate = async () => {
-    setRateError(null);
-    setRateSaved(false);
+    setSavingRate(true);
     try {
       const res = await fetch('/api/admin/exchange-rates', {
         method: 'PUT',
@@ -154,198 +202,208 @@ export function FbConfigTab({ isAddingFb, setIsAddingFb }: FbConfigTabProps) {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setRateSaved(true);
-        setTimeout(() => setRateSaved(false), 2000);
+        toast({ tone: 'success', title: 'Rate updated', description: `1 USD = ${exchangeRate.toLocaleString('vi-VN')} đ` });
       } else {
-        setRateError(data.error || 'Failed to save');
+        toast({ tone: 'error', title: 'Failed to save', description: data.error || 'Network error' });
       }
     } catch (err) {
-      setRateError('Network error');
       console.error('Failed to update exchange rate:', err);
+      toast({ tone: 'error', title: 'Network error' });
+    } finally {
+      setSavingRate(false);
     }
   };
 
-  const resetForm = () => {
-    setIsAddingFb(false);
-    setEditingId(null);
-    setFormData({ accountId: '', accountName: '', accessToken: '', currency: 'USD' });
-    setFormError(null);
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12 text-primary">
+        <Spinner size="lg" hideLabel={false} label="Loading FB config..." />
+      </div>
+    );
+  }
 
-  const openEdit = (acc: FbAccount) => {
-    setEditingId(acc.id);
-    setFormData({ accountId: acc.accountId, accountName: acc.accountName || '', accessToken: '', currency: acc.currency });
-  };
-
-  const syncBadge = (acc: FbAccount) => {
-    if (!acc.lastSyncAt) return 'Never';
-    return formatTableDateTime(acc.lastSyncAt);
-  };
-
-  if (loading) return <div className="text-center py-8 text-on-surface-variant">Loading...</div>;
+  const columns: DataTableColumn<FbAccount>[] = [
+    {
+      key: 'account',
+      label: 'Account',
+      sortable: true,
+      sort: (a, b) => (a.accountName ?? a.accountId).localeCompare(b.accountName ?? b.accountId),
+      render: (acc) => (
+        <div className="min-w-0">
+          <p className="truncate font-semibold text-on-surface">{acc.accountName ?? acc.accountId}</p>
+          <p className="truncate text-[length:var(--text-caption)] text-on-surface-variant font-mono">{acc.accountId}</p>
+        </div>
+      ),
+    },
+    {
+      key: 'currency',
+      label: 'Currency',
+      hideBelow: 'md',
+      render: (acc) => <Badge variant="neutral">{acc.currency}</Badge>,
+    },
+    {
+      key: 'lastSync',
+      label: 'Last sync',
+      render: (acc) => (
+        <Badge variant={acc.lastSyncStatus ? SYNC_STATUS_BADGE[acc.lastSyncStatus] ?? 'neutral' : 'neutral'}>
+          {formatDateTime(acc.lastSyncAt)}
+        </Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      label: '',
+      align: 'right',
+      width: 'w-24',
+      render: (acc) => (
+        <div className="flex items-center justify-end gap-1">
+          <button
+            type="button"
+            onClick={() => handleSync(acc.id)}
+            disabled={syncingId === acc.id}
+            aria-label={`Sync ${acc.accountId}`}
+            className="inline-flex size-8 items-center justify-center rounded-button text-on-surface-variant hover:bg-surface-container hover:text-primary disabled:opacity-50 focus-visible:outline-none"
+          >
+            <RefreshCw className={['size-4', syncingId === acc.id ? 'animate-spin' : ''].join(' ')} aria-hidden="true" />
+          </button>
+          <DropdownMenu
+            label={`Actions for ${acc.accountId}`}
+            trigger={
+              <button
+                type="button"
+                aria-label={`Actions for ${acc.accountId}`}
+                className="inline-flex size-8 items-center justify-center rounded-button text-on-surface-variant hover:bg-surface-container focus-visible:outline-none"
+              >
+                <MoreHorizontal className="size-4" aria-hidden="true" />
+              </button>
+            }
+            items={[
+              { key: 'edit', label: 'Edit account', icon: <Pencil />, onClick: () => openEdit(acc) },
+              {
+                key: 'delete',
+                label: 'Delete',
+                icon: <Trash2 />,
+                destructive: true,
+                disabled: deletingId === acc.id,
+                onClick: () => handleDelete(acc.id),
+              },
+            ]}
+          />
+        </div>
+      ),
+    },
+  ];
 
   return (
-    <div className="space-y-8 max-w-5xl">
-      <div className="space-y-8">
-        {(isAdding || editingId) && (
-          <Card variant="surface" className="p-6 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-black text-on-surface uppercase tracking-wider">{isAdding ? 'New Ad Account' : 'Edit Ad Account'}</h4>
-              <button onClick={resetForm} className="p-2 hover:bg-surface-container-low rounded-xl transition-colors"><X size={18} /></button>
-            </div>
-            {formError && (
-              <div className="bg-error/5 border border-error/20 text-error px-4 py-2 rounded-xl text-xs font-bold">{formError}</div>
-            )}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                label="Account ID"
-                placeholder="act_XXXXXXXXX"
-                value={formData.accountId}
-                onChange={e => setFormData({ ...formData, accountId: e.target.value })}
-                disabled={!!editingId}
-                helperText="Dùng dấu _ không phải ="
-              />
-              <Input
-                label="Account Name"
-                placeholder="e.g., Main Account"
-                value={formData.accountName}
-                onChange={e => setFormData({ ...formData, accountName: e.target.value })}
-              />
+    <div className="flex flex-col gap-6 max-w-5xl">
+      {accounts.length > 0 ? (
+        <DataTable<FbAccount>
+          label="Meta Ads accounts"
+          data={accounts}
+          rowKey={(a) => a.id}
+          columns={columns}
+        />
+      ) : (
+        <EmptyState
+          icon={<Facebook />}
+          title="No Meta Ads accounts"
+          description="Add an account to start syncing campaign data."
+          actions={
+            <Button variant="primary" onClick={() => setIsAddingFb(true)}>
+              Add account
+            </Button>
+          }
+          decorative
+        />
+      )}
+
+      {/* Exchange rate card */}
+      <GlassCard variant="raised" padding="lg" ariaLabel="USD to VND exchange rate">
+        <div className="flex flex-col gap-4">
+          <div>
+            <p className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">
+              USD → VND exchange rate
+            </p>
+            <p className="mt-1 text-[length:var(--text-body-sm)] text-on-surface-variant">
+              Used for converting USD spend on Meta Ads accounts to VND for reporting.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="flex items-baseline gap-2 text-on-surface">
+              <span className="font-semibold">1 USD =</span>
             </div>
             <Input
-              type="password"
-              label="Access Token"
-              placeholder="••••••••"
-              value={formData.accessToken}
-              onChange={e => setFormData({ ...formData, accessToken: e.target.value })}
-              helperText={editingId ? 'Để trống nếu không muốn đổi' : undefined}
+              type="number"
+              value={exchangeRate}
+              onChange={(e) => setExchangeRate(Number(e.target.value))}
+              containerClassName="flex-1 min-w-[12rem] max-w-xs"
+              aria-label="USD to VND rate"
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1 px-1">Currency</label>
-                <div className="w-full bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-2.5 text-sm">
-                  <select
-                    value={formData.currency}
-                    onChange={e => setFormData({ ...formData, currency: e.target.value })}
-                    className="w-full bg-transparent outline-none text-on-surface"
-                  >
-                    <option value="USD">USD</option>
-                    <option value="VND">VND</option>
-                  </select>
-                </div>
-              </div>
-              <div className="flex items-end">
-                <Button
-                  onClick={() => editingId ? handleUpdateAccount(editingId) : handleAddAccount()}
-                  className="w-full gap-2"
-                >
-                  <Save size={16} />
-                  {editingId ? 'Save Changes' : 'Add Account'}
-                </Button>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        <Card variant="surface" className="overflow-hidden shadow-sm">
-          <TableShell variant="standard">
-            <thead>
-              <tr className={standardTable.headerRow}>
-                <th className={standardTable.headerCell}>Account</th>
-                <th className={standardTable.headerCell}>Currency</th>
-                <th className={standardTable.headerCell}>Last Sync</th>
-                <th className={standardTable.actionHeaderCell}>Actions</th>
-              </tr>
-            </thead>
-            <tbody className={standardTable.body}>
-              {accounts.map(acc => (
-                <tr key={acc.id} className={`${standardTable.row} group`}>
-                  <td className={standardTable.cell}>
-                    <div>
-                      <span className="text-sm font-bold text-on-surface block">{acc.accountName || acc.accountId}</span>
-                      <span className="text-[10px] text-on-surface-variant font-medium">{acc.accountId}</span>
-                    </div>
-                  </td>
-                  <td className={standardTable.cell}>
-                    <Badge variant="neutral">{acc.currency}</Badge>
-                  </td>
-                  <td className={standardTable.cell}>
-                    <Badge variant={acc.lastSyncStatus === 'success' ? 'success' : acc.lastSyncStatus === 'failed' ? 'error' : 'neutral'}>
-                      {syncBadge(acc)}
-                    </Badge>
-                  </td>
-                  <td className={standardTable.actionCell}>
-                    <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => handleSync(acc.id)} disabled={syncingId === acc.id} className="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-xl transition-all disabled:animate-spin" title="Sync Now"><RefreshCw size={16} /></button>
-                      <TableRowActions
-                        onEdit={() => openEdit(acc)}
-                        onDelete={() => handleDeleteAccount(acc.id)}
-                        size={16}
-                        variant="standard"
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {accounts.length === 0 && (
-                <tr>
-                  <td colSpan={4} className={standardTable.emptyState}>No accounts configured yet.</td>
-                </tr>
-              )}
-            </tbody>
-          </TableShell>
-        </Card>
-      </div>
-
-      <Card variant="surface" className="overflow-hidden shadow-sm">
-        <TableShell variant="standard">
-          <thead>
-            <tr className={standardTable.headerRow}>
-              <th className={standardTable.headerCell}>Tên loại quy đổi</th>
-              <th className={standardTable.headerCell}>Giá trị gốc</th>
-              <th className={standardTable.headerCell}>Giá trị quy đổi</th>
-            </tr>
-          </thead>
-          <tbody className={standardTable.body}>
-            <tr className={standardTable.row}>
-              <td className={standardTable.cell}>
-                <div className="text-sm font-bold text-on-surface">USD to VND Rate</div>
-              </td>
-              <td className={standardTable.cell}>
-                <div className="text-sm font-bold text-on-surface-variant">1 USD</div>
-              </td>
-              <td className={standardTable.cell}>
-                <div className="max-w-xs">
-                  <input
-                    type="number"
-                    value={exchangeRate}
-                    onChange={e => setExchangeRate(Number(e.target.value))}
-                    className="w-full bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-2.5 text-sm font-black text-on-surface text-right outline-none transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary/40"
-                    placeholder="Nhập giá trị"
-                  />
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </TableShell>
-
-        <div className="p-6 pt-5 border-t border-outline-variant/10 space-y-3">
-          <Button
-            onClick={handleUpdateExchangeRate}
-            variant="secondary"
-            className="w-full gap-2"
-          >
-            <Save size={16} />
-            Save Rate
-          </Button>
-
-          {(rateError || rateSaved) && (
-            <div className={`p-3 rounded-xl border text-xs font-bold text-center ${rateError ? 'bg-error/10 border-error/20 text-error' : 'bg-tertiary/10 border-tertiary/20 text-tertiary'}`}>
-              {rateError || 'Rate updated successfully!'}
-            </div>
-          )}
+            <Button
+              variant="secondary"
+              iconLeft={<Save />}
+              onClick={handleUpdateExchangeRate}
+              isLoading={savingRate}
+            >
+              Save rate
+            </Button>
+          </div>
         </div>
-      </Card>
+      </GlassCard>
+
+      {/* Add/Edit dialog */}
+      <FormDialog
+        open={dialogOpen}
+        onClose={closeDialog}
+        onSubmit={handleSubmit}
+        title={isEditing ? 'Edit ad account' : 'New ad account'}
+        description={isEditing ? 'Leave access token blank to keep current.' : 'Enter the Meta Ads account credentials.'}
+        icon={<Facebook />}
+        size="md"
+        submitLabel={isEditing ? 'Save changes' : 'Add account'}
+        isSubmitting={submitting}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <Input
+            label="Account ID"
+            placeholder="act_XXXXXXXXX"
+            value={formData.accountId}
+            onChange={(e) => setFormData({ ...formData, accountId: e.target.value })}
+            disabled={isEditing}
+            helperText="Use _ not ="
+            required={!isEditing}
+          />
+          <Input
+            label="Account name"
+            placeholder="e.g., Main Account"
+            value={formData.accountName}
+            onChange={(e) => setFormData({ ...formData, accountName: e.target.value })}
+          />
+        </div>
+        <Input
+          type="password"
+          label="Access token"
+          placeholder="••••••••"
+          value={formData.accessToken}
+          onChange={(e) => setFormData({ ...formData, accessToken: e.target.value })}
+          helperText={isEditing ? 'Leave blank to keep current.' : undefined}
+          required={!isEditing}
+        />
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="fb-currency" className="text-[length:var(--text-label)] font-medium text-on-surface-variant">
+            Currency
+          </label>
+          <select
+            id="fb-currency"
+            value={formData.currency}
+            onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+            className="h-10 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+          >
+            <option value="USD">USD</option>
+            <option value="VND">VND</option>
+          </select>
+        </div>
+      </FormDialog>
     </div>
   );
 }

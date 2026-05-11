@@ -1,21 +1,42 @@
 import { useState } from 'react';
-import { Save, X, UserCog } from 'lucide-react';
+import { Pencil, Trash2, MoreHorizontal, UserCog, Users as UsersIcon } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { User } from '../../types';
-import { Input, Button, GlassCard as Card, Badge } from '../ui/v2';
-import CustomSelect from '../ui/v2/custom-select';
-import { TableRowActions } from '../ui/v2/table-row-actions';
-import { TableShell } from '../ui/v2/table-shell';
-import { getTableContract } from '../ui/v2/table-contract';
+import type { User } from '../../types';
+import {
+  DataTable,
+  Badge,
+  Button,
+  Input,
+  FormDialog,
+  EmptyState,
+  DropdownMenu,
+} from '../ui';
+import type { DataTableColumn, BadgeVariant } from '../ui';
 
 const ALL_DEPARTMENTS = ['BOD', 'Tech', 'Marketing', 'Media', 'Sale'];
-const ROLE_OPTIONS = [
-  { value: 'Admin', label: 'Admin' },
-  { value: 'Member', label: 'Member' }
-];
-const ROLE_BADGE_VARIANT: Record<string, 'info' | 'warning' | 'neutral'> = {
+const ROLE_BADGE: Record<string, BadgeVariant> = {
   Admin: 'info',
   Member: 'neutral',
+};
+
+interface UserFormState {
+  fullName: string;
+  username: string;
+  password: string;
+  departments: string[];
+  role: string;
+  scope: string;
+  isAdmin: boolean;
+}
+
+const EMPTY_FORM: UserFormState = {
+  fullName: '',
+  username: '',
+  password: '',
+  departments: ['Tech'],
+  role: 'Member',
+  scope: '',
+  isAdmin: false,
 };
 
 interface UserManagementTabProps {
@@ -24,268 +45,292 @@ interface UserManagementTabProps {
   setIsAddingUser: (v: boolean) => void;
 }
 
-export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUser }: UserManagementTabProps) {
+/**
+ * UserManagementTab v2 — DataTable + FormDialog visual layer.
+ *
+ * Logic + API identical to v1 (POST/PUT /api/users). Edit + add use a single
+ * shared FormDialog (mode switched by `editingUser` state).
+ * Department multi-select uses chip toggle pattern (kept from v1).
+ */
+export function UserManagementTabV2({ onDeleteConfirm, isAddingUser, setIsAddingUser }: UserManagementTabProps) {
   const { users, refreshUsers, currentUser } = useAuth();
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [editFormData, setEditFormData] = useState({
-    fullName: '', username: '', password: '', departments: ['Tech'] as string[],
-    role: 'Member', scope: '', isAdmin: false
-  });
-  const [newUser, setNewUser] = useState({
-    fullName: '', username: '', password: '', departments: ['Tech'] as string[],
-    role: 'Member', scope: '', isAdmin: false
-  });
-  const standardTable = getTableContract('standard');
+  const [formData, setFormData] = useState<UserFormState>(EMPTY_FORM);
+  const [submitting, setSubmitting] = useState(false);
 
-  const toggleDepartment = (dept: string, isEdit: boolean) => {
-    if (isEdit) {
-      setEditFormData(prev => ({
-        ...prev,
-        departments: prev.departments.includes(dept)
-          ? prev.departments.filter(d => d !== dept)
-          : [...prev.departments, dept]
-      }));
-    } else {
-      setNewUser(prev => ({
-        ...prev,
-        departments: prev.departments.includes(dept)
-          ? prev.departments.filter(d => d !== dept)
-          : [...prev.departments, dept]
-      }));
-    }
+  const isEditing = editingUser !== null;
+  const dialogOpen = isAddingUser || isEditing;
+
+  const toggleDepartment = (dept: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      departments: prev.departments.includes(dept)
+        ? prev.departments.filter((d) => d !== dept)
+        : [...prev.departments, dept],
+    }));
   };
 
-  const handleAddUser = async () => {
-    try {
-      const res = await fetch('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(newUser)
-      });
-      if (res.ok) {
-        await refreshUsers();
-        setIsAddingUser(false);
-        setNewUser({ fullName: '', username: '', password: '', departments: ['Tech'], role: 'Member', scope: '', isAdmin: false });
-      }
-    } catch (error) {
-      console.error('Failed to add user:', error);
-    }
+  const openAdd = () => {
+    setEditingUser(null);
+    setFormData(EMPTY_FORM);
+    setIsAddingUser(true);
   };
 
-  const openEditUser = (user: User) => {
+  const openEdit = (user: User) => {
     setEditingUser(user);
-    setEditFormData({
-      fullName: user.fullName, username: user.username, password: '',
-      departments: user.departments || [], role: user.role,
-      scope: user.scope || '', isAdmin: user.isAdmin,
+    setFormData({
+      fullName: user.fullName,
+      username: user.username,
+      password: '',
+      departments: user.departments || [],
+      role: user.role,
+      scope: user.scope || '',
+      isAdmin: user.isAdmin,
     });
   };
 
-  const handleUpdateUser = async () => {
-    if (!editingUser) return;
-    try {
-      const data: Record<string, unknown> = {
-        fullName: editFormData.fullName, username: editFormData.username,
-        departments: editFormData.departments, role: editFormData.role,
-        scope: editFormData.scope, isAdmin: editFormData.isAdmin,
-      };
-      if (editFormData.password.trim()) data.password = editFormData.password;
+  const closeDialog = () => {
+    setIsAddingUser(false);
+    setEditingUser(null);
+    setFormData(EMPTY_FORM);
+  };
 
-      const res = await fetch(`/api/users/${editingUser.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(data)
-      });
-      if (res.ok) {
-        await refreshUsers();
-        setEditingUser(null);
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    try {
+      if (isEditing && editingUser) {
+        const data: Record<string, unknown> = {
+          fullName: formData.fullName,
+          username: formData.username,
+          departments: formData.departments,
+          role: formData.role,
+          scope: formData.scope,
+          isAdmin: formData.isAdmin,
+        };
+        if (formData.password.trim()) data.password = formData.password;
+
+        const res = await fetch(`/api/users/${editingUser.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(data),
+        });
+        if (res.ok) {
+          await refreshUsers();
+          closeDialog();
+        }
+      } else {
+        const res = await fetch('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(formData),
+        });
+        if (res.ok) {
+          await refreshUsers();
+          closeDialog();
+        }
       }
     } catch (error) {
-      console.error('Failed to update user:', error);
+      console.error('Failed to save user:', error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
+  const columns: DataTableColumn<User>[] = [
+    {
+      key: 'user',
+      label: 'User',
+      sortable: true,
+      sort: (a, b) => a.fullName.localeCompare(b.fullName),
+      render: (u) => (
+        <div className="flex items-center gap-3">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-card bg-primary-container text-on-primary-container font-bold">
+            {u.fullName[0]}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate font-semibold text-on-surface">{u.fullName}</p>
+            <p className="truncate text-[length:var(--text-caption)] text-on-surface-variant">@{u.username}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'departments',
+      label: 'Dept',
+      hideBelow: 'md',
+      render: (u) => (
+        <div className="flex flex-wrap gap-1">
+          {(u.departments ?? []).map((d) => (
+            <Badge key={d} variant="primary" size="sm">
+              {d}
+            </Badge>
+          ))}
+        </div>
+      ),
+    },
+    {
+      key: 'role',
+      label: 'Role',
+      sortable: true,
+      sort: (a, b) => a.role.localeCompare(b.role),
+      render: (u) => <Badge variant={ROLE_BADGE[u.role] ?? 'neutral'}>{u.role}</Badge>,
+    },
+    {
+      key: 'scope',
+      label: 'Scope',
+      hideBelow: 'lg',
+      render: (u) => <span className="text-on-surface-variant">{u.scope || '—'}</span>,
+    },
+    {
+      key: 'actions',
+      label: '',
+      align: 'right',
+      width: 'w-12',
+      render: (u) => (
+        <DropdownMenu
+          label={`Actions for ${u.fullName}`}
+          trigger={
+            <button
+              type="button"
+              aria-label={`Actions for ${u.fullName}`}
+              className="inline-flex size-8 items-center justify-center rounded-button text-on-surface-variant hover:bg-surface-container focus-visible:outline-none"
+            >
+              <MoreHorizontal className="size-4" aria-hidden="true" />
+            </button>
+          }
+          items={[
+            { key: 'edit', label: 'Edit user', icon: <Pencil />, onClick: () => openEdit(u) },
+            ...(u.id !== currentUser?.id
+              ? [{ key: 'delete', label: 'Delete', icon: <Trash2 />, destructive: true, onClick: () => onDeleteConfirm('user', u.id) }]
+              : []),
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
-    <div className="space-y-8">
-      {isAddingUser && (
-        <div className="bg-white/50 backdrop-blur-md p-6 rounded-card border border-white/20 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input label="Full Name" placeholder="Nguyen Van A" value={newUser.fullName} onChange={e => setNewUser({ ...newUser, fullName: e.target.value })} />
-            <Input label="Username" placeholder="nva_smit" value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} />
-          </div>
-          <Input type="password" label="Password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
-
-          <div>
-            <label className="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-2 px-1">Departments</label>
-            <div className="flex flex-wrap gap-2">
-              {ALL_DEPARTMENTS.map(dept => (
-                <button key={dept} type="button" onClick={() => toggleDepartment(dept, false)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${newUser.departments.includes(dept) ? 'bg-primary text-white shadow-md' : 'bg-surface-variant/60 text-on-surface-variant hover:bg-surface-variant'}`}>{dept}</button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1 px-1">Role</label>
-              <CustomSelect value={newUser.role} onChange={val => setNewUser({ ...newUser, role: val })} options={ROLE_OPTIONS} />
-            </div>
-            <Input label="Scope (Position)" placeholder="e.g., Backend Developer" value={newUser.scope} onChange={e => setNewUser({ ...newUser, scope: e.target.value })} />
-          </div>
-
-          <div className="flex items-center gap-3 px-1">
-            <input type="checkbox" id="isNewAdmin" checked={newUser.isAdmin} onChange={e => setNewUser({ ...newUser, isAdmin: e.target.checked })} className="w-4 h-4 rounded accent-primary" />
-            <label htmlFor="isNewAdmin" className="text-xs font-bold text-on-surface-variant uppercase cursor-pointer">Admin Access</label>
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            <Button onClick={handleAddUser} className="flex-1">Save User</Button>
-            <Button onClick={() => setIsAddingUser(false)} variant="ghost">Cancel</Button>
-          </div>
-        </div>
+    <div className="flex flex-col gap-4">
+      {users.length > 0 ? (
+        <DataTable<User>
+          label="Team members"
+          data={users}
+          rowKey={(u) => u.id}
+          columns={columns}
+        />
+      ) : (
+        <EmptyState
+          icon={<UsersIcon />}
+          title="No team members yet"
+          description="Invite the first member to start collaborating."
+          actions={
+            <Button variant="primary" onClick={openAdd}>
+              Add user
+            </Button>
+          }
+          decorative
+        />
       )}
 
-      {editingUser && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center p-4" onClick={() => setEditingUser(null)}>
-          <Card className="p-8 max-w-lg w-full shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                  <UserCog size={24} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-on-surface">Edit User</h3>
-                  <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{editingUser.fullName}</p>
-                </div>
-              </div>
-              <button onClick={() => setEditingUser(null)} className="p-2 hover:bg-surface-variant/60 rounded-xl transition-colors"><X size={20} /></button>
-            </div>
-
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input label="Full Name" value={editFormData.fullName} onChange={e => setEditFormData({ ...editFormData, fullName: e.target.value })} />
-                <Input label="Username" value={editFormData.username} onChange={e => setEditFormData({ ...editFormData, username: e.target.value })} />
-              </div>
-              <Input type="password" label="New Password" placeholder="••••••••" value={editFormData.password} onChange={e => setEditFormData({ ...editFormData, password: e.target.value })} />
-
-              <div>
-                <label className="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-2 px-1">Departments</label>
-                <div className="flex flex-wrap gap-2">
-                  {ALL_DEPARTMENTS.map(dept => (
-                    <button key={dept} type="button" onClick={() => toggleDepartment(dept, true)}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${editFormData.departments.includes(dept) ? 'bg-primary text-white shadow-md' : 'bg-surface-variant/60 text-on-surface-variant hover:bg-surface-variant'}`}>{dept}</button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1 px-1">Role</label>
-                  <CustomSelect value={editFormData.role} onChange={val => setEditFormData({ ...editFormData, role: val })} options={ROLE_OPTIONS} />
-                </div>
-                <Input label="Scope (Position)" value={editFormData.scope} onChange={e => setEditFormData({ ...editFormData, scope: e.target.value })} />
-              </div>
-
-              <div className="flex items-center gap-3 px-1">
-                <input type="checkbox" id="editIsAdmin" checked={editFormData.isAdmin} onChange={e => setEditFormData({ ...editFormData, isAdmin: e.target.checked })} className="w-4 h-4 rounded accent-primary" />
-                <label htmlFor="editIsAdmin" className="text-xs font-bold text-on-surface-variant uppercase cursor-pointer">Admin Access</label>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <Button onClick={handleUpdateUser} className="flex-1 gap-2"><Save size={16} /> Save Changes</Button>
-                <Button onClick={() => setEditingUser(null)} variant="secondary">Cancel</Button>
-              </div>
-            </div>
-          </Card>
+      <FormDialog
+        open={dialogOpen}
+        onClose={closeDialog}
+        onSubmit={handleSubmit}
+        title={isEditing ? 'Edit user' : 'New user'}
+        description={isEditing ? `Editing ${editingUser?.fullName}.` : 'Create a workspace member.'}
+        icon={<UserCog />}
+        size="lg"
+        submitLabel={isEditing ? 'Save changes' : 'Save user'}
+        isSubmitting={submitting}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <Input
+            label="Full name"
+            placeholder="Nguyen Van A"
+            value={formData.fullName}
+            onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+            required
+          />
+          <Input
+            label="Username"
+            placeholder="nva_smit"
+            value={formData.username}
+            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            required
+          />
         </div>
-      )}
+        <Input
+          label={isEditing ? 'New password (optional)' : 'Password'}
+          type="password"
+          placeholder={isEditing ? '••••••••' : ''}
+          value={formData.password}
+          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+          required={!isEditing}
+          helperText={isEditing ? 'Leave blank to keep current password.' : undefined}
+        />
 
-      {/* Desktop: table */}
-      <div className="hidden lg:block">
-        <TableShell variant="standard" className="border border-white/20">
-          <thead>
-            <tr className={standardTable.headerRow}>
-              <th className={standardTable.headerCell}>User</th>
-              <th className={standardTable.headerCell}>Dept</th>
-              <th className={standardTable.headerCell}>Role</th>
-              <th className={standardTable.headerCell}>Scope</th>
-              <th className={standardTable.actionHeaderCell}>Actions</th>
-            </tr>
-          </thead>
-          <tbody className={standardTable.body}>
-            {users.map(user => (
-              <tr key={user.id} className={`${standardTable.row} group`}>
-                <td className={standardTable.cell}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xs font-black text-primary">
-                      {user.fullName[0]}
-                    </div>
-                    <div>
-                      <span className="text-sm font-bold text-on-surface block">{user.fullName}</span>
-                      <span className="text-[10px] text-on-surface-variant font-medium">{user.username}</span>
-                    </div>
-                  </div>
-                </td>
-                <td className={standardTable.cell}>
-                  <div className="flex flex-wrap gap-1">
-                    {user.departments?.map(dept => (<span key={dept} className="px-2 py-0.5 bg-primary/5 text-primary rounded-lg text-[9px] font-black uppercase tracking-wider">{dept}</span>))}
-                  </div>
-                </td>
-                <td className={standardTable.cell}>
-                  <Badge variant={ROLE_BADGE_VARIANT[user.role] || 'neutral'}>{user.role}</Badge>
-                </td>
-                <td className={standardTable.cell}>
-                  <span className="text-xs font-bold text-on-surface-variant">{user.scope || '-'}</span>
-                </td>
-                <td className={standardTable.actionCell}>
-                  <TableRowActions
-                    onEdit={() => openEditUser(user)}
-                    onDelete={user.id !== currentUser?.id ? () => onDeleteConfirm('user', user.id) : undefined}
-                    size={16}
-                    variant="standard"
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </TableShell>
-      </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-[length:var(--text-label)] font-medium text-on-surface-variant">
+            Departments
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {ALL_DEPARTMENTS.map((dept) => {
+              const active = formData.departments.includes(dept);
+              return (
+                <button
+                  key={dept}
+                  type="button"
+                  onClick={() => toggleDepartment(dept)}
+                  className={[
+                    'inline-flex h-8 items-center rounded-chip px-3 text-[length:var(--text-body-sm)] font-semibold',
+                    'transition-colors motion-fast ease-standard focus-visible:outline-none',
+                    active
+                      ? 'bg-primary text-on-primary'
+                      : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container',
+                  ].join(' ')}
+                >
+                  {dept}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-      {/* Tablet/Mobile: card list */}
-      <div className="lg:hidden space-y-3">
-        {users.map(user => (
-          <Card key={user.id} variant="outlined" className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xs font-black text-primary shrink-0">
-                  {user.fullName[0]}
-                </div>
-                <div>
-                  <span className="text-sm font-bold text-on-surface block">{user.fullName}</span>
-                  <span className="text-[10px] text-on-surface-variant font-medium">{user.username}</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant={ROLE_BADGE_VARIANT[user.role] || 'neutral'}>{user.role}</Badge>
-                <TableRowActions
-                  onEdit={() => openEditUser(user)}
-                  onDelete={user.id !== currentUser?.id ? () => onDeleteConfirm('user', user.id) : undefined}
-                  size={16}
-                  variant="standard"
-                />
-              </div>
-            </div>
-            {(user.departments?.length > 0 || user.scope) && (
-              <div className="mt-2 flex flex-wrap gap-1">
-                {user.departments?.map(dept => (<span key={dept} className="px-2 py-0.5 bg-primary/5 text-primary rounded-lg text-[9px] font-black uppercase tracking-wider">{dept}</span>))}
-                {user.scope && <span className="text-[10px] text-on-surface-variant ml-1">{user.scope}</span>}
-              </div>
-            )}
-          </Card>
-        ))}
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="user-role" className="text-[length:var(--text-label)] font-medium text-on-surface-variant">
+              Role
+            </label>
+            <select
+              id="user-role"
+              value={formData.role}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              className="h-10 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+            >
+              <option value="Admin">Admin</option>
+              <option value="Member">Member</option>
+            </select>
+          </div>
+          <Input
+            label="Scope (position)"
+            placeholder="e.g., Backend Developer"
+            value={formData.scope}
+            onChange={(e) => setFormData({ ...formData, scope: e.target.value })}
+          />
+        </div>
+
+        <label className="inline-flex items-center gap-2 text-sm text-on-surface">
+          <input
+            type="checkbox"
+            checked={formData.isAdmin}
+            onChange={(e) => setFormData({ ...formData, isAdmin: e.target.checked })}
+            className="size-4 rounded accent-primary"
+          />
+          <span>Grant admin access</span>
+        </label>
+      </FormDialog>
     </div>
   );
 }
