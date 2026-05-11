@@ -1,13 +1,11 @@
-import { useMemo, useState, type ReactNode } from 'react';
-import { addDays, differenceInCalendarDays, parseISO, format } from 'date-fns';
+import { useState } from 'react';
+import { addDays, differenceInCalendarDays, parseISO } from 'date-fns';
 import { Search, Check, X } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
 import { api } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Lead } from '../../types';
-import DatePicker from '../ui/date-picker';
 import BulkActionBar, { type BulkEditFields } from './bulk-action-bar';
 import LeadDetailModal from './lead-detail-modal';
 import LeadLogDialog from './lead-log-dialog';
@@ -15,10 +13,18 @@ import { TableRowActions } from '../ui/table-row-actions';
 import { TableShell } from '../ui/table-shell';
 import { getTableContract } from '../ui/table-contract';
 import { formatTableDateTime } from '../ui/table-date-format';
-import { GlassCard, Badge, Input, Button, EmptyState, FilterChip, DateRangePicker } from '../ui';
-import type { BadgeVariant, DateRange } from '../ui';
+import { GlassCard, Badge, Button, EmptyState } from '../ui';
+import type { BadgeVariant } from '../ui';
 
-const STATUSES = ['Mới', 'Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'];
+export interface LeadFilters {
+  ae: string;
+  status: string;
+  hasNote: string;
+  noteDate: string;
+  dateFrom: string;
+  dateTo: string;
+  q: string;
+}
 
 const STATUS_VARIANT: Record<string, BadgeVariant> = {
   'Mới': 'primary',
@@ -81,47 +87,15 @@ const COLS = [
 ];
 
 interface LeadLogsTabProps {
-  extraControls?: ReactNode;
+  filters: LeadFilters;
 }
 
-export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
+export default function LeadLogsTab({ filters }: LeadLogsTabProps) {
   const { currentUser } = useAuth();
   const isSale = currentUser?.departments?.includes('Sale');
   const isLeadAdmin = currentUser?.isAdmin || currentUser?.role === 'Admin';
 
   const queryClient = useQueryClient();
-  const today = new Date().toISOString().slice(0, 10);
-  const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-  const sevenDaysAgoStr = sevenDaysAgo.toISOString().slice(0, 10);
-
-  const [searchParams, setSearchParams] = useSearchParams();
-  const urlDateFrom = searchParams.get('date_from');
-  const urlDateTo = searchParams.get('date_to');
-
-  const [filters, setFilters] = useState({
-    ae: '',
-    status: '',
-    hasNote: '',
-    noteDate: '',
-    dateFrom: urlDateFrom ?? sevenDaysAgoStr,
-    dateTo: urlDateTo ?? today,
-    q: '',
-  });
-
-  const pickerValue: DateRange = useMemo(
-    () => ({ from: new Date(filters.dateFrom), to: new Date(filters.dateTo) }),
-    [filters.dateFrom, filters.dateTo],
-  );
-
-  const setDateRange = (next: DateRange) => {
-    const from = format(next.from, 'yyyy-MM-dd');
-    const to = format(next.to, 'yyyy-MM-dd');
-    setFilters((f) => ({ ...f, dateFrom: from, dateTo: to }));
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.set('date_from', from);
-    nextParams.set('date_to', to);
-    setSearchParams(nextParams);
-  };
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkEditMode, setBulkEditMode] = useState(false);
@@ -132,8 +106,6 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
   const [dialogLead, setDialogLead] = useState<Lead | null>(null);
   const [detailLead, setDetailLead] = useState<Lead | null>(null);
   const standardTable = getTableContract('standard');
-
-  const sf = (k: string, v: string) => setFilters((f) => ({ ...f, [k]: v }));
 
   const leadsQueryParams: Record<string, string> = {};
   if (filters.ae) leadsQueryParams.ae = filters.ae;
@@ -153,6 +125,7 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
 
   const fetchLeads = () => void queryClient.invalidateQueries({ queryKey: ['leads'] });
 
+  // AE options for dialog (LeadLogDialog needs full list). Cached query — parent also reads from same key.
   const aeQuery = useQuery<{ id: string; fullName: string }[]>({
     queryKey: ['lead-ae-list'],
     queryFn: () => api.getLeadAeList(),
@@ -230,34 +203,8 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
 
   return (
     <div className="h-full flex flex-col gap-4">
-      <GlassCard variant="surface" padding="sm" className="shrink-0 flex flex-col gap-2">
-        {/* Sub-row 1: Filter & controls */}
-        <div className="flex flex-wrap items-center gap-3">
-          <DateRangePicker value={pickerValue} onChange={setDateRange} size="sm" />
-          <FilterChip size="sm" value={filters.ae} onChange={(v) => sf('ae', v)} options={[{ value: '', label: 'All AE' }, ...aeOptions.map((a) => ({ value: a.fullName, label: a.fullName }))]} />
-          <FilterChip size="sm" value={filters.status} onChange={(v) => sf('status', v)} options={[{ value: '', label: 'All Status' }, ...STATUSES.map((s) => ({ value: s, label: toStatusLabel(s) }))]} />
-          <FilterChip
-            size="sm"
-            value={filters.hasNote}
-            onChange={(v) => sf('hasNote', v)}
-            options={[
-              { value: '', label: 'All Notes' },
-              { value: 'yes', label: 'With note' },
-              { value: 'no', label: 'Without note' },
-            ]}
-          />
-          <DatePicker value={filters.noteDate} onChange={(v) => sf('noteDate', v)} placeholder="Note changed" />
-          <Input
-            containerClassName="w-48"
-            placeholder="Search leads..."
-            value={filters.q}
-            onChange={(e) => sf('q', e.target.value)}
-            iconLeft={<Search />}
-          />
-          {extraControls && <div className="ml-auto">{extraControls}</div>}
-        </div>
-
-        {/* Sub-row 2: Statbar — luôn horizontal, scroll khi narrow */}
+      <GlassCard variant="surface" padding="sm" className="shrink-0">
+        {/* Statbar — luôn horizontal, scroll khi narrow. Filter UI giờ ở page header (LeadTracker.tsx). */}
         {!loading && (() => {
           const now = new Date();
           const filteredLeads = leads.filter(l => {

@@ -1,19 +1,31 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { format, startOfMonth } from 'date-fns';
-import { List, BarChart2, RefreshCw } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import LeadLogsTab from '../components/lead-tracker/lead-logs-tab';
+import { List, BarChart2, Search } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
+import { api } from '../lib/api';
+import LeadLogsTab, { type LeadFilters } from '../components/lead-tracker/lead-logs-tab';
 import DailyStatsTab from '../components/lead-tracker/daily-stats-tab';
-import LastSyncIndicator from '../components/lead-tracker/last-sync-indicator';
-import { useSyncNowMutation, useSyncStatusQuery } from '../hooks/use-lead-sync';
+import DatePicker from '../components/ui/date-picker';
 import {
-  Button,
   TabPill,
   GlassCard,
+  DateRangePicker,
+  FilterChip,
+  Input,
 } from '../components/ui';
-import type { TabPillItem } from '../components/ui';
+import type { TabPillItem, DateRange } from '../components/ui';
 
 type ActiveTab = 'logs' | 'stats';
+
+const STATUSES = ['Mới', 'Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'];
+const STATUS_LABEL: Record<string, string> = {
+  'Mới': 'NEW',
+  'Đang liên hệ': 'ATT',
+  'Đang nuôi dưỡng': 'NUR',
+  'Qualified': 'QLD',
+  'Unqualified': 'UQLD',
+};
 
 const TABS: TabPillItem<ActiveTab>[] = [
   { value: 'logs', label: 'Lead Logs', icon: <List /> },
@@ -21,58 +33,59 @@ const TABS: TabPillItem<ActiveTab>[] = [
 ];
 
 /**
- * LeadTracker v2 — Phase 6 medium pages migration.
- *
- * Token-driven shell wrapping v1 sub-components (LeadLogsTab, DailyStatsTab):
- *  - PageHeader (italic accent + breadcrumb)
- *  - TabPill (Logs / Stats)
- *  - v2 Button for CRM sync (Admin only) + CSV export
- *  - Date range filters preserved for stats tab
- *
- * Sub-components (lead-log-dialog, lead-detail-modal, source-badge, csv-export, etc.) reused
- * from v1 — internal UI migration is follow-up work after Phase 6 sign-off.
- *
- * RBAC: CRM sync = admin only (matches backend). CSV export = isSale.
+ * LeadTracker v2 — Round 3 (2026-05-11): all filter UI lifted to header row
+ * so DateRangePicker + 3 FilterChips + DatePicker + Search render inline với
+ * TabPill. Sync CRM button removed (CRM sync now auto). LeadLogsTab consumes
+ * filters via props instead of owning state.
  */
 export default function LeadTrackerV2() {
-  const { currentUser } = useAuth();
-  const canManageLeads = !!currentUser?.isAdmin;
   const [activeTab, setActiveTab] = useState<ActiveTab>('logs');
-  const [statsDateFrom, setStatsDateFrom] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
-  const [statsDateTo, setStatsDateTo] = useState(format(new Date(), 'yyyy-MM-dd'));
-  const syncNow = useSyncNowMutation();
-  const syncStatus = useSyncStatusQuery(!!currentUser?.isAdmin);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const triggerSyncNow = async () => {
-    try {
-      await syncNow.mutateAsync();
-      alert('Đã trigger sync từ CRM. Dữ liệu sẽ cập nhật trong ít phút.');
-      await syncStatus.refetch();
-    } catch (err: any) {
-      alert(err?.message ?? 'Không thể trigger sync CRM');
-    }
+  const today = new Date().toISOString().slice(0, 10);
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  const sevenDaysAgoStr = sevenDaysAgo.toISOString().slice(0, 10);
+
+  const urlDateFrom = searchParams.get('date_from');
+  const urlDateTo = searchParams.get('date_to');
+
+  const [filters, setFilters] = useState<LeadFilters>({
+    ae: '',
+    status: '',
+    hasNote: '',
+    noteDate: '',
+    dateFrom: urlDateFrom ?? sevenDaysAgoStr,
+    dateTo: urlDateTo ?? today,
+    q: '',
+  });
+
+  const pickerValue: DateRange = useMemo(
+    () => ({ from: new Date(filters.dateFrom), to: new Date(filters.dateTo) }),
+    [filters.dateFrom, filters.dateTo],
+  );
+
+  const setDateRange = (next: DateRange) => {
+    const from = format(next.from, 'yyyy-MM-dd');
+    const to = format(next.to, 'yyyy-MM-dd');
+    setFilters((f) => ({ ...f, dateFrom: from, dateTo: to }));
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('date_from', from);
+    nextParams.set('date_to', to);
+    setSearchParams(nextParams);
   };
 
-  const isSyncing = syncNow.isPending || syncStatus.data?.status === 'running';
+  const sf = (k: keyof LeadFilters, v: string) => setFilters((f) => ({ ...f, [k]: v }));
 
-  const syncActions = (
-    <div className="flex flex-wrap items-center gap-2">
-      {canManageLeads && (
-        <>
-          <LastSyncIndicator status={syncStatus.data} />
-          <Button
-            variant="secondary"
-            size="sm"
-            iconLeft={<RefreshCw className={isSyncing ? 'animate-spin' : ''} />}
-            onClick={triggerSyncNow}
-            disabled={isSyncing}
-          >
-            {isSyncing ? 'Syncing...' : 'Sync CRM'}
-          </Button>
-        </>
-      )}
-    </div>
-  );
+  const aeQuery = useQuery<{ id: string; fullName: string }[]>({
+    queryKey: ['lead-ae-list'],
+    queryFn: () => api.getLeadAeList(),
+    staleTime: 5 * 60_000,
+  });
+  const aeOptions = aeQuery.data ?? [];
+
+  const [statsDateFrom, setStatsDateFrom] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
+  const [statsDateTo, setStatsDateTo] = useState(format(new Date(), 'yyyy-MM-dd'));
 
   return (
     <div className="flex h-full flex-col gap-6">
@@ -81,39 +94,77 @@ export default function LeadTrackerV2() {
           Lead <em className="font-medium text-primary italic">Tracker</em>
         </h2>
         <div className="flex flex-wrap items-center gap-2">
-          <TabPill<ActiveTab> label="Lead tracker tabs" value={activeTab} onChange={setActiveTab} items={TABS} size="sm" />
-          {syncActions}
+          <TabPill<ActiveTab>
+            label="Lead tracker tabs"
+            value={activeTab}
+            onChange={setActiveTab}
+            items={TABS}
+            size="sm"
+          />
+          {activeTab === 'logs' && (
+            <>
+              <DateRangePicker value={pickerValue} onChange={setDateRange} size="sm" />
+              <FilterChip
+                size="sm"
+                value={filters.ae}
+                onChange={(v) => sf('ae', v)}
+                options={[{ value: '', label: 'All AE' }, ...aeOptions.map((a) => ({ value: a.fullName, label: a.fullName }))]}
+              />
+              <FilterChip
+                size="sm"
+                value={filters.status}
+                onChange={(v) => sf('status', v)}
+                options={[{ value: '', label: 'All Status' }, ...STATUSES.map((s) => ({ value: s, label: STATUS_LABEL[s] ?? s }))]}
+              />
+              <FilterChip
+                size="sm"
+                value={filters.hasNote}
+                onChange={(v) => sf('hasNote', v)}
+                options={[
+                  { value: '', label: 'All Notes' },
+                  { value: 'yes', label: 'With note' },
+                  { value: 'no', label: 'Without note' },
+                ]}
+              />
+              <DatePicker value={filters.noteDate} onChange={(v) => sf('noteDate', v)} placeholder="Note changed" />
+              <Input
+                containerClassName="w-48"
+                placeholder="Search leads..."
+                value={filters.q}
+                onChange={(e) => sf('q', e.target.value)}
+                iconLeft={<Search />}
+              />
+            </>
+          )}
+          {activeTab === 'stats' && (
+            <>
+              <input
+                type="date"
+                value={statsDateFrom}
+                onChange={(e) => setStatsDateFrom(e.target.value)}
+                className="h-8 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+              />
+              <span className="text-on-surface-variant">—</span>
+              <input
+                type="date"
+                value={statsDateTo}
+                onChange={(e) => setStatsDateTo(e.target.value)}
+                className="h-8 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+              />
+            </>
+          )}
         </div>
       </header>
 
-      {activeTab === 'stats' && (
-        <div className="flex items-center gap-2">
-          <input
-            type="date"
-            value={statsDateFrom}
-            onChange={(e) => setStatsDateFrom(e.target.value)}
-            className="h-8 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
-          />
-          <span className="text-on-surface-variant">—</span>
-          <input
-            type="date"
-            value={statsDateTo}
-            onChange={(e) => setStatsDateTo(e.target.value)}
-            className="h-8 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
-          />
-        </div>
-      )}
-
       <div className="flex flex-1 min-h-0 flex-col">
         {activeTab === 'logs' ? (
-          <LeadLogsTab />
+          <LeadLogsTab filters={filters} />
         ) : (
           <GlassCard variant="surface" padding="md" className="flex-1 overflow-y-auto">
             <DailyStatsTab dateFrom={statsDateFrom} dateTo={statsDateTo} />
           </GlassCard>
         )}
       </div>
-
     </div>
   );
 }
