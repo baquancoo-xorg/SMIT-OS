@@ -12,7 +12,7 @@ export default function Sidebar({ onLogout, onNavigate }: SidebarProps) {
   const { currentUser } = useAuth();
 
   return (
-    <aside className="h-full flex flex-col p-4 md:p-5 xl:p-5 bg-white/70 backdrop-blur-xl rounded-r-3xl w-60 xl:w-64 shadow-2xl z-50">
+    <aside className="h-full flex flex-col p-4 md:p-5 xl:p-5 bg-surface-container-low border-r border-outline-variant/30 w-60 xl:w-64 shadow-lg z-50">
       <div className="flex flex-col items-start mb-8 px-3">
         <div className="flex items-center gap-1.5">
           <img src="/logo-icon.png" alt="" className="h-7 w-7" />

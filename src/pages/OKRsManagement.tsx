@@ -191,7 +191,7 @@ export default function OKRsManagementV2() {
     <div className="flex h-full flex-col gap-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface min-w-0">
-          Quarterly <em className="font-medium text-primary italic">OKRs</em>
+          Quarterly <span className="font-semibold text-primary">OKRs</span>
         </h2>
         <div className="flex flex-wrap items-center gap-2">
           <TabPill<ActiveTab> label="OKR level tabs" value={activeTab} onChange={setActiveTab} items={TABS} size="sm" />

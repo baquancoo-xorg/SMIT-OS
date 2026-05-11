@@ -82,7 +82,7 @@ export const PageHeader = forwardRef<HTMLElement, PageHeaderProps>(
 
           <h1 className="font-headline text-[length:var(--text-h2)] leading-tight text-on-surface tracking-[var(--tracking-tight)]">
             {title}
-            {accent && <em className="font-medium text-primary italic">{accent}</em>}
+            {accent && <span className="font-semibold text-primary">{accent}</span>}
           </h1>
 
           {description && (

@@ -1,46 +1,50 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 /* =============================================================
-   SMIT-OS DESIGN TOKENS — Phase 2 Foundation (2026-05-10)
+   SMIT-OS DESIGN TOKENS — v3 Bento Apple Foundation (2026-05-12)
+   Direction: Luminous B2B Operations (Apple visionOS + Bento Grid)
    Spec: docs/design-tokens-spec.md
    Source of truth for all design decisions. Do NOT add ad-hoc
    colors/sizes inline; extend tokens here instead.
+
+   Migrated from v2 Material Design 3 → v3 Apple Bento.
+   Token NAMES preserved for component compat; VALUES swapped.
    ============================================================= */
 @theme {
-  /* ---------- Fonts ---------- */
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-headline: "Manrope", sans-serif;
+  /* ---------- Fonts (v3: Hanken Grotesk replaces Manrope/Inter) ---------- */
+  --font-sans: "Hanken Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-headline: "Hanken Grotesk", sans-serif;
 
-  /* ---------- Brand colors (Material Design 3) — KEEP ---------- */
-  --color-primary: #0059b6;
-  --color-on-primary: #eff2ff;
-  --color-primary-container: #68a0ff;
-  --color-on-primary-container: #00224d;
+  /* ---------- Brand colors (v3 Apple Bento palette) ---------- */
+  --color-primary: #007aff;             /* Apple blue */
+  --color-on-primary: #ffffff;
+  --color-primary-container: #0070eb;
+  --color-on-primary-container: #fefcff;
 
-  --color-secondary: #a03a0f;
-  --color-on-secondary: #ffefeb;
-  --color-secondary-container: #ffc4b1;
-  --color-on-secondary-container: #832800;
+  --color-secondary: #bf5af2;           /* Apple purple */
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #f6d9ff;
+  --color-on-secondary-container: #4a006b;
 
-  --color-tertiary: #006b1f;
-  --color-on-tertiary: #d0ffca;
-  --color-tertiary-container: #8df48e;
-  --color-on-tertiary-container: #005c19;
+  --color-tertiary: #34c759;            /* Apple green */
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #d1fadf;
+  --color-on-tertiary-container: #00531c;
 
-  /* ---------- Surface family ---------- */
-  --color-surface: #f7f5ff;
-  --color-on-surface: #222d51;
-  --color-on-surface-variant: #505a81;
+  /* ---------- Surface family (lavender-white tints per D2 Luminous spec) ---------- */
+  --color-surface: #faf9fe;
+  --color-on-surface: #1a1b1f;
+  --color-on-surface-variant: #414755;
 
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #eff0ff;
-  --color-surface-container: #e4e7ff;
-  --color-surface-container-high: #dce1ff;
-  --color-surface-container-highest: #d4dbff;
+  --color-surface-container-low: #f4f3f8;
+  --color-surface-container: #eeedf3;
+  --color-surface-container-high: #e9e7ed;
+  --color-surface-container-highest: #e3e2e7;
 
-  --color-outline: #4a5580;
-  --color-outline-variant: #a1abd7;
+  --color-outline: #717786;
+  --color-outline-variant: #c1c6d7;
 
   /* ---------- Status semantic colors (NEW Phase 2) ---------- */
   --color-success: #009966;
@@ -136,14 +140,15 @@
   --breakpoint-xl:  1280px;
   --breakpoint-2xl: 1536px;
 
-  /* ---------- Shadow scale (NEW Phase 2) ---------- */
-  --shadow-xs:  0 1px 2px 0 rgba(34, 45, 81, 0.05);
-  --shadow-sm:  0 1px 3px 0 rgba(34, 45, 81, 0.07), 0 1px 2px -1px rgba(34, 45, 81, 0.05);
-  --shadow-md:  0 4px 6px -1px rgba(34, 45, 81, 0.08), 0 2px 4px -2px rgba(34, 45, 81, 0.05);
-  --shadow-lg:  0 10px 15px -3px rgba(34, 45, 81, 0.1), 0 4px 6px -4px rgba(34, 45, 81, 0.05);
-  --shadow-xl:  0 20px 25px -5px rgba(34, 45, 81, 0.12), 0 8px 10px -6px rgba(34, 45, 81, 0.08);
-  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
-  --shadow-focus: 0 0 0 3px rgba(0, 89, 182, 0.3); /* primary focus ring */
+  /* ---------- Shadow scale (v3 chromatic blue-tinted per Apple Bento spec) ---------- */
+  --shadow-xs:  0 1px 2px 0 rgba(0, 122, 255, 0.04);
+  --shadow-sm:  0 1px 3px 0 rgba(0, 122, 255, 0.06), 0 1px 2px -1px rgba(0, 122, 255, 0.04);
+  --shadow-md:  0 4px 6px -1px rgba(0, 122, 255, 0.06), 0 2px 4px -2px rgba(0, 122, 255, 0.04);
+  --shadow-lg:  0 4px 20px 0 rgba(0, 122, 255, 0.08);        /* Apple Bento Level 1 (signature) */
+  --shadow-xl:  0 12px 32px 0 rgba(0, 122, 255, 0.12);       /* Apple Bento Level 2 (hover/active) */
+  --shadow-2xl: 0 20px 40px 0 rgba(0, 0, 0, 0.04), 0 30px 60px 0 rgba(0, 122, 255, 0.08); /* Modal */
+  --shadow-glass: 0 4px 20px 0 rgba(0, 122, 255, 0.08);      /* alias for compat (now Apple Bento) */
+  --shadow-focus: 0 0 0 3px rgba(0, 122, 255, 0.3);          /* primary focus ring (Apple blue) */
 
   /* ---------- Motion tokens (NEW Phase 2) ---------- */
   --duration-instant: 75ms;
@@ -361,23 +366,40 @@
     @apply inline-block align-middle;
   }
 
-  /* Glass surfaces — primary container patterns */
-  .glass-panel {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-sm;
+  /* v3 Bento tiles — primary container pattern (replaces glass-card from v2) */
+  /* Apple Bento: solid white + chromatic shadow + hyper-rounded corners */
+  .bento-tile {
+    @apply bg-white border border-white/40 rounded-card;
+    box-shadow: var(--shadow-lg);
+    transition: all var(--duration-medium) var(--ease-standard);
+  }
+  .bento-tile:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-1px);
   }
 
+  /* Compat aliases — glass-* names retained for migration window.
+     v3 swaps internals to Bento Apple aesthetic (solid white + chromatic shadow). */
+  .glass-panel {
+    @apply bg-white border border-white/40 rounded-input;
+    box-shadow: var(--shadow-md);
+  }
   .glass-card {
-    @apply bg-white/40 backdrop-blur-md border border-white/20 shadow-sm transition-all duration-300;
+    @apply bg-white border border-white/40 rounded-card;
+    box-shadow: var(--shadow-lg);
+    transition: all var(--duration-medium) var(--ease-standard);
   }
   .glass-card:hover {
-    @apply bg-white/60 shadow-md;
+    box-shadow: var(--shadow-xl);
   }
 
-  /* Brand gradients */
+  /* v3 Brand gradient — Apple blue logo gradient (replaces v2 soft-gradient) */
+  .apple-gradient,
   .soft-gradient {
-    background: linear-gradient(135deg, #0059b6 0%, #68a0ff 100%);
+    background: linear-gradient(135deg, #007aff 0%, #5856d6 100%);
   }
+  /* v2 coral-gradient retained for migration; uses v3 purple (Apple secondary) */
   .coral-gradient {
-    background: linear-gradient(135deg, #a03a0f 0%, #ffc4b1 100%);
+    background: linear-gradient(135deg, #bf5af2 0%, #f6d9ff 100%);
   }
 }

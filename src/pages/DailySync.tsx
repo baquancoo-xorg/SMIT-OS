@@ -320,7 +320,7 @@ export default function DailySyncV2() {
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface min-w-0">
-          Daily <em className="font-medium text-primary italic">Sync</em>
+          Daily <span className="font-semibold text-primary">Sync</span>
         </h2>
         <Button variant="primary" size="sm" iconLeft={<Plus />} onClick={openForm}>
           New report

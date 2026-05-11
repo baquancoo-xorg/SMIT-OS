@@ -255,7 +255,7 @@ export default function LeadLogsTab({ filters }: LeadLogsTabProps) {
         })()}
       </GlassCard>
 
-      <div className="flex-1 min-h-0 bg-white/50 backdrop-blur-md border border-white/20 rounded-card shadow-sm overflow-hidden">
+      <div className="flex-1 min-h-0 bg-white border border-outline-variant/30 rounded-card shadow-lg overflow-hidden">
         <TableShell variant="standard" className="h-full bg-transparent border-0 shadow-none rounded-none" scrollClassName="h-full overflow-y-auto overflow-x-auto custom-scrollbar" tableClassName="min-w-[1180px]">
           <thead className="sticky top-0 z-20 bg-white">
             <tr className={`${standardTable.headerRow} bg-white`}>

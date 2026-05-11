@@ -195,7 +195,7 @@ export default function WeeklyCheckinV2() {
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface min-w-0">
-          Weekly <em className="font-medium text-primary italic">Check-in</em>
+          Weekly <span className="font-semibold text-primary">Check-in</span>
         </h2>
         <Button variant="primary" size="sm" iconLeft={<Plus />} onClick={() => setIsModalOpen(true)}>
           New check-in

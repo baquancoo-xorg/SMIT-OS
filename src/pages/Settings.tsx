@@ -122,7 +122,7 @@ export default function SettingsV2() {
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface min-w-0">
-          System <em className="font-medium text-primary italic">Settings</em>
+          System <span className="font-semibold text-primary">Settings</span>
         </h2>
         {headerAction}
       </header>

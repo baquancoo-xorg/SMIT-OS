@@ -72,7 +72,7 @@ export default function LeadFiltersPopover({ filters, setFilter, aeOptions }: Le
             anchor={{ to: 'bottom end', gap: 8 }}
             className={[
               'z-dropdown w-[280px] rounded-card border border-outline-variant',
-              'bg-white/95 backdrop-blur-md shadow-lg p-3',
+              'bg-white shadow-xl p-3',
               'data-closed:opacity-0 transition-opacity motion-fast ease-standard',
             ].join(' ')}
           >

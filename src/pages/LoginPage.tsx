@@ -132,7 +132,7 @@ export default function LoginPageV2() {
             </div>
           </div>
 
-          <div className="rounded-card bg-white/80 backdrop-blur-md border border-white/40 shadow-md p-6 sm:p-8">
+          <div className="rounded-card bg-white border border-outline-variant/40 shadow-lg p-6 sm:p-8">
             <AnimatePresence mode="wait">
               {error && (
                 <motion.div
