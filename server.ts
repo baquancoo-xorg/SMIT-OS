@@ -11,6 +11,7 @@ import type { Request, Response, NextFunction } from "express";
 // Middleware
 import { createAuthMiddleware } from "./server/middleware/auth.middleware";
 import { createApiKeyAuthMiddleware } from "./server/middleware/api-key-auth";
+import { createApiKeyAuditService } from "./server/services/api-key-audit.service";
 
 // Routes
 import { createAuthRoutes } from "./server/routes/auth.routes";
@@ -27,6 +28,7 @@ import { createDashboardLeadDistributionRoutes } from "./server/routes/dashboard
 import { createDashboardProductRoutes } from "./server/routes/dashboard-product.routes";
 import { createFbSyncRoutes } from "./server/routes/fb-sync.routes";
 import { createAdminFbConfigRoutes } from "./server/routes/admin-fb-config.routes";
+import { createAdminApiKeysRoutes } from "./server/routes/admin-api-keys.routes";
 import { createNotificationRoutes } from "./server/routes/notification.routes";
 import { createLeadRoutes } from "./server/routes/lead.routes";
 import { createLeadSyncRoutes } from "./server/routes/lead-sync.routes";
@@ -121,7 +123,8 @@ app.use('/api/', generalApiLimiter);
 app.use("/api/auth", createAuthRoutes(prisma));
 
 // Protected routes — API key auth runs first; JWT auth skips if api-key already set
-app.use("/api", createApiKeyAuthMiddleware(prisma));
+const apiKeyAuditService = createApiKeyAuditService(prisma);
+app.use("/api", createApiKeyAuthMiddleware(prisma, apiKeyAuditService));
 app.use("/api", createAuthMiddleware(prisma));
 app.use("/api/users", createUserRoutes(prisma));
 app.use("/api/objectives", createObjectiveRoutes(prisma));
@@ -142,6 +145,7 @@ app.use("/api/ads-tracker", createAdsTrackerRoutes());
 app.use("/api/media-tracker", createMediaTrackerRoutes());
 app.use("/api/acquisition", createAcquisitionRoutes());
 app.use("/api/admin", requireAdmin, createAdminFbConfigRoutes());
+app.use("/api/admin/api-keys", requireAdmin, createAdminApiKeysRoutes(prisma));
 
 const okrService = createOKRService(prisma);
 app.post("/api/okrs/recalculate", requireAdmin, async (_req, res) => {
