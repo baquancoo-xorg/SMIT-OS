@@ -16,8 +16,8 @@
 ## Overview
 
 - **Priority:** P2
-- **Status:** pending
-- **Effort:** ~1h
+- **Status:** completed
+- **Effort:** ~1h (actual)
 - **Description:** Repo hygiene + final verification gate. Relocate `DATABASE.md` into `docs/`, archive 4 one-time backfill/seed scripts, clean local build artifacts, run full typecheck + dev smoke across 7 sidebar pages, append changelog.
 
 ## Key Insights
@@ -115,21 +115,21 @@ backups/ (verify gitignored)
 
 ## Todo List
 
-- [ ] Verify Phase 01 + Phase 02 committed
-- [ ] `git mv DATABASE.md → docs/DATABASE.md`
-- [ ] Update README.md ref
-- [ ] Create `scripts/archive/`
-- [ ] Move 4 one-time scripts
-- [ ] Decide on `posthog-ui-regression-monitor.ts` via git log
-- [ ] `rm -rf logs dist storybook-static`
-- [ ] Verify `.gitignore` (logs, dist, storybook-static, backups)
-- [ ] `npm run typecheck` exits 0
-- [ ] `npm run dev` boots
-- [ ] Smoke 7 sidebar pages
-- [ ] `/api/sheets-export/runs` returns 404
-- [ ] Append `docs/project-changelog.md`
-- [ ] Commit
-- [ ] Open PR
+- [x] Verify Phase 01 + Phase 02 committed
+- [x] `git mv DATABASE.md → docs/DATABASE.md`
+- [x] Update README.md ref
+- [x] Create `scripts/archive/`
+- [x] Move 4 one-time scripts
+- [x] Decide on `posthog-ui-regression-monitor.ts` via git log
+- [x] `rm -rf logs dist storybook-static`
+- [x] Verify `.gitignore` (logs, dist, storybook-static, backups)
+- [x] `npm run typecheck` exits 0
+- [x] `npm run dev` boots
+- [x] Smoke 7 sidebar pages
+- [x] `/api/sheets-export/runs` returns 404
+- [x] Append `docs/project-changelog.md`
+- [x] Commit
+- [x] Merge to main (direct merge, no PR per plan decision)
 
 ## Success Criteria
 

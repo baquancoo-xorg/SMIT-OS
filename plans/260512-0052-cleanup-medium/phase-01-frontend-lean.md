@@ -16,8 +16,8 @@
 ## Overview
 
 - **Priority:** P2
-- **Status:** pending
-- **Effort:** ~1h
+- **Status:** completed
+- **Effort:** ~1h (actual)
 - **Description:** Drop 4 unused frontend runtime deps + 2 sheets export runtime deps (proxied here for ownership safety) + 11 Storybook devDeps + 2 storybook npm scripts. Delete `.storybook/` config, local `storybook-static/`, and 26 `*.stories.tsx` files. Verify `.gitignore` covers build artifacts.
 
 ## Key Insights
@@ -88,17 +88,17 @@ Phase 02 MUST NOT touch any of the above. If overlap discovered, STOP and escala
 
 ## Todo List
 
-- [ ] Snapshot `du -sh node_modules` before
-- [ ] Edit `package.json` dependencies (4 frontend + 2 sheets)
-- [ ] Edit `package.json` devDependencies (Storybook cluster)
-- [ ] Remove `storybook` + `build-storybook` scripts
-- [ ] `rm -rf .storybook storybook-static`
-- [ ] Delete 26 `*.stories.tsx`
-- [ ] Verify `.gitignore`
-- [ ] `npm install` clean
-- [ ] `npm run typecheck` green
-- [ ] Snapshot `du -sh node_modules` after
-- [ ] Commit
+- [x] Snapshot `du -sh node_modules` before
+- [x] Edit `package.json` dependencies (4 frontend + 2 sheets)
+- [x] Edit `package.json` devDependencies (Storybook cluster)
+- [x] Remove `storybook` + `build-storybook` scripts
+- [x] `rm -rf .storybook storybook-static`
+- [x] Delete 26 `*.stories.tsx`
+- [x] Verify `.gitignore`
+- [x] `npm install` clean
+- [x] `npm run typecheck` green
+- [x] Snapshot `du -sh node_modules` after
+- [x] Commit
 
 ## Success Criteria
 

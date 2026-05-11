@@ -17,8 +17,8 @@
 ## Overview
 
 - **Priority:** P2
-- **Status:** pending
-- **Effort:** ~2h
+- **Status:** completed
+- **Effort:** ~2h (actual)
 - **Description:** Remove the entire Google Sheets export domain (routes, services, scheduler, OAuth glue) plus its UI tab in Settings. Drop 2 Prisma models (`GoogleIntegration`, `SheetsExportRun`) via migration. Server.ts pruned of 4 imports + 4 mounts/inits.
 
 ## Key Insights
@@ -135,19 +135,19 @@ Phase 02 MUST NOT touch `package.json` (Phase 01 owns dep removal of `googleapis
 
 ## Todo List
 
-- [ ] DB backup produced + size verified
-- [ ] Re-verify server.ts line numbers
-- [ ] Edit server.ts (4 imports + 4 mount/init lines)
-- [ ] Edit src/pages/Settings.tsx (7 locations)
-- [ ] Edit src/components/settings/index.ts
-- [ ] Delete 6 backend files (+ subdir if present)
-- [ ] Delete sheets-export-tab.tsx
-- [ ] Orphan-ref grep returns empty
-- [ ] Edit prisma/schema.prisma (2 models)
-- [ ] Run `prisma migrate dev`
-- [ ] Inspect migration SQL
-- [ ] Local `npm run dev` boots clean
-- [ ] Commit
+- [x] DB backup produced + size verified
+- [x] Re-verify server.ts line numbers
+- [x] Edit server.ts (4 imports + 4 mount/init lines)
+- [x] Edit src/pages/Settings.tsx (7 locations)
+- [x] Edit src/components/settings/index.ts
+- [x] Delete 6 backend files (+ subdir if present)
+- [x] Delete sheets-export-tab.tsx
+- [x] Orphan-ref grep returns empty
+- [x] Edit prisma/schema.prisma (2 models)
+- [x] Run `prisma migrate dev`
+- [x] Inspect migration SQL
+- [x] Local `npm run dev` boots clean
+- [x] Commit
 
 ## Success Criteria
 
