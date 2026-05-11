@@ -1,7 +1,7 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Globe } from 'lucide-react';
 import type { LeadDistributionBySourceItem } from '../../../types/lead-distribution';
-import { GlassCard } from '../../ui/v2';
+import { GlassCard } from '../../ui';
 
 const COLORS = [
   '#0059b6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',

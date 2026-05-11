@@ -4,7 +4,7 @@ import { useLeadFlow } from '../../hooks/use-lead-flow';
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
-import { GlassCard, KpiCard, Spinner, EmptyState } from '../ui/v2';
+import { GlassCard, KpiCard, Spinner, EmptyState } from '../ui';
 
 /**
  * Dashboard Sale tab — Lead Flow & Clearance section.

@@ -3,7 +3,7 @@ import { Globe } from 'lucide-react';
 import { api } from '../../lib/api';
 import type { Lead } from '../../types';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { GlassCard, Spinner } from '../ui/v2';
+import { GlassCard, Spinner } from '../ui';
 
 /**
  * Pie chart visualizing leads distribution by leadType (e.g. Việt Nam vs Quốc Tế).

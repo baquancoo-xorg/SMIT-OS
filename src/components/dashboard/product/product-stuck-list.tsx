@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { useProductStuck } from '../../../hooks/use-product-dashboard';
 import type { DateRange } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
-import { Badge, Skeleton } from '../../ui/v2';
+import { Badge, Skeleton } from '../../ui';
 
 interface ProductStuckListProps {
   range: DateRange;

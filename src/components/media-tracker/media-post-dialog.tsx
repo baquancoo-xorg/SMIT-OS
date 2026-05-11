@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Newspaper } from 'lucide-react';
 import { format } from 'date-fns';
 import type { MediaPlatform, MediaPost, MediaPostType } from '../../types';
-import { FormDialog, Input } from '../ui/v2';
+import { FormDialog, Input } from '../ui';
 
 /**
  * Add/Edit media post dialog — supports ORGANIC / KOL / KOC / PR types.

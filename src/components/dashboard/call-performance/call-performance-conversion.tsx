@@ -1,8 +1,8 @@
 import type { CallPerformanceConversionItem } from '../../../types/call-performance';
 import { formatDecimal, formatNumber } from '../../../lib/formatters';
 import DashboardPanel from '../ui/dashboard-panel';
-import { TableShell } from '../../ui/v2/table-shell';
-import { getTableContract } from '../../ui/v2/table-contract';
+import { TableShell } from '../../ui/table-shell';
+import { getTableContract } from '../../ui/table-contract';
 
 interface Props {
   data: CallPerformanceConversionItem[];

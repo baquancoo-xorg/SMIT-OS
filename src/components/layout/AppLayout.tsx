@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
-import { ErrorBoundary } from '../ui/v2';
+import { ErrorBoundary } from '../ui';
 
 interface AppLayoutProps {
   children: React.ReactNode;

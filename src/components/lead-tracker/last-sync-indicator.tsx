@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from 'date-fns';
-import { Badge } from '../ui/v2';
+import { Badge } from '../ui';
 
 type LeadSyncStatus = {
   id: string;

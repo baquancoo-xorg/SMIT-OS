@@ -1,8 +1,8 @@
 import { WeeklyReport } from '../../types';
-import { TableRowActions } from '../ui/v2/table-row-actions';
-import { TableShell } from '../ui/v2/table-shell';
-import { getTableContract } from '../ui/v2/table-contract';
-import { formatTableDate } from '../ui/v2/table-date-format';
+import { TableRowActions } from '../ui/table-row-actions';
+import { TableShell } from '../ui/table-shell';
+import { getTableContract } from '../ui/table-contract';
+import { formatTableDate } from '../ui/table-date-format';
 
 interface ReportTableViewProps {
   reports: WeeklyReport[];

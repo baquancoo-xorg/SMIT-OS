@@ -1,7 +1,7 @@
 import { AlertCircle } from 'lucide-react';
 import { useAcquisitionJourneyQuery } from '../../../hooks/use-acquisition-journey';
 import JourneyFunnel from './journey-funnel';
-import { Spinner, EmptyState } from '../../ui/v2';
+import { Spinner, EmptyState } from '../../ui';
 
 /**
  * Acquisition Overview tab — KPI strip (reach/clicks/visits/leads/trials/active/paid/revenue)

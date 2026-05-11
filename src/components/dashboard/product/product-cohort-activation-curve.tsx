@@ -15,7 +15,7 @@ import {
 import { useProductCohort } from '../../../hooks/use-product-dashboard';
 import type { DateRange } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
-import { Skeleton } from '../../ui/v2';
+import { Skeleton } from '../../ui';
 
 interface ProductCohortActivationCurveProps {
   range: DateRange;

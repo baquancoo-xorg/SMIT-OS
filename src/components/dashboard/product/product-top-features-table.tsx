@@ -4,7 +4,7 @@ import type { DateRange, TopFeature } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
 import DashboardSectionTitle from '../ui/dashboard-section-title';
 import DashboardEmptyState from '../ui/dashboard-empty-state';
-import { Skeleton } from '../../ui/v2';
+import { Skeleton } from '../../ui';
 
 interface ProductTopFeaturesTableProps {
   range: DateRange;

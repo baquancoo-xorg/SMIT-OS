@@ -5,7 +5,7 @@ import {
   Input,
   Button,
   useToast,
-} from '../components/ui/v2';
+} from '../components/ui';
 
 /**
  * Profile v2 — token-driven redesign of personal info edit page.

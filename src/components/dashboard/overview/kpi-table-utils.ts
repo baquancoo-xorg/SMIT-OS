@@ -1,4 +1,4 @@
-import { formatTableDate } from '../../ui/v2/table-date-format';
+import { formatTableDate } from '../../ui/table-date-format';
 import type { KpiMetricsRow } from '../../../types/dashboard-overview';
 
 export type SortField =

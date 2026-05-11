@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { useProductHeatmap } from '../../../hooks/use-product-dashboard';
 import type { DateRange, HeatmapView, HeatmapCell } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
-import { Skeleton } from '../../ui/v2';
+import { Skeleton } from '../../ui';
 
 interface ProductActivationHeatmapProps {
   range: DateRange;

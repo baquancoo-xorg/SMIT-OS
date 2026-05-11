@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useProductOperational } from '../../../hooks/use-product-dashboard';
 import type { DateRange } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
-import { DataTable, EmptyState } from '../../ui/v2';
-import type { DataTableColumn, SortState } from '../../ui/v2';
+import { DataTable, EmptyState } from '../../ui';
+import type { DataTableColumn, SortState } from '../../ui';
 
 interface ProductTouchpointTableProps {
   range: DateRange;
