@@ -35,7 +35,13 @@ export function SortableTh<K extends string>({
       <button
         type="button"
         onClick={() => onClick(sortKey)}
-        className={`inline-flex w-full items-center gap-1 ${alignClass} text-inherit transition-colors hover:text-on-surface focus-visible:outline-none cursor-pointer`}
+        className={[
+          'inline-flex w-full items-center gap-1 cursor-pointer',
+          alignClass,
+          // Inherit text styling from <th> — UA stylesheet resets these on <button>.
+          'text-inherit [font-size:inherit] [font-weight:inherit] [text-transform:inherit] [letter-spacing:inherit]',
+          'transition-colors hover:text-on-surface focus-visible:outline-none',
+        ].join(' ')}
         aria-sort={isActive ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}
       >
         <span>{children}</span>
