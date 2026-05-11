@@ -71,7 +71,7 @@ export function FormDialog({
         </>
       }
     >
-      <form id="form-dialog-form" onSubmit={handleSubmit} className="flex flex-col gap-md">
+      <form id="form-dialog-form" onSubmit={handleSubmit} className="flex flex-col gap-cozy">
         {children}
       </form>
     </Modal>

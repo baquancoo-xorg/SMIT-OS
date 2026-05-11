@@ -5,6 +5,7 @@
  * Mount at /v4/playground via App.tsx lazy route.
  */
 import { useEffect, useState } from 'react';
+import { Plus, Search } from 'lucide-react';
 import './tokens.css';
 import {
   Button,
@@ -66,7 +67,7 @@ export default function DesignV4Playground() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-surface text-fg p-xl">
+    <div className="min-h-screen bg-surface text-fg p-wide">
       <div className="mx-auto max-w-6xl">
         <PageHeader
           title="v4 Component Playground"
@@ -75,18 +76,18 @@ export default function DesignV4Playground() {
           actions={
             <>
               <Button variant="secondary">Export</Button>
-              <Button variant="primary" leftIcon={<span>＋</span>}>New Payment</Button>
+              <Button variant="primary" leftIcon={<Plus size={16} />}>New Payment</Button>
             </>
           }
         />
 
-        <section className="mb-2xl">
-          <h2 className="text-caption font-semibold uppercase tracking-widest text-fg-subtle mb-md">
+        <section className="mb-vast">
+          <h2 className="text-caption font-semibold uppercase tracking-widest text-fg-subtle mb-cozy">
             01 · Button
           </h2>
-          <div className="flex flex-wrap gap-sm items-center">
-            <Button variant="primary" leftIcon={<span>＋</span>}>New Payment</Button>
-            <Button variant="primary" splitLabel="Lead Tracker" leftIcon={<span>＋</span>}>Create</Button>
+          <div className="flex flex-wrap gap-snug items-center">
+            <Button variant="primary" leftIcon={<Plus size={16} />}>New Payment</Button>
+            <Button variant="primary" splitLabel="Lead Tracker" leftIcon={<Plus size={16} />}>Create</Button>
             <Button variant="primary" size="sm">Save</Button>
             <Button variant="primary" size="lg">Submit</Button>
             <Button variant="secondary">Manage</Button>
@@ -96,16 +97,16 @@ export default function DesignV4Playground() {
           </div>
         </section>
 
-        <section className="mb-2xl">
-          <h2 className="text-caption font-semibold uppercase tracking-widest text-fg-subtle mb-md">
+        <section className="mb-vast">
+          <h2 className="text-caption font-semibold uppercase tracking-widest text-fg-subtle mb-cozy">
             02 · Badge — 10 task states + 4 feedback
           </h2>
-          <div className="flex flex-wrap gap-sm mb-md">
+          <div className="flex flex-wrap gap-snug mb-cozy">
             {TASK_STATES.map((s) => (
               <Badge key={s} intent={s}>{s.replace('-', ' ')}</Badge>
             ))}
           </div>
-          <div className="flex flex-wrap gap-sm">
+          <div className="flex flex-wrap gap-snug">
             <Badge intent="success">Success</Badge>
             <Badge intent="warning">Warning</Badge>
             <Badge intent="error">Error</Badge>
@@ -114,49 +115,49 @@ export default function DesignV4Playground() {
           </div>
         </section>
 
-        <section className="mb-2xl">
-          <h2 className="text-caption font-semibold uppercase tracking-widest text-fg-subtle mb-md">
+        <section className="mb-vast">
+          <h2 className="text-caption font-semibold uppercase tracking-widest text-fg-subtle mb-cozy">
             03 · SurfaceCard — KPI pattern
           </h2>
-          <div className="grid grid-cols-3 gap-lg">
+          <div className="grid grid-cols-3 gap-comfy">
             <SurfaceCard interactive>
-              <p className="text-body-sm text-fg-muted mb-xs">Total Revenue</p>
-              <div className="flex items-baseline gap-sm">
+              <p className="text-body-sm text-fg-muted mb-tight">Total Revenue</p>
+              <div className="flex items-baseline gap-snug">
                 <span className="text-h4 font-semibold tracking-tight">$19,270.56</span>
                 <Badge intent="done" glow={false}>+8%</Badge>
               </div>
             </SurfaceCard>
             <SurfaceCard interactive>
-              <p className="text-body-sm text-fg-muted mb-xs">Total Leads</p>
-              <div className="flex items-baseline gap-sm">
+              <p className="text-body-sm text-fg-muted mb-tight">Total Leads</p>
+              <div className="flex items-baseline gap-snug">
                 <span className="text-h4 font-semibold tracking-tight">2,431</span>
                 <Badge intent="done" glow={false}>+12%</Badge>
               </div>
             </SurfaceCard>
             <SurfaceCard warm radius="callout" elevation="elevated">
-              <p className="text-body-sm font-medium text-fg mb-xs">Upgrade to Pro!</p>
+              <p className="text-body-sm font-medium text-fg mb-tight">Upgrade to Pro!</p>
               <p className="text-caption text-fg-muted">Unlock unlimited dashboards.</p>
             </SurfaceCard>
           </div>
         </section>
 
-        <section className="mb-2xl">
-          <h2 className="text-caption font-semibold uppercase tracking-widest text-fg-subtle mb-md">
+        <section className="mb-vast">
+          <h2 className="text-caption font-semibold uppercase tracking-widest text-fg-subtle mb-cozy">
             04 · Input
           </h2>
-          <div className="grid grid-cols-2 gap-lg max-w-2xl">
+          <div className="grid grid-cols-2 gap-comfy max-w-vast">
             <Input label="Email" type="email" placeholder="you@example.com" helper="We will never share." />
             <Input label="Token" error="Invalid format" defaultValue="abc-123" />
-            <Input pill leftIcon={<span>🔍</span>} placeholder="Search anything..." value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input pill leftIcon={<Search size={16} />} placeholder="Search anything..." value={search} onChange={(e) => setSearch(e.target.value)} />
             <Input label="Disabled" disabled defaultValue="cannot edit" />
           </div>
         </section>
 
-        <section className="mb-2xl">
-          <h2 className="text-caption font-semibold uppercase tracking-widest text-fg-subtle mb-md">
+        <section className="mb-vast">
+          <h2 className="text-caption font-semibold uppercase tracking-widest text-fg-subtle mb-cozy">
             05 · Modal + 06 · DropdownMenu
           </h2>
-          <div className="flex gap-sm">
+          <div className="flex gap-snug">
             <Button variant="primary" onClick={() => setOpen(true)}>Open Modal</Button>
             <DropdownMenu
               trigger={<Button variant="secondary">Actions ▾</Button>}
@@ -187,8 +188,8 @@ export default function DesignV4Playground() {
           </Modal>
         </section>
 
-        <section className="mb-2xl">
-          <h2 className="text-caption font-semibold uppercase tracking-widest text-fg-subtle mb-md">
+        <section className="mb-vast">
+          <h2 className="text-caption font-semibold uppercase tracking-widest text-fg-subtle mb-cozy">
             07 · DataTable — sortable, with badge cells
           </h2>
           <DataTable columns={COLUMNS} rows={DEMO_ROWS} rowKey={(r) => r.id} onRowClick={(r) => alert(`Row: ${r.id}`)} />
@@ -196,7 +197,7 @@ export default function DesignV4Playground() {
 
         <PlaygroundBatch2 />
 
-        <footer className="mt-2xl pt-lg border-t border-outline-subtle text-caption text-fg-subtle">
+        <footer className="mt-vast pt-comfy border-t border-outline-subtle text-caption text-fg-subtle">
           v4 Playground · DEV-only · 30 primitives total. Tokens from <code className="text-accent">src/design/v4/tokens.css</code>.
         </footer>
       </div>

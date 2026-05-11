@@ -33,7 +33,7 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(function
   return (
     <div className={cn(fullWidth ? 'w-full' : 'inline-block')}>
       {label && (
-        <label htmlFor={inputId} className="block mb-xs text-label font-medium text-fg-muted">
+        <label htmlFor={inputId} className="block mb-tight text-label font-medium text-fg-muted">
           {label}
         </label>
       )}
@@ -45,7 +45,7 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(function
         aria-invalid={error ? 'true' : undefined}
         aria-describedby={describedBy}
         className={cn(
-          'w-full bg-surface-overlay text-fg px-md rounded-input border outline-none transition-colors duration-fast',
+          'w-full bg-surface-overlay text-fg px-cozy rounded-input border outline-none transition-colors duration-fast',
           error ? 'border-error' : 'border-outline-subtle hover:border-outline',
           'focus:border-accent focus:shadow-focus',
           'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -55,7 +55,7 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(function
         )}
         {...rest}
       />
-      {error ? <p id={errorId} className="mt-xs text-caption text-error">{error}</p> : helper ? <p id={helperId} className="mt-xs text-caption text-fg-subtle">{helper}</p> : null}
+      {error ? <p id={errorId} className="mt-tight text-caption text-error">{error}</p> : helper ? <p id={helperId} className="mt-tight text-caption text-fg-subtle">{helper}</p> : null}
     </div>
   );
 });

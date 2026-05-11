@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from 'react';
+import { ChevronRight } from 'lucide-react';
 import { cn } from '../lib/cn';
 
 export interface BreadcrumbItem {
@@ -41,14 +42,14 @@ export function PageHeader({
   return (
     <header
       className={cn(
-        'flex flex-col gap-sm pb-lg',
-        bordered && 'border-b border-outline-subtle mb-lg',
+        'flex flex-col gap-snug pb-comfy',
+        bordered && 'border-b border-outline-subtle mb-comfy',
         className,
       )}
       {...rest}
     >
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav aria-label="Breadcrumb" className="flex items-center gap-xs text-caption text-fg-subtle">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-tight text-caption text-fg-subtle">
           {breadcrumbs.map((crumb, i) => {
             const isLast = i === breadcrumbs.length - 1;
             const content = isLast ? (
@@ -69,20 +70,20 @@ export function PageHeader({
               </button>
             );
             return (
-              <span key={i} className="inline-flex items-center gap-xs">
+              <span key={i} className="inline-flex items-center gap-tight">
                 {content}
-                {!isLast && <span aria-hidden="true">›</span>}
+                {!isLast && <ChevronRight size={12} aria-hidden="true" />}
               </span>
             );
           })}
         </nav>
       )}
-      <div className="flex items-start justify-between gap-lg">
+      <div className="flex items-start justify-between gap-comfy">
         <div className="min-w-0">
           <h1 className="text-h3 font-semibold tracking-tight text-fg truncate">{title}</h1>
-          {subtitle && <p className="mt-xs text-body-sm text-fg-muted">{subtitle}</p>}
+          {subtitle && <p className="mt-tight text-body-sm text-fg-muted">{subtitle}</p>}
         </div>
-        {actions && <div className="flex shrink-0 items-center gap-sm">{actions}</div>}
+        {actions && <div className="flex shrink-0 items-center gap-snug">{actions}</div>}
       </div>
     </header>
   );

@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
+import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react';
 import { cn } from '../lib/cn';
 
 export type SortDirection = 'asc' | 'desc' | null;
@@ -106,7 +107,7 @@ export function DataTable<T>({
           <tr>
             {columns.map((col) => {
               const isSorted = sortKey === col.key && sortDir !== null;
-              const arrow = !isSorted ? '' : sortDir === 'asc' ? '▲' : '▼';
+              const SortIcon = !isSorted ? ChevronsUpDown : sortDir === 'asc' ? ChevronUp : ChevronDown;
               return (
                 <th
                   key={col.key}
@@ -116,16 +117,16 @@ export function DataTable<T>({
                   }
                   onClick={() => onHeaderClick(col)}
                   className={cn(
-                    'px-md py-sm font-semibold uppercase tracking-widest text-caption text-fg-subtle',
+                    'px-cozy py-snug font-semibold uppercase tracking-widest text-caption text-fg-subtle',
                     'border-b border-outline-subtle',
                     col.width,
                     alignClass[col.align ?? 'left'],
                     col.sortable && 'cursor-pointer select-none hover:text-fg-muted',
                   )}
                 >
-                  <span className="inline-flex items-center gap-xs">
+                  <span className="inline-flex items-center gap-tight">
                     {col.header}
-                    {col.sortable && <span aria-hidden="true" className="text-fg-faint">{arrow || '↕'}</span>}
+                    {col.sortable && <SortIcon size={12} aria-hidden="true" className={cn('shrink-0', isSorted ? 'text-fg-muted' : 'text-fg-faint')} />}
                   </span>
                 </th>
               );
@@ -135,13 +136,13 @@ export function DataTable<T>({
         <tbody>
           {loading ? (
             <tr>
-              <td colSpan={columns.length} className="px-md py-xl text-center text-fg-subtle">
+              <td colSpan={columns.length} className="px-cozy py-wide text-center text-fg-subtle">
                 Loading…
               </td>
             </tr>
           ) : sortedRows.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="px-md py-xl text-center text-fg-subtle">
+              <td colSpan={columns.length} className="px-cozy py-wide text-center text-fg-subtle">
                 {emptyMessage}
               </td>
             </tr>
@@ -159,7 +160,7 @@ export function DataTable<T>({
                   <td
                     key={col.key}
                     className={cn(
-                      'px-md py-sm text-fg-muted',
+                      'px-cozy py-snug text-fg-muted',
                       col.width,
                       alignClass[col.align ?? 'left'],
                     )}

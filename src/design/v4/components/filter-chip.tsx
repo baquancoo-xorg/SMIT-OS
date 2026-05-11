@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { X } from 'lucide-react';
 import { cn } from '../lib/cn';
 
 export interface FilterChipProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
@@ -23,17 +24,17 @@ export function FilterChip({ active = false, icon, count, onRemove, className, c
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-xs rounded-pill border h-7 pl-sm pr-xs text-body-sm transition-colors duration-fast',
+        'inline-flex items-center gap-tight rounded-pill border h-7 pl-snug pr-tight text-body-sm transition-colors duration-fast',
         active
           ? 'bg-accent-soft border-[color-mix(in_srgb,var(--brand-500)_40%,transparent)] text-accent'
           : 'bg-surface-overlay border-outline-subtle text-fg-muted hover:text-fg hover:border-outline',
       )}
     >
-      <button type={type} className={cn('inline-flex items-center gap-xs', className)} {...rest}>
+      <button type={type} className={cn('inline-flex items-center gap-tight', className)} {...rest}>
         {icon && <span aria-hidden="true" className="inline-flex shrink-0">{icon}</span>}
         <span>{children}</span>
         {count !== undefined && (
-          <span className="inline-flex items-center justify-center rounded-pill bg-surface px-xs text-caption text-fg-subtle">
+          <span className="inline-flex items-center justify-center rounded-pill bg-surface px-tight text-caption text-fg-subtle">
             {count}
           </span>
         )}
@@ -48,7 +49,7 @@ export function FilterChip({ active = false, icon, count, onRemove, className, c
             'hover:bg-surface hover:text-fg transition-colors duration-fast',
           )}
         >
-          <span aria-hidden="true">×</span>
+          <X size={12} aria-hidden="true" />
         </button>
       )}
     </span>

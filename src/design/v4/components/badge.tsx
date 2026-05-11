@@ -77,7 +77,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-xs px-sm py-xs',
+        'inline-flex items-center gap-tight px-snug py-tight',
         'rounded-pill border text-label font-medium leading-tight',
         'backdrop-blur-[8px]',
         intentClass,

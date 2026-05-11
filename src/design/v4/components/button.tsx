@@ -18,9 +18,9 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
 }
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: 'h-9 px-md text-body-sm gap-xs',
-  md: 'h-11 px-lg text-body gap-sm',
-  lg: 'h-12 px-xl text-body-lg gap-sm',
+  sm: 'h-9 px-cozy text-body-sm gap-tight',
+  md: 'h-11 px-comfy text-body gap-snug',
+  lg: 'h-12 px-wide text-body-lg gap-snug',
 };
 
 /**
@@ -104,7 +104,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         <>
           <span
             aria-hidden="true"
-            className="relative z-10 mx-xs h-5 w-px self-center bg-accent shadow-glow-sm"
+            className="relative z-10 mx-tight h-5 w-px self-center bg-accent shadow-glow-sm"
           />
           <span className="relative z-10 text-fg-muted font-medium">{splitLabel}</span>
         </>

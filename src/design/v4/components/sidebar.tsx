@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { cn } from '../lib/cn';
 
 export interface SidebarItem {
@@ -60,16 +61,16 @@ export function Sidebar({ sections, brand, footer, collapsed = false, className 
       )}
     >
       {brand && (
-        <div className={cn('flex items-center h-[var(--header-h)] px-md', collapsed && 'justify-center px-xs')}>
+        <div className={cn('flex items-center h-[var(--header-h)] px-cozy', collapsed && 'justify-center px-tight')}>
           {brand}
         </div>
       )}
-      <nav className="flex-1 overflow-y-auto px-sm py-md">
+      <nav className="flex-1 overflow-y-auto px-snug py-cozy">
         {sections.map((section) => (
           <SidebarSectionBlock key={section.key} section={section} collapsed={collapsed} />
         ))}
       </nav>
-      {footer && <div className="border-t border-outline-subtle p-md">{footer}</div>}
+      {footer && <div className="border-t border-outline-subtle p-cozy">{footer}</div>}
     </aside>
   );
 }
@@ -77,19 +78,19 @@ export function Sidebar({ sections, brand, footer, collapsed = false, className 
 function SidebarSectionBlock({ section, collapsed }: { section: SidebarSection; collapsed: boolean }) {
   const [open, setOpen] = useState(!section.collapsedByDefault);
   return (
-    <div className="mb-md">
+    <div className="mb-cozy">
       {section.label && !collapsed && (
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="flex w-full items-center justify-between px-sm py-xs text-caption font-semibold uppercase tracking-widest text-fg-subtle hover:text-fg-muted"
+          className="flex w-full items-center justify-between px-snug py-tight text-caption font-semibold uppercase tracking-widest text-fg-subtle hover:text-fg-muted"
         >
           <span>{section.label}</span>
-          <span aria-hidden="true">{open ? '▾' : '▸'}</span>
+          {open ? <ChevronDown size={12} aria-hidden="true" /> : <ChevronRight size={12} aria-hidden="true" />}
         </button>
       )}
       {open && (
-        <ul className="flex flex-col gap-xs">
+        <ul className="flex flex-col gap-tight">
           {section.items.map((item) => (
             <li key={item.key}>
               <SidebarItemRow item={item} collapsed={collapsed} />
@@ -111,7 +112,7 @@ function SidebarItemRow({ item, collapsed }: { item: SidebarItem; collapsed: boo
       disabled={Tag === 'button' ? item.disabled : undefined}
       aria-current={item.active ? 'page' : undefined}
       className={cn(
-        'group relative flex w-full items-center gap-sm rounded-input px-sm py-sm text-body-sm transition-colors duration-fast',
+        'group relative flex w-full items-center gap-snug rounded-input px-snug py-snug text-body-sm transition-colors duration-fast',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         item.active
           ? 'bg-accent-soft text-fg'
@@ -126,7 +127,7 @@ function SidebarItemRow({ item, collapsed }: { item: SidebarItem; collapsed: boo
         <>
           <span className="flex-1 truncate">{item.label}</span>
           {item.badge && (
-            <span className="inline-flex items-center justify-center rounded-pill bg-surface-overlay px-xs text-caption text-fg-subtle">
+            <span className="inline-flex items-center justify-center rounded-pill bg-surface-overlay px-tight text-caption text-fg-subtle">
               {item.badge}
             </span>
           )}

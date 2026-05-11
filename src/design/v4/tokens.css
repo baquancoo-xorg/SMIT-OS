@@ -164,14 +164,30 @@
   --tracking-wide:    0.015em;
   --tracking-widest:  0.08em;
 
-  /* ---------- Spacing (clamp-based semantic) ---------- */
-  --spacing-xs:  clamp(0.25rem, 0.5vw, 0.5rem);
-  --spacing-sm:  clamp(0.5rem, 1vw, 0.75rem);
-  --spacing-md:  clamp(0.75rem, 1.5vw, 1rem);
-  --spacing-lg:  clamp(1rem, 2vw, 1.5rem);
-  --spacing-xl:  clamp(1.5rem, 3vw, 2rem);
-  --spacing-2xl: clamp(2rem, 4vw, 3rem);
-  --spacing-3xl: clamp(3rem, 6vw, 4rem);
+  /* ---------- Spacing (semantic, clamp-based) ---------- */
+  /* IMPORTANT: do NOT use Tailwind-default size names (xs/sm/md/lg/xl/2xl/3xl)
+     here. v4 falls back `max-w-{name}` to `--spacing-{name}` when no
+     `--container-{name}` exists, which would clamp max-widths to a few px.
+     Custom names keep utility space disjoint: `p-cozy` does not affect
+     `max-w-sm`. */
+  --spacing-tight: clamp(0.25rem, 0.5vw, 0.5rem);  /* 4-8px */
+  --spacing-snug:  clamp(0.5rem, 1vw, 0.75rem);    /* 8-12px */
+  --spacing-cozy:  clamp(0.75rem, 1.5vw, 1rem);    /* 12-16px */
+  --spacing-comfy: clamp(1rem, 2vw, 1.5rem);       /* 16-24px */
+  --spacing-wide:  clamp(1.5rem, 3vw, 2rem);       /* 24-32px */
+  --spacing-vast:  clamp(2rem, 4vw, 3rem);         /* 32-48px */
+  --spacing-huge:  clamp(3rem, 6vw, 4rem);         /* 48-64px */
+
+  /* ---------- Container scale (max-w-{name} resolves here) ----------
+     Provide values for the semantic spacing names so `max-w-cozy`,
+     `max-w-vast` etc. produce real max-widths, not 12-48px clamps. */
+  --container-tight: 16rem;   /* 256px — popovers, dropdowns */
+  --container-snug:  20rem;   /* 320px — toasts, narrow modals */
+  --container-cozy:  28rem;   /* 448px — sm modal, form column */
+  --container-comfy: 36rem;   /* 576px — md modal */
+  --container-wide:  42rem;   /* 672px — lg modal, content sections */
+  --container-vast:  56rem;   /* 896px — wide layouts */
+  --container-huge:  72rem;   /* 1152px — page max width */
 
   /* ---------- Radius (semantic only) ---------- */
   --radius-input:   0.75rem;

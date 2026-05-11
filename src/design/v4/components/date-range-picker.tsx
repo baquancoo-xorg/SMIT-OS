@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { ArrowRight } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { DatePicker } from './date-picker';
 
@@ -37,25 +38,25 @@ export function DateRangePicker({ value, onChange, label, helper, error, min, ma
   const onTo = (next: string) => onChange({ from: value.from, to: next });
 
   return (
-    <div className={cn('flex flex-col gap-sm', className)}>
+    <div className={cn('flex flex-col gap-snug', className)}>
       {label && <label className="text-label font-medium text-fg-muted">{label}</label>}
       {presets && presets.length > 0 && (
-        <div className="flex flex-wrap gap-xs">
+        <div className="flex flex-wrap gap-tight">
           {presets.map((p, i) => (
             <button
               key={i}
               type="button"
               onClick={() => onChange(p.range())}
-              className="inline-flex items-center rounded-pill border border-outline-subtle bg-surface-overlay px-sm h-7 text-caption text-fg-muted hover:text-fg hover:border-outline transition-colors duration-fast"
+              className="inline-flex items-center rounded-pill border border-outline-subtle bg-surface-overlay px-snug h-7 text-caption text-fg-muted hover:text-fg hover:border-outline transition-colors duration-fast"
             >
               {p.label}
             </button>
           ))}
         </div>
       )}
-      <div className="flex items-center gap-sm">
+      <div className="flex items-center gap-snug">
         <DatePicker value={value.from} onChange={(e) => onFrom(e.target.value)} min={min} max={value.to || max} />
-        <span aria-hidden="true" className="text-fg-subtle">→</span>
+        <ArrowRight size={16} aria-hidden="true" className="text-fg-subtle shrink-0" />
         <DatePicker value={value.to} onChange={(e) => onTo(e.target.value)} min={value.from || min} max={max} />
       </div>
       {error ? <p className="text-caption text-error">{error}</p> : helper ? <p className="text-caption text-fg-subtle">{helper}</p> : null}

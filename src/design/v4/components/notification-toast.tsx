@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
+import { X } from 'lucide-react';
 import { cn } from '../lib/cn';
 import type { FeedbackIntent } from './badge';
 
@@ -45,16 +46,16 @@ export function NotificationToast({ id, intent = 'neutral', title, description, 
     <div
       role="status"
       className={cn(
-        'flex items-start gap-sm rounded-card border bg-surface-popover px-md py-sm shadow-elevated',
-        'min-w-[280px] max-w-sm pointer-events-auto backdrop-blur-md',
+        'flex items-start gap-snug rounded-card border bg-surface-popover px-cozy py-snug shadow-elevated',
+        'min-w-[280px] max-w-snug pointer-events-auto backdrop-blur-md',
         intentClass[intent],
       )}
     >
-      <span aria-hidden="true" className={cn('mt-xs size-2 shrink-0 rounded-pill', accentDot[intent])} />
+      <span aria-hidden="true" className={cn('mt-tight size-2 shrink-0 rounded-pill', accentDot[intent])} />
       <div className="flex-1 min-w-0">
         {title && <p className="text-body-sm font-semibold text-fg truncate">{title}</p>}
         {description && <p className="text-caption text-fg-muted">{description}</p>}
-        {action && <div className="mt-xs">{action}</div>}
+        {action && <div className="mt-tight">{action}</div>}
       </div>
       <button
         type="button"
@@ -62,7 +63,7 @@ export function NotificationToast({ id, intent = 'neutral', title, description, 
         aria-label="Dismiss notification"
         className="text-fg-subtle hover:text-fg transition-colors duration-fast"
       >
-        <span aria-hidden="true">×</span>
+        <X size={16} aria-hidden="true" />
       </button>
     </div>
   );

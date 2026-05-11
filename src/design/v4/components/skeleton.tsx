@@ -34,7 +34,7 @@ export function Skeleton({
 
   if (shape === 'text' && lines > 1) {
     return (
-      <div className={cn('flex flex-col gap-xs', className)} role="status" aria-busy="true" {...rest}>
+      <div className={cn('flex flex-col gap-tight', className)} role="status" aria-busy="true" {...rest}>
         {Array.from({ length: lines }).map((_, i) => (
           <div
             key={i}

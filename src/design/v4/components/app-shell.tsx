@@ -27,7 +27,7 @@ export function AppShell({ header, sidebar, children, contentClassName }: AppShe
       {sidebar && <div className="shrink-0">{sidebar}</div>}
       <div className="flex flex-1 min-w-0 flex-col">
         {header}
-        <main className={cn('flex-1 overflow-y-auto p-lg', contentClassName)}>{children}</main>
+        <main className={cn('flex-1 overflow-y-auto p-comfy', contentClassName)}>{children}</main>
       </div>
     </div>
   );

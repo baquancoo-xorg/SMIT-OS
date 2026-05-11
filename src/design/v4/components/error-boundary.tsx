@@ -41,7 +41,7 @@ export class ErrorBoundary extends Component<Props, State> {
       <div
         role="alert"
         className={cn(
-          'flex flex-col gap-sm rounded-card border border-error/40 bg-error-soft p-lg text-fg',
+          'flex flex-col gap-snug rounded-card border border-error/40 bg-error-soft p-comfy text-fg',
         )}
       >
         <h2 className="text-h6 font-semibold text-error">Something went wrong</h2>
@@ -49,7 +49,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <button
           type="button"
           onClick={this.reset}
-          className="self-start rounded-pill bg-surface-overlay px-md py-xs text-body-sm text-fg hover:bg-outline transition-colors duration-fast"
+          className="self-start rounded-pill bg-surface-overlay px-cozy py-tight text-body-sm text-fg hover:bg-outline transition-colors duration-fast"
         >
           Try again
         </button>

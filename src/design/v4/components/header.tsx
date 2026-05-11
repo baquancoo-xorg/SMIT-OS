@@ -22,7 +22,7 @@ export function Header({ brand, center, actions, sticky = true, className, ...re
   return (
     <header
       className={cn(
-        'flex items-center gap-md h-[var(--header-h)] px-lg',
+        'flex items-center gap-cozy h-[var(--header-h)] px-comfy',
         'bg-surface border-b border-outline-subtle z-header',
         sticky && 'sticky top-0',
         className,
@@ -31,7 +31,7 @@ export function Header({ brand, center, actions, sticky = true, className, ...re
     >
       {brand && <div className="shrink-0">{brand}</div>}
       {center && <div className="flex-1 flex justify-center min-w-0">{center}</div>}
-      {actions && <div className="ml-auto flex items-center gap-sm">{actions}</div>}
+      {actions && <div className="ml-auto flex items-center gap-snug">{actions}</div>}
     </header>
   );
 }

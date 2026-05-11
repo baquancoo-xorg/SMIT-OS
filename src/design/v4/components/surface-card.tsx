@@ -18,9 +18,9 @@ export interface SurfaceCardProps extends HTMLAttributes<HTMLDivElement> {
 
 const paddingClass: Record<CardPadding, string> = {
   none: '',
-  sm: 'p-md',
-  md: 'p-lg',
-  lg: 'p-xl',
+  sm: 'p-cozy',
+  md: 'p-comfy',
+  lg: 'p-wide',
 };
 
 const elevationClass: Record<CardElevation, string> = {

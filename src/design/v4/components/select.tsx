@@ -1,4 +1,5 @@
 import { forwardRef, useId, type ReactNode, type SelectHTMLAttributes } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { cn } from '../lib/cn';
 
 export interface SelectOption<V extends string | number = string> {
@@ -57,7 +58,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
   return (
     <div className={cn(fullWidth ? 'w-full' : 'w-auto')}>
       {label && (
-        <label htmlFor={selectId} className="block mb-xs text-label font-medium text-fg-muted">
+        <label htmlFor={selectId} className="block mb-tight text-label font-medium text-fg-muted">
           {label}
         </label>
       )}
@@ -72,7 +73,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
           defaultValue={defaultValue ?? (placeholder ? '' : undefined)}
           className={cn(
             'w-full appearance-none bg-surface-overlay text-fg',
-            'border rounded-input pl-md pr-xl outline-none transition-colors duration-fast',
+            'border rounded-input pl-cozy pr-wide outline-none transition-colors duration-fast',
             error ? 'border-error' : 'border-outline-subtle hover:border-outline',
             'focus:border-accent focus:shadow-focus',
             'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -92,12 +93,12 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
             </option>
           ))}
         </select>
-        <span aria-hidden="true" className="pointer-events-none absolute right-md top-1/2 -translate-y-1/2 text-fg-subtle">▾</span>
+        <ChevronDown size={16} aria-hidden="true" className="pointer-events-none absolute right-cozy top-1/2 -translate-y-1/2 text-fg-subtle" />
       </div>
       {error ? (
-        <p id={errorId} className="mt-xs text-caption text-error">{error}</p>
+        <p id={errorId} className="mt-tight text-caption text-error">{error}</p>
       ) : helper ? (
-        <p id={helperId} className="mt-xs text-caption text-fg-subtle">{helper}</p>
+        <p id={helperId} className="mt-tight text-caption text-fg-subtle">{helper}</p>
       ) : null}
     </div>
   );

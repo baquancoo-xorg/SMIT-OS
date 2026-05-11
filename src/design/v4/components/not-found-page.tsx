@@ -25,7 +25,7 @@ export function NotFoundPage({
   className,
 }: NotFoundPageProps) {
   return (
-    <div className={cn('min-h-[80vh] flex flex-col items-center justify-center px-lg text-center', className)}>
+    <div className={cn('min-h-[80vh] flex flex-col items-center justify-center px-comfy text-center', className)}>
       <div
         aria-hidden="true"
         className="text-display font-semibold tracking-tighter text-fg"
@@ -33,9 +33,9 @@ export function NotFoundPage({
       >
         {title}
       </div>
-      <p className="mt-md max-w-md text-body text-fg-muted">{description}</p>
-      {children && <div className="mt-md">{children}</div>}
-      {action && <div className="mt-lg">{action}</div>}
+      <p className="mt-cozy max-w-cozy text-body text-fg-muted">{description}</p>
+      {children && <div className="mt-cozy">{children}</div>}
+      {action && <div className="mt-comfy">{action}</div>}
     </div>
   );
 }

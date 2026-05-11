@@ -13,9 +13,9 @@ export interface EmptyStateProps extends Omit<HTMLAttributes<HTMLDivElement>, 't
 }
 
 const densityClass = {
-  compact: 'py-lg',
-  md: 'py-2xl',
-  spacious: 'py-3xl',
+  compact: 'py-comfy',
+  md: 'py-vast',
+  spacious: 'py-huge',
 } as const;
 
 /**
@@ -35,17 +35,17 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
-      className={cn('flex flex-col items-center justify-center text-center px-lg', densityClass[density], className)}
+      className={cn('flex flex-col items-center justify-center text-center px-comfy', densityClass[density], className)}
       {...rest}
     >
       {icon && (
-        <div className="mb-md text-fg-faint inline-flex size-12 items-center justify-center rounded-pill bg-surface-overlay">
+        <div className="mb-cozy text-fg-faint inline-flex size-12 items-center justify-center rounded-pill bg-surface-overlay">
           {icon}
         </div>
       )}
       <h3 className="text-h6 font-semibold text-fg tracking-tight">{title}</h3>
-      {description && <p className="mt-xs max-w-sm text-body-sm text-fg-muted">{description}</p>}
-      {action && <div className="mt-md">{action}</div>}
+      {description && <p className="mt-tight max-w-snug text-body-sm text-fg-muted">{description}</p>}
+      {action && <div className="mt-cozy">{action}</div>}
     </div>
   );
 }

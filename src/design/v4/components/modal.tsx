@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { X } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { useEscapeKey } from '../primitives/use-escape-key';
 import { useFocusTrap } from '../primitives/use-focus-trap';
@@ -26,9 +27,9 @@ export interface ModalProps {
 }
 
 const sizeClass: Record<ModalSize, string> = {
-  sm: 'max-w-md',
-  md: 'max-w-2xl',
-  lg: 'max-w-4xl',
+  sm: 'max-w-cozy',
+  md: 'max-w-wide',
+  lg: 'max-w-vast',
   full: 'max-w-[min(96vw,1400px)]',
 };
 
@@ -71,7 +72,7 @@ export function Modal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-modal flex items-center justify-center p-lg"
+      className="fixed inset-0 z-modal flex items-center justify-center p-comfy"
       role="presentation"
       onClick={(e) => {
         if (closeOnOverlay && e.target === e.currentTarget) onClose();
@@ -96,7 +97,7 @@ export function Modal({
         )}
       >
         {(title || !hideCloseButton) && (
-          <div className="flex items-start justify-between gap-md px-lg pt-lg pb-md border-b border-outline-subtle">
+          <div className="flex items-start justify-between gap-cozy px-comfy pt-comfy pb-cozy border-b border-outline-subtle">
             <div className="min-w-0 flex-1">
               {title && (
                 <h2 id="modal-title" className="text-h5 font-semibold tracking-tight text-fg">
@@ -104,7 +105,7 @@ export function Modal({
                 </h2>
               )}
               {description && (
-                <p id="modal-desc" className="mt-xs text-body-sm text-fg-muted">
+                <p id="modal-desc" className="mt-tight text-body-sm text-fg-muted">
                   {description}
                 </p>
               )}
@@ -120,14 +121,14 @@ export function Modal({
                   'transition-colors duration-fast',
                 )}
               >
-                <span aria-hidden="true">×</span>
+                <X size={18} aria-hidden="true" />
               </button>
             )}
           </div>
         )}
-        <div className="flex-1 overflow-y-auto px-lg py-lg">{children}</div>
+        <div className="flex-1 overflow-y-auto px-comfy py-comfy">{children}</div>
         {footer && (
-          <div className="flex justify-end gap-sm px-lg py-md border-t border-outline-subtle">
+          <div className="flex justify-end gap-snug px-comfy py-cozy border-t border-outline-subtle">
             {footer}
           </div>
         )}

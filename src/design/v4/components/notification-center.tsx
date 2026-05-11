@@ -78,7 +78,7 @@ export function NotificationProvider({ children, max = 5 }: NotificationProvider
           <div
             aria-live="polite"
             aria-atomic="false"
-            className="fixed top-lg right-lg z-toast flex flex-col gap-sm pointer-events-none"
+            className="fixed top-comfy right-comfy z-toast flex flex-col gap-snug pointer-events-none"
           >
             {toasts.map((t) => (
               <NotificationToast key={t.id} {...t} onDismiss={dismiss} />

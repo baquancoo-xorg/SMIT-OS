@@ -33,11 +33,11 @@ Component code uses **Tier 3 only**. Page layout uses **Tier 2**. Tier 1 lives o
 ### DO
 
 ```tsx
-<button className="bg-button-primary-bg text-button-primary-fg rounded-pill px-md py-sm">
+<button className="bg-button-primary-bg text-button-primary-fg rounded-pill px-cozy py-snug">
   Save
 </button>
 
-<span className="bg-done-soft text-done rounded-pill px-sm py-1 text-label">
+<span className="bg-done-soft text-done rounded-pill px-snug py-tight text-label">
   Done
 </span>
 ```

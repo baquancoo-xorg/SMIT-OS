@@ -20,8 +20,8 @@ export interface TabPillProps<V extends string = string> {
 }
 
 const sizeClass = {
-  sm: 'h-8 text-caption px-sm',
-  md: 'h-9 text-body-sm px-md',
+  sm: 'h-8 text-caption px-snug',
+  md: 'h-9 text-body-sm px-cozy',
 } as const;
 
 /**
@@ -34,7 +34,7 @@ export function TabPill<V extends string = string>({ value, onChange, items, siz
   return (
     <div
       role="tablist"
-      className={cn('inline-flex items-center gap-xs rounded-pill bg-surface-overlay p-xs border border-outline-subtle', className)}
+      className={cn('inline-flex items-center gap-tight rounded-pill bg-surface-overlay p-tight border border-outline-subtle', className)}
       {...rest}
     >
       {items.map((item) => {
@@ -48,7 +48,7 @@ export function TabPill<V extends string = string>({ value, onChange, items, siz
             disabled={item.disabled}
             onClick={() => !item.disabled && onChange(item.value)}
             className={cn(
-              'inline-flex items-center gap-xs rounded-pill font-medium transition-colors duration-fast',
+              'inline-flex items-center gap-tight rounded-pill font-medium transition-colors duration-fast',
               'disabled:opacity-40 disabled:cursor-not-allowed',
               sizeClass[size],
               active
@@ -60,7 +60,7 @@ export function TabPill<V extends string = string>({ value, onChange, items, siz
             {item.count !== undefined && (
               <span
                 className={cn(
-                  'inline-flex items-center justify-center rounded-pill px-xs text-caption',
+                  'inline-flex items-center justify-center rounded-pill px-tight text-caption',
                   active ? 'bg-accent-soft text-accent' : 'bg-surface-overlay text-fg-subtle',
                 )}
               >

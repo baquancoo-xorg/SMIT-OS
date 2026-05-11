@@ -61,7 +61,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   return (
     <div className={cn(fullWidth ? 'w-full' : 'w-auto')}>
       {label && (
-        <label htmlFor={inputId} className="block mb-xs text-label font-medium text-fg-muted">
+        <label htmlFor={inputId} className="block mb-tight text-label font-medium text-fg-muted">
           {label}
         </label>
       )}
@@ -71,13 +71,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           'bg-surface-overlay border transition-colors duration-fast',
           error ? 'border-error' : 'border-outline-subtle hover:border-outline',
           'focus-within:border-accent focus-within:shadow-focus',
-          pill ? 'rounded-pill px-lg' : 'rounded-input px-md',
+          pill ? 'rounded-pill px-comfy' : 'rounded-input px-cozy',
           sizeClass[fieldSize],
           disabled && 'opacity-50 cursor-not-allowed',
         )}
       >
         {leftIcon && (
-          <span aria-hidden="true" className="mr-sm shrink-0 text-fg-subtle">
+          <span aria-hidden="true" className="mr-snug shrink-0 text-fg-subtle">
             {leftIcon}
           </span>
         )}
@@ -95,17 +95,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           {...rest}
         />
         {rightIcon && (
-          <span aria-hidden="true" className="ml-sm shrink-0 text-fg-subtle">
+          <span aria-hidden="true" className="ml-snug shrink-0 text-fg-subtle">
             {rightIcon}
           </span>
         )}
       </div>
       {error ? (
-        <p id={errorId} className="mt-xs text-caption text-error">
+        <p id={errorId} className="mt-tight text-caption text-error">
           {error}
         </p>
       ) : helper ? (
-        <p id={helperId} className="mt-xs text-caption text-fg-subtle">
+        <p id={helperId} className="mt-tight text-caption text-fg-subtle">
           {helper}
         </p>
       ) : null}

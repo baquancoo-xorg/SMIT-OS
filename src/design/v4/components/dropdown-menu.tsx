@@ -27,10 +27,10 @@ export interface DropdownMenuProps {
 }
 
 const alignClass: Record<NonNullable<DropdownMenuProps['align']>, string> = {
-  'bottom-start': 'top-full left-0 mt-xs',
-  'bottom-end': 'top-full right-0 mt-xs',
-  'top-start': 'bottom-full left-0 mb-xs',
-  'top-end': 'bottom-full right-0 mb-xs',
+  'bottom-start': 'top-full left-0 mt-tight',
+  'bottom-end': 'top-full right-0 mt-tight',
+  'top-start': 'bottom-full left-0 mb-tight',
+  'top-end': 'bottom-full right-0 mb-tight',
 };
 
 /**
@@ -78,7 +78,7 @@ export function DropdownMenu({ trigger, items, align = 'bottom-end', label, clas
           tabIndex={-1}
           onKeyDown={onKeyDown}
           className={cn(
-            'absolute z-dropdown min-w-[12rem] py-xs',
+            'absolute z-dropdown min-w-[12rem] py-tight',
             'bg-surface-popover border border-outline-subtle rounded-input shadow-elevated',
             'focus:outline-none',
             alignClass[align],
@@ -86,7 +86,7 @@ export function DropdownMenu({ trigger, items, align = 'bottom-end', label, clas
           autoFocus
         >
           {label && (
-            <div className="px-md py-xs text-caption font-medium uppercase tracking-widest text-fg-subtle">
+            <div className="px-cozy py-tight text-caption font-medium uppercase tracking-widest text-fg-subtle">
               {label}
             </div>
           )}
@@ -103,7 +103,7 @@ export function DropdownMenu({ trigger, items, align = 'bottom-end', label, clas
                 setOpen(false);
               }}
               className={cn(
-                'flex w-full items-center gap-sm px-md py-sm text-body-sm text-left',
+                'flex w-full items-center gap-snug px-cozy py-snug text-body-sm text-left',
                 'transition-colors duration-fast',
                 'disabled:opacity-40 disabled:cursor-not-allowed',
                 item.danger ? 'text-error' : 'text-fg-muted',

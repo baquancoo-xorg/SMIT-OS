@@ -57,7 +57,7 @@ export function OkrCycleCountdown({ endDate, label = 'Cycle ends in', tickMs = 6
     : `${data.hours}h ${data.minutes}m`;
 
   return (
-    <div className={cn('inline-flex items-center gap-sm', className)}>
+    <div className={cn('inline-flex items-center gap-snug', className)}>
       <span className="text-caption text-fg-subtle">{label}</span>
       <Badge intent={urgent ? 'rework' : 'in-progress'}>{text}</Badge>
     </div>
