@@ -128,7 +128,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="bg-white rounded-card shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
       >
-        <div className="px-8 py-6 border-b border-outline-variant/40 flex items-center justify-between bg-surface-variant/30/50">
+        <div className="px-8 py-6 border-b border-outline-variant/40 flex items-center justify-between bg-surface-variant/30">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-card bg-primary/10 flex items-center justify-center text-primary">
               <Calendar size={24} />
@@ -237,7 +237,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
               value={risks}
               onChange={(e) => setRisks(e.target.value)}
               placeholder="Khó khăn, blocker, rủi ro..."
-              className="w-full px-4 py-3 bg-error-container/30/50 border border-error-container/40 rounded-card text-sm font-medium focus:outline-none focus:ring-2 focus:ring-error/35 min-h-[100px] resize-none"
+              className="w-full px-4 py-3 bg-error-container/30 border border-error-container/40 rounded-card text-sm font-medium focus:outline-none focus:ring-2 focus:ring-error/35 min-h-[100px] resize-none"
             />
           </section>
 
@@ -256,7 +256,7 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
           </section>
         </div>
 
-        <div className="px-8 py-6 border-t border-outline-variant/40 flex items-center justify-end gap-3 bg-surface-variant/30/50">
+        <div className="px-8 py-6 border-t border-outline-variant/40 flex items-center justify-end gap-3 bg-surface-variant/30">
           <button onClick={onClose} className="px-6 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-variant/50 rounded-full">
             Huỷ
           </button>

@@ -501,7 +501,7 @@ function KeyResultRow({ kr, index, isL2, owner, objectives, onLinkObjective, onD
 
       {/* Last Check-in Note */}
       {krData.lastNote && (
-        <div className="mt-1 flex items-start gap-2 bg-warning-container/30/50 p-2 rounded-lg border border-warning-container/40/50">
+        <div className="mt-1 flex items-start gap-2 bg-warning-container/30 p-2 rounded-lg border border-warning-container/40">
           <span className="material-symbols-outlined text-warning text-xs mt-0.5">chat_bubble</span>
           <p className="text-[10px] text-on-surface-variant italic leading-relaxed">
             <span className="font-bold text-warning not-italic mr-1">Latest Note:</span>
