@@ -1,18 +1,17 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Download, RefreshCw, Plus, Users, Target, Facebook, UserCircle, FileSpreadsheet } from 'lucide-react';
+import { Plus, Users, Target, Facebook, UserCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import {
   ProfileTabV2,
   UserManagementTabV2,
   OkrCyclesTabV2,
   FbConfigTabV2,
-  SheetsExportTabV2,
 } from '../components/settings';
 import { TabPill, Button, ConfirmDialog } from '../components/ui';
 import type { TabPillItem } from '../components/ui';
 
-type SettingsTabId = 'profile' | 'users' | 'okrs' | 'fb-config' | 'export';
+type SettingsTabId = 'profile' | 'users' | 'okrs' | 'fb-config';
 
 interface DeleteConfirmState {
   type: 'user' | 'cycle';
@@ -24,7 +23,6 @@ const ADMIN_TABS: TabPillItem<SettingsTabId>[] = [
   { value: 'users', label: 'Users', icon: <Users /> },
   { value: 'okrs', label: 'OKR Cycles', icon: <Target /> },
   { value: 'fb-config', label: 'FB Config', icon: <Facebook /> },
-  { value: 'export', label: 'Export', icon: <FileSpreadsheet /> },
 ];
 
 const MEMBER_TABS: TabPillItem<SettingsTabId>[] = [{ value: 'profile', label: 'Profile', icon: <UserCircle /> }];
@@ -48,8 +46,6 @@ export default function SettingsV2() {
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [isAddingCycle, setIsAddingCycle] = useState(false);
   const [isAddingFb, setIsAddingFb] = useState(false);
-  const [exporting, setExporting] = useState(false);
-  const [exportTrigger, setExportTrigger] = useState(0);
 
   if (!isAdmin && activeTab !== 'profile') {
     return <Navigate to="/profile" replace />;
@@ -103,18 +99,6 @@ export default function SettingsV2() {
         </Button>
       );
     }
-    if (activeTab === 'export') {
-      return (
-        <Button
-          variant="primary"
-          iconLeft={exporting ? <RefreshCw className="animate-spin" /> : <Download />}
-          disabled={exporting}
-          onClick={() => setExportTrigger((v) => v + 1)}
-        >
-          {exporting ? 'Exporting...' : 'Export now'}
-        </Button>
-      );
-    }
     return null;
   })();
 
@@ -154,9 +138,6 @@ export default function SettingsV2() {
         )}
         {activeTab === 'fb-config' && isAdmin && (
           <FbConfigTabV2 isAddingFb={isAddingFb} setIsAddingFb={setIsAddingFb} />
-        )}
-        {activeTab === 'export' && isAdmin && (
-          <SheetsExportTabV2 exportTrigger={exportTrigger} onExportingChange={setExporting} />
         )}
       </div>
 

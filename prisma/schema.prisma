@@ -272,40 +272,6 @@ model EtlErrorLog {
   @@map("etl_error_log")
 }
 
-model GoogleIntegration {
-  id           String   @id @default(uuid())
-  type         String   @default("sheets_export") // sheets_export, etc.
-  email        String // Google account email
-  accessToken  String   @map("access_token")
-  refreshToken String   @map("refresh_token")
-  expiresAt    DateTime @map("expires_at")
-  folderId     String?  @map("folder_id") // Selected Drive folder
-  folderName   String?  @map("folder_name")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  @@unique([type]) // Only one integration per type
-  @@map("google_integrations")
-}
-
-model SheetsExportRun {
-  id             String    @id @default(uuid())
-  exportDate     String    @map("export_date") // Vietnam calendar date YYYY-MM-DD
-  status         String // running, completed, failed
-  spreadsheetId  String?   @map("spreadsheet_id")
-  spreadsheetUrl String?   @map("spreadsheet_url")
-  sheetsCreated  Int       @default(0) @map("sheets_created")
-  error          String?
-  startedAt      DateTime  @default(now()) @map("started_at")
-  completedAt    DateTime? @map("completed_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-
-  @@unique([exportDate])
-  @@index([status])
-  @@map("sheets_export_runs")
-}
-
 model LeadSyncRun {
   id                 String    @id @default(uuid())
   startedAt          DateTime  @default(now())

@@ -15,6 +15,7 @@ CREDENTIALS.md
 repomix-output.xml
 
 # DB backups (contain user PII / hashed passwords)
+backups/
 plans/**/backups/
 *.sql.bak
 backup-*.sql

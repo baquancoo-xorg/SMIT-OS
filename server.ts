@@ -28,15 +28,11 @@ import { createFbSyncRoutes } from "./server/routes/fb-sync.routes";
 import { createAdminFbConfigRoutes } from "./server/routes/admin-fb-config.routes";
 import { createNotificationRoutes } from "./server/routes/notification.routes";
 import { createLeadRoutes } from "./server/routes/lead.routes";
-import { createSheetsExportRoutes } from "./server/routes/sheets-export.routes";
-import { createGoogleOAuthPublicRoutes, createGoogleOAuthAdminRoutes } from "./server/routes/google-oauth.routes";
 import { createLeadSyncRoutes } from "./server/routes/lead-sync.routes";
-import { createGoogleOAuthService } from "./server/services/google-oauth.service";
 import { startFbSyncScheduler } from "./server/services/facebook/fb-sync-scheduler.service";
 import { initFbSyncService } from "./server/services/facebook/fb-sync.service";
 import { createNotificationService } from "./server/services/notification.service";
 import { initAlertScheduler } from "./server/jobs/alert-scheduler";
-import { initSheetsExportScheduler } from "./server/jobs/sheets-export-scheduler";
 import { initLeadSyncPrisma } from "./server/services/lead-sync/state";
 import { startLeadSyncCron } from "./server/cron/lead-sync.cron";
 import { startAdsSyncCron } from "./server/cron/ads-sync.cron";
@@ -123,12 +119,8 @@ app.use('/api/', generalApiLimiter);
 // Public routes
 app.use("/api/auth", createAuthRoutes(prisma));
 
-const googleOAuthService = createGoogleOAuthService(prisma);
-app.use("/api/google", createGoogleOAuthPublicRoutes(googleOAuthService));
-
 // Protected routes
 app.use("/api", createAuthMiddleware(prisma));
-app.use("/api/google", createGoogleOAuthAdminRoutes(googleOAuthService));
 app.use("/api/users", createUserRoutes(prisma));
 app.use("/api/objectives", createObjectiveRoutes(prisma));
 app.use("/api/key-results", createKeyResultRoutes(prisma));
@@ -148,9 +140,6 @@ app.use("/api/ads-tracker", createAdsTrackerRoutes());
 app.use("/api/media-tracker", createMediaTrackerRoutes());
 app.use("/api/acquisition", createAcquisitionRoutes());
 app.use("/api/admin", requireAdmin, createAdminFbConfigRoutes());
-
-const sheetsExportService = initSheetsExportScheduler(prisma, googleOAuthService);
-app.use("/api/sheets-export", createSheetsExportRoutes(sheetsExportService));
 
 const okrService = createOKRService(prisma);
 app.post("/api/okrs/recalculate", requireAdmin, async (_req, res) => {
