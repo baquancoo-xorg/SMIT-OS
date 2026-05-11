@@ -2,6 +2,39 @@
 
 Tracks significant changes — features, removals, migrations, infra updates.
 
+## 2026-05-12 — UI Rebuild v4 Phase 04-08 (parallel page rebuilds)
+
+Shipped 9 v4 pages behind /v4/* parallel routes (auth-gated, V4Shell wrapper).
+
+### Created
+- `src/pages-v4/v4-shell.tsx` — shared AppShell wrapper with v4 Sidebar (3 sections: Main / Team / Tools) + Header + NotificationProvider.
+- `src/pages-v4/dashboard-overview.tsx` — KPI grid with real summary data (totalRevenue, totalLeads, conversionRate, activeUsers). Trend delta vs previous period. TabPill domain selector (placeholder for sale/marketing/media sub-views).
+- `src/pages-v4/lead-tracker.tsx` — KPI grid + filter chips + DataTable with row actions. Real data via useLeadFlow.
+- `src/pages-v4/ads-tracker.tsx` — campaign KPIs + DataTable sortable. Real data via useAdsCampaignsQuery.
+- `src/pages-v4/media-tracker.tsx` — media KPIs + DataTable. Real data via useMediaPostsQuery.
+- `src/pages-v4/okrs-management.tsx` — active OKR cycle card + OkrCycleCountdown badge + KPI placeholders. Real data via useActiveOkrCycle.
+- `src/pages-v4/daily-sync.tsx` — placeholder routing back to v3 (deferred deep migration).
+- `src/pages-v4/weekly-checkin.tsx` — placeholder routing back to v3.
+- `src/pages-v4/settings.tsx` — 4-tab settings (Profile / Security / Appearance / API Keys) with placeholders linking to v3.
+- `src/pages-v4/profile.tsx` — user info card from useAuth (currentUser fullName, departments, scope, isAdmin).
+
+### App.tsx routing
+- `/v4/*` paths now auth-gated (not bypass like Phase 2 playground).
+- `/v4/playground` keeps bypass (dev preview only).
+- 9 v4 routes mounted under V4Shell.
+
+### Pragmatic scope
+- Pages use REAL backend data via existing v3 hooks (useSummaryData, useLeadFlow, useAdsCampaignsQuery, etc.).
+- Complex visualizations (charts, deep-dive subviews) marked "coming soon" — v4 ships the layout shell + primary KPI/table flow; richer sub-views deferred to follow-up sprints.
+- Type-safety: cast `summary.data as any` to bypass shared type drift; runtime defensive (`?? '—'`).
+
+### Validation
+- `npm run lint` exit 0 — 42 v4 files, 0 raw-token violations, tsc clean
+- `npm run build` exit 0, all chunks generated
+- Reachable at `/v4/dashboard` (auth required), `/v4/leads`, `/v4/ads`, `/v4/media`, `/v4/okrs`, `/v4/settings`, `/v4/profile`, plus daily-sync/checkin (v3 redirects)
+
+---
+
 ## 2026-05-12 — UI Rebuild v4 Hotfix (spacing tokens + lucide-react icons)
 
 ### Bug fix: max-w utilities collapsing to a few px
