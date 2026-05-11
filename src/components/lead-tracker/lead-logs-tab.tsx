@@ -315,12 +315,12 @@ export default function LeadLogsTab({ filters }: LeadLogsTabProps) {
                       </button>
                     </td>
                   )}
-                  <td className={`${standardTable.cell} text-[11px] font-semibold leading-5 text-on-surface`}>
+                  <td className={`${standardTable.cell} font-semibold leading-5 text-on-surface`}>
                     <span>{lead.customerName}</span>
                   </td>
-                  <td className={`${standardTable.cell} text-[11px] font-semibold text-on-surface-variant`}>{lead.ae}</td>
-                  <td className={`${standardTable.cell} text-[11px] font-medium text-on-surface-variant whitespace-nowrap`}>{formatTableDateTime(lead.receivedDate)}</td>
-                  <td className={`${standardTable.cell} text-[11px] font-medium text-on-surface-variant whitespace-nowrap`}>{formatTableDateTime(lead.resolvedDate)}</td>
+                  <td className={`${standardTable.cell} font-semibold text-on-surface-variant`}>{lead.ae}</td>
+                  <td className={`${standardTable.cell} font-medium text-on-surface-variant whitespace-nowrap`}>{formatTableDateTime(lead.receivedDate)}</td>
+                  <td className={`${standardTable.cell} font-medium text-on-surface-variant whitespace-nowrap`}>{formatTableDateTime(lead.resolvedDate)}</td>
                   <td className={standardTable.cell}>
                     <Badge variant={STATUS_VARIANT[lead.status] ?? 'neutral'}>
                       {toStatusLabel(lead.status)}
@@ -329,12 +329,12 @@ export default function LeadLogsTab({ filters }: LeadLogsTabProps) {
                   <td className={standardTable.cell}>
                     <Badge variant={sla.variant}>{sla.label}</Badge>
                   </td>
-                  <td className={`${standardTable.cell} text-[11px] font-medium text-on-surface-variant`}>{lead.leadType ?? '-'}</td>
-                  <td className={`${standardTable.cell} text-[11px] font-medium text-on-surface-variant`}>{lead.unqualifiedType ?? '-'}</td>
-                  <td className={`${standardTable.cell} text-[11px] italic max-w-[150px]`}>
+                  <td className={`${standardTable.cell} font-medium text-on-surface-variant`}>{lead.leadType ?? '-'}</td>
+                  <td className={`${standardTable.cell} font-medium text-on-surface-variant`}>{lead.unqualifiedType ?? '-'}</td>
+                  <td className={`${standardTable.cell} italic max-w-[150px]`}>
                     <span className="text-on-surface-variant truncate block">{lead.notes || '—'}</span>
                   </td>
-                  <td className={`${standardTable.cell} text-on-surface-variant text-[11px] font-medium whitespace-nowrap`}>
+                  <td className={`${standardTable.cell} text-on-surface-variant font-medium whitespace-nowrap`}>
                     {formatTableDateTime(lead.updatedAt)}
                   </td>
                   <td className={standardTable.actionCell}>
