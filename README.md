@@ -45,10 +45,9 @@ npx prisma db push --force-reset
 ## Tech Stack
 
 - **Frontend:** React 19 + TypeScript + TailwindCSS
-- **Backend:** Express + Prisma ORM
-- **Database:** PostgreSQL
-- **Auth:** bcryptjs for password hashing
-- **Drag & Drop:** @dnd-kit
+- **Backend:** Express 5 + Prisma ORM
+- **Database:** PostgreSQL 15
+- **Auth:** bcryptjs for password hashing + TOTP 2FA (opt-in)
 - **UI:** Lucide Icons + Motion
 
 ## Project Structure
@@ -66,24 +65,25 @@ npx prisma db push --force-reset
 
 ## Features
 
-- Authentication with password hashing
+- Authentication with password hashing + TOTP 2FA (opt-in)
 - User management (Admin only)
-- OKRs tracking with auto-recalculation
-- Tech & Product Kanban board
-- Marketing Kanban board
-- Media Kanban board
-- Sales Kanban board
-- Weekly reports with approval workflow
-- Daily Sync reports
-- Settings management
+- OKRs tracking with multi-level hierarchy (L1/L2) and auto-recalculation
+- Weekly reports (Wodtke 5-block check-in) with approval workflow
+- Daily Sync reports (4-field standup) with approval workflow
+- Lead management with CRM sync and audit trail
+- Acquisition tracking: Paid Ads (Meta), Organic Media Posts, KOL/PR placements
+- Ad spend dashboard with multi-platform support (MVP: Meta)
+- Lead tracker with status workflow and bulk actions
+- Real-time notifications for reports and check-ins
 
 ## Database
 
 This project uses a **real PostgreSQL database**. No mock or seed data is used.
 
 All data is managed through:
-- **Settings page**: User & Sprint management (Admin only)
-- **Kanban boards**: Work items management
-- **OKRs page**: Objectives & Key Results
+- **Settings page** (Admin): User & 2FA management
+- **OKRs page**: Objectives, Key Results, and cycle management
+- **Weekly/Daily pages**: Check-in submissions and approvals
+- **Acquisition Trackers**: Lead, Ads, and Media dashboards with external sync
 
-See [DATABASE.md](./docs/DATABASE.md) for more details.
+See [DATABASE.md](./docs/DATABASE.md) for detailed schema documentation.
