@@ -6,26 +6,16 @@ import { useSearchParams } from 'react-router-dom';
 import { api } from '../lib/api';
 import LeadLogsTab, { type LeadFilters } from '../components/lead-tracker/lead-logs-tab';
 import DailyStatsTab from '../components/lead-tracker/daily-stats-tab';
-import DatePicker from '../components/ui/date-picker';
+import LeadFiltersPopover from '../components/lead-tracker/lead-filters-popover';
 import {
   TabPill,
   GlassCard,
   DateRangePicker,
-  FilterChip,
   Input,
 } from '../components/ui';
 import type { TabPillItem, DateRange } from '../components/ui';
 
 type ActiveTab = 'logs' | 'stats';
-
-const STATUSES = ['Mới', 'Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'];
-const STATUS_LABEL: Record<string, string> = {
-  'Mới': 'NEW',
-  'Đang liên hệ': 'ATT',
-  'Đang nuôi dưỡng': 'NUR',
-  'Qualified': 'QLD',
-  'Unqualified': 'UQLD',
-};
 
 const TABS: TabPillItem<ActiveTab>[] = [
   { value: 'logs', label: 'Lead Logs', icon: <List /> },
@@ -104,30 +94,9 @@ export default function LeadTrackerV2() {
           {activeTab === 'logs' && (
             <>
               <DateRangePicker value={pickerValue} onChange={setDateRange} size="sm" />
-              <FilterChip
-                size="sm"
-                value={filters.ae}
-                onChange={(v) => sf('ae', v)}
-                options={[{ value: '', label: 'All AE' }, ...aeOptions.map((a) => ({ value: a.fullName, label: a.fullName }))]}
-              />
-              <FilterChip
-                size="sm"
-                value={filters.status}
-                onChange={(v) => sf('status', v)}
-                options={[{ value: '', label: 'All Status' }, ...STATUSES.map((s) => ({ value: s, label: STATUS_LABEL[s] ?? s }))]}
-              />
-              <FilterChip
-                size="sm"
-                value={filters.hasNote}
-                onChange={(v) => sf('hasNote', v)}
-                options={[
-                  { value: '', label: 'All Notes' },
-                  { value: 'yes', label: 'With note' },
-                  { value: 'no', label: 'Without note' },
-                ]}
-              />
-              <DatePicker value={filters.noteDate} onChange={(v) => sf('noteDate', v)} placeholder="Note changed" />
+              <LeadFiltersPopover filters={filters} setFilter={sf} aeOptions={aeOptions} />
               <Input
+                size="sm"
                 containerClassName="w-48"
                 placeholder="Search leads..."
                 value={filters.q}

@@ -8,7 +8,7 @@ const ROUTE_BREADCRUMBS: Record<string, [string, string]> = {
   '/okrs': ['Planning', 'OKRs'],
   '/daily-sync': ['Rituals', 'Daily Sync'],
   '/checkin': ['Rituals', 'Weekly Check-in'],
-  '/lead-tracker': ['CRM', 'Lead Tracker'],
+  '/lead-tracker': ['Acquisition', 'Lead Tracker'],
   '/media-tracker': ['Acquisition', 'Media Tracker'],
   '/ads-tracker': ['Acquisition', 'Ads Tracker'],
   '/settings': ['System', 'Settings'],
