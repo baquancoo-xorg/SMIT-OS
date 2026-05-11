@@ -28,11 +28,32 @@ model User {
   approvedDailyReports DailyReport[]  @relation("ApprovedDailyReports")
   notifications        Notification[]
   crmEmployeeId        Int?           @unique
+  createdApiKeys       ApiKey[]
 
   // 2FA fields (opt-in, nullable by default)
   totpSecret      String? // AES-256-GCM encrypted TOTP secret
   totpEnabled     Boolean  @default(false)
   totpBackupCodes String[] // bcrypt-hashed backup codes, empty array by default
+}
+
+// ============================================
+// API Key Authentication (MCP Cowork integration)
+// ============================================
+
+model ApiKey {
+  id         String    @id @default(uuid())
+  name       String
+  keyHash    String    @unique // bcrypt hash of raw key, cost 10
+  prefix     String    @unique // e.g. smk_a1b2 — first 8 chars of raw key for fast lookup
+  scopes     String[]  // e.g. ["read:reports", "read:crm"]
+  createdBy  String
+  creator    User      @relation(fields: [createdBy], references: [id])
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+
+  @@index([prefix])
+  @@index([revokedAt])
 }
 
 model Notification {

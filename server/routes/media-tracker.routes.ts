@@ -99,7 +99,7 @@ export function createMediaTrackerRoutes() {
   // POST /api/media-tracker/posts
   router.post('/posts', async (req, res) => {
     try {
-      if (!req.user) {
+      if (!req.user || req.user.type === 'api-key') {
         const e = fail(401, 'Not authenticated');
         return res.status(e.status).json(e.body);
       }
@@ -119,7 +119,7 @@ export function createMediaTrackerRoutes() {
   // PUT /api/media-tracker/posts/:id
   router.put('/posts/:id', async (req, res) => {
     try {
-      if (!req.user) {
+      if (!req.user || req.user.type === 'api-key') {
         const e = fail(401, 'Not authenticated');
         return res.status(e.status).json(e.body);
       }
@@ -146,7 +146,7 @@ export function createMediaTrackerRoutes() {
   // DELETE /api/media-tracker/posts/:id
   router.delete('/posts/:id', async (req, res) => {
     try {
-      if (!req.user) {
+      if (!req.user || req.user.type === 'api-key') {
         const e = fail(401, 'Not authenticated');
         return res.status(e.status).json(e.body);
       }

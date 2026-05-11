@@ -10,6 +10,7 @@ import type { Request, Response, NextFunction } from "express";
 
 // Middleware
 import { createAuthMiddleware } from "./server/middleware/auth.middleware";
+import { createApiKeyAuthMiddleware } from "./server/middleware/api-key-auth";
 
 // Routes
 import { createAuthRoutes } from "./server/routes/auth.routes";
@@ -119,7 +120,8 @@ app.use('/api/', generalApiLimiter);
 // Public routes
 app.use("/api/auth", createAuthRoutes(prisma));
 
-// Protected routes
+// Protected routes — API key auth runs first; JWT auth skips if api-key already set
+app.use("/api", createApiKeyAuthMiddleware(prisma));
 app.use("/api", createAuthMiddleware(prisma));
 app.use("/api/users", createUserRoutes(prisma));
 app.use("/api/objectives", createObjectiveRoutes(prisma));

@@ -7,6 +7,11 @@ const REFRESH_THRESHOLD_SECONDS = 8 * 60 * 60; // 8 hours — refresh khi token 
 
 export function createAuthMiddleware(prisma: PrismaClient) {
   return async (req: Request, res: Response, next: NextFunction) => {
+    // API key middleware already authenticated this request — skip JWT path entirely
+    if (req.user?.type === 'api-key') {
+      return next();
+    }
+
     const token = req.cookies?.jwt;
 
     if (!token) {
@@ -45,6 +50,7 @@ export function createAuthMiddleware(prisma: PrismaClient) {
     }
 
     req.user = {
+      type: 'jwt',
       userId: user.id,
       role: user.role,
       isAdmin: user.isAdmin,

@@ -32,7 +32,9 @@ export function createOwnershipMiddleware(prisma: PrismaClient) {
       // Unassigned resource - only admin can modify
       return res.status(403).json({ error: 'Not authorized to modify this resource' });
     }
-    if (ownerId !== user.userId) {
+    // API key users have no userId — they cannot own user resources
+    const userId = user.type === 'api-key' ? undefined : user.userId;
+    if (ownerId !== userId) {
       return res.status(403).json({ error: 'Not authorized to modify this resource' });
     }
 
