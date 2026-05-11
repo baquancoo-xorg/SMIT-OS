@@ -82,6 +82,12 @@ npm run dev
 - Express 5 + Prisma ORM
 - PostgreSQL 15
 
+## API Keys & MCP Cowork
+
+- API key system for external integrations (Claude Desktop/Cowork). See [docs/api-key-authentication.md](./docs/api-key-authentication.md).
+- MCP server repo: `/Users/dominium/Documents/Project/smitos-mcp-server` (separate). Setup: [docs/mcp-cowork-integration.md](./docs/mcp-cowork-integration.md).
+- Generate keys: Settings → API Keys (admin only).
+
 ## Important Notes
 - Database uses real data, not mocks
 - Admin user: `dominium`
