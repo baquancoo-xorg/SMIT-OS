@@ -20,16 +20,15 @@ import {
   getOkrStatus,
   getCriticalPathHealth,
   getQ2Deadline,
-} from '../components/okr/v2/department-color-config';
+} from '../components/okr/department-color-config';
 import {
   Button,
   TabPill,
   KpiCard,
   EmptyState,
-  GlassCard,
   FilterChip,
-} from '../components/ui/v2';
-import type { TabPillItem } from '../components/ui/v2';
+} from '../components/ui';
+import type { TabPillItem } from '../components/ui';
 
 type ActiveTab = 'L1' | 'L2';
 
@@ -190,26 +189,38 @@ export default function OKRsManagementV2() {
 
   return (
     <div className="flex h-full flex-col gap-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-wrap items-center gap-3">
-          <TabPill<ActiveTab> label="OKR level tabs" value={activeTab} onChange={setActiveTab} items={TABS} />
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col gap-1 min-w-0">
+          <nav aria-label="Breadcrumb">
+            <ol className="flex items-center gap-1 text-[length:var(--text-body-sm)] text-on-surface-variant">
+              <li>Planning</li>
+              <li aria-hidden="true">›</li>
+              <li className="font-medium text-on-surface" aria-current="page">OKRs</li>
+            </ol>
+          </nav>
+          <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface">OKRs</h2>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <TabPill<ActiveTab> label="OKR level tabs" value={activeTab} onChange={setActiveTab} items={TABS} size="sm" />
           <FilterChip<string>
             value={departmentFilter}
             onChange={setDepartmentFilter}
             options={DEPT_FILTER_OPTIONS}
             icon={<Filter size={14} />}
+            size="sm"
           />
           <FilterChip<string>
             value={statusFilter}
             onChange={setStatusFilter}
             options={STATUS_FILTER_OPTIONS}
             icon={<Filter size={14} />}
+            size="sm"
           />
+          <Button variant="primary" size="sm" iconLeft={<Plus />} onClick={() => setIsAddObjModalOpen(true)}>
+            New Objective
+          </Button>
         </div>
-        <Button variant="primary" iconLeft={<Plus />} onClick={() => setIsAddObjModalOpen(true)}>
-          New Objective
-        </Button>
-      </div>
+      </header>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <KpiCard
@@ -303,10 +314,6 @@ export default function OKRsManagementV2() {
         objectives={objectives}
       />
 
-      {/* Hidden GlassCard import balance — used implicitly when adding wrapper sections later */}
-      <span className="sr-only" aria-hidden="true">
-        <GlassCard variant="ghost" padding="none">.</GlassCard>
-      </span>
     </div>
   );
 }

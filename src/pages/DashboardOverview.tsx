@@ -1,8 +1,7 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Activity, Briefcase, Monitor, TrendingUp, Users } from 'lucide-react';
 import { format, startOfMonth } from 'date-fns';
 import { useSearchParams } from 'react-router-dom';
-import { DateRangePicker as V1DateRangePicker } from '../components/dashboard/overview/DateRangePicker';
 import { SummaryCards } from '../components/dashboard/overview/SummaryCards';
 import { KpiTable } from '../components/dashboard/overview/KpiTable';
 import { useOverviewAll } from '../hooks/use-overview-data';
@@ -13,8 +12,8 @@ import { ProductSection } from '../components/dashboard/product';
 import MarketingTab from '../components/dashboard/marketing/marketing-tab';
 import MediaTab from '../components/dashboard/media/media-tab';
 import AcquisitionOverviewTab from '../components/dashboard/acquisition-overview/acquisition-overview-tab';
-import { TabPill, GlassCard } from '../components/ui/v2';
-import type { TabPillItem } from '../components/ui/v2';
+import { TabPill, GlassCard, DateRangePicker } from '../components/ui';
+import type { TabPillItem, DateRange } from '../components/ui';
 
 type ViewMode = 'realtime' | 'cohort';
 type DashboardDomainTab = 'overview' | 'sale' | 'product' | 'marketing' | 'media';
@@ -58,13 +57,28 @@ function SectionTitle({ children }: { children: ReactNode }) {
  * Tab switching < 300ms — no extra fetch on tab change (data scoped to range).
  */
 export default function DashboardOverviewV2() {
-  const [range, setRange] = useState({
-    from: format(startOfMonth(new Date()), 'yyyy-MM-dd'),
-    to: format(new Date(), 'yyyy-MM-dd'),
-  });
   const [viewMode, setViewMode] = useState<ViewMode>('realtime');
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedTab = parseDashboardTab(searchParams.get('tab'));
+
+  const urlFrom = searchParams.get('date_from');
+  const urlTo = searchParams.get('date_to');
+  const defaultFrom = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+  const defaultTo = format(new Date(), 'yyyy-MM-dd');
+  const range = useMemo(
+    () => ({ from: urlFrom ?? defaultFrom, to: urlTo ?? defaultTo }),
+    [urlFrom, urlTo, defaultFrom, defaultTo],
+  );
+  const pickerValue: DateRange = useMemo(
+    () => ({ from: new Date(range.from), to: new Date(range.to) }),
+    [range.from, range.to],
+  );
+  const setRange = (next: DateRange) => {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('date_from', format(next.from, 'yyyy-MM-dd'));
+    nextParams.set('date_to', format(next.to, 'yyyy-MM-dd'));
+    setSearchParams(nextParams);
+  };
 
   const { data, isLoading, error } = useOverviewAll({
     from: range.from,
@@ -84,10 +98,22 @@ export default function DashboardOverviewV2() {
 
   return (
     <div className="flex h-full flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <TabPill<DashboardDomainTab> label="Dashboard domain tabs" value={selectedTab} onChange={handleTabChange} items={TABS} />
-        <V1DateRangePicker value={range} onChange={setRange} />
-      </div>
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col gap-1 min-w-0">
+          <nav aria-label="Breadcrumb">
+            <ol className="flex items-center gap-1 text-[length:var(--text-body-sm)] text-on-surface-variant">
+              <li>Analytics</li>
+              <li aria-hidden="true">›</li>
+              <li className="font-medium text-on-surface" aria-current="page">Dashboard</li>
+            </ol>
+          </nav>
+          <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface">Dashboard</h2>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <TabPill<DashboardDomainTab> label="Dashboard domain tabs" value={selectedTab} onChange={handleTabChange} items={TABS} size="sm" />
+          <DateRangePicker value={pickerValue} onChange={setRange} size="sm" />
+        </div>
+      </header>
 
       <div className="flex-1 space-y-6 overflow-y-auto pb-8">
         {selectedTab === 'overview' && (

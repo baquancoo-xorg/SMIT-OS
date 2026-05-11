@@ -1,21 +1,22 @@
-import { useState, type ReactNode } from 'react';
-import { addDays, differenceInCalendarDays, parseISO } from 'date-fns';
+import { useMemo, useState, type ReactNode } from 'react';
+import { addDays, differenceInCalendarDays, parseISO, format } from 'date-fns';
 import { Search, Check, X } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Lead } from '../../types';
-import DatePicker from '../ui/v2/date-picker';
+import DatePicker from '../ui/date-picker';
 import BulkActionBar, { type BulkEditFields } from './bulk-action-bar';
 import LeadDetailModal from './lead-detail-modal';
 import LeadLogDialog from './lead-log-dialog';
-import { TableRowActions } from '../ui/v2/table-row-actions';
-import { TableShell } from '../ui/v2/table-shell';
-import { getTableContract } from '../ui/v2/table-contract';
-import { formatTableDateTime } from '../ui/v2/table-date-format';
-import { GlassCard, Badge, Input, Button, EmptyState, FilterChip } from '../ui/v2';
-import type { BadgeVariant } from '../ui/v2';
+import { TableRowActions } from '../ui/table-row-actions';
+import { TableShell } from '../ui/table-shell';
+import { getTableContract } from '../ui/table-contract';
+import { formatTableDateTime } from '../ui/table-date-format';
+import { GlassCard, Badge, Input, Button, EmptyState, FilterChip, DateRangePicker } from '../ui';
+import type { BadgeVariant, DateRange } from '../ui';
 
 const STATUSES = ['Mới', 'Đang liên hệ', 'Đang nuôi dưỡng', 'Qualified', 'Unqualified'];
 
@@ -91,15 +92,36 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
   const queryClient = useQueryClient();
   const today = new Date().toISOString().slice(0, 10);
   const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  const sevenDaysAgoStr = sevenDaysAgo.toISOString().slice(0, 10);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlDateFrom = searchParams.get('date_from');
+  const urlDateTo = searchParams.get('date_to');
+
   const [filters, setFilters] = useState({
     ae: '',
     status: '',
     hasNote: '',
     noteDate: '',
-    dateFrom: sevenDaysAgo.toISOString().slice(0, 10),
-    dateTo: today,
+    dateFrom: urlDateFrom ?? sevenDaysAgoStr,
+    dateTo: urlDateTo ?? today,
     q: '',
   });
+
+  const pickerValue: DateRange = useMemo(
+    () => ({ from: new Date(filters.dateFrom), to: new Date(filters.dateTo) }),
+    [filters.dateFrom, filters.dateTo],
+  );
+
+  const setDateRange = (next: DateRange) => {
+    const from = format(next.from, 'yyyy-MM-dd');
+    const to = format(next.to, 'yyyy-MM-dd');
+    setFilters((f) => ({ ...f, dateFrom: from, dateTo: to }));
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('date_from', from);
+    nextParams.set('date_to', to);
+    setSearchParams(nextParams);
+  };
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkEditMode, setBulkEditMode] = useState(false);
@@ -208,83 +230,82 @@ export default function LeadLogsTab({ extraControls }: LeadLogsTabProps) {
 
   return (
     <div className="h-full flex flex-col gap-4">
-      <GlassCard variant="surface" padding="sm" className="shrink-0 flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-1.5">
-          <DatePicker value={filters.dateFrom} onChange={(v) => sf('dateFrom', v)} placeholder="Từ ngày" />
-          <span className="text-on-surface-variant/60 text-xs">&#8212;</span>
-          <DatePicker value={filters.dateTo} onChange={(v) => sf('dateTo', v)} placeholder="Đến ngày" />
+      <GlassCard variant="surface" padding="sm" className="shrink-0 flex flex-col gap-2">
+        {/* Sub-row 1: Filter & controls */}
+        <div className="flex flex-wrap items-center gap-3">
+          <DateRangePicker value={pickerValue} onChange={setDateRange} size="sm" />
+          <FilterChip size="sm" value={filters.ae} onChange={(v) => sf('ae', v)} options={[{ value: '', label: 'All AE' }, ...aeOptions.map((a) => ({ value: a.fullName, label: a.fullName }))]} />
+          <FilterChip size="sm" value={filters.status} onChange={(v) => sf('status', v)} options={[{ value: '', label: 'All Status' }, ...STATUSES.map((s) => ({ value: s, label: toStatusLabel(s) }))]} />
+          <FilterChip
+            size="sm"
+            value={filters.hasNote}
+            onChange={(v) => sf('hasNote', v)}
+            options={[
+              { value: '', label: 'All Notes' },
+              { value: 'yes', label: 'With note' },
+              { value: 'no', label: 'Without note' },
+            ]}
+          />
+          <DatePicker value={filters.noteDate} onChange={(v) => sf('noteDate', v)} placeholder="Note changed" />
+          <Input
+            containerClassName="w-48"
+            placeholder="Search leads..."
+            value={filters.q}
+            onChange={(e) => sf('q', e.target.value)}
+            iconLeft={<Search />}
+          />
+          {extraControls && <div className="ml-auto">{extraControls}</div>}
         </div>
-        <FilterChip size="sm" value={filters.ae} onChange={(v) => sf('ae', v)} options={[{ value: '', label: 'All AE' }, ...aeOptions.map((a) => ({ value: a.fullName, label: a.fullName }))]} />
-        <FilterChip size="sm" value={filters.status} onChange={(v) => sf('status', v)} options={[{ value: '', label: 'All Status' }, ...STATUSES.map((s) => ({ value: s, label: toStatusLabel(s) }))]} />
-        <FilterChip
-          size="sm"
-          value={filters.hasNote}
-          onChange={(v) => sf('hasNote', v)}
-          options={[
-            { value: '', label: 'All Notes' },
-            { value: 'yes', label: 'With note' },
-            { value: 'no', label: 'Without note' },
-          ]}
-        />
-        <DatePicker value={filters.noteDate} onChange={(v) => sf('noteDate', v)} placeholder="Note changed" />
-        <Input
-          containerClassName="w-48"
-          placeholder="Search leads..."
-          value={filters.q}
-          onChange={(e) => sf('q', e.target.value)}
-          iconLeft={<Search />}
-        />
-        <div className="ml-auto flex items-center gap-3">
-          {!loading && (() => {
-            const now = new Date();
-            const filteredLeads = leads.filter(l => {
-              if (!filters.q) return true;
-              const q = filters.q.toLowerCase();
-              return (
-                l.customerName.toLowerCase().includes(q) ||
-                l.ae.toLowerCase().includes(q) ||
-                (l.notes?.toLowerCase() || '').includes(q)
-              );
-            });
-            const c = (s: string) => filteredLeads.filter((l) => l.status === s).length;
-            const vn = filteredLeads.filter((l) => l.leadType === 'Vietnam').length;
-            const intl = filteredLeads.filter((l) => l.leadType && l.leadType !== 'Vietnam' && l.leadType !== 'Unknown').length;
-            const onTime = filteredLeads.filter((l) => {
-              if (isClosedLead(l.status)) return false;
-              const sla = getLeadSla(l, now);
-              return sla.label.startsWith('On-time');
-            }).length;
-            const overdue = filteredLeads.filter((l) => {
-              if (isClosedLead(l.status)) return false;
-              const sla = getLeadSla(l, now);
-              return sla.label.startsWith('Overdue');
-            }).length;
-            const statCls = 'flex items-center gap-4 px-4 py-2 bg-white border border-outline-variant/40 rounded-card shadow-sm text-[10px] font-black uppercase tracking-widest';
-            const dot = (color: string) => <span className={`size-2 rounded-full inline-block ${color}`} />;
-            const stat = (color: string, label: string, val: number) => (
-              <span className="flex items-center gap-1.5 text-on-surface-variant">{dot(color)}{label}: {val}</span>
-            );
+
+        {/* Sub-row 2: Statbar — luôn horizontal, scroll khi narrow */}
+        {!loading && (() => {
+          const now = new Date();
+          const filteredLeads = leads.filter(l => {
+            if (!filters.q) return true;
+            const q = filters.q.toLowerCase();
             return (
-              <div className="flex items-center gap-2">
-                <div className={statCls}>
-                  {stat('bg-on-surface-variant', 'Total', filteredLeads.length)}
-                  {stat('bg-violet-400', 'NEW', c('Mới'))}
-                  {stat('bg-blue-400', 'ATT', c('Đang liên hệ'))}
-                  {stat('bg-warning/80', 'NUR', c('Đang nuôi dưỡng'))}
-                  {stat('bg-emerald-500', 'QLD', c('Qualified'))}
-                  {stat('bg-error/80', 'UQLD', c('Unqualified'))}
-                  {stat('bg-emerald-400', 'OT', onTime)}
-                  {stat('bg-error', 'OVD', overdue)}
-                </div>
-                <div className={statCls}>
-                  {stat('bg-error/80', 'VN', vn)}
-                  {stat('bg-sky-400', 'QT', intl)}
-                </div>
-              </div>
+              l.customerName.toLowerCase().includes(q) ||
+              l.ae.toLowerCase().includes(q) ||
+              (l.notes?.toLowerCase() || '').includes(q)
             );
-          })()}
-          {extraControls && <div>{extraControls}</div>}
-        </div>
+          });
+          const c = (s: string) => filteredLeads.filter((l) => l.status === s).length;
+          const vn = filteredLeads.filter((l) => l.leadType === 'Vietnam').length;
+          const intl = filteredLeads.filter((l) => l.leadType && l.leadType !== 'Vietnam' && l.leadType !== 'Unknown').length;
+          const onTime = filteredLeads.filter((l) => {
+            if (isClosedLead(l.status)) return false;
+            const sla = getLeadSla(l, now);
+            return sla.label.startsWith('On-time');
+          }).length;
+          const overdue = filteredLeads.filter((l) => {
+            if (isClosedLead(l.status)) return false;
+            const sla = getLeadSla(l, now);
+            return sla.label.startsWith('Overdue');
+          }).length;
+          const statCls = 'flex items-center gap-4 px-4 py-2 bg-white border border-outline-variant/40 rounded-card shadow-sm text-[10px] font-black uppercase tracking-widest whitespace-nowrap';
+          const dot = (color: string) => <span className={`size-2 rounded-full inline-block ${color}`} />;
+          const stat = (color: string, label: string, val: number) => (
+            <span className="flex items-center gap-1.5 text-on-surface-variant whitespace-nowrap">{dot(color)}{label}: {val}</span>
+          );
+          return (
+            <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1">
+              <div className={statCls}>
+                {stat('bg-on-surface-variant', 'Total', filteredLeads.length)}
+                {stat('bg-violet-400', 'NEW', c('Mới'))}
+                {stat('bg-blue-400', 'ATT', c('Đang liên hệ'))}
+                {stat('bg-warning/80', 'NUR', c('Đang nuôi dưỡng'))}
+                {stat('bg-emerald-500', 'QLD', c('Qualified'))}
+                {stat('bg-error/80', 'UQLD', c('Unqualified'))}
+                {stat('bg-emerald-400', 'OT', onTime)}
+                {stat('bg-error', 'OVD', overdue)}
+              </div>
+              <div className={statCls}>
+                {stat('bg-error/80', 'VN', vn)}
+                {stat('bg-sky-400', 'QT', intl)}
+              </div>
+            </div>
+          );
+        })()}
       </GlassCard>
 
       <div className="flex-1 min-h-0 bg-white/50 backdrop-blur-md border border-white/20 rounded-card shadow-sm overflow-hidden">

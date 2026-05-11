@@ -6,7 +6,7 @@ import { Objective, KeyResult, User } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronDown, ChevronRight, X, Link as LinkIcon, Trash2, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import CustomSelect from '../ui/v2/custom-select';
+import CustomSelect from '../ui/custom-select';
 
 
 // Accordion-style L1 Objective Card with expandable L2 children
@@ -34,34 +34,34 @@ export function ObjectiveAccordionCard({
       {/* L1 Objective Header - Clickable to expand/collapse */}
       <div
         onClick={onToggleExpand}
-        className="p-5 md:p-6 lg:p-8 cursor-pointer hover:bg-surface-variant/30/50 transition-colors flex items-center justify-between"
+        className="p-3 md:p-4 cursor-pointer hover:bg-surface-variant/30 transition-colors flex items-center justify-between"
       >
-        <div className="flex items-center gap-4 md:gap-6 flex-1">
-          <div className={`w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-card md:rounded-card ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
-            <span className="material-symbols-outlined text-2xl md:text-3xl">ads_click</span>
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className={`w-9 h-9 rounded-card ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
+            <span className="material-symbols-outlined text-xl">ads_click</span>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 md:gap-3 mb-1 flex-wrap">
-              <span className={`${colors.badge} text-[8px] md:text-[10px] px-2 md:px-3 py-1 rounded-full font-black uppercase tracking-widest border`}>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`${colors.badge} text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest border`}>
                 L1 - {objective.department}
               </span>
-              <span className={`flex-shrink-0 flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-xl ${colors.icon} text-white text-xs font-black shadow-sm`}>O</span>
+              <span className={`flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-lg ${colors.icon} text-white text-[10px] font-black shadow-sm`}>O</span>
+              <h3 className={`text-base md:text-lg font-bold text-on-surface font-headline hover:${colors.text} transition-colors line-clamp-1 min-w-0`}>{objective.title}</h3>
             </div>
-            <h3 className={`text-base md:text-lg lg:text-xl font-black text-on-surface font-headline hover:${colors.text} transition-colors line-clamp-2 md:line-clamp-1`}>{objective.title}</h3>
-            <p className="text-xs md:text-sm text-on-surface-variant font-medium">
+            <p className="text-[11px] text-on-surface-variant font-medium mt-0.5">
               {childObjectives.length} child objective{childObjectives.length !== 1 ? 's' : ''} · {objective.keyResults.length} key result{objective.keyResults.length !== 1 ? 's' : ''}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-4 md:gap-6 flex-shrink-0 ml-4">
+        <div className="flex items-center gap-3 flex-shrink-0 ml-3">
           <div className="text-right">
-            <div className="text-[8px] md:text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mb-1">Progress</div>
-            <div className={`text-xl md:text-2xl font-black ${colors.text} font-headline`}>{objective.progressPercentage}%</div>
+            <div className="text-[9px] font-black text-on-surface-variant uppercase tracking-[0.2em]">Progress</div>
+            <div className={`text-lg md:text-xl font-black ${colors.text} font-headline leading-tight`}>{objective.progressPercentage}%</div>
           </div>
           {isExpanded ? (
-            <ChevronDown size={20} className="text-on-surface-variant flex-shrink-0 md:size-7" />
+            <ChevronDown size={18} className="text-on-surface-variant flex-shrink-0" />
           ) : (
-            <ChevronRight size={20} className="text-on-surface-variant flex-shrink-0 md:size-7" />
+            <ChevronRight size={18} className="text-on-surface-variant flex-shrink-0" />
           )}
         </div>
       </div>
@@ -305,21 +305,21 @@ export function ObjectiveAccordionCardL2({
       {/* Header - Clickable to expand/collapse */}
       <div
         onClick={() => setIsExpanded(!isExpanded)}
-        className="p-5 md:p-6 lg:p-8 cursor-pointer hover:bg-surface-variant/30/50 transition-colors flex items-center justify-between"
+        className="p-2.5 md:p-3 cursor-pointer hover:bg-surface-variant/30 transition-colors flex items-center justify-between"
       >
-        <div className="flex items-center gap-4 md:gap-6 flex-1 min-w-0">
-          <div className={`w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-card md:rounded-card ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
-            <span className="material-symbols-outlined text-2xl md:text-3xl">track_changes</span>
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className={`w-7 h-7 rounded-card ${colors.bg} flex items-center justify-center ${colors.text} border ${colors.border} flex-shrink-0`}>
+            <span className="material-symbols-outlined text-base">track_changes</span>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 md:gap-3 mb-1 flex-wrap">
-              <span className={`${colors.badge} text-[8px] md:text-[10px] px-2 md:px-3 py-1 rounded-full font-black uppercase tracking-widest border`}>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`${colors.badge} text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest border`}>
                 L2 - {objective.department}
               </span>
               {isEditingTitle ? (
                 <input
                   type="text"
-                  className="text-base md:text-lg font-black text-on-surface bg-surface-variant/30 border-none focus:ring-2 focus:ring-primary/35 rounded-xl px-3 md:px-4 py-1 outline-none font-headline w-full"
+                  className="text-sm md:text-base font-bold text-on-surface bg-surface-variant/30 border-none focus:ring-2 focus:ring-primary/35 rounded-xl px-2 py-0.5 outline-none font-headline w-full"
                   value={objective.title}
                   onChange={(e) => setObjective({ ...objective, title: e.target.value })}
                   onBlur={handleUpdateObjectiveTitle}
@@ -329,7 +329,7 @@ export function ObjectiveAccordionCardL2({
                 />
               ) : (
                 <h3
-                  className={`text-base md:text-lg font-black text-on-surface font-headline cursor-pointer hover:${colors.text} transition-colors line-clamp-2 md:line-clamp-1`}
+                  className={`text-sm md:text-base font-bold text-on-surface font-headline cursor-pointer hover:${colors.text} transition-colors line-clamp-1 min-w-0`}
                   onClick={(e) => { e.stopPropagation(); setIsEditingTitle(true); }}
                 >
                   {objective.title}
@@ -337,24 +337,24 @@ export function ObjectiveAccordionCardL2({
               )}
             </div>
             {parentObjective && (
-              <p className="text-xs text-on-surface-variant font-medium truncate">
+              <p className="text-[11px] text-on-surface-variant font-medium truncate mt-0.5">
                 Aligns to: <span className="text-primary font-bold">{parentObjective.title}</span>
               </p>
             )}
-            <p className="text-xs md:text-sm text-on-surface-variant font-medium mt-1">
+            <p className="text-[11px] text-on-surface-variant font-medium">
               {objective.keyResults.length} key result{objective.keyResults.length !== 1 ? 's' : ''}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-4 md:gap-6 flex-shrink-0 ml-4">
+        <div className="flex items-center gap-3 flex-shrink-0 ml-3">
           <div className="text-right">
-            <div className="text-[8px] md:text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mb-1">Progress</div>
-            <div className={`text-xl md:text-2xl font-black ${colors.text} font-headline`}>{objective.progressPercentage}%</div>
+            <div className="text-[9px] font-black text-on-surface-variant uppercase tracking-[0.2em]">Progress</div>
+            <div className={`text-base md:text-lg font-black ${colors.text} font-headline leading-tight`}>{objective.progressPercentage}%</div>
           </div>
           {isExpanded ? (
-            <ChevronDown size={20} className="text-on-surface-variant flex-shrink-0 md:size-7" />
+            <ChevronDown size={16} className="text-on-surface-variant flex-shrink-0" />
           ) : (
-            <ChevronRight size={20} className="text-on-surface-variant flex-shrink-0 md:size-7" />
+            <ChevronRight size={16} className="text-on-surface-variant flex-shrink-0" />
           )}
         </div>
       </div>
@@ -428,7 +428,7 @@ function KeyResultRow({ kr, index, isL2, owner, objectives, onLinkObjective, onD
   const parentKR = krData.parentKrId ? objectives?.flatMap(o => o.keyResults).find(item => item.id === krData.parentKrId) : null;
 
   return (
-    <div className="flex flex-col gap-3 md:gap-4 p-4 md:p-6 rounded-card md:rounded-card hover:bg-surface-variant/30/50 transition-all duration-500 group border border-transparent hover:border-outline-variant/10">
+    <div className="flex flex-col gap-3 md:gap-4 p-4 md:p-6 rounded-card md:rounded-card hover:bg-surface-variant/30 transition-all duration-500 group border border-transparent hover:border-outline-variant/10">
       {/* C3: Mobile-first stack, grid on md+ */}
       <div className="flex flex-col gap-4 md:grid md:grid-cols-12 md:items-center md:gap-6">
         {/* Title section - full width on mobile */}
@@ -918,7 +918,7 @@ export function AddObjectiveModal({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="bg-white/80 backdrop-blur-xl border border-white/20 rounded-card shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
       >
-        <div className="px-8 py-6 border-b border-outline-variant/40 flex items-center justify-between bg-surface-variant/30/50">
+        <div className="px-8 py-6 border-b border-outline-variant/40 flex items-center justify-between bg-surface-variant/30">
           <h2 className="text-2xl font-black font-headline text-on-surface">
             Add New {level} Objective
           </h2>
@@ -982,7 +982,7 @@ export function AddObjectiveModal({
           </div>
         </div>
 
-        <div className="px-8 py-6 border-t border-outline-variant/40 flex justify-end gap-3 bg-surface-variant/30/50">
+        <div className="px-8 py-6 border-t border-outline-variant/40 flex justify-end gap-3 bg-surface-variant/30">
           <button
             className="px-6 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-variant/50 rounded-xl transition-all"
             onClick={onClose}

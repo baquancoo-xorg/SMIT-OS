@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ExternalLink, DollarSign, Activity, Users, Calculator } from 'lucide-react';
 import { useAdsCampaignsQuery, useAdsAttributionQuery } from '../../../hooks/use-ads-tracker';
-import { GlassCard, KpiCard, EmptyState } from '../../ui/v2';
+import { GlassCard, KpiCard, EmptyState } from '../../ui';
 import { Megaphone } from 'lucide-react';
 
 /**
@@ -35,9 +35,9 @@ export default function MarketingTab({ from, to }: Props) {
   const attribution = attributionQuery.data ?? [];
 
   const totals = useMemo(() => {
-    const spend = campaigns.reduce((s, c) => s + c.spendTotal, 0);
+    const spend = campaigns.reduce((s, c) => s + Number(c.spendTotal ?? 0), 0);
     const active = campaigns.filter((c) => c.status === 'ACTIVE').length;
-    const totalLeads = attribution.reduce((s, a) => s + a.leadCount, 0);
+    const totalLeads = attribution.reduce((s, a) => s + Number(a.leadCount ?? 0), 0);
     const cpl = totalLeads > 0 ? spend / totalLeads : null;
     const currency = campaigns[0]?.currency ?? 'VND';
     return { spend, active, totalLeads, cpl, currency };
@@ -45,11 +45,11 @@ export default function MarketingTab({ from, to }: Props) {
 
   const topByRoas = useMemo(() => {
     return [...attribution]
-      .filter((a) => a.spendTotal > 0)
+      .filter((a) => Number(a.spendTotal ?? 0) > 0)
       .sort((a, b) => {
         // ROAS proxy: leadCount / spend (no revenue per campaign yet).
-        const ra = a.leadCount / a.spendTotal;
-        const rb = b.leadCount / b.spendTotal;
+        const ra = Number(a.leadCount ?? 0) / Number(a.spendTotal);
+        const rb = Number(b.leadCount ?? 0) / Number(b.spendTotal);
         return rb - ra;
       })
       .slice(0, 5);

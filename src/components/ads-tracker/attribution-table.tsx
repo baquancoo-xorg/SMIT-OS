@@ -1,16 +1,21 @@
 import { AlertTriangle } from 'lucide-react';
 import type { AdsAttribution } from '../../types';
-import { DataTable, EmptyState, GlassCard, Badge } from '../ui/v2';
-import type { DataTableColumn } from '../ui/v2';
+import {
+  EmptyState,
+  GlassCard,
+  Badge,
+  TableShell,
+  SortableTh,
+  useSortableData,
+  type SortableValue,
+} from '../ui';
+import { getTableContract } from '../ui/table-contract';
 
 /**
  * Ads attribution table — campaigns × leads × CPL.
  *
- * Phase 8 follow-up batch 2 (2026-05-10): migrated to v2 DataTable primitive
- * + GlassCard wrapper + Badge for unmatched sources. API identical
- * (`<AttributionTable rows={...} unmatched={...} />`).
- *
- * Sortable columns: spend (default desc), leads, qualified, CPL.
+ * Round 2 (2026-05-11): migrated DataTable → TableShell for visual parity với Lead Logs.
+ * Sortable columns: campaign, spend (default desc), leads, qualified, CPL.
  */
 
 interface Props {
@@ -18,88 +23,145 @@ interface Props {
   unmatched?: { source: string; count: number }[];
 }
 
+type SortKey = 'campaignName' | 'spendTotal' | 'leadCount' | 'qualifiedCount' | 'cpl';
+
 function fmtMoney(n: number, currency: string) {
-  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n) + ' ' + currency;
+  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Number(n)) + ' ' + currency;
 }
 
+const accessor = (row: AdsAttribution, key: SortKey): SortableValue => {
+  switch (key) {
+    case 'campaignName':
+      return row.campaignName;
+    case 'spendTotal':
+      return Number(row.spendTotal);
+    case 'leadCount':
+      return Number(row.leadCount);
+    case 'qualifiedCount':
+      return Number(row.qualifiedCount);
+    case 'cpl':
+      return row.cpl != null ? Number(row.cpl) : null;
+    default:
+      return null;
+  }
+};
+
 export default function AttributionTable({ rows, unmatched }: Props) {
-  const columns: DataTableColumn<AdsAttribution>[] = [
-    {
-      key: 'campaignName',
-      label: 'Campaign',
-      sortable: true,
-      sort: (a, b) => a.campaignName.localeCompare(b.campaignName),
-      render: (r) => <span className="font-medium text-on-surface">{r.campaignName}</span>,
-    },
-    {
-      key: 'utm',
-      label: 'UTM',
-      hideBelow: 'md',
-      render: (r) =>
-        r.utmCampaign ? (
-          <span className="font-mono text-[length:var(--text-caption)] text-on-surface-variant">{r.utmCampaign}</span>
-        ) : (
-          <span className="font-mono text-[length:var(--text-caption)] text-on-surface-variant/60 italic">missing</span>
-        ),
-    },
-    {
-      key: 'spendTotal',
-      label: 'Spend',
-      align: 'right',
-      sortable: true,
-      sort: (a, b) => a.spendTotal - b.spendTotal,
-      render: (r) => <span className="font-headline font-bold">{fmtMoney(r.spendTotal, r.currency)}</span>,
-    },
-    {
-      key: 'leadCount',
-      label: 'Leads',
-      align: 'right',
-      sortable: true,
-      sort: (a, b) => a.leadCount - b.leadCount,
-      render: (r) => <span className="font-semibold">{r.leadCount}</span>,
-    },
-    {
-      key: 'qualifiedCount',
-      label: 'Qualified',
-      align: 'right',
-      sortable: true,
-      sort: (a, b) => a.qualifiedCount - b.qualifiedCount,
-      render: (r) => <span className="font-semibold text-tertiary">{r.qualifiedCount}</span>,
-    },
-    {
-      key: 'cpl',
-      label: 'CPL',
-      align: 'right',
-      sortable: true,
-      sort: (a, b) => (a.cpl ?? Infinity) - (b.cpl ?? Infinity),
-      render: (r) =>
-        r.cpl != null ? (
-          <span className="font-semibold">{fmtMoney(r.cpl, r.currency)}</span>
-        ) : (
-          <span className="text-on-surface-variant/60">—</span>
-        ),
-    },
-  ];
+  const contract = getTableContract('standard');
+  const { sorted, sortKey, sortDir, toggleSort } = useSortableData<AdsAttribution, SortKey>(
+    rows,
+    'spendTotal',
+    'desc',
+    accessor,
+  );
 
   return (
     <div className="flex flex-col gap-4">
-      <DataTable<AdsAttribution>
-        label="Campaign attribution"
-        data={rows}
-        columns={columns}
-        rowKey={(r) => r.campaignId}
-        density="comfortable"
-        sort={{ key: 'spendTotal', direction: 'desc' }}
-        onSortChange={() => {}}
-        empty={
-          <EmptyState
-            icon={<AlertTriangle />}
-            title="No attribution data"
-            description="Sync Meta + ensure Lead.source matches utm_campaign"
-            variant="inline"
-          />
-        }
-      />
+      <TableShell variant="standard" tableClassName="min-w-[720px]">
+        <thead className="sticky top-0 z-20 bg-surface">
+          <tr className={contract.headerRow}>
+            <SortableTh<SortKey>
+              sortKey="campaignName"
+              current={sortKey}
+              dir={sortDir}
+              onClick={toggleSort}
+              className={contract.headerCell}
+            >
+              Campaign
+            </SortableTh>
+            <th className={contract.headerCell}>UTM</th>
+            <SortableTh<SortKey>
+              sortKey="spendTotal"
+              current={sortKey}
+              dir={sortDir}
+              onClick={toggleSort}
+              className={`${contract.headerCell} text-right`}
+              align="right"
+            >
+              Spend
+            </SortableTh>
+            <SortableTh<SortKey>
+              sortKey="leadCount"
+              current={sortKey}
+              dir={sortDir}
+              onClick={toggleSort}
+              className={`${contract.headerCell} text-right`}
+              align="right"
+            >
+              Leads
+            </SortableTh>
+            <SortableTh<SortKey>
+              sortKey="qualifiedCount"
+              current={sortKey}
+              dir={sortDir}
+              onClick={toggleSort}
+              className={`${contract.headerCell} text-right`}
+              align="right"
+            >
+              Qualified
+            </SortableTh>
+            <SortableTh<SortKey>
+              sortKey="cpl"
+              current={sortKey}
+              dir={sortDir}
+              onClick={toggleSort}
+              className={`${contract.headerCell} text-right`}
+              align="right"
+            >
+              CPL
+            </SortableTh>
+          </tr>
+        </thead>
+        <tbody className={contract.body}>
+          {sorted.length === 0 ? (
+            <tr>
+              <td colSpan={6} className="p-0">
+                <EmptyState
+                  icon={<AlertTriangle />}
+                  title="No attribution data"
+                  description="Sync Meta + ensure Lead.source matches utm_campaign"
+                  variant="inline"
+                />
+              </td>
+            </tr>
+          ) : (
+            sorted.map((r) => (
+              <tr key={r.campaignId} className={contract.row}>
+                <td className={contract.cell}>
+                  <span className="font-medium text-on-surface">{r.campaignName}</span>
+                </td>
+                <td className={contract.cell}>
+                  {r.utmCampaign ? (
+                    <span className="font-mono text-[length:var(--text-caption)] text-on-surface-variant">
+                      {r.utmCampaign}
+                    </span>
+                  ) : (
+                    <span className="font-mono text-[length:var(--text-caption)] text-on-surface-variant/60 italic">
+                      missing
+                    </span>
+                  )}
+                </td>
+                <td className={`${contract.cell} text-right`}>
+                  <span className="font-headline font-bold">{fmtMoney(r.spendTotal, r.currency)}</span>
+                </td>
+                <td className={`${contract.cell} text-right`}>
+                  <span className="font-semibold">{r.leadCount}</span>
+                </td>
+                <td className={`${contract.cell} text-right`}>
+                  <span className="font-semibold text-tertiary">{r.qualifiedCount}</span>
+                </td>
+                <td className={`${contract.cell} text-right`}>
+                  {r.cpl != null ? (
+                    <span className="font-semibold">{fmtMoney(r.cpl, r.currency)}</span>
+                  ) : (
+                    <span className="text-on-surface-variant/60">—</span>
+                  )}
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </TableShell>
 
       {unmatched && unmatched.length > 0 && (
         <GlassCard variant="surface" padding="md" className="border-warning/30 bg-warning-container/30">

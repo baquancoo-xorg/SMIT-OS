@@ -4,7 +4,7 @@ import { ExternalLink, Newspaper, Eye, DollarSign, Mic, Megaphone } from 'lucide
 import { format } from 'date-fns';
 import { useMediaPostsQuery } from '../../../hooks/use-media-tracker';
 import PlatformBadge from '../../media-tracker/platform-badge';
-import { GlassCard, KpiCard, Badge, EmptyState } from '../../ui/v2';
+import { GlassCard, KpiCard, Badge, EmptyState } from '../../ui';
 
 /**
  * Dashboard Media tab — compact summary KOL/KOC + PR.
@@ -41,7 +41,7 @@ export default function MediaTab({ from, to }: Props) {
     const totalReach = posts.reduce((s, p) => s + p.reach, 0);
     const kolSpend = posts
       .filter((p) => p.type === 'KOL' || p.type === 'KOC')
-      .reduce((s, p) => s + (p.cost ?? 0), 0);
+      .reduce((s, p) => s + Number(p.cost ?? 0), 0);
     const prCount = posts.filter((p) => p.type === 'PR').length;
     return { totalPosts, totalReach, kolSpend, prCount };
   }, [posts]);
@@ -105,9 +105,9 @@ export default function MediaTab({ from, to }: Props) {
                         {fmtNumber(p.engagement)} eng · {fmtNumber(p.reach)} reach
                       </p>
                     </div>
-                    {p.cost && (
+                    {p.cost != null && Number(p.cost) > 0 && (
                       <span className="text-[length:var(--text-caption)] font-semibold text-on-surface-variant">
-                        {fmtNumber(p.cost)} VND
+                        {fmtNumber(Number(p.cost))} VND
                       </span>
                     )}
                   </div>

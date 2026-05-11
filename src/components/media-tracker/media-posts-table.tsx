@@ -2,17 +2,22 @@ import { Edit3, ExternalLink, Trash2, Newspaper } from 'lucide-react';
 import { format } from 'date-fns';
 import type { MediaPost } from '../../types';
 import PlatformBadge from './platform-badge';
-import { DataTable, EmptyState, Badge, Button } from '../ui/v2';
-import type { DataTableColumn } from '../ui/v2';
+import {
+  EmptyState,
+  Badge,
+  Button,
+  TableShell,
+  SortableTh,
+  useSortableData,
+  type SortableValue,
+} from '../ui';
+import { getTableContract } from '../ui/table-contract';
 
 /**
  * Media posts table — owned/KOL/PR posts với reach, engagement, optional cost + sentiment.
  *
- * Phase 8 follow-up batch 3 (2026-05-10): migrated to v2 DataTable + Badge variants
- * + Button (ghost actions) + EmptyState. API identical.
- *
- * Type/sentiment use brand-specific colors (KOL pink, KOC orange, PR blue) — kept
- * inline since they map to fixed business taxonomy không phải v2 Badge semantic.
+ * Round 2 (2026-05-11): migrated DataTable → TableShell for visual parity với Lead Logs.
+ * Uses useSortableData hook + SortableTh helper. Skipped pagination (rows < 50 today).
  */
 
 interface Props {
@@ -24,6 +29,8 @@ interface Props {
   showCost?: boolean;
   showSentiment?: boolean;
 }
+
+type SortKey = 'type' | 'title' | 'publishedAt' | 'reach' | 'engagement' | 'cost';
 
 const TYPE_BADGE: Record<string, string> = {
   ORGANIC: 'bg-tertiary/10 text-tertiary border-tertiary/20',
@@ -55,6 +62,25 @@ function fmtNumber(n: number) {
   return n.toLocaleString('en-US');
 }
 
+const accessor = (row: MediaPost, key: SortKey): SortableValue => {
+  switch (key) {
+    case 'type':
+      return row.type;
+    case 'title':
+      return row.title ?? '';
+    case 'publishedAt':
+      return new Date(row.publishedAt);
+    case 'reach':
+      return row.reach;
+    case 'engagement':
+      return row.engagement;
+    case 'cost':
+      return Number(row.cost ?? 0);
+    default:
+      return null;
+  }
+};
+
 export default function MediaPostsTable({
   posts,
   currentUserId,
@@ -64,156 +90,189 @@ export default function MediaPostsTable({
   showCost,
   showSentiment,
 }: Props) {
-  const columns: DataTableColumn<MediaPost>[] = [
-    {
-      key: 'platform',
-      label: 'Platform',
-      render: (p) => <PlatformBadge platform={p.platform} />,
-    },
-    {
-      key: 'type',
-      label: 'Type',
-      sortable: true,
-      sort: (a, b) => a.type.localeCompare(b.type),
-      render: (p) => <TypeBadge type={p.type} />,
-    },
-    {
-      key: 'title',
-      label: 'Title',
-      sortable: true,
-      sort: (a, b) => (a.title ?? '').localeCompare(b.title ?? ''),
-      render: (p) => (
-        <div className="flex flex-col gap-0.5">
-          <span className="font-medium text-on-surface">
-            {p.title ?? <span className="italic text-on-surface-variant/60">Untitled</span>}
-          </span>
-          {p.url && (
-            <a
-              href={p.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[length:var(--text-caption)] text-primary hover:underline w-fit"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ExternalLink className="size-3" aria-hidden="true" />
-              link
-            </a>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: 'publishedAt',
-      label: 'Date',
-      hideBelow: 'md',
-      sortable: true,
-      sort: (a, b) => new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime(),
-      render: (p) => format(new Date(p.publishedAt), 'yyyy-MM-dd'),
-    },
-    {
-      key: 'reach',
-      label: 'Reach',
-      align: 'right',
-      sortable: true,
-      sort: (a, b) => a.reach - b.reach,
-      render: (p) => <span className="font-headline font-bold">{fmtNumber(p.reach)}</span>,
-    },
-    {
-      key: 'engagement',
-      label: 'Engagement',
-      align: 'right',
-      sortable: true,
-      sort: (a, b) => a.engagement - b.engagement,
-      render: (p) => <span className="font-headline font-bold">{fmtNumber(p.engagement)}</span>,
-    },
-    ...(showCost
-      ? [
-          {
-            key: 'cost',
-            label: 'Cost',
-            align: 'right' as const,
-            hideBelow: 'lg' as const,
-            sortable: true,
-            sort: (a: MediaPost, b: MediaPost) => (a.cost ?? 0) - (b.cost ?? 0),
-            render: (p: MediaPost) =>
-              p.cost != null ? <span className="font-semibold">{p.cost.toLocaleString('en-US')} VND</span> : <span className="text-on-surface-variant/60">—</span>,
-          },
-        ]
-      : []),
-    ...(showSentiment
-      ? [
-          {
-            key: 'sentiment',
-            label: 'Sentiment',
-            hideBelow: 'lg' as const,
-            render: (p: MediaPost) => {
-              const meta = (p.meta ?? {}) as Record<string, any>;
-              const sentiment = String(meta.sentiment ?? 'neutral');
-              return p.type === 'PR' ? (
-                <SentimentBadge sentiment={sentiment} />
-              ) : (
-                <span className="text-on-surface-variant/60">—</span>
-              );
-            },
-          },
-        ]
-      : []),
-    {
-      key: 'actions',
-      label: 'Actions',
-      align: 'right',
-      width: 'w-24',
-      render: (p) => {
-        const canEdit = isAdmin || p.createdById === currentUserId;
-        if (!canEdit) return null;
-        return (
-          <div className="flex items-center justify-end gap-1">
-            {onEdit && (
-              <Button
-                variant="ghost"
-                size="sm"
-                iconLeft={<Edit3 />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit(p);
-                }}
-                aria-label="Edit post"
-              />
-            )}
-            {onDelete && (
-              <Button
-                variant="ghost"
-                size="sm"
-                iconLeft={<Trash2 />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(p);
-                }}
-                aria-label="Delete post"
-                className="text-error hover:bg-error-container"
-              />
-            )}
-          </div>
-        );
-      },
-    },
-  ];
+  const contract = getTableContract('standard');
+  const { sorted, sortKey, sortDir, toggleSort } = useSortableData<MediaPost, SortKey>(
+    posts,
+    'publishedAt',
+    'desc',
+    accessor,
+  );
+
+  const colCount = 6 + (showCost ? 1 : 0) + (showSentiment ? 1 : 0) + 1; // +1 actions
 
   return (
-    <DataTable<MediaPost>
-      label="Media posts"
-      data={posts}
-      columns={columns}
-      rowKey={(p) => p.id}
-      density="comfortable"
-      empty={
-        <EmptyState
-          icon={<Newspaper />}
-          title="No posts yet"
-          description="Click 'Add post' to start tracking media performance."
-          variant="inline"
-        />
-      }
-    />
+    <TableShell variant="standard" tableClassName="min-w-[920px]">
+      <thead className="sticky top-0 z-20 bg-surface">
+        <tr className={contract.headerRow}>
+          <th className={contract.headerCell}>Platform</th>
+          <SortableTh<SortKey>
+            sortKey="type"
+            current={sortKey}
+            dir={sortDir}
+            onClick={toggleSort}
+            className={contract.headerCell}
+          >
+            Type
+          </SortableTh>
+          <SortableTh<SortKey>
+            sortKey="title"
+            current={sortKey}
+            dir={sortDir}
+            onClick={toggleSort}
+            className={contract.headerCell}
+          >
+            Title
+          </SortableTh>
+          <SortableTh<SortKey>
+            sortKey="publishedAt"
+            current={sortKey}
+            dir={sortDir}
+            onClick={toggleSort}
+            className={contract.headerCell}
+          >
+            Date
+          </SortableTh>
+          <SortableTh<SortKey>
+            sortKey="reach"
+            current={sortKey}
+            dir={sortDir}
+            onClick={toggleSort}
+            className={`${contract.headerCell} text-right`}
+            align="right"
+          >
+            Reach
+          </SortableTh>
+          <SortableTh<SortKey>
+            sortKey="engagement"
+            current={sortKey}
+            dir={sortDir}
+            onClick={toggleSort}
+            className={`${contract.headerCell} text-right`}
+            align="right"
+          >
+            Engagement
+          </SortableTh>
+          {showCost && (
+            <SortableTh<SortKey>
+              sortKey="cost"
+              current={sortKey}
+              dir={sortDir}
+              onClick={toggleSort}
+              className={`${contract.headerCell} text-right`}
+              align="right"
+            >
+              Cost
+            </SortableTh>
+          )}
+          {showSentiment && <th className={contract.headerCell}>Sentiment</th>}
+          <th className={contract.actionHeaderCell}>Actions</th>
+        </tr>
+      </thead>
+      <tbody className={contract.body}>
+        {sorted.length === 0 ? (
+          <tr>
+            <td colSpan={colCount} className="p-0">
+              <EmptyState
+                icon={<Newspaper />}
+                title="No posts yet"
+                description="Click 'Add post' to start tracking media performance."
+                variant="inline"
+              />
+            </td>
+          </tr>
+        ) : (
+          sorted.map((p) => {
+            const canEdit = isAdmin || p.createdById === currentUserId;
+            const meta = (p.meta ?? {}) as Record<string, unknown>;
+            const sentiment = String(meta.sentiment ?? 'neutral');
+            return (
+              <tr key={p.id} className={contract.row}>
+                <td className={contract.cell}>
+                  <PlatformBadge platform={p.platform} />
+                </td>
+                <td className={contract.cell}>
+                  <TypeBadge type={p.type} />
+                </td>
+                <td className={contract.cell}>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-medium text-on-surface">
+                      {p.title ?? <span className="italic text-on-surface-variant/60">Untitled</span>}
+                    </span>
+                    {p.url && (
+                      <a
+                        href={p.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[length:var(--text-caption)] text-primary hover:underline w-fit"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ExternalLink className="size-3" aria-hidden="true" />
+                        link
+                      </a>
+                    )}
+                  </div>
+                </td>
+                <td className={contract.cell}>{format(new Date(p.publishedAt), 'yyyy-MM-dd')}</td>
+                <td className={`${contract.cell} text-right`}>
+                  <span className="font-headline font-bold">{fmtNumber(p.reach)}</span>
+                </td>
+                <td className={`${contract.cell} text-right`}>
+                  <span className="font-headline font-bold">{fmtNumber(p.engagement)}</span>
+                </td>
+                {showCost && (
+                  <td className={`${contract.cell} text-right`}>
+                    {p.cost != null ? (
+                      <span className="font-semibold">{Number(p.cost).toLocaleString('en-US')} VND</span>
+                    ) : (
+                      <span className="text-on-surface-variant/60">—</span>
+                    )}
+                  </td>
+                )}
+                {showSentiment && (
+                  <td className={contract.cell}>
+                    {p.type === 'PR' ? (
+                      <SentimentBadge sentiment={sentiment} />
+                    ) : (
+                      <span className="text-on-surface-variant/60">—</span>
+                    )}
+                  </td>
+                )}
+                <td className={contract.actionCell}>
+                  {canEdit && (
+                    <div className="flex items-center justify-end gap-1">
+                      {onEdit && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          iconLeft={<Edit3 />}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(p);
+                          }}
+                          aria-label="Edit post"
+                        />
+                      )}
+                      {onDelete && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          iconLeft={<Trash2 />}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(p);
+                          }}
+                          aria-label="Delete post"
+                          className="text-error hover:bg-error-container"
+                        />
+                      )}
+                    </div>
+                  )}
+                </td>
+              </tr>
+            );
+          })
+        )}
+      </tbody>
+    </TableShell>
   );
 }

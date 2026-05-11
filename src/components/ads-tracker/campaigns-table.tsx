@@ -1,22 +1,28 @@
 import { Megaphone } from 'lucide-react';
 import type { AdsCampaignSummary } from '../../types';
-import { DataTable, EmptyState, Badge } from '../ui/v2';
-import type { DataTableColumn } from '../ui/v2';
+import {
+  EmptyState,
+  Badge,
+  TableShell,
+  SortableTh,
+  useSortableData,
+  type SortableValue,
+} from '../ui';
+import { getTableContract } from '../ui/table-contract';
 
 /**
  * Meta ad campaigns table — spend / impressions / clicks / conversions / CTR.
  *
- * Phase 8 follow-up batch 4 (2026-05-10): migrated to v2 DataTable primitive
- * (built-in sort), v2 Badge cho status, v2 EmptyState. API identical
- * (`<CampaignsTable campaigns={...} onSelect={...} />`).
- *
- * Default sort: spendTotal desc.
+ * Round 2 (2026-05-11): migrated DataTable → TableShell for visual parity với Lead Logs.
+ * Uses useSortableData hook. Default sort: spendTotal desc.
  */
 
 interface Props {
   campaigns: AdsCampaignSummary[];
   onSelect?: (campaign: AdsCampaignSummary) => void;
 }
+
+type SortKey = 'name' | 'spendTotal' | 'impressions' | 'clicks' | 'conversions' | 'ctr';
 
 const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'error' | 'neutral'> = {
   ACTIVE: 'success',
@@ -26,102 +32,161 @@ const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'error' | 'neutral'
 };
 
 function fmtNumber(n: number) {
-  return n.toLocaleString('en-US');
+  return Number(n).toLocaleString('en-US');
 }
 
 function fmtMoney(n: number, currency: string) {
-  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n) + ' ' + currency;
+  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Number(n)) + ' ' + currency;
 }
 
+const accessor = (row: AdsCampaignSummary, key: SortKey): SortableValue => {
+  switch (key) {
+    case 'name':
+      return row.name;
+    case 'spendTotal':
+      return Number(row.spendTotal);
+    case 'impressions':
+      return Number(row.impressions);
+    case 'clicks':
+      return Number(row.clicks);
+    case 'conversions':
+      return Number(row.conversions);
+    case 'ctr':
+      return Number(row.ctr);
+    default:
+      return null;
+  }
+};
+
 export default function CampaignsTable({ campaigns, onSelect }: Props) {
-  const columns: DataTableColumn<AdsCampaignSummary>[] = [
-    {
-      key: 'name',
-      label: 'Campaign',
-      sortable: true,
-      sort: (a, b) => a.name.localeCompare(b.name),
-      render: (c) => <span className="font-medium text-on-surface">{c.name}</span>,
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      render: (c) => (
-        <Badge variant={STATUS_VARIANT[c.status] ?? 'neutral'}>{c.status}</Badge>
-      ),
-    },
-    {
-      key: 'utm',
-      label: 'UTM',
-      hideBelow: 'md',
-      render: (c) =>
-        c.utmCampaign ? (
-          <span className="font-mono text-[length:var(--text-caption)] text-on-surface-variant">{c.utmCampaign}</span>
-        ) : (
-          <span className="text-on-surface-variant/60">—</span>
-        ),
-    },
-    {
-      key: 'spendTotal',
-      label: 'Spend',
-      align: 'right',
-      sortable: true,
-      sort: (a, b) => a.spendTotal - b.spendTotal,
-      render: (c) => <span className="font-headline font-bold">{fmtMoney(c.spendTotal, c.currency)}</span>,
-    },
-    {
-      key: 'impressions',
-      label: 'Impr.',
-      align: 'right',
-      hideBelow: 'lg',
-      sortable: true,
-      sort: (a, b) => a.impressions - b.impressions,
-      render: (c) => <span className="font-semibold">{fmtNumber(c.impressions)}</span>,
-    },
-    {
-      key: 'clicks',
-      label: 'Clicks',
-      align: 'right',
-      sortable: true,
-      sort: (a, b) => a.clicks - b.clicks,
-      render: (c) => <span className="font-semibold">{fmtNumber(c.clicks)}</span>,
-    },
-    {
-      key: 'conversions',
-      label: 'Conv.',
-      align: 'right',
-      sortable: true,
-      sort: (a, b) => a.conversions - b.conversions,
-      render: (c) => <span className="font-semibold">{fmtNumber(c.conversions)}</span>,
-    },
-    {
-      key: 'ctr',
-      label: 'CTR',
-      align: 'right',
-      hideBelow: 'lg',
-      sortable: true,
-      sort: (a, b) => a.ctr - b.ctr,
-      render: (c) => <span className="font-semibold">{(c.ctr * 100).toFixed(2)}%</span>,
-    },
-  ];
+  const contract = getTableContract('standard');
+  const { sorted, sortKey, sortDir, toggleSort } = useSortableData<AdsCampaignSummary, SortKey>(
+    campaigns,
+    'spendTotal',
+    'desc',
+    accessor,
+  );
 
   return (
-    <DataTable<AdsCampaignSummary>
-      label="Ad campaigns"
-      data={campaigns}
-      columns={columns}
-      rowKey={(c) => c.id}
-      density="comfortable"
-      sort={{ key: 'spendTotal', direction: 'desc' }}
-      onSortChange={() => {}}
-      onRowClick={onSelect}
-      empty={
-        <EmptyState
-          icon={<Megaphone />}
-          title="No campaigns yet"
-          description="Run sync from admin to import Meta ad campaigns."
-          variant="inline"
-        />
-      }
-    />
+    <TableShell variant="standard" tableClassName="min-w-[840px]">
+      <thead className="sticky top-0 z-20 bg-surface">
+        <tr className={contract.headerRow}>
+          <SortableTh<SortKey>
+            sortKey="name"
+            current={sortKey}
+            dir={sortDir}
+            onClick={toggleSort}
+            className={contract.headerCell}
+          >
+            Campaign
+          </SortableTh>
+          <th className={contract.headerCell}>Status</th>
+          <th className={contract.headerCell}>UTM</th>
+          <SortableTh<SortKey>
+            sortKey="spendTotal"
+            current={sortKey}
+            dir={sortDir}
+            onClick={toggleSort}
+            className={`${contract.headerCell} text-right`}
+            align="right"
+          >
+            Spend
+          </SortableTh>
+          <SortableTh<SortKey>
+            sortKey="impressions"
+            current={sortKey}
+            dir={sortDir}
+            onClick={toggleSort}
+            className={`${contract.headerCell} text-right`}
+            align="right"
+          >
+            Impr.
+          </SortableTh>
+          <SortableTh<SortKey>
+            sortKey="clicks"
+            current={sortKey}
+            dir={sortDir}
+            onClick={toggleSort}
+            className={`${contract.headerCell} text-right`}
+            align="right"
+          >
+            Clicks
+          </SortableTh>
+          <SortableTh<SortKey>
+            sortKey="conversions"
+            current={sortKey}
+            dir={sortDir}
+            onClick={toggleSort}
+            className={`${contract.headerCell} text-right`}
+            align="right"
+          >
+            Conv.
+          </SortableTh>
+          <SortableTh<SortKey>
+            sortKey="ctr"
+            current={sortKey}
+            dir={sortDir}
+            onClick={toggleSort}
+            className={`${contract.headerCell} text-right`}
+            align="right"
+          >
+            CTR
+          </SortableTh>
+        </tr>
+      </thead>
+      <tbody className={contract.body}>
+        {sorted.length === 0 ? (
+          <tr>
+            <td colSpan={8} className="p-0">
+              <EmptyState
+                icon={<Megaphone />}
+                title="No campaigns yet"
+                description="Run sync from admin to import Meta ad campaigns."
+                variant="inline"
+              />
+            </td>
+          </tr>
+        ) : (
+          sorted.map((c) => (
+            <tr
+              key={c.id}
+              className={`${contract.row} ${onSelect ? 'cursor-pointer' : ''}`}
+              onClick={onSelect ? () => onSelect(c) : undefined}
+            >
+              <td className={contract.cell}>
+                <span className="font-medium text-on-surface">{c.name}</span>
+              </td>
+              <td className={contract.cell}>
+                <Badge variant={STATUS_VARIANT[c.status] ?? 'neutral'}>{c.status}</Badge>
+              </td>
+              <td className={contract.cell}>
+                {c.utmCampaign ? (
+                  <span className="font-mono text-[length:var(--text-caption)] text-on-surface-variant">
+                    {c.utmCampaign}
+                  </span>
+                ) : (
+                  <span className="text-on-surface-variant/60">—</span>
+                )}
+              </td>
+              <td className={`${contract.cell} text-right`}>
+                <span className="font-headline font-bold">{fmtMoney(c.spendTotal, c.currency)}</span>
+              </td>
+              <td className={`${contract.cell} text-right`}>
+                <span className="font-semibold">{fmtNumber(c.impressions)}</span>
+              </td>
+              <td className={`${contract.cell} text-right`}>
+                <span className="font-semibold">{fmtNumber(c.clicks)}</span>
+              </td>
+              <td className={`${contract.cell} text-right`}>
+                <span className="font-semibold">{fmtNumber(c.conversions)}</span>
+              </td>
+              <td className={`${contract.cell} text-right`}>
+                <span className="font-semibold">{(Number(c.ctr) * 100).toFixed(2)}%</span>
+              </td>
+            </tr>
+          ))
+        )}
+      </tbody>
+    </TableShell>
   );
 }

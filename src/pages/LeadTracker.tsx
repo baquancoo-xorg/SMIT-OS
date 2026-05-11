@@ -10,8 +10,8 @@ import {
   Button,
   TabPill,
   GlassCard,
-} from '../components/ui/v2';
-import type { TabPillItem } from '../components/ui/v2';
+} from '../components/ui';
+import type { TabPillItem } from '../components/ui';
 
 type ActiveTab = 'logs' | 'stats';
 
@@ -62,6 +62,7 @@ export default function LeadTrackerV2() {
           <LastSyncIndicator status={syncStatus.data} />
           <Button
             variant="secondary"
+            size="sm"
             iconLeft={<RefreshCw className={isSyncing ? 'animate-spin' : ''} />}
             onClick={triggerSyncNow}
             disabled={isSyncing}
@@ -75,10 +76,22 @@ export default function LeadTrackerV2() {
 
   return (
     <div className="flex h-full flex-col gap-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <TabPill<ActiveTab> label="Lead tracker tabs" value={activeTab} onChange={setActiveTab} items={TABS} />
-        {syncActions}
-      </div>
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col gap-1 min-w-0">
+          <nav aria-label="Breadcrumb">
+            <ol className="flex items-center gap-1 text-[length:var(--text-body-sm)] text-on-surface-variant">
+              <li>CRM</li>
+              <li aria-hidden="true">›</li>
+              <li className="font-medium text-on-surface" aria-current="page">Lead Tracker</li>
+            </ol>
+          </nav>
+          <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface">Lead Tracker</h2>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <TabPill<ActiveTab> label="Lead tracker tabs" value={activeTab} onChange={setActiveTab} items={TABS} size="sm" />
+          {syncActions}
+        </div>
+      </header>
 
       {activeTab === 'stats' && (
         <div className="flex items-center gap-2">
@@ -86,14 +99,14 @@ export default function LeadTrackerV2() {
             type="date"
             value={statsDateFrom}
             onChange={(e) => setStatsDateFrom(e.target.value)}
-            className="h-9 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+            className="h-8 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
           />
           <span className="text-on-surface-variant">—</span>
           <input
             type="date"
             value={statsDateTo}
             onChange={(e) => setStatsDateTo(e.target.value)}
-            className="h-9 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+            className="h-8 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
           />
         </div>
       )}

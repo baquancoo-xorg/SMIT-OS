@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { format, startOfMonth } from 'date-fns';
+import { useSearchParams } from 'react-router-dom';
 import {
   LayoutList,
   TrendingUp,
@@ -25,8 +26,9 @@ import {
   TabPill,
   KpiCard,
   GlassCard,
-} from '../components/ui/v2';
-import type { TabPillItem } from '../components/ui/v2';
+  DateRangePicker,
+} from '../components/ui';
+import type { TabPillItem, DateRange } from '../components/ui';
 
 type Tab = 'campaigns' | 'performance' | 'attribution';
 
@@ -55,8 +57,21 @@ export default function AdsTrackerV2() {
   const { currentUser } = useAuth();
   const isAdmin = !!currentUser?.isAdmin;
   const [activeTab, setActiveTab] = useState<Tab>('campaigns');
-  const [dateFrom, setDateFrom] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
-  const [dateTo, setDateTo] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [searchParams, setSearchParams] = useSearchParams();
+  const defaultFrom = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+  const defaultTo = format(new Date(), 'yyyy-MM-dd');
+  const dateFrom = searchParams.get('date_from') ?? defaultFrom;
+  const dateTo = searchParams.get('date_to') ?? defaultTo;
+  const pickerValue: DateRange = useMemo(
+    () => ({ from: new Date(dateFrom), to: new Date(dateTo) }),
+    [dateFrom, dateTo],
+  );
+  const setRange = (next: DateRange) => {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('date_from', format(next.from, 'yyyy-MM-dd'));
+    nextParams.set('date_to', format(next.to, 'yyyy-MM-dd'));
+    setSearchParams(nextParams);
+  };
 
   const params = useMemo(() => ({ from: dateFrom, to: dateTo }), [dateFrom, dateTo]);
 
@@ -70,9 +85,9 @@ export default function AdsTrackerV2() {
   const unmatched = unmatchedQuery.data ?? [];
 
   const totals = useMemo(() => {
-    const spend = campaigns.reduce((s, c) => s + c.spendTotal, 0);
+    const spend = campaigns.reduce((s, c) => s + Number(c.spendTotal ?? 0), 0);
     const active = campaigns.filter((c) => c.status === 'ACTIVE').length;
-    const totalLeads = attribution.reduce((s, a) => s + a.leadCount, 0);
+    const totalLeads = attribution.reduce((s, a) => s + Number(a.leadCount ?? 0), 0);
     const avgCpl = totalLeads > 0 ? spend / totalLeads : null;
     const currency = campaigns[0]?.currency ?? 'VND';
     return { spend, active, totalLeads, avgCpl, currency };
@@ -90,25 +105,24 @@ export default function AdsTrackerV2() {
 
   return (
     <div className="flex h-full flex-col gap-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <TabPill<Tab> label="Ads tracker tabs" value={activeTab} onChange={setActiveTab} items={TABS} />
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col gap-1 min-w-0">
+          <nav aria-label="Breadcrumb">
+            <ol className="flex items-center gap-1 text-[length:var(--text-body-sm)] text-on-surface-variant">
+              <li>Acquisition</li>
+              <li aria-hidden="true">›</li>
+              <li className="font-medium text-on-surface" aria-current="page">Ads Tracker</li>
+            </ol>
+          </nav>
+          <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface">Ads Tracker</h2>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
-          <input
-            type="date"
-            value={dateFrom}
-            onChange={(e) => setDateFrom(e.target.value)}
-            className="h-9 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
-          />
-          <span className="text-on-surface-variant">—</span>
-          <input
-            type="date"
-            value={dateTo}
-            onChange={(e) => setDateTo(e.target.value)}
-            className="h-9 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
-          />
+          <TabPill<Tab> label="Ads tracker tabs" value={activeTab} onChange={setActiveTab} items={TABS} size="sm" />
+          <DateRangePicker value={pickerValue} onChange={setRange} size="sm" />
           {isAdmin && (
             <Button
               variant="primary"
+              size="sm"
               iconLeft={<RefreshCw className={syncMutation.isPending ? 'animate-spin' : ''} />}
               onClick={handleSync}
               disabled={syncMutation.isPending}
@@ -117,7 +131,7 @@ export default function AdsTrackerV2() {
             </Button>
           )}
         </div>
-      </div>
+      </header>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <KpiCard
