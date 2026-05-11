@@ -4,7 +4,7 @@ import { formatCurrency, formatNumber, formatPercent } from '../../../lib/format
 import type { KpiMetricsResponse, KpiMetricsRow } from '../../../types/dashboard-overview';
 import { type SortConfig, type SortField, sortData, handleSortClick, formatDateVN } from './kpi-table-utils';
 import { DashboardPanel, SegmentedTabs } from '../ui';
-import { Skeleton } from '../../ui/v2';
+import { Skeleton } from '../../ui';
 
 function KpiTableHeader() {
   return (
@@ -18,7 +18,7 @@ function KpiTableHeader() {
     </div>
   );
 }
-import { getTableContract } from '../../ui/v2/table-contract';
+import { getTableContract } from '../../ui/table-contract';
 
 type ViewMode = 'realtime' | 'cohort';
 type RateMode = 'top' | 'step';
@@ -162,7 +162,7 @@ function KpiTableRow({ row, isTotal, rateMode, index = 0 }: KpiTableRowProps) {
   const sqlRate = safeDivide(row.sql, row.signups);
 
   return (
-    <tr className={`${isTotal ? '' : 'border-b border-outline-variant/40'} ${rowBg} transition-colors hover:bg-primary/5`}>
+    <tr className={`${isTotal ? '' : 'border-b border-outline-variant/40'} ${rowBg} transition-colors hover:bg-primary/[0.02]`}>
       <td className={`${cellStyle} sticky left-0 text-left font-medium text-on-surface ${isTotal ? 'z-30 bg-surface-variant/60' : `${rowBg} z-10`}`}>
         {isTotal ? 'TOTAL' : formatDateVN(row.date)}
       </td>
@@ -387,58 +387,58 @@ export const KpiTable = memo(function KpiTable({
             </colgroup>
             <thead>
               <tr>
-                <th className="px-3 py-2.5 text-left sticky left-0 bg-surface-variant/60 z-10">
+                <th className="px-3 py-2.5 text-left sticky left-0 bg-surface-variant/30 z-10">
                   <SortableHeader field="date" title="Date" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <SortableHeader field="adSpend" title="Ad Spend" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <SortableHeader field="sessions" title="Sessions" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <span className={denseTable.headerCell}>CPSe</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <SortableHeader field="signups" title="Signups" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <span className={denseTable.headerCell}>CPSi</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <SortableHeader field="opportunities" title="Opps" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <span className={denseTable.headerCell}>CPOpp</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <SortableHeader field="orders" title="Order" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <span className={denseTable.headerCell}>CPOr</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <span className={denseTable.headerCell}>MQL (3 tiers)</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <span className={denseTable.headerCell}>Pre-PQL</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <span className={denseTable.headerCell}>PQL</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <span className={denseTable.headerCell}>Pre-SQL</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <span className={denseTable.headerCell}>SQL</span>
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <SortableHeader field="revenue" title="Revenue" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <SortableHeader field="roas" title="ROAS" sortConfig={sortConfig} onSort={handleSort} />
                 </th>
-                <th className="px-3 py-2.5 text-right bg-surface-variant/60">
+                <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <span className={denseTable.headerCell}>ME/RE</span>
                 </th>
               </tr>

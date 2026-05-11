@@ -9,9 +9,13 @@ import {
   EmptyState,
   KpiCard,
   Modal,
-  DataTable,
+  TableShell,
+  SortableTh,
+  useSortableData,
+  GlassCard,
+  type SortableValue,
 } from '../components/ui';
-import type { DataTableColumn } from '../components/ui';
+import { getTableContract } from '../components/ui/table-contract';
 
 interface ParsedReport {
   krProgress: KrCheckin[];
@@ -78,13 +82,30 @@ function EmptyMark() {
   return <p className="text-[length:var(--text-body-sm)] italic text-on-surface-variant">(trống)</p>;
 }
 
+type SortKey = 'reporter' | 'week' | 'status' | 'createdAt';
+
+const accessor = (row: WeeklyReport, key: SortKey): SortableValue => {
+  switch (key) {
+    case 'reporter':
+      return row.user?.fullName ?? '';
+    case 'week':
+      return row.weekEnding;
+    case 'status':
+      return row.status;
+    case 'createdAt':
+      return new Date(row.createdAt);
+    default:
+      return null;
+  }
+};
+
 /**
  * WeeklyCheckin v2 — Phase 6 medium pages migration.
  *
  * Token-driven shell:
  *  - PageHeader (italic accent + breadcrumb)
  *  - KpiCard for review/approved stats
- *  - DataTable for list (reuses parsed week info)
+ *  - TableShell variant="standard" + useSortableData (replaces DataTable v2)
  *  - WeeklyCheckinModal v1 reused for create flow (multi-step KR + priorities + risks)
  *  - v2 Modal for detail view
  *
@@ -139,68 +160,14 @@ export default function WeeklyCheckinV2() {
     }
   }
 
-  const sortedReports = useMemo(
-    () => [...reports].sort((a, b) => new Date(b.weekEnding).getTime() - new Date(a.weekEnding).getTime()),
-    [reports],
+  const { sorted, sortKey, sortDir, toggleSort } = useSortableData<WeeklyReport, SortKey>(
+    reports,
+    'createdAt',
+    'desc',
+    accessor,
   );
 
-  const columns: DataTableColumn<WeeklyReport>[] = [
-    {
-      key: 'reporter',
-      label: 'Reporter',
-      sortable: true,
-      sort: (a, b) => (a.user?.fullName ?? '').localeCompare(b.user?.fullName ?? ''),
-      render: (r) => <span className="font-semibold text-on-surface">{r.user?.fullName ?? 'Unknown'}</span>,
-    },
-    {
-      key: 'week',
-      label: 'Week',
-      sortable: true,
-      sort: (a, b) => new Date(a.weekEnding).getTime() - new Date(b.weekEnding).getTime(),
-      render: (r) => {
-        const we = new Date(r.weekEnding);
-        return <span>W{getWeekNumber(we)} · {we.toLocaleDateString('vi-VN')}</span>;
-      },
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      render: (r) => (
-        <Badge variant={r.status === 'Approved' ? 'success' : 'warning'}>
-          {r.status === 'Approved' ? 'Approved' : 'Review'}
-        </Badge>
-      ),
-    },
-    {
-      key: 'createdAt',
-      label: 'Created',
-      hideBelow: 'md',
-      sortable: true,
-      sort: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-      render: (r) => new Date(r.createdAt).toLocaleString('vi-VN'),
-    },
-    {
-      key: 'actions',
-      label: 'Actions',
-      align: 'right',
-      width: 'w-20',
-      render: (r) => (
-        <Button
-          variant="ghost"
-          size="sm"
-          iconLeft={<Eye />}
-          onClick={(e) => {
-            e.stopPropagation();
-            setSelectedReport(r);
-          }}
-          aria-label="View report"
-        >
-          View
-        </Button>
-      ),
-    },
-  ];
-
+  const contract = getTableContract('standard');
   const parsed = selectedReport ? parseReport(selectedReport) : null;
 
   return (
@@ -221,24 +188,114 @@ export default function WeeklyCheckinV2() {
         <KpiCard label="Mine" value={stats.myReports} icon={<Target />} accent="info" />
       </div>
 
-      <DataTable<WeeklyReport>
-        label="Weekly check-ins"
-        data={sortedReports}
-        columns={columns}
-        rowKey={(r) => r.id}
-        loading={loading}
-        density="comfortable"
-        onRowClick={(r) => setSelectedReport(r)}
-        empty={
-          <EmptyState
-            icon={<CalendarCheck2 />}
-            title="Chưa có check-in"
-            description="Tạo check-in đầu tiên để cập nhật tiến độ KR + priorities tuần này."
-            decorative
-            variant="inline"
-          />
-        }
-      />
+      <GlassCard variant="surface" padding="none">
+        <TableShell variant="standard" className="bg-transparent border-0 shadow-none rounded-none">
+          <thead>
+            <tr className={`${contract.headerRow}`}>
+              <SortableTh<SortKey>
+                sortKey="reporter"
+                current={sortKey}
+                dir={sortDir}
+                onClick={toggleSort}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-white`}
+              >
+                Reporter
+              </SortableTh>
+              <SortableTh<SortKey>
+                sortKey="week"
+                current={sortKey}
+                dir={sortDir}
+                onClick={toggleSort}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-white`}
+              >
+                Week
+              </SortableTh>
+              <SortableTh<SortKey>
+                sortKey="status"
+                current={sortKey}
+                dir={sortDir}
+                onClick={toggleSort}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-white`}
+              >
+                Status
+              </SortableTh>
+              <SortableTh<SortKey>
+                sortKey="createdAt"
+                current={sortKey}
+                dir={sortDir}
+                onClick={toggleSort}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-white hidden md:table-cell`}
+              >
+                Created
+              </SortableTh>
+              <th className={`${contract.actionHeaderCell} sticky top-0 z-20 bg-white`}>Actions</th>
+            </tr>
+          </thead>
+          <tbody className={contract.body}>
+            {loading && (
+              <tr>
+                <td colSpan={5} className={contract.emptyState}>
+                  <p className="font-bold uppercase tracking-widest animate-pulse text-on-surface-variant">Loading...</p>
+                </td>
+              </tr>
+            )}
+
+            {!loading && sorted.length === 0 && (
+              <tr>
+                <td colSpan={5} className="p-0">
+                  <EmptyState
+                    icon={<CalendarCheck2 />}
+                    title="Chưa có check-in"
+                    description="Tạo check-in đầu tiên để cập nhật tiến độ KR + priorities tuần này."
+                    decorative
+                    variant="inline"
+                  />
+                </td>
+              </tr>
+            )}
+
+            {!loading && sorted.map((r) => {
+              const we = new Date(r.weekEnding);
+              return (
+                <tr
+                  key={r.id}
+                  className={`${contract.row} cursor-pointer`}
+                  onClick={() => setSelectedReport(r)}
+                >
+                  <td className={`${contract.cell} font-semibold text-on-surface`}>
+                    {r.user?.fullName ?? 'Unknown'}
+                  </td>
+                  <td className={contract.cell}>
+                    W{getWeekNumber(we)} · {we.toLocaleDateString('vi-VN')}
+                  </td>
+                  <td className={contract.cell}>
+                    <Badge variant={r.status === 'Approved' ? 'success' : 'warning'}>
+                      {r.status === 'Approved' ? 'Approved' : 'Review'}
+                    </Badge>
+                  </td>
+                  <td className={`${contract.cell} hidden md:table-cell text-on-surface-variant`}>
+                    {new Date(r.createdAt).toLocaleString('vi-VN')}
+                  </td>
+                  <td className={contract.actionCell}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      iconLeft={<Eye />}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedReport(r);
+                      }}
+                      aria-label="View report"
+                    >
+                      View
+                    </Button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </TableShell>
+      </GlassCard>
 
       {/* Reuse v1 form modal — multi-step KR loading + priorities is non-trivial; defer rewrite. */}
       <WeeklyCheckinModal

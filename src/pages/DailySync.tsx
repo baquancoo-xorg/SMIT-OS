@@ -10,9 +10,12 @@ import {
   KpiCard,
   Modal,
   FormDialog,
-  DataTable,
+  TableShell,
+  SortableTh,
+  useSortableData,
+  type SortableValue,
 } from '../components/ui';
-import type { DataTableColumn } from '../components/ui';
+import { getTableContract } from '../components/ui/table-contract';
 
 function todayIso(): string {
   return new Date().toISOString().split('T')[0];
@@ -119,13 +122,32 @@ function DetailBlock({ title, body, tone = 'default' }: { title: string; body: s
   );
 }
 
+type SortKey = 'reporter' | 'date' | 'status' | 'submission' | 'createdAt';
+
+const accessor = (row: DailyReport, key: SortKey): SortableValue => {
+  switch (key) {
+    case 'reporter':
+      return row.user?.fullName ?? '';
+    case 'date':
+      return new Date(row.reportDate);
+    case 'status':
+      return row.status;
+    case 'submission':
+      return row.createdAt;
+    case 'createdAt':
+      return new Date(row.createdAt);
+    default:
+      return null;
+  }
+};
+
 /**
  * DailySync v2 — Phase 6 medium pages migration.
  *
  * Mobile critical (daily checkin). Token-driven shell with v2 primitives:
  *  - PageHeader (italic accent + breadcrumb)
  *  - KpiCard for status overview
- *  - DataTable for list view (sortable, mobile-responsive via `hideBelow`)
+ *  - TableShell (inline) for list view — migrated from DataTable
  *  - FormDialog for create flow
  *  - Modal for detail view
  *  - Badge for status / submission state
@@ -142,6 +164,7 @@ export default function DailySyncV2() {
   const [submitting, setSubmitting] = useState(false);
 
   const canApprove = !!currentUser?.isAdmin;
+  const contract = getTableContract('standard');
 
   async function fetchReports() {
     setLoading(true);
@@ -161,9 +184,11 @@ export default function DailySyncV2() {
     fetchReports();
   }, []);
 
-  const sortedReports = useMemo(
-    () => [...reports].sort((a, b) => new Date(b.reportDate).getTime() - new Date(a.reportDate).getTime()),
-    [reports],
+  const { sorted, sortKey, sortDir, toggleSort } = useSortableData<DailyReport, SortKey>(
+    reports,
+    'createdAt',
+    'desc',
+    accessor,
   );
 
   const stats = useMemo(() => {
@@ -227,65 +252,6 @@ export default function DailySyncV2() {
     }
   }
 
-  const columns: DataTableColumn<DailyReport>[] = [
-    {
-      key: 'reporter',
-      label: 'Reporter',
-      sortable: true,
-      sort: (a, b) => (a.user?.fullName ?? '').localeCompare(b.user?.fullName ?? ''),
-      render: (r) => <span className="font-semibold text-on-surface">{r.user?.fullName ?? 'Unknown'}</span>,
-    },
-    {
-      key: 'reportDate',
-      label: 'Date',
-      sortable: true,
-      sort: (a, b) => new Date(a.reportDate).getTime() - new Date(b.reportDate).getTime(),
-      render: (r) => new Date(r.reportDate).toLocaleDateString('vi-VN'),
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      render: (r) => (
-        <Badge variant={r.status === 'Approved' ? 'success' : 'warning'}>
-          {r.status === 'Approved' ? 'Approved' : 'Review'}
-        </Badge>
-      ),
-    },
-    {
-      key: 'submission',
-      label: 'Submission',
-      hideBelow: 'md',
-      render: (r) => <SubmissionBadge createdAt={r.createdAt} />,
-    },
-    {
-      key: 'createdAt',
-      label: 'Created',
-      hideBelow: 'lg',
-      sortable: true,
-      sort: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-      render: (r) => new Date(r.createdAt).toLocaleString('vi-VN'),
-    },
-    {
-      key: 'actions',
-      label: 'Actions',
-      align: 'right',
-      width: 'w-20',
-      render: (r) => (
-        <Button
-          variant="ghost"
-          size="sm"
-          iconLeft={<Eye />}
-          onClick={(e) => {
-            e.stopPropagation();
-            setSelectedReport(r);
-          }}
-          aria-label="View report"
-        >
-          View
-        </Button>
-      ),
-    },
-  ];
 
   return (
     <div className="flex flex-col gap-6">
@@ -305,24 +271,121 @@ export default function DailySyncV2() {
         <KpiCard label="Late today" value={stats.lateToday} icon={<AlertTriangle />} accent="error" decorative={stats.lateToday > 0} />
       </div>
 
-      <DataTable<DailyReport>
-        label="Daily reports"
-        data={sortedReports}
-        columns={columns}
-        rowKey={(r) => r.id}
-        loading={loading}
-        density="comfortable"
-        onRowClick={(r) => setSelectedReport(r)}
-        empty={
-          <EmptyState
-            icon={<Calendar />}
-            title="Chưa có báo cáo"
-            description="Bắt đầu bằng cách tạo báo cáo hằng ngày đầu tiên."
-            decorative
-            variant="inline"
-          />
-        }
-      />
+      <GlassCard variant="surface" padding="none">
+        <TableShell variant="standard" className="bg-transparent border-0 shadow-none rounded-none">
+          <thead>
+            <tr className={contract.headerRow}>
+              <SortableTh<SortKey>
+                sortKey="reporter"
+                current={sortKey}
+                dir={sortDir}
+                onClick={toggleSort}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-white`}
+              >
+                Reporter
+              </SortableTh>
+              <SortableTh<SortKey>
+                sortKey="date"
+                current={sortKey}
+                dir={sortDir}
+                onClick={toggleSort}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-white`}
+              >
+                Date
+              </SortableTh>
+              <SortableTh<SortKey>
+                sortKey="status"
+                current={sortKey}
+                dir={sortDir}
+                onClick={toggleSort}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-white`}
+              >
+                Status
+              </SortableTh>
+              <SortableTh<SortKey>
+                sortKey="submission"
+                current={sortKey}
+                dir={sortDir}
+                onClick={toggleSort}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-white hidden md:table-cell`}
+              >
+                Submission
+              </SortableTh>
+              <SortableTh<SortKey>
+                sortKey="createdAt"
+                current={sortKey}
+                dir={sortDir}
+                onClick={toggleSort}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-white hidden lg:table-cell`}
+              >
+                Created
+              </SortableTh>
+              <th className={`${contract.actionHeaderCell} sticky top-0 z-20 bg-white`}>Actions</th>
+            </tr>
+          </thead>
+          <tbody className={contract.body}>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className={contract.emptyState}>
+                  <span className="text-on-surface-variant text-[length:var(--text-body-sm)]">Loading...</span>
+                </td>
+              </tr>
+            ) : sorted.length === 0 ? (
+              <tr>
+                <td colSpan={6} className={contract.emptyState}>
+                  <EmptyState
+                    icon={<Calendar />}
+                    title="Chưa có báo cáo"
+                    description="Bắt đầu bằng cách tạo báo cáo hằng ngày đầu tiên."
+                    decorative
+                    variant="inline"
+                  />
+                </td>
+              </tr>
+            ) : (
+              sorted.map((r) => (
+                <tr
+                  key={r.id}
+                  className={`${contract.row} cursor-pointer`}
+                  onClick={() => setSelectedReport(r)}
+                >
+                  <td className={contract.cell}>
+                    <span className="font-semibold text-on-surface">{r.user?.fullName ?? 'Unknown'}</span>
+                  </td>
+                  <td className={contract.cell}>
+                    {new Date(r.reportDate).toLocaleDateString('vi-VN')}
+                  </td>
+                  <td className={contract.cell}>
+                    <Badge variant={r.status === 'Approved' ? 'success' : 'warning'}>
+                      {r.status === 'Approved' ? 'Approved' : 'Review'}
+                    </Badge>
+                  </td>
+                  <td className={`${contract.cell} hidden md:table-cell`}>
+                    <SubmissionBadge createdAt={r.createdAt} />
+                  </td>
+                  <td className={`${contract.cell} hidden lg:table-cell`}>
+                    {new Date(r.createdAt).toLocaleString('vi-VN')}
+                  </td>
+                  <td className={contract.actionCell}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      iconLeft={<Eye />}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedReport(r);
+                      }}
+                      aria-label="View report"
+                    >
+                      View
+                    </Button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </TableShell>
+      </GlassCard>
 
       {/* Submit form */}
       <FormDialog

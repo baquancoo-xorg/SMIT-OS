@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import type { LeadDailyStat } from '../../types';
-import { TableShell } from '../ui/v2/table-shell';
-import { getTableContract } from '../ui/v2/table-contract';
-import { formatTableDate } from '../ui/v2/table-date-format';
+import { TableShell } from '../ui/table-shell';
+import { getTableContract } from '../ui/table-contract';
+import { formatTableDate } from '../ui/table-date-format';
 
 function fmt(rate: number | null) {
   if (rate === null) return '-';
@@ -43,20 +43,20 @@ export default function DailyStatsTab({ dateFrom, dateTo }: Props) {
         <TableShell variant="standard" className="border border-outline-variant/40" scrollClassName="max-h-[70vh] overflow-y-auto overflow-x-auto custom-scrollbar">
           <thead>
             <tr className={`${standardTable.headerRow} bg-white`}>
-              <th className={`${standardTable.headerCell} sticky top-0 z-30 border-r border-outline-variant/40/50 bg-white`} rowSpan={2}>Date</th>
+              <th className={`${standardTable.headerCell} sticky top-0 z-30 border-r border-outline-variant/40 bg-white`} rowSpan={2}>Date</th>
               {aeList.map((ae) => (
-                <th key={ae} colSpan={5} className="sticky top-0 z-30 px-4 py-3 text-center text-xs font-black uppercase tracking-[0.2em] text-primary bg-white border-b border-r border-outline-variant/40">
+                <th key={ae} colSpan={5} className="sticky top-0 z-30 px-4 py-2.5 text-center text-[length:var(--text-body-sm)] font-semibold uppercase tracking-[var(--tracking-wide)] text-primary bg-white border-b border-r border-outline-variant/40">
                   {ae}
                 </th>
               ))}
             </tr>
             <tr className="bg-white border-b border-outline-variant/40">
               {aeList.flatMap((ae) => [
-                <th key={`${ae}-add`} className="sticky top-[46px] z-30 px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-on-surface-variant border-r border-outline-variant/40/50 bg-white">New</th>,
-                <th key={`${ae}-proc`} className="sticky top-[46px] z-30 px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-on-surface-variant border-r border-outline-variant/40/50 bg-white">Done</th>,
-                <th key={`${ae}-rem`} className="sticky top-[46px] z-30 px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-on-surface-variant border-r border-outline-variant/40/50 bg-white">Remaining</th>,
-                <th key={`${ae}-dr`} className="sticky top-[46px] z-30 px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-on-surface-variant border-r border-outline-variant/40/50 bg-white">Daily%</th>,
-                <th key={`${ae}-tr`} className="sticky top-[46px] z-30 px-3 py-2 text-center text-[9px] font-black uppercase tracking-widest text-on-surface-variant border-r border-outline-variant/40 bg-white">Total%</th>,
+                <th key={`${ae}-add`} className="sticky top-[46px] z-30 px-4 py-2.5 text-center text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant border-r border-outline-variant/40 bg-white">New</th>,
+                <th key={`${ae}-proc`} className="sticky top-[46px] z-30 px-4 py-2.5 text-center text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant border-r border-outline-variant/40 bg-white">Done</th>,
+                <th key={`${ae}-rem`} className="sticky top-[46px] z-30 px-4 py-2.5 text-center text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant border-r border-outline-variant/40 bg-white">Remaining</th>,
+                <th key={`${ae}-dr`} className="sticky top-[46px] z-30 px-4 py-2.5 text-center text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant border-r border-outline-variant/40 bg-white">Daily%</th>,
+                <th key={`${ae}-tr`} className="sticky top-[46px] z-30 px-4 py-2.5 text-center text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant border-r border-outline-variant/40 bg-white">Total%</th>,
               ])}
             </tr>
           </thead>
@@ -64,22 +64,22 @@ export default function DailyStatsTab({ dateFrom, dateTo }: Props) {
             {dateList.length === 0 && (
               <tr>
                 <td colSpan={1 + aeList.length * 5} className={standardTable.emptyState}>
-                  <p className="font-black uppercase tracking-widest text-xs opacity-30">No data for this period</p>
+                  <p className="font-semibold uppercase tracking-[var(--tracking-wide)] text-[length:var(--text-body-sm)] opacity-30">No data for this period</p>
                 </td>
               </tr>
             )}
             {dateList.map((date) => (
               <tr key={date} className={standardTable.row}>
-                <td className={`${standardTable.cell} font-black text-on-surface text-xs border-r border-outline-variant/40/50 bg-surface-variant/30/30`}>{formatTableDate(date)}</td>
+                <td className={`${standardTable.cell} font-semibold text-on-surface text-[length:var(--text-body-sm)] border-r border-outline-variant/40 bg-surface-variant/30`}>{formatTableDate(date)}</td>
                 {aeList.flatMap((ae) => {
                   const s = lookup.get(`${ae}|${date}`);
                   const isHighRemaining = (s?.remaining ?? 0) > 10;
                   return [
-                    <td key={`${ae}-${date}-add`} className="px-3 py-3 text-center text-xs font-bold text-on-surface-variant border-r border-outline-variant/40/50">{s?.added ?? 0}</td>,
-                    <td key={`${ae}-${date}-proc`} className="px-3 py-3 text-center text-xs font-bold text-emerald-600 border-r border-outline-variant/40/50">{s?.processed ?? 0}</td>,
-                    <td key={`${ae}-${date}-rem`} className={`px-3 py-3 text-center text-xs font-black border-r border-outline-variant/40/50 ${isHighRemaining ? 'text-error' : 'text-on-surface'}`}>{s?.remaining ?? 0}</td>,
-                    <td key={`${ae}-${date}-dr`} className="px-3 py-3 text-center text-xs font-bold text-on-surface-variant border-r border-outline-variant/40/50 italic">{s ? fmt(s.dailyRate) : '-'}</td>,
-                    <td key={`${ae}-${date}-tr`} className="px-3 py-3 text-center text-xs font-bold text-primary/60 border-r border-outline-variant/40 italic">{s ? fmt(s.totalRate) : '-'}</td>,
+                    <td key={`${ae}-${date}-add`} className="px-4 py-2.5 text-center text-[length:var(--text-body-sm)] font-bold text-on-surface-variant border-r border-outline-variant/40">{s?.added ?? 0}</td>,
+                    <td key={`${ae}-${date}-proc`} className="px-4 py-2.5 text-center text-[length:var(--text-body-sm)] font-bold text-emerald-600 border-r border-outline-variant/40">{s?.processed ?? 0}</td>,
+                    <td key={`${ae}-${date}-rem`} className={`px-4 py-2.5 text-center text-[length:var(--text-body-sm)] font-semibold border-r border-outline-variant/40 ${isHighRemaining ? 'text-error' : 'text-on-surface'}`}>{s?.remaining ?? 0}</td>,
+                    <td key={`${ae}-${date}-dr`} className="px-4 py-2.5 text-center text-[length:var(--text-body-sm)] font-bold text-on-surface-variant border-r border-outline-variant/40 italic">{s ? fmt(s.dailyRate) : '-'}</td>,
+                    <td key={`${ae}-${date}-tr`} className="px-4 py-2.5 text-center text-[length:var(--text-body-sm)] font-bold text-primary/60 border-r border-outline-variant/40 italic">{s ? fmt(s.totalRate) : '-'}</td>,
                   ];
                 })}
               </tr>
