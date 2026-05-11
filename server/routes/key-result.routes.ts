@@ -5,12 +5,13 @@ import { handleAsync } from '../utils/async-handler';
 import { RBAC } from '../middleware/rbac.middleware';
 import { validate } from '../middleware/validate.middleware';
 import { createKeyResultSchema, updateKeyResultSchema } from '../schemas/objective.schema';
+import { requireAuth } from '../middleware/require-auth';
 
 export function createKeyResultRoutes(prisma: PrismaClient) {
   const router = Router();
   const okrService = createOKRService(prisma);
 
-  router.get('/', handleAsync(async (req: any, res: any) => {
+  router.get('/', requireAuth(['read:okr']), handleAsync(async (req: any, res: any) => {
     const { ownerId } = req.query;
     const where: any = {};
     if (typeof ownerId === 'string' && ownerId) {

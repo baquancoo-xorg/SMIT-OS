@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { getCallPerformance } from '../services/dashboard/call-performance.service';
+import { requireAuth } from '../middleware/require-auth';
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD');
 
@@ -32,7 +33,7 @@ function parseVnDateRange(fromRaw: string, toRaw: string) {
 export function createDashboardCallPerformanceRoutes() {
   const router = Router();
 
-  router.get('/call-performance', async (req, res) => {
+  router.get('/call-performance', requireAuth(['read:dashboard']), async (req, res) => {
     try {
       const parsed = querySchema.safeParse(req.query);
       if (!parsed.success) {

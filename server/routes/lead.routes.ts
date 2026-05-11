@@ -4,6 +4,7 @@ import { handleAsync } from '../utils/async-handler';
 import { validate } from '../middleware/validate.middleware';
 import { createLeadSchema, updateLeadSchema } from '../schemas/lead.schema';
 import { RBAC } from '../middleware/rbac.middleware';
+import { requireAuth } from '../middleware/require-auth';
 
 const TRACKED_FIELDS = ['status', 'ae', 'leadType', 'unqualifiedType', 'notes', 'resolvedDate', 'receivedDate'] as const;
 const CRM_LOCKED_FIELDS = ['customerName', 'ae', 'receivedDate', 'resolvedDate', 'status', 'notes'] as const;
@@ -53,7 +54,7 @@ export function createLeadRoutes(prisma: PrismaClient) {
   const router = Router();
 
   // Static routes MUST come before /:id
-  router.get('/ae-list', handleAsync(async (_req: any, res: any) => {
+  router.get('/ae-list', requireAuth(['read:crm']), handleAsync(async (_req: any, res: any) => {
     const users = await prisma.user.findMany({
       where: { departments: { has: 'Sale' } },
       select: { id: true, fullName: true },
@@ -62,7 +63,7 @@ export function createLeadRoutes(prisma: PrismaClient) {
     res.json(users);
   }));
 
-  router.get('/daily-stats', handleAsync(async (req: any, res: any) => {
+  router.get('/daily-stats', requireAuth(['read:crm']), handleAsync(async (req: any, res: any) => {
     const { ae, dateFrom, dateTo } = req.query;
 
     const where: any = {};
@@ -140,7 +141,7 @@ export function createLeadRoutes(prisma: PrismaClient) {
   }));
 
   // Audit log for a lead - requires Sale dept or Admin (contains PII)
-  router.get('/:id/audit', RBAC.authenticated, handleAsync(async (req: any, res: any) => {
+  router.get('/:id/audit', requireAuth(['read:crm']), RBAC.authenticated, handleAsync(async (req: any, res: any) => {
     if (!canWriteLead(req.user)) {
       return res.status(403).json({ error: 'Sale department or Admin required' });
     }
@@ -206,7 +207,7 @@ export function createLeadRoutes(prisma: PrismaClient) {
     res.json(serializeLeadForResponse(lead));
   }));
 
-  router.get('/', handleAsync(async (req: any, res: any) => {
+  router.get('/', requireAuth(['read:crm']), handleAsync(async (req: any, res: any) => {
     const { ae, status, dateFrom, dateTo, hasNote, noteDate } = req.query;
     const where: any = {};
 

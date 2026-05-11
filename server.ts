@@ -12,6 +12,7 @@ import type { Request, Response, NextFunction } from "express";
 import { createAuthMiddleware } from "./server/middleware/auth.middleware";
 import { createApiKeyAuthMiddleware } from "./server/middleware/api-key-auth";
 import { createApiKeyAuditService } from "./server/services/api-key-audit.service";
+import { perKeyRateLimiter } from "./server/middleware/per-key-rate-limit";
 
 // Routes
 import { createAuthRoutes } from "./server/routes/auth.routes";
@@ -125,6 +126,7 @@ app.use("/api/auth", createAuthRoutes(prisma));
 // Protected routes — API key auth runs first; JWT auth skips if api-key already set
 const apiKeyAuditService = createApiKeyAuditService(prisma);
 app.use("/api", createApiKeyAuthMiddleware(prisma, apiKeyAuditService));
+app.use("/api", perKeyRateLimiter);
 app.use("/api", createAuthMiddleware(prisma));
 app.use("/api/users", createUserRoutes(prisma));
 app.use("/api/objectives", createObjectiveRoutes(prisma));
