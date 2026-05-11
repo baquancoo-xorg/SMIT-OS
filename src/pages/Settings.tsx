@@ -8,9 +8,9 @@ import {
   OkrCyclesTabV2,
   FbConfigTabV2,
   SheetsExportTabV2,
-} from '../components/settings/v2';
-import { TabPill, Button, ConfirmDialog } from '../components/ui/v2';
-import type { TabPillItem } from '../components/ui/v2';
+} from '../components/settings';
+import { TabPill, Button, ConfirmDialog } from '../components/ui';
+import type { TabPillItem } from '../components/ui';
 
 type SettingsTabId = 'profile' | 'users' | 'okrs' | 'fb-config' | 'export';
 
@@ -120,7 +120,12 @@ export default function SettingsV2() {
 
   return (
     <div className="flex flex-col gap-6">
-      {headerAction && <div className="flex justify-end">{headerAction}</div>}
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface min-w-0">
+          System <em className="font-medium text-primary italic">Settings</em>
+        </h2>
+        {headerAction}
+      </header>
 
       <div className="overflow-x-auto pb-1 -mx-1 px-1">
         <TabPill

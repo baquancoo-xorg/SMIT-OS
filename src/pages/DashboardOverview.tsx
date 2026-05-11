@@ -99,16 +99,9 @@ export default function DashboardOverviewV2() {
   return (
     <div className="flex h-full flex-col gap-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-col gap-1 min-w-0">
-          <nav aria-label="Breadcrumb">
-            <ol className="flex items-center gap-1 text-[length:var(--text-body-sm)] text-on-surface-variant">
-              <li>Analytics</li>
-              <li aria-hidden="true">›</li>
-              <li className="font-medium text-on-surface" aria-current="page">Dashboard</li>
-            </ol>
-          </nav>
-          <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface">Dashboard</h2>
-        </div>
+        <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface min-w-0">
+          Performance <em className="font-medium text-primary italic">Dashboard</em>
+        </h2>
         <div className="flex flex-wrap items-center gap-2">
           <TabPill<DashboardDomainTab> label="Dashboard domain tabs" value={selectedTab} onChange={handleTabChange} items={TABS} size="sm" />
           <DateRangePicker value={pickerValue} onChange={setRange} size="sm" />

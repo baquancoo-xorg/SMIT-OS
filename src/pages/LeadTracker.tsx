@@ -77,16 +77,9 @@ export default function LeadTrackerV2() {
   return (
     <div className="flex h-full flex-col gap-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-col gap-1 min-w-0">
-          <nav aria-label="Breadcrumb">
-            <ol className="flex items-center gap-1 text-[length:var(--text-body-sm)] text-on-surface-variant">
-              <li>CRM</li>
-              <li aria-hidden="true">›</li>
-              <li className="font-medium text-on-surface" aria-current="page">Lead Tracker</li>
-            </ol>
-          </nav>
-          <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface">Lead Tracker</h2>
-        </div>
+        <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface min-w-0">
+          Lead <em className="font-medium text-primary italic">Tracker</em>
+        </h2>
         <div className="flex flex-wrap items-center gap-2">
           <TabPill<ActiveTab> label="Lead tracker tabs" value={activeTab} onChange={setActiveTab} items={TABS} size="sm" />
           {syncActions}

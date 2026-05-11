@@ -10,8 +10,8 @@ import {
   KpiCard,
   Modal,
   DataTable,
-} from '../components/ui/v2';
-import type { DataTableColumn } from '../components/ui/v2';
+} from '../components/ui';
+import type { DataTableColumn } from '../components/ui';
 
 interface ParsedReport {
   krProgress: KrCheckin[];
@@ -205,11 +205,14 @@ export default function WeeklyCheckinV2() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-end">
-        <Button variant="primary" iconLeft={<Plus />} onClick={() => setIsModalOpen(true)}>
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface min-w-0">
+          Weekly <em className="font-medium text-primary italic">Check-in</em>
+        </h2>
+        <Button variant="primary" size="sm" iconLeft={<Plus />} onClick={() => setIsModalOpen(true)}>
           New check-in
         </Button>
-      </div>
+      </header>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <KpiCard label="Total" value={stats.total} icon={<CalendarCheck2 />} accent="primary" />

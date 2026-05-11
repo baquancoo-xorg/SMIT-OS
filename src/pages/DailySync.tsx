@@ -11,8 +11,8 @@ import {
   Modal,
   FormDialog,
   DataTable,
-} from '../components/ui/v2';
-import type { DataTableColumn } from '../components/ui/v2';
+} from '../components/ui';
+import type { DataTableColumn } from '../components/ui';
 
 function todayIso(): string {
   return new Date().toISOString().split('T')[0];
@@ -289,11 +289,14 @@ export default function DailySyncV2() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-end">
-        <Button variant="primary" iconLeft={<Plus />} onClick={openForm}>
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface min-w-0">
+          Daily <em className="font-medium text-primary italic">Sync</em>
+        </h2>
+        <Button variant="primary" size="sm" iconLeft={<Plus />} onClick={openForm}>
           New report
         </Button>
-      </div>
+      </header>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <KpiCard label="Submitted today" value={stats.submittedToday} icon={<Sun />} accent="primary" />

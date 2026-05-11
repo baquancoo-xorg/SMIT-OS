@@ -190,16 +190,9 @@ export default function OKRsManagementV2() {
   return (
     <div className="flex h-full flex-col gap-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-col gap-1 min-w-0">
-          <nav aria-label="Breadcrumb">
-            <ol className="flex items-center gap-1 text-[length:var(--text-body-sm)] text-on-surface-variant">
-              <li>Planning</li>
-              <li aria-hidden="true">›</li>
-              <li className="font-medium text-on-surface" aria-current="page">OKRs</li>
-            </ol>
-          </nav>
-          <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface">OKRs</h2>
-        </div>
+        <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface min-w-0">
+          Quarterly <em className="font-medium text-primary italic">OKRs</em>
+        </h2>
         <div className="flex flex-wrap items-center gap-2">
           <TabPill<ActiveTab> label="OKR level tabs" value={activeTab} onChange={setActiveTab} items={TABS} size="sm" />
           <FilterChip<string>
