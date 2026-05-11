@@ -51,16 +51,33 @@ Visual treatment:
 - Icon + label horizontal layout
 - On dark background
 
-## Image 3 — Signature Effect
+## Image 3 — Signature Effect (PROMOTED to Primary Button DNA)
 
 Orange beam/lens flare emanating from a vertical divider inside a dark capsule button.
 
 Technical interpretation:
 - Radial gradient blur (CSS `filter: blur()` + `radial-gradient`)
-- OR pseudo-element with `box-shadow` glow + `mask-image`
-- Single signature interaction — limited use (e.g. primary CTA, active focus)
+- Pseudo-element `::after` with mask
+- Position: ellipse at left center, brand-500 @ 55%, blur 20px
 
-Decision deferred to Phase 2 button component.
+**Decision 2026-05-12 02:43:** Solid-orange primary was REJECTED by user as too loud. ALL primary buttons now share signature DNA:
+- Background: `linear-gradient(90deg, bg-elevated, bg-overlay)`
+- Border: `1px solid brand-500 @ 30%`
+- Beam: `::after` radial blur from left, brand-500 @ 55%
+- Icon: orange (`var(--color-accent)`)
+- Label: white
+- Hover: border brand-500 @ 60%, glow-accent-sm shadow, lift `-1px`
+
+Variants:
+| Variant | Use | Visual |
+|---|---|---|
+| primary | Main CTA (single label) | Signature DNA |
+| primary + split | Compound CTA ("Create | Lead Tracker") | Signature DNA + vertical orange divider + secondary muted label |
+| secondary | Auxiliary actions | Flat overlay surface + subtle border |
+| ghost | Tertiary / dismiss | Transparent + hover overlay |
+| destructive | Delete / dangerous | Solid red (`--rework`) — kept solid for urgency signaling |
+
+KISS payoff: 1 primary visual pattern across the app. Eliminates the "is this signature special enough" decision tax.
 
 ## Image 4 — Dashboard Layout
 
@@ -157,7 +174,7 @@ Adopt all 10 states from Image 2, or subset?
 ## Unresolved Questions
 
 1. Background gradient on app shell (orange→brown radial as in Image 1) or solid `#161316`?
-2. Signature orange glow — global utility or scoped to specific components (CTA, active focus)?
+2. ~~Signature orange glow — global utility or scoped?~~ **resolved 2026-05-12: primary CTA + active focus + sparingly elsewhere. Promoted to primary button DNA.**
 3. Glassmorphic intensity — backdrop-filter blur values?
 4. Density: dashboard reference looks compact (Linear-density). Confirm or wider?
 5. Charts: bar chart in Image 4 uses neutral grey bars with subtle accent. Confirm recharts theming over the v3 chromatic blue.

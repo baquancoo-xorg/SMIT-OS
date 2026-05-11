@@ -9,9 +9,9 @@
 
 ## Overview
 
-- Date: week 2
+- Date: 2026-05-12 (week 2)
 - Priority: P1
-- Status: pending
+- Status: **completed** 2026-05-12 03:10 (foundation gate passed)
 - Goal: ship 8 most-used primitives end-to-end to validate the token system + lint gate works under real component pressure. If batch 1 slips > 50%, fallback to shadcn for batch 2 per brainstorm §7.
 
 ## Key Insights

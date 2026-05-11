@@ -2,6 +2,47 @@
 
 Tracks significant changes — features, removals, migrations, infra updates.
 
+## 2026-05-12 — UI Rebuild v4 Phase 2 (Component Primitives Batch 1)
+
+Built 8 self-built primitives (no shadcn) + 4 a11y hooks + dev playground. All under [data-ui="v4"] scope.
+
+### Hooks (`src/design/v4/primitives/`)
+- `use-escape-key.ts` — Escape close handler
+- `use-click-outside.ts` — pointerdown outside ref
+- `use-focus-trap.ts` — Tab loop within container, restores prior focus
+- `use-keyboard-list-nav.ts` — ArrowUp/Down/Home/End/Enter list navigation
+
+### Components (`src/design/v4/components/`)
+- `button.tsx` — primary (signature DNA: gradient + orange beam via ::before), secondary, ghost, destructive. sm/md/lg sizes. `splitLabel` for compound CTAs.
+- `badge.tsx` — 10 task states + 4 feedback + neutral. Glassmorphic pill with optional glow halo.
+- `surface-card.tsx` — replaces v3 glass-card. flat/raised/elevated, card/callout radius, `warm` variant.
+- `input.tsx` — label + helper + error slots, leftIcon/rightIcon, `pill` variant for search.
+- `page-header.tsx` — title + subtitle + breadcrumb + action slot.
+- `modal.tsx` — portal + focus trap + scroll lock + escape + overlay click. sm/md/lg/full sizes.
+- `dropdown-menu.tsx` — anchored popover with keyboard nav. ArrowUp/Down/Enter/Space/Escape.
+- `data-table.tsx` — sortable headers (asc/desc/none), empty/loading states, row click, sticky header.
+
+### Token rename for clean Tailwind utility names
+- `--color-bg-*` → `--color-surface-*` (utilities: `bg-surface`, `bg-surface-elevated`, etc.)
+- `--color-text-*` → `--color-fg-*` (utilities: `text-fg`, `text-fg-muted`)
+- `--color-border-*` → `--color-outline-*` (utilities: `border-outline`, `border-outline-subtle`)
+- Tier 1 raw scales moved OUT of @theme into :root (prevents `bg-brand-500` utility bypass of semantic layer).
+- `--glow-accent-*` → `--shadow-glow-*` (utilities: `shadow-glow-sm/md/lg`).
+
+### Dev preview
+- `src/design/v4/playground.tsx` — renders all 8 components with examples. Bypasses auth + AppLayout via `/v4/*` top-level route.
+- `src/App.tsx` — adds path-prefix bypass: `location.pathname.startsWith('/v4/')` → renders v4 routes only, no auth.
+
+### Validation
+- `npm run lint` exit 0 (9 v4 files scanned, 0 raw-token violations; tsc clean).
+- `npm run build` exit 0, playground chunk 20.62 kB (gzip 6.53).
+- File sizes: button 113, badge 95, surface-card 83, input 117, page-header 92, modal 144, dropdown-menu 121, data-table 158 lines — all <200 per development-rules.
+
+### Access
+- Browse `/v4/playground` (auth bypassed) for visual review before Phase 03 batch 2.
+
+---
+
 ## 2026-05-12 — UI Rebuild v4 Phase 1 (Design Tokens v4)
 
 User decisions (locked):

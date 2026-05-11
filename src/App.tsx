@@ -4,11 +4,15 @@
  */
 
 import { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout';
 import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './components/ui';
+
+// Phase 2 dev-only: v4 component playground, bypasses auth + AppLayout.
+// Deleted at Phase 3 per plan-02.
+const DesignV4Playground = lazy(() => import('./design/v4/playground'));
 
 // Phase 8 (2026-05-11) — v1 pages hard-deleted. Rollback flag `?v=1` retired.
 // Old `?v=2` flag is harmless no-op for legacy bookmarks.
@@ -32,6 +36,19 @@ function PageLoader() {
 
 function AppContent() {
   const { currentUser, loading, logout } = useAuth();
+  const location = useLocation();
+
+  // v4 dev playground bypasses auth + AppLayout (Phase 2 review).
+  if (location.pathname.startsWith('/v4/')) {
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/v4/playground" element={<DesignV4Playground />} />
+          <Route path="*" element={<Navigate to="/v4/playground" replace />} />
+        </Routes>
+      </Suspense>
+    );
+  }
 
   if (loading) {
     return (

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="vi" data-ui="v4">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMIT-OS v4 — Component Mockup Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+  <style>
+    /* ===== v4 TOKENS (inlined from src/design/v4/tokens.css) ===== */
+    :root {
+      --color-brand-300: #ffaa70;
+      --color-brand-400: #ff8a47;
+      --color-brand-500: #ff6d29;
+      --color-brand-600: #e5511a;
+      --color-warm-700: #453027;
+      --color-warm-800: #30221c;
+      --color-neutral-400: #bababa;
+      --color-neutral-500: #8a8a8c;
+      --color-neutral-600: #5e5e60;
+      --color-neutral-700: #3f3d40;
+      --color-neutral-800: #27252a;
+      --color-neutral-900: #1d1a1c;
+      --color-neutral-950: #161316;
+
+      --color-bg-base: var(--color-neutral-950);
+      --color-bg-elevated: var(--color-neutral-900);
+      --color-bg-overlay: var(--color-neutral-800);
+      --color-bg-popover: #221f23;
+
+      --color-text-primary: #ffffff;
+      --color-text-secondary: var(--color-neutral-400);
+      --color-text-tertiary: var(--color-neutral-500);
+      --color-text-muted: var(--color-neutral-600);
+
+      --color-border-subtle: color-mix(in srgb, var(--color-neutral-800) 60%, transparent);
+      --color-border-default: var(--color-neutral-700);
+
+      --color-accent: var(--color-brand-500);
+      --color-accent-hover: var(--color-brand-400);
+      --color-accent-soft: color-mix(in srgb, var(--color-brand-500) 15%, transparent);
+
+      /* Status colors */
+      --in-progress: #06b6d4;
+      --to-do: #8b5cf6;
+      --in-review: #d4a017;
+      --design-review: #a855f7;
+      --rework: #dc2626;
+      --done: #10b981;
+      --not-started: #f43f5e;
+      --blocked: #ef4444;
+      --on-hold: #0ea5e9;
+      --archived: #a1a1aa;
+
+      --radius-input: 0.75rem;
+      --radius-card: 1.25rem;
+      --radius-callout: 1.5rem;
+      --radius-pill: 9999px;
+
+      --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.4), 0 1px 3px 0 rgb(0 0 0 / 0.3);
+      --shadow-elevated: 0 4px 12px -2px rgb(0 0 0 / 0.5), 0 2px 4px -1px rgb(0 0 0 / 0.4);
+      --glow-accent-sm: 0 0 12px 0 color-mix(in srgb, var(--color-brand-500) 35%, transparent);
+      --glow-accent-md: 0 0 24px 0 color-mix(in srgb, var(--color-brand-500) 45%, transparent);
+      --glow-accent-lg: 0 0 60px 6px color-mix(in srgb, var(--color-brand-500) 50%, transparent);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: var(--color-bg-base);
+      color: var(--color-text-primary);
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      font-feature-settings: 'cv11', 'ss01';
+      -webkit-font-smoothing: antialiased;
+      letter-spacing: -0.015em;
+    }
+    body { padding: 48px 32px; min-height: 100vh; }
+
+    .container { max-width: 1280px; margin: 0 auto; }
+    .grid { display: grid; gap: 24px; }
+
+    .preview-header { margin-bottom: 48px; }
+    .preview-title { font-size: 36px; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 12px; }
+    .preview-subtitle { color: var(--color-text-secondary); font-size: 14px; }
+    .preview-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 4px 12px; border-radius: var(--radius-pill);
+      background: var(--color-accent-soft); color: var(--color-accent);
+      font-size: 12px; font-weight: 600; margin-bottom: 16px;
+    }
+
+    .section {
+      margin-bottom: 48px;
+    }
+    .section-title {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--color-text-tertiary); margin-bottom: 16px;
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+    /* ===== COMPONENT 1 — BUTTONS ===== */
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 12px 22px; border: none; cursor: pointer;
+      font-family: inherit; font-size: 14px; font-weight: 600;
+      border-radius: var(--radius-pill);
+      transition: all 250ms cubic-bezier(0.2, 0, 0, 1);
+      position: relative; overflow: hidden;
+    }
+    .btn-primary {
+      background: linear-gradient(90deg, var(--color-bg-elevated) 0%, var(--color-bg-overlay) 100%);
+      border: 1px solid color-mix(in srgb, var(--color-brand-500) 30%, transparent);
+      color: var(--color-text-primary);
+    }
+    .btn-primary::after {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      width: 70%; height: 130%;
+      transform: translate(-30%, -50%);
+      background: radial-gradient(ellipse at left center,
+        color-mix(in srgb, var(--color-brand-500) 55%, transparent) 0%,
+        transparent 65%);
+      filter: blur(20px); pointer-events: none;
+    }
+    .btn-primary > * { position: relative; z-index: 1; }
+    .btn-primary:hover {
+      border-color: color-mix(in srgb, var(--color-brand-500) 60%, transparent);
+      box-shadow: var(--glow-accent-sm);
+      transform: translateY(-1px);
+    }
+    .btn-primary .btn-icon { color: var(--color-accent); font-weight: 700; }
+
+    .btn-secondary {
+      background: var(--color-bg-overlay); color: var(--color-text-primary);
+      border: 1px solid var(--color-border-subtle);
+    }
+    .btn-secondary:hover { background: var(--color-neutral-700); border-color: var(--color-border-default); }
+    .btn-ghost {
+      background: transparent; color: var(--color-text-secondary);
+    }
+    .btn-ghost:hover { background: var(--color-bg-overlay); color: var(--color-text-primary); }
+    .btn-icon { font-size: 16px; line-height: 1; }
+
+    /* Destructive — kept solid for safety/urgency signaling */
+    .btn-destructive {
+      background: var(--rework); color: white;
+    }
+    .btn-destructive:hover { background: #b91c1c; }
+
+    /* ===== COMPONENT 2 — STATUS PILLS ===== */
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 13px; font-weight: 500;
+      border: 1px solid;
+      backdrop-filter: blur(8px);
+    }
+    .pill-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .pill-icon { font-size: 14px; line-height: 1; }
+
+    /* status helper */
+    .pill[data-state="in-progress"]   { color: var(--in-progress);   background: color-mix(in srgb, var(--in-progress) 18%, transparent);   border-color: color-mix(in srgb, var(--in-progress) 40%, transparent);   box-shadow: 0 0 16px -2px color-mix(in srgb, var(--in-progress) 35%, transparent); }
+    .pill[data-state="to-do"]         { color: var(--to-do);         background: color-mix(in srgb, var(--to-do) 18%, transparent);         border-color: color-mix(in srgb, var(--to-do) 40%, transparent);         box-shadow: 0 0 16px -2px color-mix(in srgb, var(--to-do) 35%, transparent); }
+    .pill[data-state="in-review"]     { color: var(--in-review);     background: color-mix(in srgb, var(--in-review) 18%, transparent);     border-color: color-mix(in srgb, var(--in-review) 40%, transparent);     box-shadow: 0 0 16px -2px color-mix(in srgb, var(--in-review) 35%, transparent); }
+    .pill[data-state="design-review"] { color: var(--design-review); background: color-mix(in srgb, var(--design-review) 18%, transparent); border-color: color-mix(in srgb, var(--design-review) 40%, transparent); box-shadow: 0 0 16px -2px color-mix(in srgb, var(--design-review) 35%, transparent); }
+    .pill[data-state="rework"]        { color: var(--rework);        background: color-mix(in srgb, var(--rework) 18%, transparent);        border-color: color-mix(in srgb, var(--rework) 40%, transparent);        box-shadow: 0 0 16px -2px color-mix(in srgb, var(--rework) 35%, transparent); }
+    .pill[data-state="done"]          { color: var(--done);          background: color-mix(in srgb, var(--done) 18%, transparent);          border-color: color-mix(in srgb, var(--done) 40%, transparent);          box-shadow: 0 0 16px -2px color-mix(in srgb, var(--done) 35%, transparent); }
+    .pill[data-state="not-started"]   { color: var(--not-started);   background: color-mix(in srgb, var(--not-started) 18%, transparent);   border-color: color-mix(in srgb, var(--not-started) 40%, transparent);   box-shadow: 0 0 16px -2px color-mix(in srgb, var(--not-started) 35%, transparent); }
+    .pill[data-state="blocked"]       { color: var(--blocked);       background: color-mix(in srgb, var(--blocked) 18%, transparent);       border-color: color-mix(in srgb, var(--blocked) 40%, transparent);       box-shadow: 0 0 16px -2px color-mix(in srgb, var(--blocked) 35%, transparent); }
+    .pill[data-state="on-hold"]       { color: var(--on-hold);       background: color-mix(in srgb, var(--on-hold) 18%, transparent);       border-color: color-mix(in srgb, var(--on-hold) 40%, transparent);       box-shadow: 0 0 16px -2px color-mix(in srgb, var(--on-hold) 35%, transparent); }
+    .pill[data-state="archived"]      { color: var(--archived);      background: color-mix(in srgb, var(--archived) 18%, transparent);      border-color: color-mix(in srgb, var(--archived) 40%, transparent);      box-shadow: 0 0 16px -2px color-mix(in srgb, var(--archived) 35%, transparent); }
+    .pill[data-state] .pill-dot { background: currentColor; box-shadow: 0 0 8px currentColor; }
+
+    /* ===== COMPONENT 3 — KPI CARD ===== */
+    .kpi-card {
+      background: var(--color-bg-elevated);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-card);
+      padding: 20px 24px;
+      box-shadow: var(--shadow-card);
+      transition: all 250ms cubic-bezier(0.2, 0, 0, 1);
+    }
+    .kpi-card:hover { border-color: var(--color-border-default); box-shadow: var(--shadow-elevated); }
+    .kpi-label { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; }
+    .kpi-value-row { display: flex; align-items: baseline; gap: 12px; }
+    .kpi-value { font-size: 28px; font-weight: 600; letter-spacing: -0.025em; }
+    .kpi-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 8px; border-radius: var(--radius-pill);
+      background: color-mix(in srgb, var(--done) 18%, transparent);
+      color: var(--done);
+      font-size: 11px; font-weight: 600;
+    }
+    .kpi-badge.neg {
+      background: color-mix(in srgb, var(--rework) 18%, transparent);
+      color: var(--rework);
+    }
+
+    /* ===== COMPONENT 4 — SEARCH INPUT ===== */
+    .search {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--color-bg-overlay);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-pill);
+      padding: 10px 18px;
+      width: 360px;
+      transition: all 250ms;
+    }
+    .search:focus-within {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px var(--color-accent-soft);
+    }
+    .search input {
+      background: transparent; border: none; outline: none;
+      color: var(--color-text-primary); font-family: inherit; font-size: 14px;
+      flex: 1;
+    }
+    .search input::placeholder { color: var(--color-text-tertiary); }
+    .search-icon { font-size: 16px; color: var(--color-text-tertiary); }
+
+    /* ===== COMPONENT 5 — SIDEBAR NAV ITEM ===== */
+    .nav-mock {
+      background: var(--color-bg-base);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-card);
+      padding: 16px;
+      width: 240px;
+    }
+    .nav-section-label {
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--color-text-tertiary);
+      padding: 0 12px 8px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius-input);
+      color: var(--color-text-secondary);
+      font-size: 14px; font-weight: 500;
+      cursor: pointer; position: relative;
+      transition: all 150ms;
+    }
+    .nav-item:hover { background: var(--color-bg-overlay); color: var(--color-text-primary); }
+    .nav-item.active {
+      background: var(--color-accent-soft);
+      color: var(--color-text-primary);
+    }
+    .nav-item.active::before {
+      content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 60%; background: var(--color-accent); border-radius: 0 2px 2px 0;
+      box-shadow: var(--glow-accent-sm);
+    }
+    .nav-icon { font-size: 18px; }
+
+    /* ===== COMPONENT 6 — SIGNATURE GLOW BUTTON (Image 3) ===== */
+    .signature-button {
+      display: inline-flex; align-items: center;
+      background: linear-gradient(90deg, var(--color-bg-elevated) 0%, var(--color-bg-overlay) 100%);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-pill);
+      padding: 14px 28px; position: relative;
+      overflow: hidden;
+    }
+    .signature-button::after {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      width: 70%; height: 130%;
+      transform: translate(-30%, -50%);
+      background: radial-gradient(ellipse at left center,
+        color-mix(in srgb, var(--color-brand-500) 60%, transparent) 0%,
+        transparent 60%);
+      filter: blur(20px); pointer-events: none;
+    }
+    .signature-button > * { position: relative; z-index: 1; }
+    .signature-button .plus {
+      color: var(--color-accent); font-size: 20px; font-weight: 600; margin-right: 12px;
+    }
+    .signature-button .label1 { color: white; font-size: 16px; font-weight: 600; }
+    .signature-button .divider {
+      width: 2px; height: 20px; background: var(--color-accent); margin: 0 16px;
+      box-shadow: 0 0 12px var(--color-accent);
+    }
+    .signature-button .label2 { color: var(--color-text-secondary); font-size: 16px; font-weight: 400; }
+
+    /* ===== COMPONENT 7 — SURFACE CARD (chart container) ===== */
+    .surface-card {
+      background: var(--color-bg-elevated);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-card);
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+    }
+    .surface-card-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+    .surface-card-title { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px; }
+    .surface-card-value { font-size: 24px; font-weight: 600; letter-spacing: -0.025em; }
+    .tab-pill-row { display: flex; gap: 4px; background: var(--color-bg-overlay); border-radius: var(--radius-pill); padding: 4px; }
+    .tab-pill {
+      padding: 6px 14px; font-size: 13px; font-weight: 500;
+      color: var(--color-text-secondary);
+      border-radius: var(--radius-pill); cursor: pointer; transition: all 150ms;
+      border: none; background: transparent; font-family: inherit;
+    }
+    .tab-pill.active {
+      background: var(--color-bg-base); color: var(--color-text-primary);
+    }
+    .bar-chart { display: flex; align-items: end; gap: 12px; height: 140px; padding-top: 20px; border-top: 1px dashed var(--color-border-subtle); }
+    .bar { flex: 1; background: linear-gradient(180deg, var(--color-neutral-600) 0%, var(--color-neutral-800) 100%); border-radius: 6px 6px 0 0; position: relative; }
+    .bar.accent { background: linear-gradient(180deg, var(--color-accent) 0%, var(--color-brand-700) 100%); box-shadow: var(--glow-accent-sm); }
+
+    /* ===== TWO-COL LAYOUT ===== */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header class="preview-header">
+      <span class="preview-badge">
+        <span style="width:6px;height:6px;background:currentColor;border-radius:50%;box-shadow:0 0 6px currentColor"></span>
+        Phase 2 mockup preview
+      </span>
+      <h1 class="preview-title">SMIT-OS v4 — Component System</h1>
+      <p class="preview-subtitle">Dark-first warm cinematic · 7 components · v4 tokens applied · không phải code production, chỉ preview</p>
+    </header>
+
+    <!-- 1. BUTTONS -->
+    <section class="section">
+      <h2 class="section-title">01 · Button — primary (signature DNA) / secondary / ghost / destructive</h2>
+      <div class="row">
+        <button class="btn btn-primary">
+          <span class="btn-icon">＋</span>
+          New Payment
+        </button>
+        <button class="btn btn-primary">
+          <span class="btn-icon">＋</span>
+          Create Lead
+        </button>
+        <button class="btn btn-primary">
+          Save Changes
+        </button>
+        <button class="btn btn-secondary">Manage Balance</button>
+        <button class="btn btn-secondary">Export</button>
+        <button class="btn btn-ghost">Cancel</button>
+        <button class="btn btn-ghost">Skip</button>
+        <button class="btn btn-destructive">Delete</button>
+      </div>
+      <p style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 12px;">Primary buttons share signature DNA: dark gradient + orange beam from left + orange accent icon. Destructive kept solid red for urgency.</p>
+    </section>
+
+    <!-- 2. STATUS PILLS -->
+    <section class="section">
+      <h2 class="section-title">02 · Status pills — all 10 task states (glow per state)</h2>
+      <div class="row">
+        <span class="pill" data-state="in-progress"><span class="pill-dot"></span>In progress</span>
+        <span class="pill" data-state="to-do"><span class="pill-dot"></span>To-do</span>
+        <span class="pill" data-state="in-review"><span class="pill-dot"></span>In Review</span>
+        <span class="pill" data-state="design-review"><span class="pill-dot"></span>Design Review</span>
+        <span class="pill" data-state="rework"><span class="pill-dot"></span>Rework</span>
+        <span class="pill" data-state="done"><span class="pill-dot"></span>Done</span>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <span class="pill" data-state="not-started"><span class="pill-dot"></span>Not Started</span>
+        <span class="pill" data-state="blocked"><span class="pill-dot"></span>Blocked</span>
+        <span class="pill" data-state="on-hold"><span class="pill-dot"></span>On Hold</span>
+        <span class="pill" data-state="archived"><span class="pill-dot"></span>Archived</span>
+      </div>
+    </section>
+
+    <!-- 3. KPI CARDS -->
+    <section class="section">
+      <h2 class="section-title">03 · KPI card — pattern từ Image 4 dashboard</h2>
+      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Revenue</div>
+          <div class="kpi-value-row">
+            <span class="kpi-value">$19,270.56</span>
+            <span class="kpi-badge">↑ +8%</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Leads</div>
+          <div class="kpi-value-row">
+            <span class="kpi-value">2,431</span>
+            <span class="kpi-badge">↑ +12%</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Conversion Rate</div>
+          <div class="kpi-value-row">
+            <span class="kpi-value">3.2%</span>
+            <span class="kpi-badge neg">↓ -2%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 + 5 — SEARCH + SIDEBAR NAV ITEM -->
+    <section class="section">
+      <h2 class="section-title">04 · Search input  ·  05 · Sidebar nav item (active state)</h2>
+      <div class="two-col">
+        <div>
+          <label class="search">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search anything..." />
+          </label>
+          <div style="margin-top:12px">
+            <label class="search">
+              <span class="search-icon">🔍</span>
+              <input type="text" value="leads from facebook" />
+            </label>
+          </div>
+        </div>
+        <div class="nav-mock">
+          <div class="nav-section-label">MAIN</div>
+          <div class="nav-item">
+            <span class="nav-icon">⌂</span>
+            Overview
+          </div>
+          <div class="nav-item active">
+            <span class="nav-icon">▦</span>
+            Dashboard
+          </div>
+          <div class="nav-item">
+            <span class="nav-icon">💸</span>
+            Cashflow
+          </div>
+          <div class="nav-item">
+            <span class="nav-icon">📊</span>
+            Reports
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 — SIGNATURE GLOW BUTTON -->
+    <section class="section">
+      <h2 class="section-title">06 · Signature button (Image 3 ref — orange beam from divider)</h2>
+      <div class="row">
+        <div class="signature-button">
+          <span class="plus">＋</span>
+          <span class="label1">Create</span>
+          <span class="divider"></span>
+          <span class="label2">Lead Tracker</span>
+        </div>
+      </div>
+      <p style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 8px;">Dành cho hero CTA hoặc primary command palette — dùng tiết kiệm để giữ chất signature.</p>
+    </section>
+
+    <!-- 7 — SURFACE CARD WITH CHART -->
+    <section class="section">
+      <h2 class="section-title">07 · Surface card with tab-pills + bar chart (Cashflow widget pattern)</h2>
+      <div class="surface-card" style="max-width: 720px;">
+        <div class="surface-card-head">
+          <div>
+            <div class="surface-card-title">Cash Flow</div>
+            <div class="surface-card-value">$19,270.56</div>
+          </div>
+          <div class="tab-pill-row">
+            <button class="tab-pill active">Income</button>
+            <button class="tab-pill">Expense</button>
+            <button class="tab-pill">Saving</button>
+          </div>
+        </div>
+        <div class="bar-chart">
+          <div class="bar" style="height: 35%"></div>
+          <div class="bar" style="height: 55%"></div>
+          <div class="bar" style="height: 28%"></div>
+          <div class="bar accent" style="height: 92%"></div>
+          <div class="bar" style="height: 48%"></div>
+          <div class="bar" style="height: 38%"></div>
+          <div class="bar" style="height: 62%"></div>
+          <div class="bar" style="height: 30%"></div>
+        </div>
+      </div>
+    </section>
+
+    <footer style="margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--color-border-subtle); color: var(--color-text-tertiary); font-size: 12px;">
+      Mockup tạo 2026-05-12 02:38 · v4 tokens từ <code style="color:var(--color-accent)">src/design/v4/tokens.css</code> · Font: Inter (Google Fonts free)
+    </footer>
+
+  </div>
+</body>
+</html>
