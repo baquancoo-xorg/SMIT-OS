@@ -28,7 +28,7 @@ Foundation-first parallel migration. Build `src/design/v4/` (tokens + 30 self-bu
 | 00 | Audit + Lint Gate | **completed** 2026-05-12 | <1d (actual) | — | [phase-00-audit-and-lint-gate.md](./phase-00-audit-and-lint-gate.md) |
 | 01 | Design Tokens v4 | **completed** 2026-05-12 | <1d (actual) | 00 + visual ref ✅ | [phase-01-design-tokens-v4.md](./phase-01-design-tokens-v4.md) |
 | 02 | Components Batch 1 (8) | **completed** 2026-05-12 | <1d (actual) | 01 | [phase-02-component-primitives-batch-1.md](./phase-02-component-primitives-batch-1.md) |
-| 03 | Visual Integration + Batch 2 (22) | pending | 7-8d | 02 + 5-screen approval | [phase-03-visual-integration-and-batch-2.md](./phase-03-visual-integration-and-batch-2.md) |
+| 03 | Visual Integration + Batch 2 (22) | **completed** 2026-05-12 | <1d (actual) | 02 + 5-screen approval | [phase-03-visual-integration-and-batch-2.md](./phase-03-visual-integration-and-batch-2.md) |
 | 04 | Dashboard Rebuild + Feature Flag | pending | 5-6d | 03 | [phase-04-dashboard-rebuild.md](./phase-04-dashboard-rebuild.md) |
 | 05 | AdsTracker + LeadTracker | pending | 4-5d | 04 | [phase-05-ads-and-lead-tracker.md](./phase-05-ads-and-lead-tracker.md) |
 | 06 | MediaTracker + OKRs + DashboardOverview | pending | 5-6d | 04 | [phase-06-media-okr-overview.md](./phase-06-media-okr-overview.md) |

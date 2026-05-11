@@ -4,7 +4,7 @@
  * Import tokens.css separately from your route entry:
  *   import './design/v4/tokens.css';
  *
- * Tokens are scoped under [data-ui="v4"] — set on <html> for v4 routes only.
+ * v4 styles activate under `data-ui="v4"` (set by `<AppShell>` or manually).
  */
 
 // Utility
@@ -17,7 +17,7 @@ export { useClickOutside } from './primitives/use-click-outside.js';
 export { useFocusTrap } from './primitives/use-focus-trap.js';
 export { useKeyboardListNav } from './primitives/use-keyboard-list-nav.js';
 
-// Components — batch 1 (8)
+// ===== Batch 1 — 8 core primitives =====
 export { Button } from './components/button.js';
 export type { ButtonProps, ButtonVariant, ButtonSize } from './components/button.js';
 
@@ -41,3 +41,62 @@ export type { DropdownMenuProps, DropdownMenuItem } from './components/dropdown-
 
 export { DataTable } from './components/data-table.js';
 export type { DataTableProps, DataTableColumn, SortDirection } from './components/data-table.js';
+
+// ===== Batch 2 — 22 primitives =====
+
+// Feedback
+export { Spinner } from './components/spinner.js';
+export type { SpinnerProps, SpinnerSize } from './components/spinner.js';
+export { Skeleton } from './components/skeleton.js';
+export type { SkeletonProps, SkeletonShape } from './components/skeleton.js';
+export { StatusDot } from './components/status-dot.js';
+export type { StatusDotProps, StatusDotIntent } from './components/status-dot.js';
+export { EmptyState } from './components/empty-state.js';
+export type { EmptyStateProps } from './components/empty-state.js';
+export { ErrorBoundary } from './components/error-boundary.js';
+
+// Controls + compositions
+export { TabPill } from './components/tab-pill.js';
+export type { TabPillProps, TabPillItem } from './components/tab-pill.js';
+export { FilterChip } from './components/filter-chip.js';
+export type { FilterChipProps } from './components/filter-chip.js';
+export { KpiCard } from './components/kpi-card.js';
+export type { KpiCardProps, KpiTrend } from './components/kpi-card.js';
+export { TableRowActions } from './components/table-row-actions.js';
+export type { TableRowActionsProps } from './components/table-row-actions.js';
+
+// Forms
+export { Select } from './components/select.js';
+export type { SelectProps, SelectOption, SelectSize } from './components/select.js';
+export { CustomSelect } from './components/custom-select.js';
+export type { CustomSelectProps, CustomSelectOption } from './components/custom-select.js';
+export { DatePicker } from './components/date-picker.js';
+export type { DatePickerProps } from './components/date-picker.js';
+export { DateRangePicker } from './components/date-range-picker.js';
+export type { DateRangePickerProps, DateRange } from './components/date-range-picker.js';
+
+// Dialogs
+export { FormDialog } from './components/form-dialog.js';
+export type { FormDialogProps } from './components/form-dialog.js';
+export { ConfirmDialog } from './components/confirm-dialog.js';
+export type { ConfirmDialogProps } from './components/confirm-dialog.js';
+
+// Notifications
+export { NotificationToast } from './components/notification-toast.js';
+export type { ToastProps } from './components/notification-toast.js';
+export { NotificationProvider, useNotifications } from './components/notification-center.js';
+export type { NotificationProviderProps, ToastInput } from './components/notification-center.js';
+
+// Misc
+export { NotFoundPage } from './components/not-found-page.js';
+export type { NotFoundPageProps } from './components/not-found-page.js';
+export { OkrCycleCountdown } from './components/okr-cycle-countdown.js';
+export type { OkrCycleCountdownProps } from './components/okr-cycle-countdown.js';
+
+// Layout
+export { Header } from './components/header.js';
+export type { HeaderProps } from './components/header.js';
+export { Sidebar } from './components/sidebar.js';
+export type { SidebarProps, SidebarSection, SidebarItem } from './components/sidebar.js';
+export { AppShell } from './components/app-shell.js';
+export type { AppShellProps } from './components/app-shell.js';

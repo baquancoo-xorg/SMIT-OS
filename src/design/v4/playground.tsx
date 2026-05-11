@@ -18,6 +18,7 @@ import {
   type DataTableColumn,
   type TaskStatus,
 } from './index.js';
+import PlaygroundBatch2 from './playground-batch-2.js';
 
 const TASK_STATES: TaskStatus[] = [
   'in-progress',
@@ -193,8 +194,10 @@ export default function DesignV4Playground() {
           <DataTable columns={COLUMNS} rows={DEMO_ROWS} rowKey={(r) => r.id} onRowClick={(r) => alert(`Row: ${r.id}`)} />
         </section>
 
+        <PlaygroundBatch2 />
+
         <footer className="mt-2xl pt-lg border-t border-outline-subtle text-caption text-fg-subtle">
-          v4 Playground · DEV-only · removed at Phase 3 cutover. Tokens from <code className="text-accent">src/design/v4/tokens.css</code>.
+          v4 Playground · DEV-only · 30 primitives total. Tokens from <code className="text-accent">src/design/v4/tokens.css</code>.
         </footer>
       </div>
     </div>

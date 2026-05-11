@@ -2,6 +2,39 @@
 
 Tracks significant changes — features, removals, migrations, infra updates.
 
+## 2026-05-12 — UI Rebuild v4 Phase 3 (Batch 2 — 22 primitives)
+
+Built remaining 22 v4 primitives. Full v4 component library now at 30 components.
+
+### Created (`src/design/v4/components/`)
+- Feedback: `spinner`, `skeleton`, `status-dot`, `empty-state`, `error-boundary`
+- Controls: `tab-pill`, `filter-chip`, `kpi-card`, `table-row-actions`
+- Forms: `select` (native), `custom-select` (rich), `date-picker`, `date-range-picker`
+- Dialogs: `form-dialog`, `confirm-dialog`
+- Notifications: `notification-toast`, `notification-center` (with `NotificationProvider` + `useNotifications` hook)
+- Misc: `not-found-page`, `okr-cycle-countdown`
+- Layout: `header`, `sidebar` (collapsible sections, active orange-accent bar), `app-shell`
+
+### Created (`src/design/v4/`)
+- `playground-batch-2.tsx` — extends playground with batch 2 demos (Sidebar mini-mockup uses AppShell composition).
+- Barrel `index.ts` — exports all 30 components + types.
+
+### Validation
+- `npm run lint` exit 0 (32 v4 files, 0 raw-token violations, tsc clean).
+- `npm run build` exit 0, playground chunk 48.06 kB (gzip 12.85 — was 20.62 with 8 components).
+- TS fixes: omit `title` HTMLAttribute collision in EmptyState; remove unused `@ts-expect-error` in Sidebar.
+
+### Components total: 30 (target met)
+- Batch 1 (Phase 2): 8 — button, input, badge, surface-card, modal, dropdown-menu, data-table, page-header
+- Batch 2 (Phase 3): 22 — listed above
+
+### Notes
+- Date inputs use native `<input type="date">` with `[color-scheme:dark]` for dark calendar popup. No custom calendar UI built (KISS for v4 launch; can replace later if needed).
+- `NotificationProvider` is global — wrap once at app root (Phase 4 AppShell will include).
+- Sidebar collapses to icon-only rail when `collapsed=true`. Used by AppShell mini-mockup in playground.
+
+---
+
 ## 2026-05-12 — UI Rebuild v4 Phase 2 (Component Primitives Batch 1)
 
 Built 8 self-built primitives (no shadcn) + 4 a11y hooks + dev playground. All under [data-ui="v4"] scope.
