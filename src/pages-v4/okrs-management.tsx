@@ -17,7 +17,6 @@ export default function OkrsManagementV4() {
   return (
     <div className="flex flex-col gap-comfy">
       <PageHeader
-                subtitle="Objectives, key results, and cycle progress"
         actions={<Button variant="primary" leftIcon={<Target size={16} />}>New Objective</Button>}
       />
 

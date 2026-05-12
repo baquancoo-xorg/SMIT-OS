@@ -24,8 +24,7 @@ export default function SettingsV4() {
   return (
     <div className="flex flex-col gap-comfy">
       <PageHeader
-                subtitle="Account preferences and integrations"
-        actions={<TabPill value={tab} onChange={(v) => setTab(v as SettingsTab)} items={TABS} size="sm" />}
+        actions={<TabPill value={tab} onChange={(v) => setTab(v as SettingsTab)} items={TABS} />}
       />
 
       {tab === 'profile' && (

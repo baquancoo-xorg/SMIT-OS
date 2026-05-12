@@ -13,7 +13,6 @@ export default function ProfileV4() {
   return (
     <div className="flex flex-col gap-comfy">
       <PageHeader
-                subtitle="Personal information"
         actions={<Button variant="primary">Edit profile</Button>}
       />
       <SurfaceCard padding="md" className="flex items-start gap-comfy">

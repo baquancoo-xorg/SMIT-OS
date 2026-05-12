@@ -8,7 +8,7 @@ import { useSearchParams } from 'react-router-dom';
 import {
   Badge,
   Button,
-  DateRangePicker,
+  DateRangeButton,
   EmptyState,
   KpiCard,
   PageHeader,
@@ -98,26 +98,21 @@ export default function DashboardOverviewV4() {
   return (
     <div className="flex flex-col gap-comfy">
       <PageHeader
-                subtitle={`${urlFrom} → ${urlTo}`}
         actions={
           <>
-            <TabPill value={tab} onChange={(v) => setTab(v as DomainTab)} items={TABS} size="sm" />
-            <Button variant="secondary" size="sm">Export</Button>
+            <TabPill value={tab} onChange={(v) => setTab(v as DomainTab)} items={TABS} />
+            <DateRangeButton
+              value={range}
+              onChange={onRangeChange}
+              presets={[
+                { label: 'MTD', range: () => ({ from: defaultFrom, to: defaultTo }) },
+                { label: 'Last 30d', range: () => ({ from: format(subMonths(new Date(), 1), 'yyyy-MM-dd'), to: defaultTo }) },
+              ]}
+            />
+            <Button variant="secondary">Export</Button>
           </>
         }
       />
-
-      <SurfaceCard padding="sm" className="flex flex-wrap items-center gap-comfy">
-        <span className="text-body-sm text-fg-muted">Date range</span>
-        <DateRangePicker
-          value={range}
-          onChange={onRangeChange}
-          presets={[
-            { label: 'MTD', range: () => ({ from: defaultFrom, to: defaultTo }) },
-            { label: 'Last 30d', range: () => ({ from: format(subMonths(new Date(), 1), 'yyyy-MM-dd'), to: defaultTo }) },
-          ]}
-        />
-      </SurfaceCard>
 
       {tab === 'overview' && (
         <>

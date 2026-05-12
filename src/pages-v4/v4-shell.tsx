@@ -11,7 +11,6 @@ import {
   Clock,
   Hexagon,
   LayoutDashboard,
-  LogOut,
   MegaphoneIcon,
   Newspaper,
   PlayCircle,
@@ -125,7 +124,6 @@ function AvatarMenu() {
 }
 
 export function V4Shell({ children }: V4ShellProps) {
-  const { logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -170,18 +168,6 @@ export function V4Shell({ children }: V4ShellProps) {
               )
             }
             sections={NAV_SECTIONS(location.pathname, navigate)}
-            footer={
-              !sidebarCollapsed ? (
-                <button
-                  type="button"
-                  onClick={logout}
-                  className="flex w-full items-center gap-snug rounded-input px-snug py-snug text-body-sm text-fg-muted hover:bg-surface-overlay hover:text-fg transition-colors duration-fast"
-                >
-                  <LogOut size={16} />
-                  <span className="flex-1 text-left">Logout</span>
-                </button>
-              ) : undefined
-            }
           />
         }
       >

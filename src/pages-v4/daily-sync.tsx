@@ -10,7 +10,6 @@ export default function DailySyncV4() {
   return (
     <div className="flex flex-col gap-comfy">
       <PageHeader
-                subtitle="Today's report and team updates"
         actions={<Button variant="primary" leftIcon={<Plus size={16} />}>Submit Report</Button>}
       />
       <SurfaceCard padding="md">

@@ -5,7 +5,7 @@ import {
   Badge,
   Button,
   DataTable,
-  DateRangePicker,
+  DateRangeButton,
   EmptyState,
   FilterChip,
   KpiCard,
@@ -86,10 +86,9 @@ export default function LeadTrackerV4() {
   return (
     <div className="flex flex-col gap-comfy">
       <PageHeader
-                subtitle="Pipeline overview and recent activity"
         actions={
           <>
-            <DateRangePicker value={range} onChange={setRange} />
+            <DateRangeButton value={range} onChange={setRange} />
             <Button variant="primary" leftIcon={<Plus size={16} />}>New Lead</Button>
           </>
         }

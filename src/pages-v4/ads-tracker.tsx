@@ -5,7 +5,7 @@ import {
   Badge,
   Button,
   DataTable,
-  DateRangePicker,
+  DateRangeButton,
   EmptyState,
   KpiCard,
   PageHeader,
@@ -90,10 +90,9 @@ export default function AdsTrackerV4() {
   return (
     <div className="flex flex-col gap-comfy">
       <PageHeader
-                subtitle={`${rows.length} campaigns in range`}
         actions={
           <>
-            <DateRangePicker value={range} onChange={setRange} />
+            <DateRangeButton value={range} onChange={setRange} />
             <Button variant="primary" leftIcon={<Plus size={16} />}>New Campaign</Button>
           </>
         }

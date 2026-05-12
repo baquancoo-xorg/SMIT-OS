@@ -118,25 +118,32 @@ function SidebarSectionBlock({
         </button>
       )}
       {open && (
-        <ul className={cn('relative flex flex-col gap-tight', !collapsed && 'pl-comfy')}>
-          {/* Vertical tree connector line on the left */}
-          {!collapsed && section.items.length > 0 && (
-            <span
-              aria-hidden="true"
-              className="absolute left-snug top-0 bottom-0 w-px bg-outline-subtle"
-            />
-          )}
-          {section.items.map((item) => (
-            <li key={item.key} className="relative">
-              {!collapsed && (
-                <span
-                  aria-hidden="true"
-                  className="absolute -left-cozy top-1/2 h-px w-snug bg-outline-subtle"
-                />
-              )}
-              <SidebarItemRow item={item} collapsed={collapsed} />
-            </li>
-          ))}
+        <ul className={cn('flex flex-col gap-tight', !collapsed && 'pl-comfy')}>
+          {section.items.map((item, i) => {
+            const isLast = i === section.items.length - 1;
+            return (
+              <li key={item.key} className="relative">
+                {!collapsed && (
+                  <>
+                    {/* Vertical trunk — full height for middle items, half-height (L) for last */}
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        'absolute -left-snug top-0 w-px bg-outline',
+                        isLast ? 'h-1/2' : 'bottom-0',
+                      )}
+                    />
+                    {/* Horizontal connector from trunk to item */}
+                    <span
+                      aria-hidden="true"
+                      className="absolute -left-snug top-1/2 h-px w-snug bg-outline"
+                    />
+                  </>
+                )}
+                <SidebarItemRow item={item} collapsed={collapsed} />
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

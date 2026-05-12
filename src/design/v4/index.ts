@@ -74,6 +74,8 @@ export { DatePicker } from './components/date-picker.js';
 export type { DatePickerProps } from './components/date-picker.js';
 export { DateRangePicker } from './components/date-range-picker.js';
 export type { DateRangePickerProps, DateRange } from './components/date-range-picker.js';
+export { DateRangeButton } from './components/date-range-button.js';
+export type { DateRangeButtonProps } from './components/date-range-button.js';
 
 // Dialogs
 export { FormDialog } from './components/form-dialog.js';
