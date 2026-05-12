@@ -28,11 +28,48 @@ model User {
   approvedDailyReports DailyReport[]  @relation("ApprovedDailyReports")
   notifications        Notification[]
   crmEmployeeId        Int?           @unique
+  createdApiKeys       ApiKey[]
 
   // 2FA fields (opt-in, nullable by default)
   totpSecret      String? // AES-256-GCM encrypted TOTP secret
   totpEnabled     Boolean  @default(false)
   totpBackupCodes String[] // bcrypt-hashed backup codes, empty array by default
+}
+
+// ============================================
+// API Key Authentication (MCP Cowork integration)
+// ============================================
+
+model ApiKey {
+  id         String            @id @default(uuid())
+  name       String
+  keyHash    String            @unique // bcrypt hash of raw key, cost 10
+  prefix     String            @unique // e.g. smk_a1b2 — first 8 chars of raw key for fast lookup
+  scopes     String[]          // e.g. ["read:reports", "read:crm"]
+  createdBy  String
+  creator    User              @relation(fields: [createdBy], references: [id])
+  createdAt  DateTime          @default(now())
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  auditLogs  ApiKeyAuditLog[]
+
+  @@index([prefix])
+  @@index([revokedAt])
+}
+
+model ApiKeyAuditLog {
+  id           String   @id @default(uuid())
+  apiKeyId     String
+  apiKey       ApiKey   @relation(fields: [apiKeyId], references: [id])
+  endpoint     String   // e.g. /api/daily-reports
+  method       String   // GET, POST, etc.
+  statusCode   Int
+  responseSize Int      // bytes, from content-length header
+  userAgent    String?  // truncated to 255 chars
+  sourceIp     String?  // CF-Connecting-IP or x-forwarded-for[0] or req.ip
+  timestamp    DateTime @default(now())
+
+  @@index([apiKeyId, timestamp])
 }
 
 model Notification {

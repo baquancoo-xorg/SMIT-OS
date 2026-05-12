@@ -6,6 +6,7 @@ import {
   heatmapQuerySchema,
 } from '../schemas/dashboard-product.schema';
 import { validateQuery } from '../middleware/validate.middleware';
+import { requireAuth } from '../middleware/require-auth';
 import { getProductMetrics, getBusinessFunnel } from '../services/posthog/product-metrics.service';
 import { getProductTopFeatures } from '../services/posthog/product-features.service';
 import { getProductTrends } from '../services/posthog/product-trends.service';
@@ -23,7 +24,7 @@ const dashboardOpts = { errorShape: 'dashboard' as const };
 export function createDashboardProductRoutes() {
   const router = Router();
 
-  router.get('/summary', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
+  router.get('/summary', requireAuth(['read:dashboard']), validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
       const { from, to } = req.validatedQuery as { from: string; to: string };
       const key = cacheKey('summary', from, to);
@@ -39,7 +40,7 @@ export function createDashboardProductRoutes() {
     }
   });
 
-  router.get('/funnel', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
+  router.get('/funnel', requireAuth(['read:dashboard']), validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
       const { from, to } = req.validatedQuery as { from: string; to: string };
       const key = cacheKey('funnel', from, to);
@@ -55,7 +56,7 @@ export function createDashboardProductRoutes() {
     }
   });
 
-  router.get('/top-features', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
+  router.get('/top-features', requireAuth(['read:dashboard']), validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
       const { from, to } = req.validatedQuery as { from: string; to: string };
       const key = cacheKey('top-features', from, to);
@@ -72,7 +73,7 @@ export function createDashboardProductRoutes() {
   });
 
   // Phase 2 — Trends (line chart Pre-PQL Rate / Signup / FirstSync / Activation)
-  router.get('/trends', validateQuery(trendsQuerySchema, dashboardOpts), async (req, res) => {
+  router.get('/trends', requireAuth(['read:dashboard']), validateQuery(trendsQuerySchema, dashboardOpts), async (req, res) => {
     try {
       const { from, to, metric } = req.validatedQuery as { from: string; to: string; metric: string };
       const key = cacheKey(`trends:${metric}`, from, to);
@@ -89,7 +90,7 @@ export function createDashboardProductRoutes() {
   });
 
   // Phase 2 — Activation Heatmap (3 view variant: hour-day · cohort · business)
-  router.get('/heatmap', async (req, res) => {
+  router.get('/heatmap', requireAuth(['read:dashboard']), async (req, res) => {
     try {
       const dateParsed = dateRangeQuerySchema.safeParse(req.query);
       if (!dateParsed.success) {
@@ -125,7 +126,7 @@ export function createDashboardProductRoutes() {
   });
 
   // Phase 2 — Time-to-Value histogram (Created→FirstSync, FirstSync→PQL)
-  router.get('/ttv', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
+  router.get('/ttv', requireAuth(['read:dashboard']), validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
       const { from, to } = req.validatedQuery as { from: string; to: string };
       const key = cacheKey('ttv', from, to);
@@ -142,7 +143,7 @@ export function createDashboardProductRoutes() {
   });
 
   // Phase 2 Sprint 2 — Cohort Retention (replace iframe)
-  router.get('/cohort', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
+  router.get('/cohort', requireAuth(['read:dashboard']), validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
       const { from, to } = req.validatedQuery as { from: string; to: string };
       const key = cacheKey('cohort', from, to);
@@ -159,7 +160,7 @@ export function createDashboardProductRoutes() {
   });
 
   // Phase 2 Sprint 2 — Channel attribution (CRM + PostHog)
-  router.get('/channel', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
+  router.get('/channel', requireAuth(['read:dashboard']), validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
       const { from, to } = req.validatedQuery as { from: string; to: string };
       const key = cacheKey('channel', from, to);
@@ -176,7 +177,7 @@ export function createDashboardProductRoutes() {
   });
 
   // Phase 2 Sprint 3 — Operational (online time table + touchpoints top 50)
-  router.get('/operational', validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
+  router.get('/operational', requireAuth(['read:dashboard']), validateQuery(dateRangeQuerySchema, dashboardOpts), async (req, res) => {
     try {
       const { from, to } = req.validatedQuery as { from: string; to: string };
       const key = cacheKey('operational', from, to);
@@ -194,7 +195,7 @@ export function createDashboardProductRoutes() {
 
   // Phase 2 Sprint 3 — Stuck businesses TRACKING-ONLY (Master Plan §1.4)
   // Note: keeps inline parse (optional from/to, falls back to all-time)
-  router.get('/stuck', async (req, res) => {
+  router.get('/stuck', requireAuth(['read:dashboard']), async (req, res) => {
     try {
       const parsed = dateRangeQuerySchema.safeParse(req.query);
       const from = parsed.success ? parsed.data.from : undefined;

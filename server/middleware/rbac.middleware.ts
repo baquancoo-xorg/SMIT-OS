@@ -35,8 +35,9 @@ export function rbac(options: RBACOptions = {}) {
       }
     }
 
-    // Self-access check (for /users/:id routes)
-    if (options.allowSelf && req.params.id === user.userId) {
+    // Self-access check (for /users/:id routes) — api-key users have no userId, skip
+    const userId = user.type === 'api-key' ? undefined : user.userId;
+    if (options.allowSelf && req.params.id === userId) {
       return next();
     }
 

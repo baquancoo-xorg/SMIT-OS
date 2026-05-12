@@ -7,6 +7,7 @@ import { createDailyReportSchema, approveReportSchema } from '../schemas/report.
 import { createOwnershipMiddleware } from '../middleware/ownership.middleware';
 import { createNotificationService } from '../services/notification.service';
 import { childLogger } from '../lib/logger';
+import { requireAuth } from '../middleware/require-auth';
 
 const log = childLogger('daily-report');
 
@@ -15,7 +16,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
   const checkOwnership = createOwnershipMiddleware(prisma);
   const notificationService = createNotificationService(prisma);
 
-  router.get('/', handleAsync(async (_req: any, res: any) => {
+  router.get('/', requireAuth(['read:reports']), handleAsync(async (_req: any, res: any) => {
     // Read-shared: every authenticated user sees all daily reports.
     // Mutation/approve are still gated below (own-only / admin-only).
     const reports = await prisma.dailyReport.findMany({
@@ -28,7 +29,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
     res.json(reports);
   }));
 
-  router.get('/:id', handleAsync(async (req: any, res: any) => {
+  router.get('/:id', requireAuth(['read:reports']), handleAsync(async (req: any, res: any) => {
     const report = await prisma.dailyReport.findUnique({
       where: { id: req.params.id },
       include: {

@@ -5,13 +5,14 @@ import { getSummaryMetrics } from '../services/dashboard/overview-summary.servic
 import { getKpiMetrics } from '../services/dashboard/overview-kpi.service';
 import { getCohortKpiMetrics } from '../services/dashboard/overview-cohort.service';
 import { previousPeriod, parseFromTo } from '../lib/date-utils';
+import { requireAuth } from '../middleware/require-auth';
 
 const dashboardOpts = { errorShape: 'dashboard' as const };
 
 export function createDashboardOverviewRoutes() {
   const router = Router();
 
-  router.get('/summary', validateQuery(overviewQuerySchema, dashboardOpts), async (req, res) => {
+  router.get('/summary', requireAuth(['read:dashboard']), validateQuery(overviewQuerySchema, dashboardOpts), async (req, res) => {
     try {
       const q = req.validatedQuery as any;
       const { from, to } = parseFromTo(q.from, q.to);
@@ -40,7 +41,7 @@ export function createDashboardOverviewRoutes() {
     }
   });
 
-  router.get('/kpi-metrics', validateQuery(kpiQuerySchema, dashboardOpts), async (req, res) => {
+  router.get('/kpi-metrics', requireAuth(['read:dashboard']), validateQuery(kpiQuerySchema, dashboardOpts), async (req, res) => {
     try {
       const q = req.validatedQuery as any;
       const { from, to } = parseFromTo(q.from, q.to);
@@ -60,7 +61,7 @@ export function createDashboardOverviewRoutes() {
     }
   });
 
-  router.get('/', validateQuery(overviewQuerySchema, dashboardOpts), async (req, res) => {
+  router.get('/', requireAuth(['read:dashboard']), validateQuery(overviewQuerySchema, dashboardOpts), async (req, res) => {
     try {
       const q = req.validatedQuery as any;
       const { from, to } = parseFromTo(q.from, q.to);

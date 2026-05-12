@@ -45,7 +45,7 @@ describe('auth.service', () => {
     const remaining = authService.getTokenRemaining(token);
     assert.ok(remaining !== null);
     assert.ok(remaining! > 0);
-    assert.ok(remaining! <= 4 * 3600); // <= 4h
+    assert.ok(remaining! <= 24 * 3600); // <= 24h (extended from 4h in commit 68d94d5)
   });
 });
 

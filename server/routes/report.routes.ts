@@ -7,6 +7,7 @@ import { handleAsync } from '../utils/async-handler';
 import { validate } from '../middleware/validate.middleware';
 import { createWeeklyReportSchema, updateWeeklyReportSchema, approveReportSchema } from '../schemas/report.schema';
 import { createOwnershipMiddleware } from '../middleware/ownership.middleware';
+import { requireAuth } from '../middleware/require-auth';
 
 export function createReportRoutes(prisma: PrismaClient) {
   const router = Router();
@@ -14,7 +15,7 @@ export function createReportRoutes(prisma: PrismaClient) {
   const notificationService = createNotificationService(prisma);
   const checkOwnership = createOwnershipMiddleware(prisma);
 
-  router.get('/', handleAsync(async (_req: any, res: any) => {
+  router.get('/', requireAuth(['read:reports']), handleAsync(async (_req: any, res: any) => {
     const reports = await prisma.weeklyReport.findMany({
       include: {
         user: true,
@@ -25,7 +26,7 @@ export function createReportRoutes(prisma: PrismaClient) {
     res.json(reports);
   }));
 
-  router.get('/:id', handleAsync(async (req: any, res: any) => {
+  router.get('/:id', requireAuth(['read:reports']), handleAsync(async (req: any, res: any) => {
     const report = await prisma.weeklyReport.findUnique({
       where: { id: req.params.id },
       include: {

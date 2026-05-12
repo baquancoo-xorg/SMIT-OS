@@ -15,6 +15,7 @@ import {
 } from '../services/ads/attribution.service';
 import { spendInVnd, getCachedVndRate } from '../services/ads/currency-helper';
 import { prisma } from '../lib/prisma';
+import { requireAuth } from '../middleware/require-auth';
 
 // In-memory mutex for /sync (admin can double-click).
 let syncInFlight: Promise<unknown> | null = null;
@@ -38,7 +39,7 @@ export function createAdsTrackerRoutes() {
   const router = Router();
 
   // GET /api/ads-tracker/campaigns
-  router.get('/campaigns', async (req, res) => {
+  router.get('/campaigns', requireAuth(['read:ads']), async (req, res) => {
     try {
       const { from, to } = parseDateRange(req);
       const campaigns = await prisma.adCampaign.findMany({
@@ -94,7 +95,7 @@ export function createAdsTrackerRoutes() {
   });
 
   // GET /api/ads-tracker/campaigns/:id
-  router.get('/campaigns/:id', async (req, res) => {
+  router.get('/campaigns/:id', requireAuth(['read:ads']), async (req, res) => {
     try {
       const campaign = await prisma.adCampaign.findUnique({
         where: { id: req.params.id },
@@ -135,7 +136,7 @@ export function createAdsTrackerRoutes() {
   });
 
   // GET /api/ads-tracker/attribution
-  router.get('/attribution', async (req, res) => {
+  router.get('/attribution', requireAuth(['read:ads']), async (req, res) => {
     try {
       const summary = await getAttributionSummary(parseDateRange(req));
       res.json(ok({ campaigns: summary }));
@@ -146,7 +147,7 @@ export function createAdsTrackerRoutes() {
   });
 
   // GET /api/ads-tracker/attribution/unmatched
-  router.get('/attribution/unmatched', async (req, res) => {
+  router.get('/attribution/unmatched', requireAuth(['read:ads']), async (req, res) => {
     try {
       const unmatched = await getUnmatchedLeadSources(parseDateRange(req));
       res.json(ok({ unmatched }));
@@ -157,7 +158,7 @@ export function createAdsTrackerRoutes() {
   });
 
   // GET /api/ads-tracker/attribution/:campaignId  → single campaign
-  router.get('/attribution/campaign/:campaignId', async (req, res) => {
+  router.get('/attribution/campaign/:campaignId', requireAuth(['read:ads']), async (req, res) => {
     try {
       const result = await getCampaignAttribution(req.params.campaignId, parseDateRange(req));
       if (!result) {

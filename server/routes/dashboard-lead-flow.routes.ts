@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { getLeadFlow } from '../services/dashboard/lead-flow.service';
+import { requireAuth } from '../middleware/require-auth';
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD');
 
@@ -33,7 +34,7 @@ function parseVnDateRange(fromRaw: string, toRaw: string) {
 export function createDashboardLeadFlowRoutes() {
   const router = Router();
 
-  router.get('/lead-flow', async (req, res) => {
+  router.get('/lead-flow', requireAuth(['read:crm']), async (req, res) => {
     try {
       const parsed = querySchema.safeParse(req.query);
       if (!parsed.success) {
