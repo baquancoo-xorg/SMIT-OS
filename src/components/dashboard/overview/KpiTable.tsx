@@ -421,13 +421,13 @@ export const KpiTable = memo(function KpiTable({
                   <span className={denseTable.headerCell}>MQL (3 tiers)</span>
                 </th>
                 <th className="px-3 py-2.5 text-right bg-surface-variant/30">
-                  <span className={denseTable.headerCell}>Pre-PQL</span>
+                  <span className={denseTable.headerCell}>First Sync</span>
                 </th>
                 <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <span className={denseTable.headerCell}>PQL</span>
                 </th>
                 <th className="px-3 py-2.5 text-right bg-surface-variant/30">
-                  <span className={denseTable.headerCell}>Pre-SQL</span>
+                  <span className={denseTable.headerCell}>First Touch</span>
                 </th>
                 <th className="px-3 py-2.5 text-right bg-surface-variant/30">
                   <span className={denseTable.headerCell}>SQL</span>
