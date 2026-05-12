@@ -9,7 +9,9 @@ export interface BreadcrumbItem {
 }
 
 export interface PageHeaderProps extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
-  title: ReactNode;
+  /** Optional title. If the global Header already renders the page title (V4Shell case),
+   *  omit this and use `subtitle` + `actions` only. */
+  title?: ReactNode;
   subtitle?: ReactNode;
   /** Optional breadcrumb trail above the title. */
   breadcrumbs?: BreadcrumbItem[];
@@ -78,11 +80,15 @@ export function PageHeader({
           })}
         </nav>
       )}
-      <div className="flex items-start justify-between gap-comfy">
-        <div className="min-w-0">
-          <h1 className="text-h3 font-semibold tracking-tight text-fg truncate">{title}</h1>
-          {subtitle && <p className="mt-tight text-body-sm text-fg-muted">{subtitle}</p>}
-        </div>
+      <div className="flex items-center justify-between gap-comfy">
+        {(title || subtitle) ? (
+          <div className="min-w-0">
+            {title && <h1 className="text-h3 font-semibold tracking-tight text-fg truncate">{title}</h1>}
+            {subtitle && <p className={cn(title && 'mt-tight', 'text-body-sm text-fg-muted')}>{subtitle}</p>}
+          </div>
+        ) : (
+          <span aria-hidden="true" />
+        )}
         {actions && <div className="flex shrink-0 items-center gap-snug">{actions}</div>}
       </div>
     </header>

@@ -10,8 +10,7 @@ export default function WeeklyCheckinV4() {
   return (
     <div className="flex flex-col gap-comfy">
       <PageHeader
-        title="Weekly Checkin"
-        subtitle="Submit and review weekly check-ins"
+                subtitle="Submit and review weekly check-ins"
         actions={<Button variant="primary" leftIcon={<ClipboardList size={16} />}>New Checkin</Button>}
       />
       <SurfaceCard padding="md">

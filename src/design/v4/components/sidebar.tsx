@@ -1,17 +1,14 @@
 import { useState, type ReactNode } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { cn } from '../lib/cn';
 
 export interface SidebarItem {
   key: string;
   label: ReactNode;
   icon?: ReactNode;
-  /** Mark this item active. */
   active?: boolean;
-  /** Optional badge content (e.g. count). */
   badge?: ReactNode;
   onClick?: () => void;
-  /** Pass href for anchor-style nav. If both onClick and href set, both fire. */
   href?: string;
   disabled?: boolean;
 }
@@ -20,54 +17,77 @@ export interface SidebarSection {
   key: string;
   label?: ReactNode;
   items: SidebarItem[];
-  /** Initially collapsed. Default false. */
   collapsedByDefault?: boolean;
 }
 
 export interface SidebarProps {
   sections: SidebarSection[];
-  /** Brand/logo slot rendered at top. */
+  /** Brand/logo slot rendered at top-left of sidebar header. */
   brand?: ReactNode;
   /** Footer slot (e.g. promo card, user). */
   footer?: ReactNode;
-  /** Collapse to icon-only rail. */
+  /** Collapsed-to-rail mode (icon-only). */
   collapsed?: boolean;
+  /** Called when user clicks the collapse toggle (top-right of header). */
+  onToggleCollapse?: () => void;
   className?: string;
 }
 
 /**
- * v4 Sidebar — vertical nav with collapsible sections, active orange-accent bar.
- * Active items get a left-edge orange bar + accent-soft background.
- *
- * @example
- *   <Sidebar
- *     sections={[{
- *       label: 'MAIN',
- *       items: [
- *         { key:'dash', label:'Dashboard', icon:<HomeIcon />, active:true },
- *         { key:'leads', label:'Leads', badge:'12' },
- *       ]
- *     }]}
- *   />
+ * v4 Sidebar — vertical nav inspired by Image 17:
+ * - Logo top-left + collapse toggle top-right inside sidebar header
+ * - Indented items with vertical tree connector
+ * - Horizontal divider lines between sections
+ * - Section labels with collapse chevron
  */
-export function Sidebar({ sections, brand, footer, collapsed = false, className }: SidebarProps) {
+export function Sidebar({ sections, brand, footer, collapsed = false, onToggleCollapse, className }: SidebarProps) {
   return (
     <aside
       className={cn(
         'flex flex-col bg-surface border-r border-outline-subtle z-sidebar',
-        collapsed ? 'w-16' : 'w-60',
+        collapsed ? 'w-16' : 'w-64',
         'transition-[width] duration-medium ease-standard',
         className,
       )}
     >
-      {brand && (
-        <div className={cn('flex items-center h-[var(--header-h)] px-cozy', collapsed && 'justify-center px-tight')}>
-          {brand}
+      {(brand || onToggleCollapse) && (
+        <div
+          className={cn(
+            'flex items-center gap-snug h-[var(--header-h)] px-comfy border-b border-outline-subtle',
+            collapsed ? 'justify-center px-tight' : 'justify-between',
+          )}
+        >
+          {brand && <div className={cn('flex items-center min-w-0', collapsed && 'shrink-0')}>{brand}</div>}
+          {onToggleCollapse && !collapsed && (
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              aria-label="Collapse sidebar"
+              className="inline-flex size-7 items-center justify-center rounded-input text-fg-muted hover:text-fg hover:bg-surface-overlay transition-colors duration-fast"
+            >
+              <PanelLeftClose size={16} />
+            </button>
+          )}
+          {onToggleCollapse && collapsed && (
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              aria-label="Expand sidebar"
+              className="inline-flex size-7 items-center justify-center rounded-input text-fg-muted hover:text-fg hover:bg-surface-overlay transition-colors duration-fast"
+            >
+              <PanelLeftOpen size={16} />
+            </button>
+          )}
         </div>
       )}
-      <nav className="flex-1 overflow-y-auto px-snug py-cozy">
-        {sections.map((section) => (
-          <SidebarSectionBlock key={section.key} section={section} collapsed={collapsed} />
+      <nav className="flex-1 overflow-y-auto px-comfy py-comfy">
+        {sections.map((section, i) => (
+          <SidebarSectionBlock
+            key={section.key}
+            section={section}
+            collapsed={collapsed}
+            showTopDivider={i > 0 && !collapsed}
+          />
         ))}
       </nav>
       {footer && <div className="border-t border-outline-subtle p-cozy">{footer}</div>}
@@ -75,24 +95,45 @@ export function Sidebar({ sections, brand, footer, collapsed = false, className 
   );
 }
 
-function SidebarSectionBlock({ section, collapsed }: { section: SidebarSection; collapsed: boolean }) {
+function SidebarSectionBlock({
+  section,
+  collapsed,
+  showTopDivider,
+}: {
+  section: SidebarSection;
+  collapsed: boolean;
+  showTopDivider: boolean;
+}) {
   const [open, setOpen] = useState(!section.collapsedByDefault);
   return (
-    <div className="mb-cozy">
+    <div className={cn('mb-cozy', showTopDivider && 'pt-cozy border-t border-outline-subtle')}>
       {section.label && !collapsed && (
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="flex w-full items-center justify-between px-snug py-tight text-caption font-semibold uppercase tracking-widest text-fg-subtle hover:text-fg-muted"
+          className="flex w-full items-center justify-between mb-tight px-tight py-tight text-caption font-semibold uppercase tracking-widest text-fg-subtle hover:text-fg-muted"
         >
           <span>{section.label}</span>
           {open ? <ChevronDown size={12} aria-hidden="true" /> : <ChevronRight size={12} aria-hidden="true" />}
         </button>
       )}
       {open && (
-        <ul className="flex flex-col gap-tight">
+        <ul className={cn('relative flex flex-col gap-tight', !collapsed && 'pl-comfy')}>
+          {/* Vertical tree connector line on the left */}
+          {!collapsed && section.items.length > 0 && (
+            <span
+              aria-hidden="true"
+              className="absolute left-snug top-0 bottom-0 w-px bg-outline-subtle"
+            />
+          )}
           {section.items.map((item) => (
-            <li key={item.key}>
+            <li key={item.key} className="relative">
+              {!collapsed && (
+                <span
+                  aria-hidden="true"
+                  className="absolute -left-cozy top-1/2 h-px w-snug bg-outline-subtle"
+                />
+              )}
               <SidebarItemRow item={item} collapsed={collapsed} />
             </li>
           ))}
@@ -114,18 +155,23 @@ function SidebarItemRow({ item, collapsed }: { item: SidebarItem; collapsed: boo
       className={cn(
         'group relative flex w-full items-center gap-snug rounded-input px-snug py-snug text-body-sm transition-colors duration-fast',
         'disabled:opacity-50 disabled:cursor-not-allowed',
+        collapsed && 'justify-center',
         item.active
           ? 'bg-accent-soft text-fg'
           : 'text-fg-muted hover:bg-surface-overlay hover:text-fg',
       )}
     >
-      {item.active && !collapsed && (
-        <span aria-hidden="true" className="absolute left-0 top-1/2 -translate-y-1/2 h-3/5 w-px bg-accent shadow-glow-sm" />
+      {item.icon && (
+        <span
+          aria-hidden="true"
+          className={cn('inline-flex shrink-0', item.active && 'text-accent')}
+        >
+          {item.icon}
+        </span>
       )}
-      {item.icon && <span aria-hidden="true" className={cn('inline-flex shrink-0', item.active && 'text-accent')}>{item.icon}</span>}
       {!collapsed && (
         <>
-          <span className="flex-1 truncate">{item.label}</span>
+          <span className="flex-1 truncate text-left">{item.label}</span>
           {item.badge && (
             <span className="inline-flex items-center justify-center rounded-pill bg-surface-overlay px-tight text-caption text-fg-subtle">
               {item.badge}

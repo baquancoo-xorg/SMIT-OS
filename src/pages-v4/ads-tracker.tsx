@@ -90,8 +90,7 @@ export default function AdsTrackerV4() {
   return (
     <div className="flex flex-col gap-comfy">
       <PageHeader
-        title="Ads Tracker"
-        subtitle={`${rows.length} campaigns in range`}
+                subtitle={`${rows.length} campaigns in range`}
         actions={
           <>
             <DateRangePicker value={range} onChange={setRange} />

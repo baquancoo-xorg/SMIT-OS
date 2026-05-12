@@ -86,8 +86,7 @@ export default function LeadTrackerV4() {
   return (
     <div className="flex flex-col gap-comfy">
       <PageHeader
-        title="Lead Tracker"
-        subtitle="Pipeline overview and recent activity"
+                subtitle="Pipeline overview and recent activity"
         actions={
           <>
             <DateRangePicker value={range} onChange={setRange} />

@@ -1,15 +1,15 @@
 /**
  * v4 AppShell wrapper — shared layout for all /v4/* routes.
- * Wraps page content with v4 Sidebar + Header + AppShell + NotificationProvider.
+ * Logo lives inside Sidebar (top-left). Header carries page title + icon buttons + avatar.
  */
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  BarChart3,
+  Bell,
   CalendarCheck,
   ClipboardList,
+  Clock,
   Hexagon,
-  Home,
   LayoutDashboard,
   LogOut,
   MegaphoneIcon,
@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import {
   AppShell,
-  Button,
+  DropdownMenu,
   Header,
   NotificationProvider,
   Sidebar,
@@ -32,6 +32,23 @@ import { useAuth } from '../contexts/AuthContext';
 
 interface V4ShellProps {
   children: ReactNode;
+}
+
+const ROUTE_TITLES: Array<{ prefix: string; title: string }> = [
+  { prefix: '/v4/dashboard', title: 'Dashboard' },
+  { prefix: '/v4/leads', title: 'Lead Tracker' },
+  { prefix: '/v4/ads', title: 'Ads Tracker' },
+  { prefix: '/v4/media', title: 'Media Tracker' },
+  { prefix: '/v4/okrs', title: 'OKR Management' },
+  { prefix: '/v4/daily-sync', title: 'Daily Sync' },
+  { prefix: '/v4/checkin', title: 'Weekly Checkin' },
+  { prefix: '/v4/settings', title: 'Settings' },
+  { prefix: '/v4/profile', title: 'Profile' },
+];
+
+function pageTitle(pathname: string): string {
+  const match = ROUTE_TITLES.find((r) => pathname.startsWith(r.prefix));
+  return match?.title ?? 'SMIT OS';
 }
 
 const NAV_SECTIONS = (currentPath: string, navigate: (p: string) => void): SidebarSection[] => [
@@ -64,10 +81,54 @@ const NAV_SECTIONS = (currentPath: string, navigate: (p: string) => void): Sideb
   },
 ];
 
-export function V4Shell({ children }: V4ShellProps) {
+function HeaderIconButton({ icon, label, onClick }: { icon: ReactNode; label: string; onClick?: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      className="inline-flex size-9 items-center justify-center rounded-pill bg-surface-overlay border border-outline-subtle text-fg-muted hover:text-fg hover:border-outline transition-colors duration-fast"
+    >
+      {icon}
+    </button>
+  );
+}
+
+function AvatarMenu() {
   const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
+  const initials = (currentUser?.fullName ?? currentUser?.username ?? '?').slice(0, 1).toUpperCase();
+
+  return (
+    <DropdownMenu
+      align="bottom-end"
+      items={[
+        { key: 'profile', label: 'Profile', onSelect: () => navigate('/v4/profile') },
+        { key: 'settings', label: 'Settings', onSelect: () => navigate('/v4/settings') },
+        { key: 'logout', label: 'Logout', danger: true, onSelect: () => logout() },
+      ]}
+      trigger={
+        <button
+          type="button"
+          aria-label="Account menu"
+          className="inline-flex size-9 items-center justify-center rounded-pill bg-accent-soft text-accent ring-2 ring-accent/40 hover:ring-accent/60 transition-shadow duration-fast"
+        >
+          {currentUser?.avatar ? (
+            <img src={currentUser.avatar} alt="" className="size-9 rounded-pill object-cover" />
+          ) : (
+            <span className="text-body-sm font-semibold">{initials}</span>
+          )}
+        </button>
+      }
+    />
+  );
+}
+
+export function V4Shell({ children }: V4ShellProps) {
+  const { logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     document.documentElement.dataset.ui = 'v4';
@@ -81,40 +142,45 @@ export function V4Shell({ children }: V4ShellProps) {
       <AppShell
         header={
           <Header
-            brand={
-              <button
-                type="button"
-                onClick={() => navigate('/v4/dashboard')}
-                className="inline-flex items-center gap-snug font-semibold text-fg hover:text-accent transition-colors"
-              >
-                <Hexagon size={20} className="text-accent" />
-                <span>SMIT</span>
-              </button>
-            }
+            title={pageTitle(location.pathname)}
             actions={
               <>
-                <span className="text-body-sm text-fg-muted">
-                  {currentUser?.fullName ?? currentUser?.username ?? 'Guest'}
-                </span>
-                <Button variant="ghost" size="sm" leftIcon={<LogOut size={14} />} onClick={logout}>
-                  Logout
-                </Button>
+                <HeaderIconButton icon={<Clock size={16} />} label="History" />
+                <HeaderIconButton icon={<Bell size={16} />} label="Notifications" />
+                <AvatarMenu />
               </>
             }
           />
         }
         sidebar={
           <Sidebar
+            collapsed={sidebarCollapsed}
+            onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
+            brand={
+              !sidebarCollapsed ? (
+                <button
+                  type="button"
+                  onClick={() => navigate('/v4/dashboard')}
+                  className="inline-flex items-center gap-snug font-semibold text-fg hover:text-accent transition-colors"
+                >
+                  <Hexagon size={22} className="text-accent" />
+                </button>
+              ) : (
+                <Hexagon size={22} className="text-accent" />
+              )
+            }
             sections={NAV_SECTIONS(location.pathname, navigate)}
             footer={
-              <button
-                type="button"
-                onClick={() => navigate('/v4/dashboard')}
-                className="flex w-full items-center gap-snug rounded-input bg-surface-warm px-snug py-snug text-body-sm text-fg hover:opacity-90 transition-opacity"
-              >
-                <Home size={16} className="text-accent" />
-                <span className="flex-1 text-left">Back to v4 home</span>
-              </button>
+              !sidebarCollapsed ? (
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="flex w-full items-center gap-snug rounded-input px-snug py-snug text-body-sm text-fg-muted hover:bg-surface-overlay hover:text-fg transition-colors duration-fast"
+                >
+                  <LogOut size={16} />
+                  <span className="flex-1 text-left">Logout</span>
+                </button>
+              ) : undefined
             }
           />
         }

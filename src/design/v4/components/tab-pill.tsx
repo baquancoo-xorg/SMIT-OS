@@ -19,8 +19,15 @@ export interface TabPillProps<V extends string = string> {
   'aria-label'?: string;
 }
 
-const sizeClass = {
-  sm: 'h-8 text-caption px-snug',
+// Heights match Button sizes so a TabPill + Button row aligns flush.
+// Button sm = h-9, md = h-11. Inner tab buttons sit 4px shorter (track has p-tight = ~4px).
+const trackSizeClass = {
+  sm: 'h-9 p-tight',
+  md: 'h-11 p-tight',
+} as const;
+
+const itemSizeClass = {
+  sm: 'h-7 text-caption px-snug',
   md: 'h-9 text-body-sm px-cozy',
 } as const;
 
@@ -34,7 +41,11 @@ export function TabPill<V extends string = string>({ value, onChange, items, siz
   return (
     <div
       role="tablist"
-      className={cn('inline-flex items-center gap-tight rounded-pill bg-surface-overlay p-tight border border-outline-subtle', className)}
+      className={cn(
+        'inline-flex items-center gap-tight rounded-pill bg-surface-overlay border border-outline-subtle',
+        trackSizeClass[size],
+        className,
+      )}
       {...rest}
     >
       {items.map((item) => {
@@ -50,7 +61,7 @@ export function TabPill<V extends string = string>({ value, onChange, items, siz
             className={cn(
               'inline-flex items-center gap-tight rounded-pill font-medium transition-colors duration-fast',
               'disabled:opacity-40 disabled:cursor-not-allowed',
-              sizeClass[size],
+              itemSizeClass[size],
               active
                 ? 'bg-surface text-fg shadow-card'
                 : 'text-fg-muted hover:text-fg',

@@ -98,8 +98,7 @@ export default function DashboardOverviewV4() {
   return (
     <div className="flex flex-col gap-comfy">
       <PageHeader
-        title="Dashboard"
-        subtitle={`${urlFrom} → ${urlTo}`}
+                subtitle={`${urlFrom} → ${urlTo}`}
         actions={
           <>
             <TabPill value={tab} onChange={(v) => setTab(v as DomainTab)} items={TABS} size="sm" />

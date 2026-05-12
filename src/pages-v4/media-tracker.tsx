@@ -86,8 +86,7 @@ export default function MediaTrackerV4() {
   return (
     <div className="flex flex-col gap-comfy">
       <PageHeader
-        title="Media Tracker"
-        subtitle={`${rows.length} media items in range`}
+                subtitle={`${rows.length} media items in range`}
         actions={
           <>
             <DateRangePicker value={range} onChange={setRange} />
