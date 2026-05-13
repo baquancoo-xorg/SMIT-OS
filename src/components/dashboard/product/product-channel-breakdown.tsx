@@ -75,10 +75,10 @@ export function ProductChannelBreakdown({ range }: ProductChannelBreakdownProps)
         <div className="h-[320px] rounded-card border border-outline-variant/40 p-2">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.crm} layout="vertical" margin={{ top: 8, right: 32, left: 8, bottom: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--md-sys-color-outline-variant, var(--sys-color-border))" />
               <XAxis
                 type="number"
-                tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 700 }}
+                tick={{ fontSize: 11, fill: 'var(--sys-color-text-2)', fontWeight: 700 }}
                 axisLine={false}
                 tickLine={false}
                 allowDecimals={false}
@@ -86,14 +86,14 @@ export function ProductChannelBreakdown({ range }: ProductChannelBreakdownProps)
               <YAxis
                 type="category"
                 dataKey="source"
-                tick={{ fontSize: 11, fill: '#475569', fontWeight: 700 }}
+                tick={{ fontSize: 11, fill: 'var(--sys-color-text-2)', fontWeight: 700 }}
                 axisLine={false}
                 tickLine={false}
                 width={90}
               />
-              <Tooltip content={<ChannelTooltip />} cursor={{ fill: '#f1f5f9' }} />
-              <Bar dataKey="signupCount" fill="#0ea5e9" radius={[0, 6, 6, 0]}>
-                <LabelList dataKey="signupCount" position="right" style={{ fontSize: 11, fontWeight: 700, fill: '#475569' }} />
+              <Tooltip content={<ChannelTooltip />} cursor={{ fill: 'var(--md-sys-color-surface-container-low, var(--sys-color-surface-3))' }} />
+              <Bar dataKey="signupCount" fill="var(--color-info)" radius={[0, 6, 6, 0]}>
+                <LabelList dataKey="signupCount" position="right" style={{ fontSize: 11, fontWeight: 700, fill: 'var(--sys-color-text-2)' }} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>

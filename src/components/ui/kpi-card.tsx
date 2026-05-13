@@ -100,7 +100,7 @@ export const KpiCard = forwardRef<HTMLDivElement, KpiCardProps>(
         aria-busy={loading || undefined}
         className={[
           'group relative overflow-hidden rounded-card',
-          'border border-outline-variant/40 bg-white shadow-lg',
+          'border border-outline-variant/40 bg-surface shadow-lg',
           'p-5 transition-all motion-medium ease-standard',
           'hover:shadow-xl hover:-translate-y-px hover:border-outline-variant/70',
           loading ? 'opacity-60' : '',

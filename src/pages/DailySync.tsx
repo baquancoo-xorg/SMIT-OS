@@ -343,7 +343,7 @@ export default function DailySyncV2() {
                 current={sortKey}
                 dir={sortDir}
                 onClick={toggleSort}
-                className={`${contract.headerCell} sticky top-0 z-20 bg-white`}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-surface`}
               >
                 Reporter
               </SortableTh>
@@ -352,7 +352,7 @@ export default function DailySyncV2() {
                 current={sortKey}
                 dir={sortDir}
                 onClick={toggleSort}
-                className={`${contract.headerCell} sticky top-0 z-20 bg-white`}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-surface`}
               >
                 Date
               </SortableTh>
@@ -361,7 +361,7 @@ export default function DailySyncV2() {
                 current={sortKey}
                 dir={sortDir}
                 onClick={toggleSort}
-                className={`${contract.headerCell} sticky top-0 z-20 bg-white`}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-surface`}
               >
                 Status
               </SortableTh>
@@ -370,7 +370,7 @@ export default function DailySyncV2() {
                 current={sortKey}
                 dir={sortDir}
                 onClick={toggleSort}
-                className={`${contract.headerCell} sticky top-0 z-20 bg-white hidden md:table-cell`}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-surface hidden md:table-cell`}
               >
                 Submission
               </SortableTh>
@@ -379,11 +379,11 @@ export default function DailySyncV2() {
                 current={sortKey}
                 dir={sortDir}
                 onClick={toggleSort}
-                className={`${contract.headerCell} sticky top-0 z-20 bg-white hidden lg:table-cell`}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-surface hidden lg:table-cell`}
               >
                 Created
               </SortableTh>
-              <th className={`${contract.actionHeaderCell} sticky top-0 z-20 bg-white`}>Actions</th>
+              <th className={`${contract.actionHeaderCell} sticky top-0 z-20 bg-surface`}>Actions</th>
             </tr>
           </thead>
           <tbody className={contract.body}>

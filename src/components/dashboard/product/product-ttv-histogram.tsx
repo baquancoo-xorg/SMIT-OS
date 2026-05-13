@@ -82,22 +82,22 @@ export function ProductTtvHistogram({ range }: ProductTtvHistogramProps) {
         <div className="h-[280px] rounded-card border border-outline-variant/40 p-2">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={ttvStep.buckets} margin={{ top: 20, right: 16, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--md-sys-color-outline-variant, var(--sys-color-border))" />
               <XAxis
                 dataKey="label"
-                tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 700 }}
+                tick={{ fontSize: 11, fill: 'var(--sys-color-text-2)', fontWeight: 700 }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 700 }}
+                tick={{ fontSize: 11, fill: 'var(--sys-color-text-2)', fontWeight: 700 }}
                 axisLine={false}
                 tickLine={false}
                 allowDecimals={false}
               />
-              <Tooltip content={<HistogramTooltip />} cursor={{ fill: '#f1f5f9' }} />
-              <Bar dataKey="count" fill="#0ea5e9" radius={[6, 6, 0, 0]}>
-                <LabelList dataKey="count" position="top" style={{ fontSize: 11, fontWeight: 700, fill: '#475569' }} />
+              <Tooltip content={<HistogramTooltip />} cursor={{ fill: 'var(--md-sys-color-surface-container-low, var(--sys-color-surface-3))' }} />
+              <Bar dataKey="count" fill="var(--color-info)" radius={[6, 6, 0, 0]}>
+                <LabelList dataKey="count" position="top" style={{ fontSize: 11, fontWeight: 700, fill: 'var(--sys-color-text-2)' }} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>

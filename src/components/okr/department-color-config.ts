@@ -1,17 +1,9 @@
-/**
- * Department-specific color configuration cho OKR cards.
- *
- * Tech: #0059B6 / Marketing: #F54A00 / Media: #E60076 / Sale: #009966 / BOD: primary
- *
- * Trích từ v1 OKRsManagement.tsx (line 21-31). Giữ hex hardcoded để đồng bộ
- * với accordion cards reused từ v1. Phase 8 polish có thể chuyển sang semantic
- * tokens.
- */
 export interface DeptColorSet {
   bg: string;
   text: string;
   border: string;
   icon: string;
+  onIcon: string;
   badge: string;
 }
 
@@ -21,35 +13,40 @@ const DEPT_COLORS: Record<string, DeptColorSet> = {
     text: 'text-primary',
     border: 'border-primary/10',
     icon: 'bg-primary',
-    badge: 'bg-primary-fixed text-on-primary-fixed border-primary/10',
+    onIcon: 'text-on-primary',
+    badge: 'bg-primary-container/40 text-primary border-primary-container/60',
   },
   Sale: {
-    bg: 'bg-[#009966]/10',
-    text: 'text-[#009966]',
-    border: 'border-[#009966]/20',
-    icon: 'bg-[#009966]',
-    badge: 'bg-[#009966]/10 text-[#009966] border-[#009966]/20',
+    bg: 'bg-success-container/40',
+    text: 'text-success',
+    border: 'border-success-container/60',
+    icon: 'bg-success',
+    onIcon: 'text-on-success',
+    badge: 'bg-success-container/40 text-success border-success-container/60',
   },
   Tech: {
-    bg: 'bg-[#0059B6]/10',
-    text: 'text-[#0059B6]',
-    border: 'border-[#0059B6]/20',
-    icon: 'bg-[#0059B6]',
-    badge: 'bg-[#0059B6]/10 text-[#0059B6] border-[#0059B6]/20',
+    bg: 'bg-info-container/40',
+    text: 'text-info',
+    border: 'border-info-container/60',
+    icon: 'bg-info',
+    onIcon: 'text-on-info',
+    badge: 'bg-info-container/40 text-info border-info-container/60',
   },
   Marketing: {
-    bg: 'bg-[#F54A00]/10',
-    text: 'text-[#F54A00]',
-    border: 'border-[#F54A00]/20',
-    icon: 'bg-[#F54A00]',
-    badge: 'bg-[#F54A00]/10 text-[#F54A00] border-[#F54A00]/20',
+    bg: 'bg-primary-container/40',
+    text: 'text-primary',
+    border: 'border-primary-container/60',
+    icon: 'bg-primary',
+    onIcon: 'text-on-primary',
+    badge: 'bg-primary-container/40 text-primary border-primary-container/60',
   },
   Media: {
-    bg: 'bg-[#E60076]/10',
-    text: 'text-[#E60076]',
-    border: 'border-[#E60076]/20',
-    icon: 'bg-[#E60076]',
-    badge: 'bg-[#E60076]/10 text-[#E60076] border-[#E60076]/20',
+    bg: 'bg-secondary-container/40',
+    text: 'text-secondary',
+    border: 'border-secondary-container/60',
+    icon: 'bg-secondary',
+    onIcon: 'text-on-secondary',
+    badge: 'bg-secondary-container/40 text-secondary border-secondary-container/60',
   },
 };
 

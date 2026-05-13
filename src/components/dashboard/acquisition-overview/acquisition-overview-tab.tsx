@@ -81,12 +81,12 @@ function KpiBand({
   highlight?: boolean;
 }) {
   const stageStyle = {
-    pre: 'border-[#0866FF]/15 bg-[#0866FF]/5',
+    pre: 'border-info-container/40 bg-info-container/30',
     in: 'border-warning/15 bg-warning/5',
     post: 'border-tertiary/15 bg-tertiary/5',
   }[stage];
   const stageDot = {
-    pre: 'bg-[#0866FF]',
+    pre: 'bg-info',
     in: 'bg-warning-container/300',
     post: 'bg-tertiary',
   }[stage];
@@ -94,7 +94,7 @@ function KpiBand({
   if (highlight) {
     return (
       <div className="group relative overflow-hidden rounded-card bg-primary p-3 text-on-primary shadow-md shadow-primary/20">
-        <div aria-hidden="true" className="pointer-events-none absolute -top-8 -right-8 size-16 rounded-full bg-white/10 transition-transform duration-700 group-hover:scale-150" />
+        <div aria-hidden="true" className="pointer-events-none absolute -top-8 -right-8 size-16 rounded-full bg-primary-container/20 transition-transform duration-700 group-hover:scale-150" />
         <p className="relative text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] opacity-80">{label}</p>
         <h4 className="relative mt-1 font-headline text-[length:var(--text-h5)] font-bold">{value}</h4>
       </div>

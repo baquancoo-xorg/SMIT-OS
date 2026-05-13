@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Plus, CalendarCheck2, ClipboardCheck, AlertTriangle, HelpCircle, Zap, Eye, Target } from 'lucide-react';
+import { Plus, CalendarCheck2, ClipboardCheck, Zap, Eye, Target } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import type { WeeklyReport, KrCheckin, WeeklyPriority } from '../types';
 import WeeklyCheckinModal from '../components/modals/WeeklyCheckinModal';
@@ -112,7 +112,7 @@ const accessor = (row: WeeklyReport, key: SortKey): SortableValue => {
  * Approve gated by admin (matches v1 + backend RBAC.adminOnly).
  */
 export default function WeeklyCheckinV2() {
-  const { currentUser } = useAuth();
+  const { currentUser, setCurrentUser } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<WeeklyReport | null>(null);
   const [reports, setReports] = useState<WeeklyReport[]>([]);
@@ -127,10 +127,20 @@ export default function WeeklyCheckinV2() {
     setApproveComment('');
   }, [selectedReport?.id]);
 
+  function handleSessionExpired() {
+    setCurrentUser(null);
+    alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+    window.location.href = '/login';
+  }
+
   async function fetchReports() {
     setLoading(true);
     try {
       const res = await fetch('/api/reports', { credentials: 'include' });
+      if (res.status === 401) {
+        handleSessionExpired();
+        return;
+      }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setReports(await res.json());
     } catch (err) {
@@ -166,6 +176,10 @@ export default function WeeklyCheckinV2() {
         credentials: 'include',
         body: JSON.stringify({ comment }),
       });
+      if (res.status === 401) {
+        handleSessionExpired();
+        return;
+      }
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         alert(`Approve thất bại: ${err.error || res.status}`);
@@ -218,7 +232,7 @@ export default function WeeklyCheckinV2() {
                 current={sortKey}
                 dir={sortDir}
                 onClick={toggleSort}
-                className={`${contract.headerCell} sticky top-0 z-20 bg-white`}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-surface`}
               >
                 Reporter
               </SortableTh>
@@ -227,7 +241,7 @@ export default function WeeklyCheckinV2() {
                 current={sortKey}
                 dir={sortDir}
                 onClick={toggleSort}
-                className={`${contract.headerCell} sticky top-0 z-20 bg-white`}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-surface`}
               >
                 Week
               </SortableTh>
@@ -236,7 +250,7 @@ export default function WeeklyCheckinV2() {
                 current={sortKey}
                 dir={sortDir}
                 onClick={toggleSort}
-                className={`${contract.headerCell} sticky top-0 z-20 bg-white`}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-surface`}
               >
                 Status
               </SortableTh>
@@ -245,11 +259,11 @@ export default function WeeklyCheckinV2() {
                 current={sortKey}
                 dir={sortDir}
                 onClick={toggleSort}
-                className={`${contract.headerCell} sticky top-0 z-20 bg-white hidden md:table-cell`}
+                className={`${contract.headerCell} sticky top-0 z-20 bg-surface hidden md:table-cell`}
               >
                 Created
               </SortableTh>
-              <th className={`${contract.actionHeaderCell} sticky top-0 z-20 bg-white`}>Actions</th>
+              <th className={`${contract.actionHeaderCell} sticky top-0 z-20 bg-surface`}>Actions</th>
             </tr>
           </thead>
           <tbody className={contract.body}>
@@ -455,11 +469,6 @@ export default function WeeklyCheckinV2() {
                 />
               </label>
             )}
-
-            <span className="sr-only">
-              <HelpCircle aria-hidden="true" />
-              <AlertTriangle aria-hidden="true" />
-            </span>
           </div>
         )}
       </Modal>

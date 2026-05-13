@@ -53,7 +53,7 @@ export function Header({
       style={{ height: 'var(--header-h)' }}
       className={[
         'flex shrink-0 items-center gap-3 border-b border-outline-variant/40',
-        'bg-white/80 backdrop-blur-md z-header sticky top-0',
+        'bg-bg/82 backdrop-blur-md z-header sticky top-0',
         'px-3 sm:px-5',
         className,
       ]

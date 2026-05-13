@@ -87,11 +87,22 @@ export default function OKRsManagementV2() {
   const [objectives, setObjectives] = useState<Objective[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedObjectives, setExpandedObjectives] = useState<Set<string>>(new Set());
-  useAuth();
+  const { setCurrentUser } = useAuth();
+
+  function handleSessionExpired() {
+    setCurrentUser(null);
+    alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+    window.location.href = '/login';
+  }
 
   const fetchData = async () => {
     try {
-      const objRes = await fetch('/api/objectives');
+      const objRes = await fetch('/api/objectives', { credentials: 'include' });
+      if (objRes.status === 401) {
+        handleSessionExpired();
+        return;
+      }
+      if (!objRes.ok) throw new Error(`HTTP ${objRes.status}`);
       const objData = await objRes.json();
       setObjectives(objData);
     } catch (error) {
@@ -151,11 +162,15 @@ export default function OKRsManagementV2() {
       const res = await fetch(`/api/key-results/${krId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ parentKrId }),
       });
-      if (res.ok) {
-        fetchData();
+      if (res.status === 401) {
+        handleSessionExpired();
+        return;
       }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      fetchData();
     } catch (error) {
       console.error('Failed to link objective:', error);
     }
@@ -166,8 +181,14 @@ export default function OKRsManagementV2() {
       const res = await fetch('/api/objectives', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(newObj),
       });
+      if (res.status === 401) {
+        handleSessionExpired();
+        return;
+      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setObjectives((prev) => [...prev, data]);
       setIsAddObjModalOpen(false);

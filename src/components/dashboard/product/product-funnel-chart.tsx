@@ -10,7 +10,12 @@ interface ProductFunnelChartProps {
   range: DateRange;
 }
 
-const COLORS = ['#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE'];
+const COLORS = [
+  'var(--sys-color-accent)',
+  'var(--sys-color-accent-text)',
+  'var(--color-info)',
+  'var(--color-info-container)',
+];
 
 export function ProductFunnelChart({ range }: ProductFunnelChartProps) {
   const { data, isLoading, error } = useProductFunnel(range);

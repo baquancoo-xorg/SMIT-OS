@@ -149,7 +149,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
                 anchor={{ to: 'bottom start', gap: 8 }}
                 className={[
                   'z-dropdown flex w-[28rem] gap-2 rounded-card border border-outline-variant',
-                  'bg-white shadow-xl p-2',
+                  'bg-surface-2 shadow-xl p-2',
                   'data-closed:opacity-0 transition-opacity motion-fast ease-standard',
                 ].join(' ')}
               >
@@ -180,7 +180,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
                       type="date"
                       value={draftFrom}
                       onChange={(e) => setDraftFrom(e.target.value)}
-                      className="h-9 rounded-input border border-outline-variant bg-white px-2 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+                      className="h-9 rounded-input border border-outline-variant bg-surface-3 px-2 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
                     />
                   </label>
                   <label className="flex flex-col gap-1 text-[length:var(--text-label)] font-medium text-on-surface-variant">
@@ -190,7 +190,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
                       value={draftTo}
                       min={draftFrom}
                       onChange={(e) => setDraftTo(e.target.value)}
-                      className="h-9 rounded-input border border-outline-variant bg-white px-2 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+                      className="h-9 rounded-input border border-outline-variant bg-surface-3 px-2 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
                     />
                   </label>
                   <button

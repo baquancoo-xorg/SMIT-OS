@@ -10,7 +10,12 @@ interface ProductFunnelWithTimeProps {
   range: DateRange;
 }
 
-const STEP_COLORS = ['#0ea5e9', '#38bdf8', '#7dd3fc', '#bae6fd'];
+const STEP_COLORS = [
+  'var(--sys-color-accent)',
+  'var(--sys-color-accent-text)',
+  'var(--color-info)',
+  'var(--color-info-container)',
+];
 
 function formatAvgDays(days: number): string {
   if (days <= 0) return '<1d';

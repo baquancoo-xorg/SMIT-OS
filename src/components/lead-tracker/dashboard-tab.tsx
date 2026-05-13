@@ -97,17 +97,17 @@ export default function DashboardTab({ dateFrom, dateTo }: Props) {
           <div className="h-[180px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={weekData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="day" tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} axisLine={false} tickLine={false} dy={8} />
-                <YAxis tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--md-sys-color-outline-variant, var(--sys-color-border))" />
+                <XAxis dataKey="day" tick={{ fontSize: 10, fontWeight: 700, fill: 'var(--sys-color-text-2)' }} axisLine={false} tickLine={false} dy={8} />
+                <YAxis tick={{ fontSize: 10, fontWeight: 700, fill: 'var(--sys-color-text-2)' }} axisLine={false} tickLine={false} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(12px)', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
+                  contentStyle={{ backgroundColor: 'var(--md-sys-color-surface-container-high, var(--sys-color-surface-2))', backdropFilter: 'blur(12px)', borderRadius: '12px', border: '1px solid var(--md-sys-color-outline-variant, var(--sys-color-border))', boxShadow: 'var(--sys-shadow-card)', color: 'var(--md-sys-color-on-surface, var(--sys-color-text-1))' }}
                   itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
                 />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', paddingTop: '10px' }} />
-                <Bar dataKey="inflow" name="Inflow" fill="#0059b6" radius={[4, 4, 0, 0]} barSize={14} />
-                <Bar dataKey="cleared" name="Cleared" fill="#10b981" radius={[4, 4, 0, 0]} barSize={14} />
-                <Bar dataKey="activeBacklog" name="Active Backlog" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={14} />
+                <Bar dataKey="inflow" name="Inflow" fill="var(--sys-color-accent)" radius={[4, 4, 0, 0]} barSize={14} />
+                <Bar dataKey="cleared" name="Cleared" fill="var(--color-success)" radius={[4, 4, 0, 0]} barSize={14} />
+                <Bar dataKey="activeBacklog" name="Active Backlog" fill="var(--color-warning)" radius={[4, 4, 0, 0]} barSize={14} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -130,14 +130,14 @@ export default function DashboardTab({ dateFrom, dateTo }: Props) {
           <div className="h-[180px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={trendData} margin={{ top: 0, right: 16, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="date" tick={{ fontSize: 9, fontWeight: 700, fill: '#94a3b8' }} axisLine={false} tickLine={false} dy={8} />
-                <YAxis tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--md-sys-color-outline-variant, var(--sys-color-border))" />
+                <XAxis dataKey="date" tick={{ fontSize: 9, fontWeight: 700, fill: 'var(--sys-color-text-2)' }} axisLine={false} tickLine={false} dy={8} />
+                <YAxis tick={{ fontSize: 10, fontWeight: 700, fill: 'var(--sys-color-text-2)' }} axisLine={false} tickLine={false} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(12px)', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.08)' }}
+                  contentStyle={{ backgroundColor: 'var(--md-sys-color-surface-container-high, var(--sys-color-surface-2))', backdropFilter: 'blur(12px)', borderRadius: '12px', border: '1px solid var(--md-sys-color-outline-variant, var(--sys-color-border))', boxShadow: 'var(--sys-shadow-card)', color: 'var(--md-sys-color-on-surface, var(--sys-color-text-1))' }}
                   itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
                 />
-                <Line type="monotone" dataKey="remaining" name="Backlog" stroke="#f59e0b" strokeWidth={2.5} dot={{ r: 3, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 5, strokeWidth: 0 }} />
+                <Line type="monotone" dataKey="remaining" name="Backlog" stroke="var(--color-warning)" strokeWidth={2.5} dot={{ r: 3, strokeWidth: 2, fill: 'var(--sys-color-surface)' }} activeDot={{ r: 5, strokeWidth: 0 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>

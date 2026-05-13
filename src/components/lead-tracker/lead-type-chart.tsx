@@ -14,9 +14,16 @@ import { GlassCard, Spinner } from '../ui';
  */
 
 const COLORS = [
-  '#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
-  '#06b6d4', '#ec4899', '#84cc16', '#f97316', '#14b8a6',
-  '#a855f7', '#eab308', '#3b82f6',
+  'var(--sys-color-accent)',
+  'var(--color-success)',
+  'var(--color-warning)',
+  'var(--color-error)',
+  'var(--color-secondary)',
+  'var(--color-info)',
+  'var(--sys-color-accent-text)',
+  'var(--color-success-container)',
+  'var(--sys-color-accent-dim)',
+  'var(--color-info-container)',
 ];
 
 interface Props {
@@ -89,7 +96,7 @@ export default function LeadTypeChart({ dateFrom, dateTo }: Props) {
               nameKey="name"
               paddingAngle={2}
               label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-              labelLine={{ stroke: '#94a3b8', strokeWidth: 1 }}
+              labelLine={{ stroke: 'var(--sys-color-text-2)', strokeWidth: 1 }}
             >
               {chartData.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -97,11 +104,12 @@ export default function LeadTypeChart({ dateFrom, dateTo }: Props) {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(255,255,255,0.95)',
+                backgroundColor: 'var(--md-sys-color-surface-container-high, var(--sys-color-surface-2))',
                 backdropFilter: 'blur(12px)',
                 borderRadius: '12px',
-                border: '1px solid rgba(0,0,0,0.05)',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                border: '1px solid var(--md-sys-color-outline-variant, var(--sys-color-border))',
+                boxShadow: 'var(--sys-shadow-card)',
+                color: 'var(--md-sys-color-on-surface, var(--sys-color-text-1))',
               }}
               itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
               formatter={(value: number) => [`${value} leads`, 'Count']}

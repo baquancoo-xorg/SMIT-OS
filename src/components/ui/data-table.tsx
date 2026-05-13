@@ -148,7 +148,7 @@ export function DataTable<T>({
 
   return (
     <div className={['flex flex-col gap-3', className].filter(Boolean).join(' ')}>
-      <div className="overflow-hidden rounded-card border border-outline-variant/40 bg-white">
+      <div className="overflow-hidden rounded-card border border-outline-variant/40 bg-surface">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse" aria-label={label}>
             <thead>

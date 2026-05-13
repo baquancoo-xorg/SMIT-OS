@@ -95,7 +95,7 @@ export function Modal({
               <DialogPanel
                 className={[
                   'w-full transform overflow-hidden rounded-t-modal sm:rounded-modal',
-                  'bg-white shadow-xl transition-all',
+                  'bg-surface-2 shadow-xl transition-all',
                   sizeStyles[size],
                 ].join(' ')}
               >

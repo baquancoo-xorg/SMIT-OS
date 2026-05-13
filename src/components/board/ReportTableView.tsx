@@ -42,7 +42,7 @@ export default function ReportTableView({
   const allDisplayedSelected = displayedIds.length > 0 && selectedIds && displayedIds.every(id => selectedIds.has(id));
 
   return (
-    <TableShell variant="standard" className="border border-white/20">
+    <TableShell variant="standard" className="border border-outline-variant/40">
       <thead>
         <tr className={standardTable.headerRow}>
           {exportMode && (
@@ -113,7 +113,7 @@ export default function ReportTableView({
               <td className={standardTable.cell}>
                 <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${
                   report.status === 'Approved'
-                    ? 'bg-emerald-100 text-emerald-700'
+                    ? 'bg-success-container/40 text-success'
                     : 'bg-warning-container/40 text-warning'
                 }`}>
                   {report.status || 'Review'}
@@ -124,11 +124,11 @@ export default function ReportTableView({
                 <div className="flex flex-wrap gap-1">
                   {user?.departments?.map(dept => (
                     <span key={dept} className={`px-2 py-0.5 rounded-full text-xs font-black uppercase tracking-widest border ${
-                      dept === 'Tech' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                      dept === 'Marketing' ? 'bg-orange-50 text-orange-600 border-orange-100' :
-                      dept === 'Media' ? 'bg-pink-50 text-pink-600 border-pink-100' :
-                      dept === 'Sale' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                      'bg-indigo-50 text-indigo-600 border-indigo-100'
+                      dept === 'Tech' ? 'bg-info-container/40 text-info border-info-container/60' :
+                      dept === 'Marketing' ? 'bg-primary-container/40 text-primary border-primary-container/60' :
+                      dept === 'Media' ? 'bg-secondary-container/40 text-secondary border-secondary-container/60' :
+                      dept === 'Sale' ? 'bg-success-container/40 text-success border-success-container/60' :
+                      'bg-surface-variant/60 text-on-surface-variant border-outline-variant/40'
                     }`}>
                       {dept}
                     </span>

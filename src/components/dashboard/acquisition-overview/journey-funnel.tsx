@@ -11,7 +11,7 @@ interface Props {
 }
 
 const STAGE_STYLE = {
-  pre: { label: 'Pre-product', bg: 'bg-[#0866FF]/5', accent: 'bg-[#0866FF]', text: 'text-[#0866FF]', border: 'border-[#0866FF]/15' },
+  pre: { label: 'Pre-product', bg: 'bg-info-container/30', accent: 'bg-info', text: 'text-info', border: 'border-info-container/40' },
   in: { label: 'In-product', bg: 'bg-warning/5', accent: 'bg-warning', text: 'text-warning', border: 'border-warning/15' },
   post: { label: 'Post-product', bg: 'bg-tertiary/5', accent: 'bg-tertiary', text: 'text-tertiary', border: 'border-tertiary/15' },
 } as const;
@@ -77,7 +77,7 @@ function StageBand({
                 <span className="text-[length:var(--text-body-sm)] font-semibold text-on-surface">{step.name}</span>
                 <span className="font-headline text-[length:var(--text-h5)] font-bold">{fmtNumber(step.value)}</span>
               </div>
-              <div className="h-2 overflow-hidden rounded-chip bg-white/60">
+              <div className="h-2 overflow-hidden rounded-chip bg-surface-container-high/60">
                 <div
                   className={`h-full ${style.accent} transition-all duration-700`}
                   style={{ width: `${Math.max(widthPct, 1)}%` }}

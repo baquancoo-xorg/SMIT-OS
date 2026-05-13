@@ -78,7 +78,7 @@ function NavItem({ item }: { item: SidebarItem }) {
 
 function SidebarContent({ header, items, groups, footer }: Pick<SidebarProps, 'header' | 'items' | 'groups' | 'footer'>) {
   return (
-    <div className="flex h-full flex-col bg-white">
+    <div className="flex h-full flex-col bg-surface">
       {header && <div className="flex h-16 items-center border-b border-outline-variant/40 px-4">{header}</div>}
 
       <nav className="flex-1 overflow-y-auto px-2 py-3" aria-label="Primary">
@@ -184,7 +184,7 @@ export function Sidebar({ header, items, groups, footer, mobileOpen = false, onM
             leaveFrom="translate-x-0"
             leaveTo="-translate-x-full"
           >
-            <DialogPanel className="fixed inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-white shadow-xl">
+            <DialogPanel className="fixed inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-surface shadow-xl">
               <div className="flex h-16 items-center justify-between border-b border-outline-variant/40 px-4">
                 <div className="flex-1 truncate">{header}</div>
                 <button

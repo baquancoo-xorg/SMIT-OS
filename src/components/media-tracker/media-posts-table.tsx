@@ -34,9 +34,9 @@ type SortKey = 'type' | 'title' | 'publishedAt' | 'reach' | 'engagement' | 'cost
 
 const TYPE_BADGE: Record<string, string> = {
   ORGANIC: 'bg-tertiary/10 text-tertiary border-tertiary/20',
-  KOL: 'bg-[#E60076]/10 text-[#E60076] border-[#E60076]/20',
-  KOC: 'bg-[#F54A00]/10 text-[#F54A00] border-[#F54A00]/20',
-  PR: 'bg-[#0059B6]/10 text-[#0059B6] border-[#0059B6]/20',
+  KOL: 'bg-secondary-container/40 text-secondary border-secondary-container/60',
+  KOC: 'bg-primary-container/40 text-primary border-primary-container/60',
+  PR: 'bg-info-container/40 text-info border-info-container/60',
 };
 
 function TypeBadge({ type }: { type: string }) {

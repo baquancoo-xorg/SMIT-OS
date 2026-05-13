@@ -114,7 +114,7 @@ function NotificationCenterPanel({ open, onClose, notifications, headerActions, 
           leaveFrom="translate-x-0"
           leaveTo="translate-x-full"
         >
-          <DialogPanel className="fixed inset-y-0 right-0 flex w-96 max-w-[90vw] flex-col bg-white shadow-xl">
+          <DialogPanel className="fixed inset-y-0 right-0 flex w-96 max-w-[90vw] flex-col bg-surface-2 shadow-xl">
             <div className="flex h-16 items-center justify-between border-b border-outline-variant/40 px-4">
               <DialogTitle className="font-headline text-[length:var(--text-h6)] font-semibold text-on-surface">
                 Notifications

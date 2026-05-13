@@ -1,21 +1,14 @@
 import type { MediaPlatform } from '../../types';
 
-/**
- * Platform-specific badge với brand colors (Facebook blue, Instagram pink, YouTube red, etc.).
- *
- * Phase 8 follow-up (2026-05-10): switched to v2 design tokens (rounded-chip,
- * text-label var, tracking-wide) trong khi giữ brand-specific colors. Brand
- * colors KHÔNG map sang v2 Badge semantic variants.
- */
 const PLATFORM_STYLE: Record<
   MediaPlatform,
   { label: string; bg: string; text: string; border: string; icon: string }
 > = {
-  FACEBOOK: { label: 'Facebook', bg: 'bg-[#0866FF]/10', text: 'text-[#0866FF]', border: 'border-[#0866FF]/20', icon: 'thumb_up' },
-  INSTAGRAM: { label: 'Instagram', bg: 'bg-[#E4405F]/10', text: 'text-[#E4405F]', border: 'border-[#E4405F]/20', icon: 'photo_camera' },
-  YOUTUBE: { label: 'YouTube', bg: 'bg-[#FF0000]/10', text: 'text-[#FF0000]', border: 'border-[#FF0000]/20', icon: 'smart_display' },
-  BLOG: { label: 'Blog', bg: 'bg-[#0059B6]/10', text: 'text-[#0059B6]', border: 'border-[#0059B6]/20', icon: 'edit_note' },
-  PR: { label: 'PR', bg: 'bg-[#F54A00]/10', text: 'text-[#F54A00]', border: 'border-[#F54A00]/20', icon: 'newspaper' },
+  FACEBOOK: { label: 'Facebook', bg: 'bg-info-container/40', text: 'text-info', border: 'border-info-container/60', icon: 'thumb_up' },
+  INSTAGRAM: { label: 'Instagram', bg: 'bg-secondary-container/40', text: 'text-secondary', border: 'border-secondary-container/60', icon: 'photo_camera' },
+  YOUTUBE: { label: 'YouTube', bg: 'bg-error-container/40', text: 'text-error', border: 'border-error-container/60', icon: 'smart_display' },
+  BLOG: { label: 'Blog', bg: 'bg-info-container/40', text: 'text-info', border: 'border-info-container/60', icon: 'edit_note' },
+  PR: { label: 'PR', bg: 'bg-primary-container/40', text: 'text-primary', border: 'border-primary-container/60', icon: 'newspaper' },
   OTHER: { label: 'Other', bg: 'bg-surface-container', text: 'text-on-surface-variant', border: 'border-outline-variant', icon: 'more_horiz' },
 };
 

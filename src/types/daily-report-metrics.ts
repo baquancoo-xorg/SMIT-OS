@@ -108,7 +108,7 @@ export const TEAM_THEMES: Record<TeamType, { primary: string; accent: string; fl
   tech: { primary: 'indigo', accent: 'indigo-100', flag: 'red', bg: 'bg-indigo-600', bgLight: 'bg-indigo-50', border: 'border-indigo-100', text: 'text-indigo-600' },
   marketing: { primary: 'orange', accent: 'orange-100', flag: 'orange', bg: 'bg-orange-600', bgLight: 'bg-orange-50', border: 'border-orange-100', text: 'text-orange-600' },
   media: { primary: 'pink', accent: 'pink-100', flag: 'red', bg: 'bg-pink-600', bgLight: 'bg-pink-50', border: 'border-pink-100', text: 'text-pink-600' },
-  sale: { primary: 'emerald', accent: 'emerald-100', flag: 'red', bg: 'bg-emerald-600', bgLight: 'bg-emerald-50', border: 'border-emerald-100', text: 'text-emerald-600' },
+  sale: { primary: 'success', accent: 'success-container', flag: 'red', bg: 'bg-success', bgLight: 'bg-success-container/40', border: 'border-success-container/60', text: 'text-success' },
 };
 
 // Blocker tags per team

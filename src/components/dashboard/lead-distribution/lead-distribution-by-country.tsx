@@ -2,7 +2,14 @@ import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recha
 import { Globe } from 'lucide-react';
 import type { LeadDistributionByCountryItem } from '../../../types/lead-distribution';
 
-const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+const COLORS = [
+  'var(--sys-color-accent)',
+  'var(--color-success)',
+  'var(--color-warning)',
+  'var(--color-error)',
+  'var(--color-secondary)',
+  'var(--color-info)',
+];
 
 interface Props {
   data?: LeadDistributionByCountryItem[];
@@ -11,7 +18,7 @@ interface Props {
 export function LeadDistributionByCountry({ data }: Props) {
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center rounded-card border border-outline-variant/40 bg-white/70 backdrop-blur-md p-5 shadow-sm">
+      <div className="flex h-full items-center justify-center rounded-card border border-outline-variant/40 bg-surface/70 backdrop-blur-md p-5 shadow-sm">
         <p className="text-[length:var(--text-body-sm)] text-on-surface-variant">Không có dữ liệu</p>
       </div>
     );
@@ -20,7 +27,7 @@ export function LeadDistributionByCountry({ data }: Props) {
   const total = data.reduce((sum, d) => sum + d.count, 0);
 
   return (
-    <div className="h-full rounded-card border border-outline-variant/40 bg-white/70 backdrop-blur-md p-5 shadow-sm">
+    <div className="h-full rounded-card border border-outline-variant/40 bg-surface/70 backdrop-blur-md p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h3 className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant">Lead By Country</h3>
@@ -43,7 +50,7 @@ export function LeadDistributionByCountry({ data }: Props) {
               nameKey="country"
               paddingAngle={2}
               label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-              labelLine={{ stroke: '#94a3b8', strokeWidth: 1 }}
+              labelLine={{ stroke: 'var(--sys-color-text-2)', strokeWidth: 1 }}
               style={{ fontSize: '9px', fontWeight: 500 }}
             >
               {data.map((_, index) => (
@@ -52,11 +59,12 @@ export function LeadDistributionByCountry({ data }: Props) {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(255,255,255,0.95)',
+                backgroundColor: 'var(--md-sys-color-surface-container-high, var(--sys-color-surface-2))',
                 backdropFilter: 'blur(12px)',
                 borderRadius: '12px',
-                border: '1px solid rgba(0,0,0,0.05)',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                border: '1px solid var(--md-sys-color-outline-variant, var(--sys-color-border))',
+                boxShadow: 'var(--sys-shadow-card)',
+                color: 'var(--md-sys-color-on-surface, var(--sys-color-text-1))',
               }}
               itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
               formatter={(value: number, name: string) => {

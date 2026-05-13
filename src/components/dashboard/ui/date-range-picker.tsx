@@ -23,7 +23,7 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
           onClick={() => handlePresetClick(preset.key)}
           className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
             activePreset === preset.key
-              ? 'bg-blue-600 text-white'
+              ? 'bg-primary text-on-primary'
               : 'bg-surface-variant/60 text-on-surface hover:bg-surface-variant'
           }`}
         >

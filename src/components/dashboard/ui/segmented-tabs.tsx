@@ -29,7 +29,7 @@ export default function SegmentedTabs<T extends string>({
             onClick={() => onChange(option.value)}
             className={`flex items-center justify-center gap-1.5 h-7 px-3.5 rounded-full text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${
               value === option.value
-                ? 'bg-white text-primary shadow-sm'
+                ? 'bg-surface text-primary shadow-sm'
                 : 'text-on-surface-variant hover:text-on-surface-variant'
             }`}
           >

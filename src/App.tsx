@@ -5,22 +5,23 @@
 
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import AppLayout from './components/layout/AppLayout';
+import V5Shell from './components/v5/layout/v5-shell';
 import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './components/ui';
 
 // Phase 8 (2026-05-11) — v1 pages hard-deleted. Rollback flag `?v=1` retired.
 // Old `?v=2` flag is harmless no-op for legacy bookmarks.
-const OKRsManagement = lazy(() => import('./pages/OKRsManagement'));
-const WeeklyCheckin = lazy(() => import('./pages/WeeklyCheckin'));
-const DailySync = lazy(() => import('./pages/DailySync'));
-const Settings = lazy(() => import('./pages/Settings'));
-const Profile = lazy(() => import('./pages/Profile'));
-const DashboardOverview = lazy(() => import('./pages/DashboardOverview'));
-const LeadTracker = lazy(() => import('./pages/LeadTracker'));
-const MediaTracker = lazy(() => import('./pages/MediaTracker'));
-const AdsTracker = lazy(() => import('./pages/AdsTracker'));
+const OKRsManagement = lazy(() => import('./pages/v5/OKRsManagement'));
+const WeeklyCheckin = lazy(() => import('./pages/v5/WeeklyCheckin'));
+const DailySync = lazy(() => import('./pages/v5/DailySync'));
+const Settings = lazy(() => import('./pages/v5/Settings'));
+const Profile = lazy(() => import('./pages/v5/Profile'));
+const Reports = lazy(() => import('./pages/v5/Reports'));
+const DashboardOverview = lazy(() => import('./pages/v5/DashboardOverview'));
+const LeadTracker = lazy(() => import('./pages/v5/LeadTracker'));
+const MediaTracker = lazy(() => import('./pages/v5/MediaTracker'));
+const AdsTracker = lazy(() => import('./pages/v5/AdsTracker'));
 
 function PageLoader() {
   return (
@@ -46,23 +47,27 @@ function AppContent() {
   }
 
   return (
-    <AppLayout onLogout={logout}>
+    <V5Shell onLogout={logout}>
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardOverview />} />
+          <Route path="/leads" element={<LeadTracker />} />
+          <Route path="/ads" element={<AdsTracker />} />
+          <Route path="/media" element={<MediaTracker />} />
           <Route path="/okrs" element={<OKRsManagement />} />
           <Route path="/daily-sync" element={<DailySync />} />
           <Route path="/checkin" element={<WeeklyCheckin />} />
-          <Route path="/lead-tracker" element={<LeadTracker />} />
-          <Route path="/media-tracker" element={<MediaTracker />} />
-          <Route path="/ads-tracker" element={<AdsTracker />} />
+          <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/lead-tracker" element={<Navigate to="/leads" replace />} />
+          <Route path="/ads-tracker" element={<Navigate to="/ads" replace />} />
+          <Route path="/media-tracker" element={<Navigate to="/media" replace />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Suspense>
-    </AppLayout>
+    </V5Shell>
   );
 }
 

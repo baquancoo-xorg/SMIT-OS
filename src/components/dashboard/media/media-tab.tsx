@@ -77,7 +77,7 @@ export default function MediaTab({ from, to }: Props) {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <GlassCard variant="surface" padding="md" className="relative overflow-hidden">
-          <div aria-hidden="true" className="pointer-events-none absolute -top-16 -right-16 size-32 rounded-full bg-[#E60076]/10 blur-3xl" />
+          <div aria-hidden="true" className="pointer-events-none absolute -top-16 -right-16 size-32 rounded-full bg-secondary/10 blur-3xl" />
           <div className="relative mb-4 flex items-center justify-between">
             <h3 className="font-headline text-[length:var(--text-h5)] font-bold text-on-surface">
               Top <em className="font-medium text-primary italic">KOL/KOC</em>
@@ -118,7 +118,7 @@ export default function MediaTab({ from, to }: Props) {
         </GlassCard>
 
         <GlassCard variant="surface" padding="md" className="relative overflow-hidden">
-          <div aria-hidden="true" className="pointer-events-none absolute -top-16 -right-16 size-32 rounded-full bg-[#0059B6]/10 blur-3xl" />
+          <div aria-hidden="true" className="pointer-events-none absolute -top-16 -right-16 size-32 rounded-full bg-info/10 blur-3xl" />
           <div className="relative mb-4 flex items-center justify-between">
             <h3 className="font-headline text-[length:var(--text-h5)] font-bold text-on-surface">
               Recent <em className="font-medium text-primary italic">PR</em>

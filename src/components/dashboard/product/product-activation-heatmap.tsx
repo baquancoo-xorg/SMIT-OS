@@ -20,11 +20,11 @@ const VIEW_OPTIONS: Array<{ value: HeatmapView; label: string; desc: string }> =
 function levelClass(value: number, max: number) {
   if (value === 0 || max === 0) return 'bg-surface-variant/60';
   const ratio = value / max;
-  if (ratio < 0.2) return 'bg-blue-100';
-  if (ratio < 0.4) return 'bg-blue-200';
-  if (ratio < 0.6) return 'bg-blue-400';
-  if (ratio < 0.8) return 'bg-blue-600';
-  return 'bg-blue-800';
+  if (ratio < 0.2) return 'bg-primary/15';
+  if (ratio < 0.4) return 'bg-primary/25';
+  if (ratio < 0.6) return 'bg-primary/45';
+  if (ratio < 0.8) return 'bg-primary/70';
+  return 'bg-primary/90';
 }
 
 export function ProductActivationHeatmap({ range }: ProductActivationHeatmapProps) {

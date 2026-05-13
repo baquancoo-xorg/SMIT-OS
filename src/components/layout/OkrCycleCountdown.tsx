@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useActiveOkrCycle } from '../../hooks/use-active-okr-cycle';
 
 const COLOR_MAP: Record<string, string> = {
-  green: 'text-emerald-700 bg-emerald-50 border-emerald-100',
+  green: 'text-success bg-success-container/30 border-success-container/40',
   amber: 'text-warning bg-warning-container/30 border-warning-container/40',
   red: 'text-error bg-error-container/30 border-error-container/40',
 };

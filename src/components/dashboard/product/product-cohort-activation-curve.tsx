@@ -21,7 +21,14 @@ interface ProductCohortActivationCurveProps {
   range: DateRange;
 }
 
-const CURVE_COLORS = ['#0ea5e9', '#16a34a', '#f59e0b', '#a855f7', '#ec4899', '#14b8a6'];
+const CURVE_COLORS = [
+  'var(--color-info)',
+  'var(--color-success)',
+  'var(--color-warning)',
+  'var(--color-secondary)',
+  'var(--sys-color-accent)',
+  'var(--sys-color-accent-text)',
+];
 
 interface TooltipPayloadItem {
   name: string;
@@ -43,7 +50,7 @@ function CurveTooltip({ active, payload, label }: CurveTooltipProps) {
       <div className="space-y-1">
         {payload.map((item) => (
           <div key={item.name} className="flex items-center justify-between gap-4 text-[length:var(--text-body-sm)] font-medium">
-            <span style={{ color: item.color ?? '#475569' }}>{item.name}</span>
+            <span style={{ color: item.color ?? 'var(--sys-color-text-2)' }}>{item.name}</span>
             <span className="tabular-nums text-on-surface">{item.value}%</span>
           </div>
         ))}
@@ -91,15 +98,15 @@ export function ProductCohortActivationCurve({ range }: ProductCohortActivationC
         <div className="h-[300px] rounded-card border border-outline-variant/40 p-2">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 8, right: 16, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--md-sys-color-outline-variant, var(--sys-color-border))" />
               <XAxis
                 dataKey="day"
-                tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 700 }}
+                tick={{ fontSize: 11, fill: 'var(--sys-color-text-2)', fontWeight: 700 }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 700 }}
+                tick={{ fontSize: 11, fill: 'var(--sys-color-text-2)', fontWeight: 700 }}
                 axisLine={false}
                 tickLine={false}
                 domain={[0, 100]}

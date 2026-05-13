@@ -67,33 +67,33 @@ export function ProductPrePqlBySource({ range }: ProductPrePqlBySourceProps) {
         <div className="h-[280px] rounded-card border border-outline-variant/40 p-2">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.crm} margin={{ top: 24, right: 16, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--md-sys-color-outline-variant, var(--sys-color-border))" />
               <XAxis
                 dataKey="source"
-                tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 700 }}
+                tick={{ fontSize: 11, fill: 'var(--sys-color-text-2)', fontWeight: 700 }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 700 }}
+                tick={{ fontSize: 11, fill: 'var(--sys-color-text-2)', fontWeight: 700 }}
                 axisLine={false}
                 tickLine={false}
                 domain={[0, 100]}
                 unit="%"
               />
-              <Tooltip content={<PrePqlBySourceTooltip />} cursor={{ fill: '#f1f5f9' }} />
+              <Tooltip content={<PrePqlBySourceTooltip />} cursor={{ fill: 'var(--md-sys-color-surface-container-low, var(--sys-color-surface-3))' }} />
               <ReferenceLine
                 y={PLG_GATE_TARGET}
-                stroke="#16a34a"
+                stroke="var(--color-success)"
                 strokeDasharray="4 4"
-                label={{ value: `${PLG_GATE_TARGET}%`, position: 'right', fontSize: 10, fill: '#16a34a', fontWeight: 700 }}
+                label={{ value: `${PLG_GATE_TARGET}%`, position: 'right', fontSize: 10, fill: 'var(--color-success)', fontWeight: 700 }}
               />
-              <Bar dataKey="prePqlRate" fill="#16a34a" radius={[6, 6, 0, 0]}>
+              <Bar dataKey="prePqlRate" fill="var(--color-success)" radius={[6, 6, 0, 0]}>
                 <LabelList
                   dataKey="prePqlRate"
                   position="top"
                   formatter={(v: number) => `${v}%`}
-                  style={{ fontSize: 11, fontWeight: 700, fill: '#475569' }}
+                  style={{ fontSize: 11, fontWeight: 700, fill: 'var(--sys-color-text-2)' }}
                 />
               </Bar>
             </BarChart>

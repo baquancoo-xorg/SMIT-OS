@@ -24,7 +24,7 @@ export default function KrCheckinRow({ kr, value, onChange }: KrCheckinRowProps)
             type="number"
             value={value.currentValue}
             onChange={(e) => onChange({ ...value, currentValue: Number(e.target.value) })}
-            className="w-full bg-white border border-outline-variant/40 rounded-card px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary"
+            className="w-full bg-surface-3 text-on-surface border border-outline-variant/40 rounded-card px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary"
           />
         </label>
 
@@ -44,7 +44,7 @@ export default function KrCheckinRow({ kr, value, onChange }: KrCheckinRowProps)
           value={value.note ?? ''}
           onChange={(e) => onChange({ ...value, note: e.target.value })}
           placeholder="Ngắn gọn 1 dòng (optional)"
-          className="w-full bg-white border border-outline-variant/40 rounded-card px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary"
+          className="w-full bg-surface-3 text-on-surface border border-outline-variant/40 rounded-card px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary"
         />
       </label>
     </div>
