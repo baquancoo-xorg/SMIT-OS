@@ -86,3 +86,27 @@ npm run dev
 - Database uses real data, not mocks
 - Admin user: `dominium`
 - All Kanban boards connect to real DB
+
+## Docs Map (read on-demand)
+
+**Quy tắc:** Trước khi edit, xác định task signal → dùng `Read` tool để load doc tương ứng MỘT LẦN → cite section trong plan/response. KHÔNG load tất cả docs vào context — chỉ load file cần thiết.
+
+| Task signal | Must Read FIRST | Why |
+|---|---|---|
+| UI / component / button / màu / color / design / style / card / table / form / chart / icon / typography / theme / radius / spacing | `docs/ui-design-contract.md` | Visual + a11y + perf + render rules |
+| API / endpoint / route / Express / Prisma / schema / migration / backend | `docs/system-architecture.md` + `docs/code-standards.md` | Stack + convention |
+| New feature scope / PDR / goal / roadmap | `docs/project-overview-pdr.md` + `docs/development-roadmap.md` | Product intent + phases |
+| Bug fix | `docs/code-standards.md` + relevant `docs/journals/*.md` | Convention + prior incident |
+| Auth / API key / token | `docs/api-key-authentication.md` | Scope + middleware contract |
+| MCP cowork integration | `docs/mcp-cowork-integration.md` | 7-phase plan + scopes |
+| Codebase overview | `docs/codebase-summary.md` | File layout + module map |
+
+**Top critical rules (always-on, không cần load full doc):**
+- UI: NO solid orange CTA — primary = dark gradient + orange beam + orange icon
+- UI: Card radius = `1.5rem` (dark) / `0.75rem` (light); Input = `1rem` / `0.75rem`
+- UI: Accent canonical = `var(--brand-500)` OKLCH, KHÔNG hex hardcode
+- UI: Mọi data section bọc `<Suspense fallback={Skeleton}>`, không fetch raw `useEffect`
+- Code: Direct import, no barrel; file < 200 lines; kebab-case
+- Data: Real DB, no mocks, no fake placeholders
+
+**Khi xung đột contract vs playground v4:** playground thắng (trừ rule đánh dấu "forward target").
