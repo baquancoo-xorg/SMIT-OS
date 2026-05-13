@@ -58,7 +58,7 @@ export default function LeadFiltersPopover({ filters, setFilter, aeOptions }: Le
             <Filter aria-hidden="true" className="size-3.5" />
             <span className="font-medium">Filters</span>
             {activeCount > 0 && (
-              <span className="ml-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-on-primary">
+              <span className="ml-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-on-accent">
                 {activeCount}
               </span>
             )}
@@ -72,7 +72,7 @@ export default function LeadFiltersPopover({ filters, setFilter, aeOptions }: Le
             anchor={{ to: 'bottom end', gap: 8 }}
             className={[
               'z-dropdown w-[280px] rounded-card border border-outline-variant',
-              'bg-white shadow-xl p-3',
+              'bg-surface-2 shadow-lg p-3',
               'data-closed:opacity-0 transition-opacity motion-fast ease-standard',
             ].join(' ')}
           >
@@ -82,7 +82,7 @@ export default function LeadFiltersPopover({ filters, setFilter, aeOptions }: Le
                 <select
                   value={filters.ae}
                   onChange={(e) => setFilter('ae', e.target.value)}
-                  className="h-8 w-full rounded-input border border-outline-variant bg-white px-2 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+                  className="h-8 w-full rounded-input border border-outline-variant bg-surface-3 px-2 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
                 >
                   <option value="">All AE</option>
                   {aeOptions.map((a) => (
@@ -96,7 +96,7 @@ export default function LeadFiltersPopover({ filters, setFilter, aeOptions }: Le
                 <select
                   value={filters.status}
                   onChange={(e) => setFilter('status', e.target.value)}
-                  className="h-8 w-full rounded-input border border-outline-variant bg-white px-2 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+                  className="h-8 w-full rounded-input border border-outline-variant bg-surface-3 px-2 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
                 >
                   <option value="">All Status</option>
                   {STATUSES.map((s) => (
@@ -110,7 +110,7 @@ export default function LeadFiltersPopover({ filters, setFilter, aeOptions }: Le
                 <select
                   value={filters.hasNote}
                   onChange={(e) => setFilter('hasNote', e.target.value)}
-                  className="h-8 w-full rounded-input border border-outline-variant bg-white px-2 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+                  className="h-8 w-full rounded-input border border-outline-variant bg-surface-3 px-2 text-[length:var(--text-body-sm)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
                 >
                   {HAS_NOTE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>

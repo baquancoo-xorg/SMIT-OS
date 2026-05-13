@@ -25,12 +25,12 @@ export function ObjectiveAccordionCard({
   onRefresh: () => void;
   isExpanded: boolean;
   onToggleExpand: () => void;
-  getDeptColor: (dept: string) => { bg: string; text: string; border: string; icon: string; badge: string };
+  getDeptColor: (dept: string) => { bg: string; text: string; border: string; icon: string; onIcon: string; badge: string };
 }) {
   const colors = getDeptColor(objective.department);
 
   return (
-    <div className="bg-white/50 backdrop-blur-md rounded-card shadow-sm border border-white/20 overflow-hidden group">
+    <div className="bg-surface/70 backdrop-blur-md rounded-card shadow-sm border border-outline-variant/30 overflow-hidden group">
       {/* L1 Objective Header - Clickable to expand/collapse */}
       <div
         onClick={onToggleExpand}
@@ -45,7 +45,7 @@ export function ObjectiveAccordionCard({
               <span className={`${colors.badge} text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest border`}>
                 L1 - {objective.department}
               </span>
-              <span className={`flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-lg ${colors.icon} text-white text-[10px] font-black shadow-sm`}>O</span>
+              <span className={`flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-lg ${colors.icon} ${colors.onIcon} text-[10px] font-black shadow-sm`}>O</span>
               <h3 className={`text-base md:text-lg font-bold text-on-surface font-headline hover:${colors.text} transition-colors line-clamp-1 min-w-0`}>{objective.title}</h3>
             </div>
             <p className="text-[11px] text-on-surface-variant font-medium mt-0.5">
@@ -144,7 +144,7 @@ function ChildObjectiveCard({
 }: {
   objective: Objective;
   onRefresh: () => void;
-  getDeptColor: (dept: string) => { bg: string; text: string; border: string; icon: string; badge: string };
+  getDeptColor: (dept: string) => { bg: string; text: string; border: string; icon: string; onIcon: string; badge: string };
   key?: string | number;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -163,7 +163,7 @@ function ChildObjectiveCard({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
               <span className={`${colors.badge} text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-black uppercase tracking-widest border`}>L2</span>
-              <span className={`flex-shrink-0 flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-lg ${colors.icon} text-white text-[10px] font-black shadow-sm`}>O</span>
+              <span className={`flex-shrink-0 flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-lg ${colors.icon} ${colors.onIcon} text-[10px] font-black shadow-sm`}>O</span>
             </div>
             <h4 className="text-sm md:text-base font-bold text-on-surface font-headline line-clamp-2 md:line-clamp-1">{objective.title}</h4>
             <p className="text-[10px] text-on-surface-variant font-medium mt-0.5">
@@ -278,7 +278,7 @@ export function ObjectiveAccordionCardL2({
   objectives: Objective[];
   onLinkObjective?: (krId: string, parentKrId: string) => void;
   onRefresh: () => void;
-  getDeptColor: (dept: string) => { bg: string; text: string; border: string; icon: string; badge: string };
+  getDeptColor: (dept: string) => { bg: string; text: string; border: string; icon: string; onIcon: string; badge: string };
   key?: string | number;
 }) {
   const [objective, setObjective] = useState(initialObjective);
@@ -301,7 +301,7 @@ export function ObjectiveAccordionCardL2({
   };
 
   return (
-    <div className="bg-white/50 backdrop-blur-md rounded-card shadow-sm border border-white/20 overflow-hidden group">
+    <div className="bg-surface/70 backdrop-blur-md rounded-card shadow-sm border border-outline-variant/30 overflow-hidden group">
       {/* Header - Clickable to expand/collapse */}
       <div
         onClick={() => setIsExpanded(!isExpanded)}
@@ -460,7 +460,7 @@ function KeyResultRow({ kr, index, isL2, owner, objectives, onLinkObjective, onD
           </div>
           <div className="h-2 bg-surface-variant/60 rounded-full overflow-hidden relative">
             <div
-              className={`h-full transition-all duration-1000 ease-out ${progress === 100 ? 'bg-emerald-500' : 'bg-primary'}`}
+              className={`h-full transition-all duration-1000 ease-out ${progress === 100 ? 'bg-success' : 'bg-primary'}`}
               style={{ width: `${progress}%` }}
             ></div>
           </div>
@@ -479,14 +479,14 @@ function KeyResultRow({ kr, index, isL2, owner, objectives, onLinkObjective, onD
           {isAdmin && (
             <button
               onClick={() => setIsUpdateProgressOpen(true)}
-              className="min-h-[44px] px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-500/20 hover:bg-emerald-600"
+              className="min-h-[44px] px-4 py-2 bg-success text-on-success rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-success/20 hover:bg-success/85"
             >
               Check-in
             </button>
           )}
           <button
             onClick={() => setIsEditModalOpen(true)}
-            className="min-h-[44px] px-4 py-2 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/20"
+            className="min-h-[44px] px-4 py-2 bg-surface-container border border-accent text-on-surface rounded-xl text-xs font-black uppercase tracking-widest transition-all hover:bg-surface-container-high shadow-sm"
           >
             Edit
           </button>
@@ -628,7 +628,7 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, title, message }: Dele
               Cancel
             </button>
             <button
-              className="flex-1 px-6 py-3 text-sm font-bold text-white bg-error hover:bg-error rounded-xl transition-all shadow-lg shadow-error/20 min-h-[48px]"
+              className="flex-1 px-6 py-3 text-sm font-bold text-on-error bg-error hover:bg-error rounded-xl transition-all shadow-lg shadow-error/20 min-h-[48px]"
               onClick={onConfirm}
             >
               Delete
@@ -707,7 +707,7 @@ function EditKRModal({ isOpen, onClose, onSave, initialData, title }: EditKRModa
             Cancel
           </button>
           <button
-            className="px-6 py-3 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-xl transition-all shadow-lg shadow-primary/20"
+            className="px-6 py-3 text-sm font-bold text-on-surface bg-surface-container border border-accent hover:bg-surface-container-high rounded-xl transition-all shadow-sm"
             onClick={() => onSave(formData)}
           >
             Save Changes
@@ -794,7 +794,7 @@ function UpdateProgressModal({ isOpen, onClose, onSave, currentValue, targetValu
             Cancel
           </button>
           <button
-            className="flex-1 px-6 py-3 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-xl transition-all shadow-lg shadow-primary/20"
+            className="flex-1 px-6 py-3 text-sm font-bold text-on-surface bg-surface-container border border-accent hover:bg-surface-container-high rounded-xl transition-all shadow-sm"
             onClick={() => onSave(val, note)}
           >
             Update
@@ -874,7 +874,7 @@ function LinkObjectiveModal({
             Cancel
           </button>
           <button
-            className="flex-1 px-6 py-3 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-xl transition-all shadow-lg shadow-primary/20 disabled:opacity-50"
+            className="flex-1 px-6 py-3 text-sm font-bold text-on-surface bg-surface-container border border-accent hover:bg-surface-container-high rounded-xl transition-all shadow-sm disabled:opacity-50"
             onClick={handleSave}
             disabled={!selectedL1KrId}
           >
@@ -916,7 +916,7 @@ export function AddObjectiveModal({
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white/80 backdrop-blur-xl border border-white/20 rounded-card shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-surface/90 backdrop-blur-xl border border-outline-variant/30 rounded-card shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
       >
         <div className="px-8 py-6 border-b border-outline-variant/40 flex items-center justify-between bg-surface-variant/30">
           <h2 className="text-2xl font-black font-headline text-on-surface">
@@ -990,7 +990,7 @@ export function AddObjectiveModal({
             Cancel
           </button>
           <button
-            className="px-8 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20 transition-all"
+            className="px-8 py-2.5 text-sm font-bold text-on-surface bg-surface-container border border-accent hover:bg-surface-container-high rounded-xl shadow-sm transition-all"
             onClick={() => {
               onAdd({
                 ...formData,

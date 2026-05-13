@@ -18,7 +18,7 @@ interface BulkActionBarProps {
   onClear: () => void;
 }
 
-const selCls = 'bg-white border border-outline-variant/40 rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all';
+const selCls = 'bg-surface-3 text-on-surface border border-outline-variant/40 rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary transition-all';
 
 export default function BulkActionBar({
   count, editMode, bulkEdit, saving,
@@ -29,11 +29,11 @@ export default function BulkActionBar({
       initial={{ opacity: 0, y: 24, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 24, scale: 0.95 }}
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 p-5 bg-on-surface text-white rounded-[2rem] shadow-2xl shadow-on-surface/40 min-w-[360px] max-w-[90vw]"
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 p-5 bg-surface-container-highest text-on-surface rounded-[2rem] shadow-2xl shadow-on-surface/20 min-w-[360px] max-w-[90vw]"
     >
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <div className="size-9 bg-primary rounded-full flex items-center justify-center font-black text-sm shadow-lg shadow-primary/30">
+          <div className="size-9 bg-accent rounded-full flex items-center justify-center font-black text-sm text-on-accent shadow-md">
             {count}
           </div>
           <p className="text-sm font-black tracking-tight">hàng được chọn</p>
@@ -43,7 +43,7 @@ export default function BulkActionBar({
           <button
             onClick={onToggleEdit}
             className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-              editMode ? 'bg-primary text-white' : 'bg-white/10 hover:bg-white/20 text-white'
+              editMode ? 'bg-surface-container border border-accent text-on-surface' : 'bg-surface-container-high hover:bg-surface-container text-on-surface-variant'
             }`}
           >
             <Edit2 size={13} />
@@ -59,7 +59,7 @@ export default function BulkActionBar({
               Xóa ({count})
             </button>
           )}
-          <button onClick={onClear} className="p-2 text-white/40 hover:text-white transition-colors">
+          <button onClick={onClear} className="p-2 text-on-surface-variant/60 hover:text-on-surface transition-colors">
             <X size={16} />
           </button>
         </div>
@@ -101,7 +101,7 @@ export default function BulkActionBar({
           <button
             onClick={onApply}
             disabled={saving || (!bulkEdit.notes.trim() && !bulkEdit.leadType && !bulkEdit.unqualifiedType)}
-            className="flex items-center gap-2 px-6 py-[7px] bg-emerald-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-400 transition-all disabled:opacity-40"
+            className="flex items-center gap-2 px-6 py-[7px] bg-success text-on-success rounded-xl text-xs font-black uppercase tracking-widest hover:bg-success/85 transition-all disabled:opacity-40"
           >
             {saving ? 'Đang áp dụng...' : <><Check size={13} /> Áp dụng</>}
           </button>

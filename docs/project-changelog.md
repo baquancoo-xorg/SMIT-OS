@@ -2,6 +2,109 @@
 
 Tracks significant changes — features, removals, migrations, infra updates.
 
+## 2026-05-13 — UI Ref Compliance Milestone Complete
+
+Full alignment of SMIT OS v5 UI with Playground v4 reference style across all 10 phases.
+
+### Summary
+- **Phases 01-04 (Wave 0-1):** Token baseline, core v5 primitives, table system, shell/navigation
+- **Phases 05-08 (Wave 2):** Dashboard/Reports, Growth Workspace, Execution Workspace, Admin/Profile
+- **Phase 09:** Validation sweep and docs update
+
+### Key Changes
+- **CTA Signature:** All primary action buttons converted from solid orange (`bg-primary text-on-primary`) to compliant pattern (`bg-surface-container border border-accent text-on-surface`)
+- **Tab/Chip Active States:** Changed from solid orange fill to neutral surface lift with accent border
+- **Decorative Glow:** KPI cards and glass cards now hover-gated (opacity-0 → hover:opacity)
+- **Table System:** Standardized contracts with sticky headers, backdrop blur, neutral row hover
+- **Sidebar Navigation:** Active item uses surface-container + accent bar instead of orange glow
+- **Checkbox States:** Migrated from bg-primary to bg-surface-container with accent border
+
+### Files Modified
+- `src/index.css` — token baseline
+- `src/components/v5/ui/*` — core primitives (tab-pill, date-range-picker, kpi-card, glass-card, data-table, table-contract)
+- `src/components/v5/layout/*` — shell and sidebar
+- `src/components/lead-tracker/*` — checkbox, filters, bulk actions
+- `src/components/ads-tracker/*` — spend chart decorative blob
+- `src/components/okr/*` — CTA buttons in modals
+- `src/components/modals/WeeklyCheckinModal.tsx` — submit button
+- `src/components/settings/*` — department toggle chips
+- `src/components/ui/table-contract.ts` — legacy table contract alignment
+
+### Validation
+- `npm run build` ✓ zero errors
+- All v5 routes pass acceptance checklist
+
+---
+
+## 2026-05-13 — UI Ref Compliance Phase 01: Token Baseline
+
+Aligned design tokens to playground v4 canonical values.
+
+### Token Changes
+- `--radius-card`: 1.5rem → 1.25rem (universal, per playground v4)
+- `--radius-modal`: 1.5rem → 1.25rem
+- `--radius-input`: 1rem → 0.75rem (universal)
+- `--header-h`: 3.75rem → 4rem
+- `--sys-shadow-card`: cinematic → compact (0 1px 2px, 0 1px 3px)
+- `--sys-shadow-elevated`: cinematic → compact (0 4px 12px, 0 2px 4px)
+- Light mode shadows reduced proportionally with warm-tinted rgba
+
+### Contract Update
+- Updated `docs/ui-design-contract.md` §6 to reflect actual playground v4 values (removed incorrect dark/light radius split)
+
+### Validation
+- `npm run build` ✓ zero errors
+- Code review score: 9/10
+
+---
+
+## 2026-05-13 — Dark Mode Ref UI Parity
+
+Completed full dark-mode/ref-ui alignment against `docs/ref-ui-playground/`.
+
+### Design System
+- Retokenized live legacy UI surfaces away from raw `bg-white`, `border-white/20`, `border-black/5`, and undefined `primary-hover` usage.
+- Converted dashboard Recharts grids, ticks, tooltips, cursors, and series colors to semantic CSS variables.
+- Converted product/call heatmaps from raw blue scales to brand primary/orange semantic scales with light/dark readability.
+- Replaced raw media/OKR/lead status colors with semantic `primary`, `secondary`, `info`, `success`, `warning`, and `error` tokens.
+
+### Quality
+- Fixed review findings for undefined `primary-fixed` classes and `bg-on-surface` misuse in bulk actions.
+- Bound primary/error/success filled surfaces to matching `text-on-*` tokens, including OKR department icons via `onIcon`.
+- Validation gates passed: `npm run typecheck`, `npm run lint`, `npm test` (86/86), `npm run build`.
+- Local HTTP smoke passed for `/` and `/v5/dashboard`.
+- Manual browser visual QA remains the release follow-up because no browser automation tooling is present in the project.
+
+---
+
+## 2026-05-13 — SMIT OS v5 Command Center UI/UX Rebuild
+
+Full dark-first dual-theme rebuild from page collection to Executive Command Center IA.
+
+### UX / IA
+- New workspace model: Command Center, Growth, Execution, Intelligence, Admin.
+- Root route keeps `/dashboard`; legacy tracker slugs redirect to canonical Growth routes.
+- V5Shell introduced with grouped navigation, header, mobile drawer, theme and density controls.
+
+### Design System
+- Added v5 token foundation, `ThemeProvider`, `DensityProvider`, `cn()` utility, and v5 UI primitives.
+- Dark-first warm palette with light-mode parity and command-center CTA DNA.
+- Settings Appearance tab now controls `data-theme` and `data-density` live.
+
+### Workspaces
+- Dashboard rebuilt as flagship v5 Command Center using real overview data.
+- Growth pages added for Leads, Ads, and Media while preserving real tracker hooks.
+- Execution routes added for OKRs, Daily Sync, and Weekly Check-in with real API flows and session-safe fetch handling.
+- Reports page added with real overview hook data, stateful date range, and browser print export.
+- Profile now reads authenticated user data instead of hardcoded demo values.
+
+### Validation
+- Added Node test coverage for `cn()` and v5 token contracts.
+- Validation gates passed: `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build`.
+- Documentation refreshed: codebase summary, code standards, system architecture, PDR, roadmap.
+
+---
+
 ## 2026-05-12 — Cleanup (Medium)
 
 Branch `chore/cleanup-medium` (4 commits + housekeeping). Scope verified via brainstorm + 2 researchers + validation interview.

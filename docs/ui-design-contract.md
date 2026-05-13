@@ -86,12 +86,10 @@ Playground v4 (`docs/ref-ui-playground/Playground .html`) là **visual canon** �
 
 | Element | Contract | Token |
 |---|---|---|
-| Card (dark) | `1.5rem` (match playground v4) | `--radius-card` |
-| Card (light) | `0.75rem` | `--radius-card` light variant |
-| Input/select/date (dark) | `1rem` (match playground v4) | `--radius-input` |
-| Input/select/date (light) | `0.75rem` | `--radius-input` light variant |
+| Card | `1.25rem` (playground v4 universal) | `--radius-card` |
+| Modal/callout | `1.25rem` | `--radius-modal` |
+| Input/select/date | `0.75rem` (playground v4 universal) | `--radius-input` |
 | Button/chip/badge | `9999px` pill | `--radius-button` / `--radius-chip` |
-| Modal/callout | Large rounded, consistent with Playground | token |
 | No drift | New UI cannot introduce arbitrary `rounded-xl/2xl/3xl` if token exists | — |
 
 ### 7. Shadow / Glow

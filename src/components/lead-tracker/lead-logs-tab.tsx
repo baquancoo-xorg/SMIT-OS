@@ -229,7 +229,7 @@ export default function LeadLogsTab({ filters }: LeadLogsTabProps) {
             const sla = getLeadSla(l, now);
             return sla.label.startsWith('Overdue');
           }).length;
-          const statCls = 'flex items-center gap-4 px-4 py-2 bg-white border border-outline-variant/40 rounded-card shadow-sm text-[10px] font-black uppercase tracking-widest whitespace-nowrap';
+          const statCls = 'flex items-center gap-4 px-4 py-2 bg-surface-2 border border-outline-variant/40 rounded-card shadow-sm text-[10px] font-black uppercase tracking-widest whitespace-nowrap';
           const dot = (color: string) => <span className={`size-2 rounded-full inline-block ${color}`} />;
           const stat = (color: string, label: string, val: number) => (
             <span className="flex items-center gap-1.5 text-on-surface-variant whitespace-nowrap">{dot(color)}{label}: {val}</span>
@@ -238,33 +238,33 @@ export default function LeadLogsTab({ filters }: LeadLogsTabProps) {
             <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1">
               <div className={statCls}>
                 {stat('bg-on-surface-variant', 'Total', filteredLeads.length)}
-                {stat('bg-violet-400', 'NEW', c('Mới'))}
-                {stat('bg-blue-400', 'ATT', c('Đang liên hệ'))}
+                {stat('bg-primary/80', 'NEW', c('Mới'))}
+                {stat('bg-info', 'ATT', c('Đang liên hệ'))}
                 {stat('bg-warning/80', 'NUR', c('Đang nuôi dưỡng'))}
-                {stat('bg-emerald-500', 'QLD', c('Qualified'))}
+                {stat('bg-success', 'QLD', c('Qualified'))}
                 {stat('bg-error/80', 'UQLD', c('Unqualified'))}
-                {stat('bg-emerald-400', 'OT', onTime)}
+                {stat('bg-success/80', 'OT', onTime)}
                 {stat('bg-error', 'OVD', overdue)}
               </div>
               <div className={statCls}>
                 {stat('bg-error/80', 'VN', vn)}
-                {stat('bg-sky-400', 'QT', intl)}
+                {stat('bg-info/80', 'QT', intl)}
               </div>
             </div>
           );
         })()}
       </GlassCard>
 
-      <div className="flex-1 min-h-0 bg-white border border-outline-variant/30 rounded-card shadow-lg overflow-hidden">
+      <div className="flex-1 min-h-0 bg-surface border border-outline-variant/30 rounded-card shadow-lg overflow-hidden">
         <TableShell variant="standard" className="h-full bg-transparent border-0 shadow-none rounded-none" scrollClassName="h-full overflow-y-auto overflow-x-auto custom-scrollbar" tableClassName="min-w-[1180px]">
-          <thead className="sticky top-0 z-20 bg-white">
-            <tr className={`${standardTable.headerRow} bg-white`}>
+          <thead className="sticky top-0 z-20 bg-surface-2">
+            <tr className={`${standardTable.headerRow} bg-surface-2`}>
               {isSale && (
                 <th className={`${standardTable.headerCell} w-10 pl-6`}>
                   <button
                     onClick={toggleSelectAll}
                     className={`size-4 rounded-[4px] border-2 flex items-center justify-center transition-all cursor-pointer ${
-                      allSelected ? 'bg-primary border-primary' : 'border-outline hover:border-primary/60 bg-white'
+                      allSelected ? 'bg-surface-container border-accent' : 'border-outline hover:border-accent/60 bg-surface-2'
                     }`}
                   >
                     {allSelected && <Check size={10} strokeWidth={3} className="text-white" />}
@@ -310,7 +310,7 @@ export default function LeadLogsTab({ filters }: LeadLogsTabProps) {
                 >
                   {isSale && (
                     <td className={`${standardTable.cell} pl-6`}>
-                      <button onClick={() => toggleSelect(lead.id)} className={`size-4 rounded-[4px] border-2 flex items-center justify-center transition-all cursor-pointer ${isSelected ? 'bg-primary border-primary' : 'border-outline hover:border-primary/60 bg-white'}`}>
+                      <button onClick={() => toggleSelect(lead.id)} className={`size-4 rounded-[4px] border-2 flex items-center justify-center transition-all cursor-pointer ${isSelected ? 'bg-primary border-primary' : 'border-outline hover:border-primary/60 bg-surface-2'}`}>
                         {isSelected && <Check size={10} strokeWidth={3} className="text-white" />}
                       </button>
                     </td>

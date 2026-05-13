@@ -287,8 +287,8 @@ export function UserManagementTabV2({ onDeleteConfirm, isAddingUser, setIsAdding
                     'inline-flex h-8 items-center rounded-chip px-3 text-[length:var(--text-body-sm)] font-semibold',
                     'transition-colors motion-fast ease-standard focus-visible:outline-none',
                     active
-                      ? 'bg-primary text-on-primary'
-                      : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container',
+                      ? 'bg-surface-container border border-accent text-on-surface'
+                      : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-transparent',
                   ].join(' ')}
                 >
                   {dept}

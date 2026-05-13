@@ -33,7 +33,7 @@ function fridayOfThisWeek(now: Date): Date {
 }
 
 export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: WeeklyCheckinModalProps) {
-  const { currentUser } = useAuth();
+  const { currentUser, setCurrentUser } = useAuth();
   const [krs, setKrs] = useState<KeyResult[]>([]);
   const [krCheckins, setKrCheckins] = useState<KrCheckin[]>([]);
   const [lastWeekPriorities, setLastWeekPriorities] = useState<PriorityRow[]>([{ text: '', done: false }]);
@@ -41,6 +41,12 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
   const [risks, setRisks] = useState('');
   const [helpNeeded, setHelpNeeded] = useState('');
   const [loading, setLoading] = useState(false);
+
+  function handleSessionExpired() {
+    setCurrentUser(null);
+    alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+    window.location.href = '/login';
+  }
 
   const now = new Date();
   const weekNumber = isoWeekNumber(now);
@@ -51,6 +57,10 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
     (async () => {
       try {
         const res = await fetch(`/api/key-results?ownerId=${currentUser.id}`, { credentials: 'include' });
+        if (res.status === 401) {
+          handleSessionExpired();
+          return;
+        }
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: KeyResult[] = await res.json();
         setKrs(data);
@@ -104,6 +114,10 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
         body: JSON.stringify(payload),
       });
 
+      if (res.status === 401) {
+        handleSessionExpired();
+        return;
+      }
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         alert(`Lỗi: ${err.error || 'Submit thất bại'}`);
@@ -126,9 +140,9 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white rounded-card shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-surface rounded-card shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
       >
-        <div className="px-8 py-6 border-b border-outline-variant/40 flex items-center justify-between bg-surface-variant/30/50">
+        <div className="px-8 py-6 border-b border-outline-variant/40 flex items-center justify-between bg-surface-variant/50">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-card bg-primary/10 flex items-center justify-center text-primary">
               <Calendar size={24} />
@@ -256,14 +270,14 @@ export default function WeeklyCheckinModal({ isOpen, onClose, onSuccess }: Weekl
           </section>
         </div>
 
-        <div className="px-8 py-6 border-t border-outline-variant/40 flex items-center justify-end gap-3 bg-surface-variant/30/50">
+        <div className="px-8 py-6 border-t border-outline-variant/40 flex items-center justify-end gap-3 bg-surface-variant/50">
           <button onClick={onClose} className="px-6 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-variant/50 rounded-full">
             Huỷ
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="px-8 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-full shadow-lg shadow-primary/20 disabled:opacity-50"
+            className="px-8 py-2.5 text-sm font-bold text-on-surface bg-surface-container border border-accent hover:bg-surface-container-high rounded-full shadow-sm disabled:opacity-50"
           >
             {loading ? 'Đang gửi...' : 'Gửi check-in'}
           </button>

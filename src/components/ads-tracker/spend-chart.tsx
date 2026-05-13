@@ -34,8 +34,8 @@ export default function SpendChart({ campaigns, dailySpend }: Props) {
   }, [campaigns, dailySpend]);
 
   return (
-    <div className="bg-white border border-outline-variant/30 rounded-card shadow-lg p-4 xl:p-6 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16" />
+    <div className="group bg-surface border border-outline-variant/30 rounded-card shadow-lg p-4 xl:p-6 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full -mr-16 -mt-16 opacity-0 transition-opacity group-hover:opacity-100" />
       <div className="flex items-center justify-between mb-4 relative z-10">
         <h3 className="text-2xl font-black font-headline">
           Spend <span className="font-semibold text-primary">trend</span>
@@ -47,14 +47,15 @@ export default function SpendChart({ campaigns, dailySpend }: Props) {
       <div className="h-[280px] relative z-10">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="date" tick={{ fontSize: 10 }} stroke="#94a3b8" />
-            <YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--md-sys-color-outline-variant, var(--sys-color-border))" />
+            <XAxis dataKey="date" tick={{ fontSize: 10 }} stroke="var(--sys-color-text-2)" />
+            <YAxis tick={{ fontSize: 10 }} stroke="var(--sys-color-text-2)" />
             <Tooltip
               contentStyle={{
-                background: 'white',
-                border: '1px solid rgba(255,255,255,0.5)',
+                background: 'var(--md-sys-color-surface-container-high, var(--sys-color-surface-2))',
+                border: '1px solid var(--md-sys-color-outline-variant, var(--sys-color-border))',
                 borderRadius: 16,
+                color: 'var(--md-sys-color-on-surface, var(--sys-color-text-1))',
                 fontSize: 12,
               }}
               formatter={(v: number) => v.toLocaleString('en-US')}
@@ -62,7 +63,7 @@ export default function SpendChart({ campaigns, dailySpend }: Props) {
             <Line
               type="monotone"
               dataKey="spend"
-              stroke="var(--md-sys-color-primary, #6750A4)"
+              stroke="var(--md-sys-color-primary, var(--sys-color-accent))"
               strokeWidth={2.5}
               dot={{ r: 3 }}
               activeDot={{ r: 6 }}

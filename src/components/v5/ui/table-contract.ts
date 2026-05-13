@@ -16,14 +16,14 @@ export interface TableVariantContract {
 }
 
 const STANDARD_CONTRACT: TableVariantContract = {
-  shell: 'overflow-hidden rounded-card bg-surface shadow-lg border border-outline-variant/40',
+  shell: 'overflow-hidden rounded-card bg-surface shadow-lg shadow-on-surface/[0.04]',
   scroll: 'overflow-x-auto',
   table: 'w-full border-collapse text-left',
-  headerRow: 'border-b border-outline-variant/40 bg-surface-container-low/95 backdrop-blur-sm',
+  headerRow: 'border-b border-outline-variant/40 bg-surface-variant/30',
   headerCell: 'px-4 py-2.5 text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant',
   body: 'divide-y divide-outline-variant/30',
   row: 'group transition-colors hover:bg-surface-container/50',
-  rowSelected: 'bg-surface-container/60',
+  rowSelected: 'bg-surface-container/70',
   cell: 'px-4 py-2.5 text-[length:var(--text-body-sm)]',
   actionHeaderCell: 'w-[88px] px-3 py-2.5 text-right text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant',
   actionCell: 'relative px-3 py-2 text-right',
@@ -31,16 +31,16 @@ const STANDARD_CONTRACT: TableVariantContract = {
 };
 
 const DENSE_CONTRACT: TableVariantContract = {
-  shell: 'overflow-hidden rounded-card border border-outline-variant/40 bg-surface shadow-lg',
+  shell: 'overflow-hidden rounded-card border border-outline-variant/40 bg-surface',
   scroll: 'overflow-x-auto',
   table: 'w-full table-fixed text-[length:var(--text-body-sm)]',
-  headerRow: 'border-b border-outline-variant/40 bg-surface-container-low/95 backdrop-blur-sm',
-  headerCell: 'whitespace-nowrap bg-surface-container-low/95 px-3 py-2.5 text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant',
+  headerRow: 'border-b border-outline-variant/40 bg-surface-variant/60',
+  headerCell: 'whitespace-nowrap bg-surface-variant/60 px-3 py-2.5 text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant',
   body: '',
   row: 'group border-b border-outline-variant/30 transition-colors hover:bg-surface-container/50',
-  rowSelected: 'bg-surface-container/60',
+  rowSelected: 'bg-surface-container/70',
   cell: 'whitespace-nowrap px-3 py-2 text-[length:var(--text-body-sm)]',
-  actionHeaderCell: 'w-[96px] bg-surface-container-low/95 px-3 py-2.5 text-right text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant',
+  actionHeaderCell: 'w-[96px] bg-surface-variant/60 px-3 py-2.5 text-right text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface-variant',
   actionCell: 'whitespace-nowrap px-3 py-2 text-right text-[length:var(--text-body-sm)]',
   emptyState: 'p-8 text-center',
 };
