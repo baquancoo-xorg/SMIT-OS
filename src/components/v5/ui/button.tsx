@@ -24,7 +24,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   primary: cn(
     'relative isolate overflow-hidden border text-text-1 shadow-sm',
     'border-[var(--sys-button-primary-border)] bg-[image:var(--sys-button-primary-bg)]',
-    'hover:border-accent/50 hover:shadow-[var(--sys-shadow-card),0_0_24px_var(--sys-color-accent-dim)] active:scale-[0.99] disabled:opacity-50',
+    'hover:border-accent/50 hover:shadow-glass active:scale-[0.99] disabled:opacity-50',
     '[&>svg]:text-accent',
   ),
   secondary: 'border border-border bg-surface-2 text-text-1 hover:border-border-strong hover:bg-surface-3 disabled:opacity-50',

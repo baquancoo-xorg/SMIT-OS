@@ -1,6 +1,6 @@
 ---
 title: "Phase 2 — Page Tab Usage & URL State Migration"
-status: pending
+status: completed
 priority: P2
 effort: 1h
 ---
@@ -133,12 +133,12 @@ onChange:
 
 ## Todo List
 
-- [ ] Settings.tsx — add `size="page"` to `<TabPill>`
-- [ ] AdsTracker.tsx — remove `useState<Tab>`, add `parseTab` + URL read/write, `size="page"`
-- [ ] LeadTracker.tsx — remove `useState<ActiveTab>`, add `parseTab` + URL read/write, `size="page"`
-- [ ] OKRsManagement.tsx — add `useSearchParams`, replace `useState<ActiveTab>`, add `parseTab` + URL read/write, `size="page"`
-- [ ] OKRsManagement.tsx — clean up unused `useState` import if applicable
-- [ ] `npx tsc --noEmit` — zero errors
+- [x] Settings.tsx — add `size="page"` to `<TabPill>`
+- [x] AdsTracker.tsx — remove `useState<Tab>`, add `parseTab` + URL read/write, `size="page"`
+- [x] LeadTracker.tsx — remove `useState<ActiveTab>`, add `parseTab` + URL read/write, `size="page"`
+- [x] OKRsManagement.tsx — add `useSearchParams`, replace `useState<ActiveTab>`, add `parseTab` + URL read/write, `size="page"`
+- [x] OKRsManagement.tsx — clean up unused `useState` import if applicable
+- [x] `npx tsc --noEmit` — zero errors
 
 ## Success Criteria
 

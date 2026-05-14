@@ -1,6 +1,6 @@
 ---
 title: "Phase 1 — TabPill Visual Standard"
-status: pending
+status: completed
 priority: P2
 effort: 1.5h
 ---
@@ -90,14 +90,14 @@ The active button className merges: base lifted classes + `activeGlowStyles[size
 
 ## Todo List
 
-- [ ] Add `'page'` to size union type
-- [ ] Add `page` entry to `sizeStyles`
-- [ ] Add `page` entry to `containerPadding`
-- [ ] Add `activeGlowStyles` map
-- [ ] Merge `activeGlowStyles[size]` into active button className
-- [ ] Update JSDoc
-- [ ] Verify file ≤ 200 lines
-- [ ] `npx tsc --noEmit` — zero errors
+- [x] Add `'page'` to size union type
+- [x] Add `page` entry to `sizeStyles`
+- [x] Add `page` entry to `containerPadding`
+- [x] Add `activeGlowStyles` map
+- [x] Merge `activeGlowStyles[size]` into active button className
+- [x] Update JSDoc
+- [x] Verify file ≤ 200 lines
+- [x] `npx tsc --noEmit` — zero errors
 
 ## Success Criteria
 

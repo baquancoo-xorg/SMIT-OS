@@ -74,7 +74,7 @@ function NotificationCenterTrigger({ count = 0, onClick, ariaLabel = 'Open notif
       type="button"
       aria-label={count > 0 ? `${ariaLabel} (${count} unread)` : ariaLabel}
       onClick={onClick}
-      className="relative inline-flex size-9 items-center justify-center rounded-button border border-[var(--sidebar-item-border)] bg-[var(--sidebar-button-bg)] text-text-muted transition hover:bg-[var(--sidebar-button-hover)] hover:text-text-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+      className="relative inline-flex size-9 items-center justify-center text-text-muted transition hover:text-text-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
     >
       <Bell className="size-4" aria-hidden="true" />
       {count > 0 && (
@@ -185,7 +185,10 @@ function NotificationCenterPanel({ open, onClose, notifications, headerActions, 
                             </span>
                           </div>
                           {n.unread && (
-                            <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" aria-label="Unread" />
+                            <span className="mt-1.5 inline-flex shrink-0 items-center">
+                              <span className="sr-only">Unread notification</span>
+                              <span className="size-2 rounded-full bg-primary" aria-hidden="true" />
+                            </span>
                           )}
                         </Tag>
                       </li>

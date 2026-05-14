@@ -107,8 +107,8 @@ export default function HeaderV5({ onMenuClick }: HeaderV5Props) {
             <button
               type="button"
               onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-              className="relative inline-flex size-9 items-center justify-center rounded-button border border-[var(--sidebar-item-border)] bg-[var(--sidebar-button-bg)] text-text-muted transition hover:bg-[var(--sidebar-button-hover)] hover:text-text-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-              aria-label="Toggle theme"
+              className="relative inline-flex size-9 items-center justify-center text-text-muted transition hover:text-text-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+              aria-label={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {resolvedTheme === 'dark' ? <Moon className="size-4" aria-hidden="true" /> : <Sun className="size-4" aria-hidden="true" />}
             </button>

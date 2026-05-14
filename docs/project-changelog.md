@@ -2,6 +2,16 @@
 
 Tracks significant changes — features, removals, migrations, infra updates.
 
+## 2026-05-15 — v5 UI polish and tab validation
+
+- Standardized page-level TabPill status docs for the primary glow rollout.
+- Refined header icon buttons with clearer theme-toggle labels and notification unread screen-reader text.
+- Softened primary Button hover shadow to the shared `shadow-glass` token.
+- Aligned Media refresh button height with compact toolbar controls.
+- Validation passed: `npm run typecheck`, `npm run lint:ui-canon`, `npm run test` (125/125), `npm run build`, route smoke for `/`, `/okrs?tab=L2`, `/leads?tab=stats`, `/ads?tab=attribution`, `/settings?tab=api-keys`.
+
+---
+
 ## 2026-05-14 — Media Tracker auto-pull rewrite
 
 - Drop manual input. v5/MediaTracker now auto-syncs FB Fanpage posts via Graph API (cron every 6h + manual Refresh).

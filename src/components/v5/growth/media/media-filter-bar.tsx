@@ -161,6 +161,7 @@ export function MediaFilterBar({
           <Button
             variant="primary"
             size="sm"
+            className="h-8 text-[length:var(--text-body-sm)]"
             iconLeft={<RefreshCw className={isSyncing ? 'animate-spin' : ''} />}
             onClick={onRefresh}
             disabled={isSyncing}
