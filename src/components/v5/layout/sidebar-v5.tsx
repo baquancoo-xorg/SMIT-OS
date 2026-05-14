@@ -67,7 +67,7 @@ function SidebarNavItem({ item, collapsed, active, onNavigate }: { item: Workspa
               selected
                 ? collapsed
                   ? 'text-text-1'
-                  : 'border-[var(--sidebar-item-border)] bg-[var(--sidebar-item-active)] text-text-1 shadow-lg'
+                  : 'border-[var(--sidebar-item-border)] bg-[var(--sidebar-item-active)] text-text-1 shadow-card'
                 : collapsed
                   ? 'text-text-muted group-hover:text-text-1'
                   : 'border-transparent text-text-muted group-hover:bg-[var(--sidebar-item-hover)] group-hover:text-text-1'
@@ -89,7 +89,7 @@ export default function SidebarV5({ collapsed, onCollapsedChange, onLogout, onNa
 
   return (
     <aside
-      className={`my-3 ml-3 h-[calc(100dvh-1.5rem)] shrink-0 overflow-hidden border border-border bg-surface shadow-xl transition-[width] duration-medium ease-standard ${collapsed ? 'w-[var(--sidebar-width-collapsed)] rounded-[2rem]' : 'w-[var(--sidebar-width)] rounded-[2rem]'}`}
+      className={`my-3 ml-3 h-[calc(100dvh-1.5rem)] shrink-0 overflow-hidden border border-border bg-surface shadow-elevated transition-[width] duration-medium ease-standard ${collapsed ? 'w-[var(--sidebar-width-collapsed)] rounded-[2rem]' : 'w-[var(--sidebar-width)] rounded-[2rem]'}`}
       aria-label="Primary navigation"
     >
       <div className="flex h-full flex-col">
@@ -129,7 +129,7 @@ export default function SidebarV5({ collapsed, onCollapsedChange, onLogout, onNa
                 <p className="truncate text-xs font-semibold uppercase tracking-[0.12em] text-text-muted">{currentUser?.role || 'Admin'}</p>
               </button>
               {userMenuOpen && (
-                <div className="absolute bottom-20 left-7 right-7 z-dropdown rounded-card border border-border bg-surface-2 p-1 shadow-xl" role="menu">
+                <div className="absolute bottom-20 left-7 right-7 z-dropdown rounded-card border border-border bg-surface-2 p-1 shadow-elevated" role="menu">
                   <NavLink to="/settings" onClick={onNavigate}                     className="flex min-h-[var(--touch-min)] items-center gap-3 rounded-[var(--radius-input)] px-3 text-sm font-bold text-text-2 transition hover:bg-[var(--sidebar-item-hover)] hover:text-text-1" role="menuitem">
                     <Settings size={16} />
                     Settings

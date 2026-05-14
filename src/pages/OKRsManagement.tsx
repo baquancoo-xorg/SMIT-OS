@@ -27,8 +27,8 @@ import {
   KpiCard,
   EmptyState,
   FilterChip,
-} from '../components/ui';
-import type { TabPillItem } from '../components/ui';
+} from '../components/v5/ui';
+import type { TabPillItem } from '../components/v5/ui';
 
 type ActiveTab = 'L1' | 'L2';
 

@@ -119,7 +119,7 @@ export default function DatePicker({ value, onChange, placeholder = 'Chọn ngà
               exit={{ opacity: 0, y: -6, scale: 0.97 }}
               transition={{ duration: 0.15 }}
               style={{ top: pos.top, left: pos.left }}
-              className="fixed z-[300] w-72 rounded-card border border-outline-variant/40 bg-surface p-4 shadow-2xl"
+              className="fixed z-[300] w-72 rounded-card border border-outline-variant/40 bg-surface p-4 shadow-elevated"
             >
               {/* Month nav */}
               <div className="mb-3 flex items-center justify-between">

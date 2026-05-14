@@ -24,12 +24,14 @@ export default function Profile() {
     <div className="flex max-w-3xl flex-col gap-6">
       <Card padding="lg" glow>
         <div className="flex flex-wrap items-center gap-5 border-b border-border pb-6">
-          <div className="flex size-20 items-center justify-center rounded-card border border-border bg-surface-2 font-headline text-2xl font-black text-accent-text shadow-lg">
+          {/* ui-canon-ok: font-black for hero avatar initial */}
+          <div className="flex size-20 items-center justify-center rounded-card border border-border bg-surface-2 font-headline text-2xl font-black text-accent-text shadow-card">
             {currentUser?.avatar ? (
               <img src={currentUser.avatar} alt={`${name} avatar`} className="size-full rounded-card object-cover" />
             ) : initials}
           </div>
           <div className="flex flex-col gap-1.5">
+            {/* ui-canon-ok: font-black for label */}
             <p className="text-xs font-black uppercase tracking-[0.18em] text-text-muted">Profile photo</p>
             <Button variant="secondary" size="sm" iconLeft={<Camera />} disabled>
               Change avatar

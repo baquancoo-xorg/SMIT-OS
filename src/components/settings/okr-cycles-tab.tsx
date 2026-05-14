@@ -9,8 +9,8 @@ import {
   FormDialog,
   EmptyState,
   DropdownMenu,
-} from '../ui';
-import type { DataTableColumn } from '../ui';
+} from '../v5/ui';
+import type { DataTableColumn } from '../v5/ui';
 
 interface OkrCyclesTabProps {
   onDeleteConfirm: (type: 'cycle', id: string) => void;

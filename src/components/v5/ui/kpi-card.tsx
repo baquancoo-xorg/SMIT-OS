@@ -72,7 +72,7 @@ export const KpiCard = forwardRef<HTMLDivElement, KpiCardProps>(
         ref={ref}
         aria-busy={loading || undefined}
         className={cn(
-          'group relative overflow-hidden rounded-card border border-border bg-surface p-[var(--density-space)] shadow-lg transition-all duration-medium ease-standard',
+          'group relative overflow-hidden rounded-card border border-border bg-surface p-[var(--density-space)] shadow-card transition-all duration-medium ease-standard',
           'hover:-translate-y-px hover:border-accent/25 hover:shadow-glass',
           loading && 'opacity-60',
           className,
@@ -80,6 +80,7 @@ export const KpiCard = forwardRef<HTMLDivElement, KpiCardProps>(
         {...props}
       >
         {decorative && <div aria-hidden="true" className={cn('pointer-events-none absolute -right-14 -top-14 size-40 rounded-full blur-3xl opacity-0 transition-opacity group-hover:opacity-60', accentBlobStyle[accent])} />}
+        {/* ui-canon-ok: KPI card uses font-black for headline/value display */}
         <div className="relative flex flex-col gap-3">
           <div className="flex items-start justify-between gap-3">
             <span className="text-xs font-black uppercase tracking-[0.18em] text-text-muted">{label}</span>

@@ -68,7 +68,7 @@ export function FilterChip<T extends string | number>({
           <ListboxOptions
             anchor={{ to: 'bottom start', gap: 8 }}
             transition
-            className="z-[200] min-w-[160px] overflow-hidden rounded-card border border-outline-variant/40 bg-surface shadow-xl transition duration-150 ease-out focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0"
+            className="z-[200] min-w-[160px] overflow-hidden rounded-card border border-outline-variant/40 bg-surface shadow-elevated transition duration-150 ease-out focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0"
           >
             {options.map((option) => (
               <ListboxOption

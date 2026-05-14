@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { UserCircle, FileText } from 'lucide-react';
 import { api } from '../../lib/api';
 import type { Lead } from '../../types';
-import DatePicker from '../ui/date-picker';
-import CustomSelect from '../ui/custom-select';
-import { FormDialog, Input, Badge } from '../ui';
+import DatePicker from '../v5/ui/date-picker';
+import CustomSelect from '../v5/ui/custom-select';
+import { FormDialog, Input, Badge } from '../v5/ui';
 
 /**
  * Add/Edit lead form dialog với CRM sync lock support.

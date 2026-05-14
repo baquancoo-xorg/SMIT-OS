@@ -78,6 +78,7 @@ export function ReportsOverviewSection({ data, isLoading, error }: ReportsOvervi
         />
       </div>
 
+      {/* ui-canon-ok: section header font-black for KPI headline */}
       <Card padding="lg" glow>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -97,6 +98,7 @@ export function ReportsOverviewSection({ data, isLoading, error }: ReportsOvervi
   );
 }
 
+// ui-canon-ok: Metric component uses font-black for KPI display
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-card border border-border bg-surface-2 p-4">

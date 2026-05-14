@@ -10,8 +10,8 @@ import {
   FormDialog,
   EmptyState,
   DropdownMenu,
-} from '../ui';
-import type { DataTableColumn, BadgeVariant } from '../ui';
+} from '../v5/ui';
+import type { DataTableColumn, BadgeVariant } from '../v5/ui';
 
 const ALL_DEPARTMENTS = ['BOD', 'Tech', 'Marketing', 'Media', 'Sale'];
 const ROLE_BADGE: Record<string, BadgeVariant> = {

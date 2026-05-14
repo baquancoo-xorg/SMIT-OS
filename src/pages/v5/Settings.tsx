@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Key, ShieldCheck, SlidersHorizontal, UserCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { ApiKeysPanelV2, ProfileTabV2 } from '../../components/settings';
-import { PageHeader, TabPill } from '../../components/v5/ui';
+import { TabPill } from '../../components/v5/ui';
 import type { TabPillItem } from '../../components/v5/ui';
 import { SettingsAppearanceTab, SettingsSecurityTab } from '../../components/v5/admin';
 
@@ -22,13 +22,6 @@ export default function Settings() {
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <PageHeader
-        breadcrumb={[{ label: 'Admin' }, { label: 'Settings' }]}
-        title="System "
-        accent="Settings"
-        description="Profile, security, appearance và API access cho SMIT OS command center."
-      />
-
       <div className="overflow-x-auto pb-1">
         <TabPill<SettingsTab>
           label="Settings sections"

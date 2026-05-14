@@ -41,7 +41,7 @@ const variantSolid: Record<BadgeVariant, string> = {
   error: 'bg-error text-on-error border-error',
   info: 'bg-info text-on-info border-info',
   neutral: 'bg-text-muted text-bg border-text-muted',
-  primary: 'bg-accent text-white border-accent',
+  primary: 'bg-accent text-on-primary border-accent',
   todo: 'bg-text-muted text-bg border-text-muted',
   'in-progress': 'bg-info text-on-info border-info',
   review: 'bg-warning text-on-warning border-warning',

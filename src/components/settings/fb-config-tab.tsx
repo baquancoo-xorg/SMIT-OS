@@ -11,8 +11,8 @@ import {
   GlassCard,
   Spinner,
   useToast,
-} from '../ui';
-import type { DataTableColumn, BadgeVariant } from '../ui';
+} from '../v5/ui';
+import type { DataTableColumn, BadgeVariant } from '../v5/ui';
 
 interface FbAccount {
   id: number;

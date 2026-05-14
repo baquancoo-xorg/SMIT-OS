@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { DollarSign, CreditCard, Users, TrendingUp } from 'lucide-react';
 import { formatCurrency } from '../../../lib/formatters';
 import type { SummaryMetrics, MetricWithTrend } from '../../../types/dashboard-overview';
-import { KpiCard, Skeleton, GlassCard } from '../../ui';
+import { KpiCard, Skeleton, GlassCard } from '../../v5/ui';
 
 /**
  * Dashboard Overview summary cards (Revenue / Ad Spend / Signups / ROAS).

@@ -8,8 +8,8 @@ import {
   SortableTh,
   useSortableData,
   type SortableValue,
-} from '../ui';
-import { getTableContract } from '../ui/table-contract';
+} from '../v5/ui';
+import { getTableContract } from '../v5/ui/table-contract';
 
 /**
  * Ads attribution table — campaigns × leads × CPL.

@@ -3,7 +3,7 @@ import { useLeadDistribution } from '../../../hooks/use-lead-distribution';
 import { LeadDistributionBySource } from './lead-distribution-by-source';
 import { LeadDistributionByAe } from './lead-distribution-by-ae';
 import { LeadDistributionByCountry } from './lead-distribution-by-country';
-import { GlassCard, Spinner, EmptyState } from '../../ui';
+import { GlassCard, Spinner, EmptyState } from '../../v5/ui';
 
 /**
  * Lead distribution 3-column section: by source / by country / by AE.

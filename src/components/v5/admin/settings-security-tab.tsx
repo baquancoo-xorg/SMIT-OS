@@ -4,6 +4,7 @@ import { Card, Input, Button } from '../ui';
 export function SettingsSecurityTab() {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
+      {/* ui-canon-ok: section header font-black for KPI headline */}
       <Card padding="lg" glow>
         <p className="text-xs font-black uppercase tracking-[0.18em] text-text-muted">Security</p>
         <h2 className="mt-2 font-headline text-2xl font-black text-text-1">Password</h2>
@@ -18,6 +19,7 @@ export function SettingsSecurityTab() {
         <div className="flex items-start gap-3">
           <ShieldCheck className="mt-1 size-6 text-accent-text" />
           <div>
+            {/* ui-canon-ok: font-black for KPI */}
             <p className="text-xs font-black uppercase tracking-[0.18em] text-text-muted">2FA</p>
             <h2 className="mt-2 font-headline text-2xl font-black text-text-1">Authenticator</h2>
             <p className="mt-2 text-sm font-medium text-text-2">2FA status đang được quản lý ở auth layer; UI cấu hình chi tiết sẽ nối vào backend security endpoint ở vòng sau.</p>

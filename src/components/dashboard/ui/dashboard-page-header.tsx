@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { PageHeader } from '../../ui';
+import { PageHeader } from '../../v5/ui';
 
 /**
  * Dashboard page header — H1 với italic accent. Breadcrumb owned by Header.tsx topbar.

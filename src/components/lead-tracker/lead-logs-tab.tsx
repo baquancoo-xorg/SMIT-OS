@@ -9,12 +9,12 @@ import type { Lead } from '../../types';
 import BulkActionBar, { type BulkEditFields } from './bulk-action-bar';
 import LeadDetailModal from './lead-detail-modal';
 import LeadLogDialog from './lead-log-dialog';
-import { TableRowActions } from '../ui/table-row-actions';
-import { TableShell } from '../ui/table-shell';
-import { getTableContract } from '../ui/table-contract';
-import { formatTableDateTime } from '../ui/table-date-format';
-import { GlassCard, Badge, Button, EmptyState } from '../ui';
-import type { BadgeVariant } from '../ui';
+import { TableRowActions } from '../v5/ui/table-row-actions';
+import { TableShell } from '../v5/ui/table-shell';
+import { getTableContract } from '../v5/ui/table-contract';
+import { formatTableDateTime } from '../v5/ui/table-date-format';
+import { GlassCard, Badge, Button, EmptyState } from '../v5/ui';
+import type { BadgeVariant } from '../v5/ui';
 
 export interface LeadFilters {
   ae: string;

@@ -22,12 +22,13 @@
 
 ## Key Directories
 - `src/components/v5/layout/` — command-center shell, sidebar, header, navigation.
-- `src/components/v5/ui/` — reusable design primitives.
+- `src/components/v5/ui/` — reusable design primitives (inputs, buttons, cards, tables, modals).
+- `src/components/v5/ui/charts/` — chart wrappers (line, bar, area, donut, pie, funnel, heatmap, sparkline).
 - `src/components/v5/dashboard/` — dashboard section wrappers and KPI blocks.
 - `src/components/v5/growth/` — Growth workspace support components.
 - `src/components/v5/intelligence/` — Reports sections.
 - `src/components/v5/admin/` — Settings appearance/security controls.
-- `src/pages/v5/` — v5 route namespace.
+- `src/pages/v5/` — v5 route namespace (includes `/playground` for component showcase).
 - `src/hooks/` — TanStack Query hooks for dashboard, trackers, and workspace data.
 - `server/routes/` — Express API routes.
 

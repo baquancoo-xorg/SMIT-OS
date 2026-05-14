@@ -1,4 +1,4 @@
-import { Badge } from '../ui';
+import { Badge } from '../v5/ui';
 
 interface ConfidenceSliderProps {
   value: number;

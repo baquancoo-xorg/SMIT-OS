@@ -10,8 +10,8 @@ import {
   SortableTh,
   useSortableData,
   type SortableValue,
-} from '../ui';
-import { getTableContract } from '../ui/table-contract';
+} from '../v5/ui';
+import { getTableContract } from '../v5/ui/table-contract';
 
 /**
  * Media posts table — owned/KOL/PR posts với reach, engagement, optional cost + sentiment.

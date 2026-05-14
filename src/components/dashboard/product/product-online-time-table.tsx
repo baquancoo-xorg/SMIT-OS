@@ -5,8 +5,8 @@ import { useMemo, useState } from 'react';
 import { useProductOperational } from '../../../hooks/use-product-dashboard';
 import type { DateRange } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
-import { DataTable, EmptyState } from '../../ui';
-import type { DataTableColumn, SortState } from '../../ui';
+import { DataTable, EmptyState } from '../../v5/ui';
+import type { DataTableColumn, SortState } from '../../v5/ui';
 
 interface ProductOnlineTimeTableProps {
   range: DateRange;

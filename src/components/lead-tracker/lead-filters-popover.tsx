@@ -1,6 +1,6 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import { ChevronDown, Filter, X } from 'lucide-react';
-import DatePicker from '../ui/date-picker';
+import DatePicker from '../v5/ui/date-picker';
 import type { LeadFilters } from './lead-logs-tab';
 
 interface LeadFiltersPopoverProps {

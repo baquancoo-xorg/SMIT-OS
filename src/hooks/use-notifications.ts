@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface Notification {
   id: string;
@@ -23,7 +23,7 @@ const isTestNotification = (n: Notification): boolean => {
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const unreadCount = useMemo(() => notifications.filter(n => !n.isRead).length, [notifications]);
   const [loading, setLoading] = useState(true);
 
   const fetchNotifications = useCallback(async () => {
@@ -39,38 +39,36 @@ export function useNotifications() {
     }
   }, []);
 
-  const fetchUnreadCount = useCallback(async () => {
+  const markAsRead = useCallback(async (id: string) => {
     try {
-      const res = await fetch('/api/notifications/unread-count', { credentials: 'include' });
-      if (!res.ok) return;
-      const data: { count: number } = await res.json();
-      setUnreadCount(data.count);
+      const res = await fetch(`/api/notifications/${id}/read`, { method: 'PATCH', credentials: 'include' });
+      if (!res.ok) return false;
+      setNotifications(prev => prev.map(n => (n.id === id ? { ...n, isRead: true } : n)));
+      return true;
     } catch (e) {
-      console.error('Failed to fetch unread count:', e);
+      console.error('Failed to mark notification as read:', e);
+      return false;
     }
   }, []);
 
-  const markAsRead = useCallback(async (id: string) => {
-    const res = await fetch(`/api/notifications/${id}/read`, { method: 'PATCH', credentials: 'include' });
-    if (!res.ok) return;
-    setNotifications(prev => prev.map(n => (n.id === id ? { ...n, isRead: true } : n)));
-    setUnreadCount(prev => Math.max(0, prev - 1));
-  }, []);
-
   const markAllAsRead = useCallback(async () => {
-    const res = await fetch('/api/notifications/mark-all-read', { method: 'POST', credentials: 'include' });
-    if (!res.ok) return;
-    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-    setUnreadCount(0);
+    try {
+      const res = await fetch('/api/notifications/mark-all-read', { method: 'POST', credentials: 'include' });
+      if (!res.ok) return false;
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      return true;
+    } catch (e) {
+      console.error('Failed to mark all notifications as read:', e);
+      return false;
+    }
   }, []);
 
   useEffect(() => {
     fetchNotifications();
-    fetchUnreadCount();
 
     let interval: ReturnType<typeof setInterval> | null = null;
     const startPolling = () => {
-      if (!interval) interval = setInterval(fetchUnreadCount, 30000);
+      if (!interval) interval = setInterval(fetchNotifications, 30000);
     };
     const stopPolling = () => {
       if (interval) {
@@ -81,7 +79,7 @@ export function useNotifications() {
     const onVisibilityChange = () => {
       if (document.hidden) stopPolling();
       else {
-        fetchUnreadCount();
+        fetchNotifications();
         startPolling();
       }
     };
@@ -92,7 +90,7 @@ export function useNotifications() {
       stopPolling();
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
-  }, [fetchNotifications, fetchUnreadCount]);
+  }, [fetchNotifications]);
 
   return {
     notifications,

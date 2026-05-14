@@ -14,8 +14,8 @@ import {
   SortableTh,
   useSortableData,
   type SortableValue,
-} from '../components/ui';
-import { getTableContract } from '../components/ui/table-contract';
+} from '../components/v5/ui';
+import { getTableContract } from '../components/v5/ui';
 
 function todayIso(): string {
   return new Date().toISOString().split('T')[0];

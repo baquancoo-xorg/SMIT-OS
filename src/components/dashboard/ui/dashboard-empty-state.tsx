@@ -1,5 +1,5 @@
 import { Inbox } from 'lucide-react';
-import { EmptyState } from '../../ui';
+import { EmptyState } from '../../v5/ui';
 
 /**
  * Dashboard empty state — shown trong tab placeholder hoặc data-not-ready state.

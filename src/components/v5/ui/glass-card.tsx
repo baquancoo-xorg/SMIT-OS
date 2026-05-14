@@ -20,8 +20,8 @@ export interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
 // v3 Apple Bento: solid white surfaces + chromatic shadows replace v2 glass + backdrop-blur.
 // Variant names retained for component-call compat across the codebase.
 const variantStyles: Record<GlassCardVariant, string> = {
-  surface: 'bg-surface border border-border shadow-lg',
-  raised: 'bg-surface-2 border border-border-strong shadow-xl',
+  surface: 'bg-surface border border-border shadow-card',
+  raised: 'bg-surface-2 border border-border-strong shadow-elevated',
   ghost: 'bg-transparent border border-border',
   outlined: 'bg-surface border border-border-strong',
 };
@@ -78,7 +78,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
           variantStyles[variant],
           paddingStyles[padding],
           interactive
-            ? 'transition-all duration-medium ease-standard hover:shadow-xl hover:-translate-y-px hover:border-outline-variant/70 cursor-pointer'
+            ? 'transition-all duration-medium ease-standard hover:shadow-elevated hover:-translate-y-px hover:border-outline-variant/70 cursor-pointer'
             : '',
           className,
         ]

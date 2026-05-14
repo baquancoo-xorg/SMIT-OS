@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import type { DateRange } from '../ui';
+import type { DateRange } from '../../ui';
 
 export function parseLocalDate(value: string): Date {
   return new Date(`${value}T00:00:00`);

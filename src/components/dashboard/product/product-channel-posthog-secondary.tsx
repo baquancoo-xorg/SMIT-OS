@@ -14,7 +14,7 @@ import {
 import { useProductChannel } from '../../../hooks/use-product-dashboard';
 import type { DateRange } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
-import { Badge, Skeleton } from '../../ui';
+import { Badge, Skeleton } from '../../v5/ui';
 
 interface ProductChannelPostHogSecondaryProps {
   range: DateRange;

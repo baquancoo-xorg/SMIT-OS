@@ -8,7 +8,7 @@ import AttributionTable from '../../components/ads-tracker/attribution-table';
 import { AdsKpiCards } from '../../components/v5/growth/ads/ads-kpi-cards';
 import { AdsSpendChart } from '../../components/v5/growth/ads/ads-spend-chart';
 import { fromDateRange, toDateRange } from '../../components/v5/growth/date-range-utils';
-import { Button, Card, DateRangePicker, PageHeader, TabPill } from '../../components/v5/ui';
+import { Button, Card, DateRangePicker, TabPill } from '../../components/v5/ui';
 import type { DateRange, TabPillItem } from '../../components/v5/ui';
 import {
   useAdsAttributionQuery,
@@ -74,27 +74,20 @@ export default function AdsTrackerV5() {
 
   return (
     <div className="flex h-full flex-col gap-5 pb-8">
-      <PageHeader
-        title="Ads "
-        accent="Tracker"
-        description="Spend, attribution và campaign operations trong Growth Workspace."
-        actions={(
-          <>
-            <DateRangePicker value={pickerValue} onChange={setRange} size="sm" label="Ads date range" />
-            {isAdmin && (
-              <Button
-                variant="primary"
-                size="sm"
-                iconLeft={<RefreshCw className={syncMutation.isPending ? 'animate-spin' : ''} />}
-                onClick={handleSync}
-                disabled={syncMutation.isPending}
-              >
-                {syncMutation.isPending ? 'Syncing...' : 'Sync Meta'}
-              </Button>
-            )}
-          </>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <DateRangePicker value={pickerValue} onChange={setRange} size="sm" label="Ads date range" />
+        {isAdmin && (
+          <Button
+            variant="primary"
+            size="sm"
+            iconLeft={<RefreshCw className={syncMutation.isPending ? 'animate-spin' : ''} />}
+            onClick={handleSync}
+            disabled={syncMutation.isPending}
+          >
+            {syncMutation.isPending ? 'Syncing...' : 'Sync Meta'}
+          </Button>
         )}
-      />
+      </div>
 
       <div className="overflow-x-auto pb-1">
         <TabPill<Tab> label="Ads tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="sm" className="min-w-max" />

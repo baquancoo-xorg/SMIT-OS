@@ -74,7 +74,7 @@ function NotificationCenterTrigger({ count = 0, onClick, ariaLabel = 'Open notif
       type="button"
       aria-label={count > 0 ? `${ariaLabel} (${count} unread)` : ariaLabel}
       onClick={onClick}
-      className="relative inline-flex size-9 items-center justify-center rounded-button text-on-surface-variant hover:bg-surface-container hover:text-on-surface focus-visible:outline-none"
+      className="relative inline-flex size-11 items-center justify-center rounded-button border border-border bg-surface-2/80 text-on-surface-variant shadow-sm hover:bg-surface-container hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
     >
       <Bell className="size-4" aria-hidden="true" />
       {count > 0 && (
@@ -114,7 +114,7 @@ function NotificationCenterPanel({ open, onClose, notifications, headerActions, 
           leaveFrom="translate-x-0"
           leaveTo="translate-x-full"
         >
-          <DialogPanel className="fixed inset-y-0 right-0 flex w-96 max-w-[90vw] flex-col bg-surface shadow-xl">
+          <DialogPanel className="fixed inset-y-0 right-0 flex w-96 max-w-[90vw] flex-col bg-surface shadow-elevated">
             <div className="flex h-16 items-center justify-between border-b border-outline-variant/40 px-4">
               <DialogTitle className="font-headline text-[length:var(--text-h6)] font-semibold text-on-surface">
                 Notifications
@@ -136,7 +136,7 @@ function NotificationCenterPanel({ open, onClose, notifications, headerActions, 
               {notifications.length === 0 ? (
                 empty ?? (
                   <EmptyState
-                    icon={<Bell />}
+                    icon={<Bell aria-hidden="true" />}
                     title="All clear"
                     description="No notifications right now."
                     variant="inline"

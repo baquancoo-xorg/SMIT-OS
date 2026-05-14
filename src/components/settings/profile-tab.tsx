@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Check, ShieldCheck, ShieldOff, QrCode, Copy, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Input, Button, GlassCard, Badge } from '../ui';
+import { Input, Button, GlassCard, Badge } from '../v5/ui';
 
 type SetupState = 'idle' | 'setup' | 'backup-codes';
 

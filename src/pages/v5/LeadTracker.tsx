@@ -8,7 +8,7 @@ import DailyStatsTab from '../../components/lead-tracker/daily-stats-tab';
 import LeadFiltersPopover from '../../components/lead-tracker/lead-filters-popover';
 import LeadLogsTab, { type LeadFilters } from '../../components/lead-tracker/lead-logs-tab';
 import { fromDateRange, toDateRange } from '../../components/v5/growth/date-range-utils';
-import { Card, DateRangePicker, Input, PageHeader, TabPill } from '../../components/v5/ui';
+import { Card, DateRangePicker, Input, TabPill } from '../../components/v5/ui';
 import type { DateRange, TabPillItem } from '../../components/v5/ui';
 
 type ActiveTab = 'logs' | 'stats';
@@ -61,49 +61,42 @@ export default function LeadTrackerV5() {
 
   return (
     <div className="flex h-full flex-col gap-5 pb-8">
-      <PageHeader
-        title="Lead "
-        accent="Tracker"
-        description="Lead logs, CRM stats và clearance operations cho Growth Workspace."
-        actions={(
-          <div className="flex flex-wrap items-center gap-2">
-            <TabPill<ActiveTab> label="Lead tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="sm" />
-            {activeTab === 'logs' && (
-              <>
-                <DateRangePicker value={pickerValue} onChange={setDateRange} size="sm" label="Lead date range" />
-                <LeadFiltersPopover filters={filters} setFilter={setFilter} aeOptions={aeOptions} />
-                <Input
-                  size="sm"
-                  containerClassName="w-48"
-                  placeholder="Search leads..."
-                  value={filters.q}
-                  onChange={(event) => setFilter('q', event.target.value)}
-                  iconLeft={<Search />}
-                />
-              </>
-            )}
-            {activeTab === 'stats' && (
-              <>
-                <input
-                  type="date"
-                  aria-label="Stats start date"
-                  value={statsDateFrom}
-                  onChange={(event) => setStatsDateFrom(event.target.value)}
-                  className="h-8 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:border-primary focus-visible:outline-none"
-                />
-                <span className="text-on-surface-variant">—</span>
-                <input
-                  type="date"
-                  aria-label="Stats end date"
-                  value={statsDateTo}
-                  onChange={(event) => setStatsDateTo(event.target.value)}
-                  className="h-8 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:border-primary focus-visible:outline-none"
-                />
-              </>
-            )}
-          </div>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <TabPill<ActiveTab> label="Lead tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="sm" />
+        {activeTab === 'logs' && (
+          <>
+            <DateRangePicker value={pickerValue} onChange={setDateRange} size="sm" label="Lead date range" />
+            <LeadFiltersPopover filters={filters} setFilter={setFilter} aeOptions={aeOptions} />
+            <Input
+              size="sm"
+              containerClassName="w-48"
+              placeholder="Search leads..."
+              value={filters.q}
+              onChange={(event) => setFilter('q', event.target.value)}
+              iconLeft={<Search />}
+            />
+          </>
         )}
-      />
+        {activeTab === 'stats' && (
+          <>
+            <input
+              type="date"
+              aria-label="Stats start date"
+              value={statsDateFrom}
+              onChange={(event) => setStatsDateFrom(event.target.value)}
+              className="h-8 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:border-primary focus-visible:outline-none"
+            />
+            <span className="text-on-surface-variant">—</span>
+            <input
+              type="date"
+              aria-label="Stats end date"
+              value={statsDateTo}
+              onChange={(event) => setStatsDateTo(event.target.value)}
+              className="h-8 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] text-on-surface focus-visible:border-primary focus-visible:outline-none"
+            />
+          </>
+        )}
+      </div>
 
       <section className="flex flex-1 min-h-0 flex-col" aria-label="Lead tracker content">
         {activeTab === 'logs' ? (

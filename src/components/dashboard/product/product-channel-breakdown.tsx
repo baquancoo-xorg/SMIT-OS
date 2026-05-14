@@ -13,7 +13,7 @@ import {
 import { useProductChannel } from '../../../hooks/use-product-dashboard';
 import type { DateRange } from '../../../types/dashboard-product';
 import DashboardPanel from '../ui/dashboard-panel';
-import { Skeleton } from '../../ui';
+import { Skeleton } from '../../v5/ui';
 
 interface ProductChannelBreakdownProps {
   range: DateRange;

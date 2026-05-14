@@ -8,7 +8,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import V5Shell from './components/v5/layout/v5-shell';
 import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { ToastProvider } from './components/ui';
+import { ToastProvider } from './components/v5/ui';
 
 // Phase 8 (2026-05-11) — v1 pages hard-deleted. Rollback flag `?v=1` retired.
 // Old `?v=2` flag is harmless no-op for legacy bookmarks.
@@ -22,6 +22,7 @@ const DashboardOverview = lazy(() => import('./pages/v5/DashboardOverview'));
 const LeadTracker = lazy(() => import('./pages/v5/LeadTracker'));
 const MediaTracker = lazy(() => import('./pages/v5/MediaTracker'));
 const AdsTracker = lazy(() => import('./pages/v5/AdsTracker'));
+const Playground = lazy(() => import('./pages/v5/Playground'));
 
 function PageLoader() {
   return (
@@ -61,6 +62,7 @@ function AppContent() {
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/playground" element={<Playground />} />
           <Route path="/lead-tracker" element={<Navigate to="/leads" replace />} />
           <Route path="/ads-tracker" element={<Navigate to="/ads" replace />} />
           <Route path="/media-tracker" element={<Navigate to="/media" replace />} />

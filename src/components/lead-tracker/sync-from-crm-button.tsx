@@ -1,5 +1,5 @@
 import { RefreshCcw } from 'lucide-react';
-import { Button } from '../ui';
+import { Button } from '../v5/ui';
 
 interface SyncFromCrmButtonProps {
   canSync: boolean;

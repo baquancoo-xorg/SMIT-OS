@@ -1,13 +1,15 @@
 ---
 type: ui-design-contract
 status: canonical
-version: 2.0
+version: 3.0
 created: 2026-05-13
-updated: 2026-05-13
+updated: 2026-05-14
 playground_canon: v4 (visual reference đã ship — bạn ưng)
 code_target: v5 (rebuild để code khớp 100% playground v4)
 source_ref: docs/ref-ui-playground/Playground .html
 source_inventory: plans/260513-1842-ui-ref-compliance/research/researcher-03-component-inventory-for-design-contract.md
+design_md_ref: docs/ref-ui-playground/DESIGN.md
+audit_ref: docs/ref-ui-playground/audit-report.md
 ---
 
 # UI Design Contract
@@ -273,9 +275,11 @@ Playground v4 (`docs/ref-ui-playground/Playground .html`) là **visual canon** �
 
 ### 22. Button
 
+> See §48 for detailed Primary CTA DNA spec.
+
 | Variant | Contract |
 |---|---|
-| Primary | Dark gradient + orange beam + orange icon |
+| Primary | Dark gradient + orange beam + orange icon (see §48) |
 | Secondary | Neutral surface, border token |
 | Ghost | Transparent, neutral hover |
 | Destructive | Error semantic, not orange |
@@ -345,6 +349,8 @@ Playground v4 (`docs/ref-ui-playground/Playground .html`) là **visual canon** �
 | Migration | Move to DataTable when touching legacy tables |
 
 ## Chart / Visualization Contract
+
+> See §47 for complete chart taxonomy, palette mapping, and wrapper component specs.
 
 ### 29. Chart Base
 
@@ -436,10 +442,12 @@ Playground v4 (`docs/ref-ui-playground/Playground .html`) là **visual canon** �
 
 ### 36. Popover / Tooltip / Drawer
 
+> Tooltip spec: see §51 Missing Primitive Specs.
+
 | Area | Contract |
 |---|---|
 | Popover | Rounded card, dropdown z-layer |
-| Tooltip | Missing canonical; must create before new tooltip-heavy UI |
+| Tooltip | Missing canonical — see §51 for full spec; must create before new tooltip-heavy UI |
 | Drawer | MobileNavDrawer pattern; no custom drawer without contract update |
 
 ## State Contract
@@ -617,3 +625,424 @@ Every future UI task must answer this checklist before done:
 | legacy table components | Replace with `DataTable` or approved bridge only |
 | duplicate date pickers | Keep one canonical v5 implementation |
 | legacy sidebar/header | Do not import into v5 routes |
+
+---
+
+## v3.0 Extensions
+
+### 47. Chart Taxonomy
+
+Complete chart type mapping with token and wrapper specifications.
+
+| Chart Type | Wrapper | Primary Token | Secondary Token | State Trinity |
+|---|---|---|---|---|
+| Line | `LineChartWrapper` | `--color-accent` | `--color-fg-muted` | Required |
+| Bar | `BarChartWrapper` | `--color-accent` | Dept tokens | Required |
+| Area | `AreaChartWrapper` | `--color-accent` (gradient fill) | — | Required |
+| Pie/Donut | `PieChartWrapper` | Dept/status tokens | — | Required |
+| Heatmap | `HeatmapWrapper` | Intensity scale | — | Required |
+| Funnel | `FunnelChartWrapper` | Step surfaces | Drop-off: error | Required |
+| Sparkline | Inline in KPICard | `--color-accent` | — | N/A (inline) |
+
+**Palette Mapping:**
+
+```css
+/* Primary series */
+--chart-primary: var(--color-accent);
+
+/* Department series */
+--chart-dept-bod: var(--color-dept-bod);
+--chart-dept-tech: var(--color-dept-tech);
+--chart-dept-marketing: var(--color-dept-marketing);
+--chart-dept-media: var(--color-dept-media);
+--chart-dept-sale: var(--color-dept-sale);
+
+/* Semantic */
+--chart-success: var(--color-success);
+--chart-warning: var(--color-warning);
+--chart-error: var(--color-error);
+
+/* Intensity scale (heatmap) */
+--chart-intensity-1: oklch(95% 0.02 var(--brand-hue));
+--chart-intensity-5: var(--color-accent);
+--chart-intensity-9: oklch(45% 0.2 var(--brand-hue));
+```
+
+**Axis/Grid tokens:**
+
+```css
+--chart-axis: var(--color-fg-subtle);
+--chart-grid: var(--color-outline-subtle);
+--chart-tooltip-bg: var(--color-surface-elevated);
+--chart-tooltip-border: var(--color-outline);
+```
+
+**Citation example:**
+```markdown
+Per §47 Chart Taxonomy, line chart uses `--chart-primary` token for main series.
+```
+
+### 48. Primary CTA DNA Spec
+
+The signature primary button style — **MANDATORY** for all primary actions.
+
+**Structure:**
+
+```tsx
+// Button.tsx primary variant
+const primary = cn(
+  'relative overflow-hidden',
+  'border border-accent/30',
+  'bg-[linear-gradient(135deg,#1a1714_0%,#2e2925_100%)]',
+  'text-text-1 shadow-card',
+  // Orange beam (top edge)
+  'before:absolute before:inset-x-3 before:top-0 before:h-px before:bg-accent/60',
+  // Hover
+  'hover:border-accent/50 hover:shadow-glass',
+  // Icon accent
+  '[&>svg]:text-accent',
+);
+```
+
+**DO:**
+- Use dark gradient background (`#1a1714` → `#2e2925`)
+- Add orange beam pseudo-element at top
+- Color icons with accent token
+- Use `shadow-card` base, `shadow-glass` on hover
+
+**DON'T:**
+- Solid orange background (`bg-accent`, `bg-brand-500`)
+- Remove the beam pseudo-element
+- Use white/neutral icons on primary buttons
+- Apply to non-CTA elements (tabs, nav, checkboxes)
+
+**Light mode parity:**
+
+```css
+[data-theme="light"] .btn-primary {
+  background: linear-gradient(135deg, #faf5f0 0%, #f0e7dc 100%);
+  border-color: var(--sys-color-accent-dim);
+  color: var(--sys-color-text-1);
+}
+[data-theme="light"] .btn-primary::before {
+  background: var(--brand-500);
+}
+```
+
+**Citation example:**
+```markdown
+Per §48 Primary CTA DNA, button uses dark gradient + orange beam signature.
+```
+
+### 49. Stitch Reference Assets Index
+
+Reference screens generated via Stitch for missing components (deferred due to API timeout — generate manually in Stitch UI).
+
+| Batch | Purpose | Target File |
+|---|---|---|
+| 01 | Dashboard charts (line/bar/sparkline) | `stitch-screens/01-dashboard-charts.png` |
+| 02 | Reports pie/donut/area | `stitch-screens/02-reports-surface.png` |
+| 03 | Heatmap matrix | `stitch-screens/03-heatmap-matrix.png` |
+| 04 | Funnel viz | `stitch-screens/04-funnel-viz.png` |
+| 05 | Settings (checkbox/switch/radio) | `stitch-screens/05-settings-controls.png` |
+| 06 | Form modal (textarea/file/multi/combo) | `stitch-screens/06-form-modal.png` |
+| 07 | Tooltip variants | `stitch-screens/07-tooltip-variants.png` |
+| 08 | Feedback (toast/banner/alert/callout) | `stitch-screens/08-feedback-stack.png` |
+| 09 | Pagination + virtualized table | `stitch-screens/09-pagination-table.png` |
+| 10 | Chart empty/loading/error trinity | `stitch-screens/10-chart-states.png` |
+
+**Usage:** When implementing missing primitives, reference corresponding Stitch screen for visual canon.
+
+**Note:** Stitch screens deferred — use `DESIGN.md` spec as primary reference until generated.
+
+### 50. Light Mode Token Mapping
+
+Exhaustive mapping from dark tokens to light counterparts.
+
+| Token (Dark) | Dark Value | Light Value | Notes |
+|---|---|---|---|
+| `--sys-color-bg` | `--warm-950` (#0d0d0d) | `#f7f1ea` | Page background |
+| `--sys-color-bg-elevated` | `--warm-900` (#161316) | `#fffaf5` | Card/modal bg |
+| `--sys-color-surface` | `--warm-900` | `#fffaf5` | Primary surface |
+| `--sys-color-surface-2` | `--warm-800` (#211c19) | `#f0e7dc` | Elevated surface |
+| `--sys-color-surface-3` | `#2b241f` | `#e8dccf` | Highest surface |
+| `--sys-color-surface-glass` | `oklab(--warm-800 72%)` | `rgba(255,250,245,0.78)` | Blur overlay |
+| `--sys-color-text-1` | `#fffaf5` | `#171412` | Primary text |
+| `--sys-color-text-2` | `--neutral-300` | `#51463f` | Secondary text |
+| `--sys-color-text-muted` | `--neutral-400` | `#756b63` | Muted/disabled |
+| `--sys-color-border` | `rgba(255,255,255,0.08)` | `rgba(69,48,39,0.12)` | Subtle border |
+| `--sys-color-border-strong` | `rgba(255,255,255,0.16)` | `rgba(69,48,39,0.22)` | Emphasis border |
+| `--sys-color-accent` | `--brand-500` (#ff6d29) | `--brand-600` (#d95716) | Darker for light bg |
+| `--sys-color-accent-text` | `--brand-400` | `#a13d0f` | Legible on light |
+| `--sys-color-accent-dim` | `rgba(255,109,41,0.16)` | `rgba(217,87,22,0.12)` | Hover/focus bg |
+| `--sys-shadow-card` | Black 40%/30% | Warm 12%/8% | Reduced contrast |
+| `--sys-shadow-elevated` | Black 50%/40% | Warm 15%/10% | Modal/dropdown |
+
+**Usage:** All v5 components must use `var(--sys-color-*)` tokens — automatic theme switch.
+
+**Citation example:**
+```markdown
+Per §50, text uses `--sys-color-text-1` which maps to #171412 in light mode.
+```
+
+### 51. Missing Primitive Specs
+
+Specifications for 13 primitives not yet in v5. Each includes interface, state machine, and a11y requirements.
+
+#### 51.1 Checkbox
+
+```tsx
+interface CheckboxProps {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label?: string;
+  disabled?: boolean;
+  indeterminate?: boolean;
+}
+```
+
+**State machine:** unchecked → checked → unchecked (indeterminate is transient)
+
+**Visual:** Surface bg + accent border/check mark. NO solid orange fill.
+
+**A11y:** `role="checkbox"`, `aria-checked`, label association, Space toggles.
+
+#### 51.2 Switch
+
+```tsx
+interface SwitchProps {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label: string;
+  disabled?: boolean;
+  size?: 'sm' | 'md';
+}
+```
+
+**State machine:** off ↔ on
+
+**Visual:** Pill track + thumb. Off = neutral. On = accent track, white thumb.
+
+**A11y:** `role="switch"`, `aria-checked`, label required.
+
+#### 51.3 RadioGroup
+
+```tsx
+interface RadioGroupProps<T extends string> {
+  value: T;
+  onChange: (value: T) => void;
+  options: { value: T; label: string; disabled?: boolean }[];
+  name: string;
+  orientation?: 'horizontal' | 'vertical';
+}
+```
+
+**State machine:** Single selection within group.
+
+**Visual:** Circle outline + accent dot when selected. No solid orange.
+
+**A11y:** `role="radiogroup"`, arrow key navigation, `aria-checked`.
+
+#### 51.4 Tooltip
+
+```tsx
+interface TooltipProps {
+  content: ReactNode;
+  children: ReactNode;
+  side?: 'top' | 'right' | 'bottom' | 'left';
+  delayMs?: number;
+}
+```
+
+**State machine:** closed → hover/focus → open → close on leave/blur
+
+**Visual:** Surface-elevated bg, outline border, elevated shadow. Max 200px width.
+
+**A11y:** `role="tooltip"`, focus-triggered, keyboard reachable via Tab.
+
+#### 51.5 Textarea
+
+```tsx
+interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+  label?: string;
+  helperText?: string;
+  error?: string;
+  autoResize?: boolean;
+  maxRows?: number;
+}
+```
+
+**State machine:** Same as Input (default → focus → error → disabled).
+
+**Visual:** `rounded-input`, focus ring, error border.
+
+**A11y:** Label association, `aria-invalid`, `aria-describedby` for helper/error.
+
+#### 51.6 ProgressBar
+
+```tsx
+interface ProgressBarProps {
+  value: number; // 0-100
+  max?: number;
+  variant?: 'determinate' | 'indeterminate';
+  label?: string;
+  size?: 'sm' | 'md';
+}
+```
+
+**State machine:** idle → loading → complete (or error)
+
+**Visual:** Track (surface-2) + fill (accent). Indeterminate = animated gradient.
+
+**A11y:** `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax`.
+
+#### 51.7 FileUpload
+
+```tsx
+interface FileUploadProps {
+  onFilesSelected: (files: File[]) => void;
+  accept?: string;
+  multiple?: boolean;
+  maxSize?: number;
+  disabled?: boolean;
+}
+```
+
+**State machine:** idle → dragover → uploading → success/error
+
+**Visual:** Dashed border card, icon + text. Dragover = accent border.
+
+**A11y:** `role="button"`, keyboard operable, file input hidden but accessible.
+
+#### 51.8 MultiSelect
+
+```tsx
+interface MultiSelectProps<T extends string> {
+  value: T[];
+  onChange: (value: T[]) => void;
+  options: { value: T; label: string }[];
+  placeholder?: string;
+  searchable?: boolean;
+}
+```
+
+**State machine:** closed → open → typing (if searchable) → selection → closed
+
+**Visual:** Same as CustomSelect but with chip badges for selected items.
+
+**A11y:** `role="listbox"`, `aria-multiselectable="true"`, chip removal via keyboard.
+
+#### 51.9 Combobox
+
+```tsx
+interface ComboboxProps<T> {
+  value: T | null;
+  onChange: (value: T | null) => void;
+  options: T[];
+  getLabel: (item: T) => string;
+  placeholder?: string;
+  loading?: boolean;
+  onSearch?: (query: string) => void;
+}
+```
+
+**State machine:** closed → open → typing → filtering → selection → closed
+
+**Visual:** Input + dropdown panel. Loading state = spinner in input.
+
+**A11y:** `role="combobox"`, `aria-expanded`, `aria-autocomplete="list"`.
+
+#### 51.10 Banner
+
+```tsx
+interface BannerProps {
+  variant: 'info' | 'warning' | 'error' | 'success';
+  title?: string;
+  children: ReactNode;
+  dismissible?: boolean;
+  onDismiss?: () => void;
+  action?: { label: string; onClick: () => void };
+}
+```
+
+**State machine:** visible → dismissed (if dismissible)
+
+**Visual:** Full-width, semantic bg (soft), icon + text + optional action.
+
+**A11y:** `role="alert"` for error, `role="status"` for others.
+
+#### 51.11 SearchInput
+
+```tsx
+interface SearchInputProps extends Omit<InputProps, 'iconLeft'> {
+  onSearch?: (value: string) => void;
+  debounceMs?: number;
+  loading?: boolean;
+}
+```
+
+**State machine:** Same as Input + debounced search trigger.
+
+**Visual:** Input with search icon left, optional clear button right.
+
+**A11y:** `role="searchbox"`, `aria-label` if no visible label.
+
+#### 51.12 Avatar
+
+```tsx
+interface AvatarProps {
+  src?: string;
+  alt: string;
+  fallback?: string; // Initials
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+}
+```
+
+**State machine:** loading → loaded | error (fallback)
+
+**Visual:** Circle image or initials on neutral bg. Sizes: 24/32/40/48px.
+
+**A11y:** `alt` required for images, `aria-label` for fallback initials.
+
+#### 51.13 Pagination
+
+```tsx
+interface PaginationProps {
+  page: number;
+  totalPages: number;
+  onChange: (page: number) => void;
+  siblingCount?: number;
+}
+```
+
+**State machine:** Navigation between pages, edge detection.
+
+**Visual:** Icon buttons (prev/next) + page numbers. Current page = accent surface.
+
+**A11y:** `aria-label="Pagination"`, `aria-current="page"` for active.
+
+---
+
+## Changelog
+
+### v3.0 (2026-05-14) — UI Canon Compliance Release
+
+**Breaking:**
+- Deleted `src/components/ui/` — all imports must use `src/components/v5/ui/`
+- Deleted orphaned legacy pages in `src/pages/` (v5 versions are canonical)
+
+**Added:**
+- Chart wrapper components: LineChart, BarChart, AreaChart, PieChart, DonutChart, SparklineChart, HeatmapChart
+- ChartCard container with title/subtitle/tooltip support
+- `/playground` route for v5 component showcase
+- PR template with 4 DoD gates (`.github/PULL_REQUEST_TEMPLATE.md`)
+- CI grep gate script (`scripts/ui-canon-grep.cjs`) with `ui-canon-ok` exclusion pattern
+
+**Fixed:**
+- All shadow-lg/xl violations → shadow-card/shadow-elevated tokens
+- All raw hex color violations in UI components
+- Dark/light theme parity for all v5 primitives
+
+**Compliance:**
+- 0 grep gate violations across codebase
+- All 10 v5 pages pass 4 DoD gates

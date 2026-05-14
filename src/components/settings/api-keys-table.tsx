@@ -4,8 +4,8 @@
  */
 
 import { Trash2 } from 'lucide-react';
-import { Badge, DataTable } from '../ui';
-import type { DataTableColumn, BadgeVariant } from '../ui';
+import { Badge, DataTable } from '../v5/ui';
+import type { DataTableColumn, BadgeVariant } from '../v5/ui';
 import type { ApiKeyListItem } from '../../api/admin-api-keys';
 
 interface ApiKeysTableProps {

@@ -61,7 +61,7 @@ export function DropdownMenu({
         anchor={{ to: anchor, gap: 6 }}
         style={{ width }}
         className={[
-          'z-dropdown overflow-hidden rounded-card border border-outline-variant bg-surface shadow-xl',
+          'z-dropdown overflow-hidden rounded-card border border-outline-variant bg-surface shadow-elevated',
           'p-1 focus-visible:outline-none',
           'data-closed:opacity-0 data-closed:scale-95 transition motion-fast ease-standard',
         ].join(' ')}

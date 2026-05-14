@@ -72,7 +72,7 @@ export default function CustomSelect<T = string>({
               >
               <ListboxOptions
                 static
-                className="absolute z-50 mt-2 max-h-60 w-full overflow-hidden overflow-y-auto rounded-card border border-outline-variant/40 bg-surface shadow-lg"
+                className="absolute z-50 mt-2 max-h-60 w-full overflow-hidden overflow-y-auto rounded-card border border-outline-variant/40 bg-surface shadow-elevated"
               >
                 {options.map((option) => (
                   <ListboxOption key={String(option.value)} value={option.value} as={Fragment}>

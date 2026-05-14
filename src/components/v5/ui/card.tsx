@@ -20,7 +20,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     <div
       ref={ref}
       className={cn(
-        'rounded-card border border-border bg-surface shadow-lg transition-all duration-medium ease-standard',
+        'rounded-card border border-border bg-surface shadow-card transition-all duration-medium ease-standard',
         glow && 'hover:border-accent/25 hover:shadow-glass',
         paddingStyles[padding],
         className,

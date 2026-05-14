@@ -149,7 +149,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
                 anchor={{ to: 'bottom start', gap: 8 }}
                 className={[
                   'z-dropdown flex w-[28rem] gap-2 rounded-card border border-outline-variant',
-                  'bg-surface shadow-xl p-2',
+                  'bg-surface shadow-elevated p-2',
                   'data-closed:opacity-0 transition-opacity motion-fast ease-standard',
                 ].join(' ')}
               >

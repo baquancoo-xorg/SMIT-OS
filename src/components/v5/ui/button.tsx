@@ -17,7 +17,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const variantStyles: Record<ButtonVariant, string> = {
   primary: cn(
     'relative overflow-hidden border border-accent/30 text-text-1 shadow-sm',
-    'bg-[linear-gradient(135deg,#1a1714_0%,#2e2925_100%)]',
+    'bg-[linear-gradient(135deg,var(--warm-900)_0%,var(--warm-800)_100%)]', // ui-canon-ok: gradient tokens
     'before:absolute before:inset-x-3 before:top-0 before:h-px before:bg-accent/60',
     'hover:border-accent/50 hover:shadow-glass active:scale-[0.99] disabled:opacity-50',
     '[&>svg]:text-accent',

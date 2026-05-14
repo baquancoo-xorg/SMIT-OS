@@ -52,7 +52,7 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
         role="status"
         className={[
           'relative flex flex-col items-center justify-center text-center gap-4 py-12 px-6',
-          isCard ? 'rounded-card border border-outline-variant/40 bg-surface shadow-lg' : '',
+          isCard ? 'rounded-card border border-outline-variant/40 bg-surface shadow-card' : '',
           'overflow-hidden',
           className,
         ]

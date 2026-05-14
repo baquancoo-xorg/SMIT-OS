@@ -14,8 +14,8 @@ import {
   useSortableData,
   GlassCard,
   type SortableValue,
-} from '../components/ui';
-import { getTableContract } from '../components/ui/table-contract';
+} from '../components/v5/ui';
+import { getTableContract } from '../components/v5/ui';
 
 interface ParsedReport {
   krProgress: KrCheckin[];

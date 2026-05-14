@@ -1,5 +1,5 @@
 import { Database } from 'lucide-react';
-import { Badge } from '../ui';
+import { Badge } from '../v5/ui';
 
 interface SourceBadgeProps {
   synced?: boolean;

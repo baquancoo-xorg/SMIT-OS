@@ -4,7 +4,7 @@ import { formatCurrency, formatNumber, formatPercent } from '../../../lib/format
 import type { KpiMetricsResponse, KpiMetricsRow } from '../../../types/dashboard-overview';
 import { type SortConfig, type SortField, sortData, handleSortClick, formatDateVN } from './kpi-table-utils';
 import { DashboardPanel, SegmentedTabs } from '../ui';
-import { Skeleton } from '../../ui';
+import { Skeleton } from '../../v5/ui';
 
 function KpiTableHeader() {
   return (
@@ -18,7 +18,7 @@ function KpiTableHeader() {
     </div>
   );
 }
-import { getTableContract } from '../../ui/table-contract';
+import { getTableContract } from '../../v5/ui/table-contract';
 
 type ViewMode = 'realtime' | 'cohort';
 type RateMode = 'top' | 'step';

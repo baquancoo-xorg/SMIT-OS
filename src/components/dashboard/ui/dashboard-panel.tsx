@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { GlassCard } from '../../ui';
+import { GlassCard } from '../../v5/ui';
 
 /**
  * Generic dashboard panel wrapper — used as base by other dashboard/ui components.

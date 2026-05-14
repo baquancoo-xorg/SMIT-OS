@@ -4,7 +4,7 @@ import { ExternalLink, Newspaper, Eye, DollarSign, Mic, Megaphone } from 'lucide
 import { format } from 'date-fns';
 import { useMediaPostsQuery } from '../../../hooks/use-media-tracker';
 import PlatformBadge from '../../media-tracker/platform-badge';
-import { GlassCard, KpiCard, Badge, EmptyState } from '../../ui';
+import { GlassCard, KpiCard, Badge, EmptyState } from '../../v5/ui';
 
 /**
  * Dashboard Media tab — compact summary KOL/KOC + PR.

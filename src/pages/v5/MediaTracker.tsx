@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import MediaPostDialog from '../../components/media-tracker/media-post-dialog';
 import MediaPostsTable from '../../components/media-tracker/media-posts-table';
 import { MediaKpiSummary } from '../../components/v5/growth/media/media-kpi-summary';
-import { Button, Card, PageHeader, TabPill } from '../../components/v5/ui';
+import { Button, Card, TabPill } from '../../components/v5/ui';
 import type { TabPillItem } from '../../components/v5/ui';
 import {
   useCreateMediaPostMutation,
@@ -79,24 +79,19 @@ export default function MediaTrackerV5() {
 
   return (
     <div className="flex h-full flex-col gap-5 pb-8">
-      <PageHeader
-        title="Media "
-        accent="Tracker"
-        description="Owned, KOL/KOC và PR content performance trong Growth Workspace."
-        actions={(
-          <Button
-            variant="primary"
-            size="sm"
-            iconLeft={<Plus />}
-            onClick={() => {
-              setEditing(null);
-              setDialogOpen(true);
-            }}
-          >
-            Add post
-          </Button>
-        )}
-      />
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Button
+          variant="primary"
+          size="sm"
+          iconLeft={<Plus />}
+          onClick={() => {
+            setEditing(null);
+            setDialogOpen(true);
+          }}
+        >
+          Add post
+        </Button>
+      </div>
 
       <div className="overflow-x-auto pb-1">
         <TabPill<Tab> label="Media tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="sm" className="min-w-max" />

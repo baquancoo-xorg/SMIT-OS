@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Key, Plus } from 'lucide-react';
-import { Button, ConfirmDialog, EmptyState, Spinner, useToast } from '../ui';
+import { Button, ConfirmDialog, EmptyState, Spinner, useToast } from '../v5/ui';
 import { ApiKeysTable } from './api-keys-table';
 import { GenerateApiKeyModal } from './generate-api-key-modal';
 import { listApiKeys, revokeApiKey } from '../../api/admin-api-keys';

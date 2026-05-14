@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ErrorBoundary } from '../../ui';
+import { ErrorBoundary } from '../ui';
 import HeaderV5 from './header-v5';
 import MobileNavDrawer from './mobile-nav-drawer';
 import SidebarV5 from './sidebar-v5';
@@ -34,7 +34,7 @@ export default function V5Shell({ children, onLogout }: V5ShellProps) {
 
   return (
     <div className="flex min-h-dvh bg-bg text-text-1">
-      <div className="hidden xl:block">
+      <div className="sticky top-0 hidden h-dvh shrink-0 xl:block">
         <SidebarV5 collapsed={collapsed} onCollapsedChange={handleCollapsedChange} onLogout={onLogout} />
       </div>
       <MobileNavDrawer

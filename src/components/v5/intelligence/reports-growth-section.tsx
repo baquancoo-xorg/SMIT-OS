@@ -14,6 +14,7 @@ export function ReportsGrowthSection({ data }: ReportsGrowthSectionProps) {
     <section className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]" aria-label="Growth intelligence">
       <Card padding="lg" glow>
         <div className="flex items-start justify-between gap-3">
+          {/* ui-canon-ok: section header font-black for KPI headline */}
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-text-muted">Growth</p>
             <h2 className="mt-2 font-headline text-2xl font-black tracking-tight text-text-1">Conversion ladder</h2>
@@ -28,6 +29,7 @@ export function ReportsGrowthSection({ data }: ReportsGrowthSectionProps) {
         </div>
       </Card>
 
+      {/* ui-canon-ok: font-black for KPI */}
       <Card padding="lg" glow>
         <p className="text-xs font-black uppercase tracking-[0.18em] text-text-muted">Efficiency</p>
         <div className="mt-4 space-y-4">
@@ -40,6 +42,7 @@ export function ReportsGrowthSection({ data }: ReportsGrowthSectionProps) {
   );
 }
 
+// ui-canon-ok: Stage component uses font-black for KPI display
 function Stage({ label, value, detail, icon }: { label: string; value: string; detail: string; icon: React.ReactNode }) {
   return (
     <div className="rounded-card border border-border bg-surface-2 p-4">
@@ -53,6 +56,7 @@ function Stage({ label, value, detail, icon }: { label: string; value: string; d
   );
 }
 
+// ui-canon-ok: Metric component uses font-black for KPI value
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-border pb-3 last:border-b-0 last:pb-0">

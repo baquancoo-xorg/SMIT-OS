@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import { Key, Copy, Check, AlertTriangle } from 'lucide-react';
-import { Button, Input, FormDialog, Modal } from '../ui';
+import { Button, Input, FormDialog, Modal } from '../v5/ui';
 import { createApiKey } from '../../api/admin-api-keys';
 import type { CreatedApiKey } from '../../api/admin-api-keys';
 

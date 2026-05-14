@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { User } from 'lucide-react';
 import { api } from '../../lib/api';
 import type { Lead, LeadAuditLog } from '../../types';
-import { Modal, Badge } from '../ui';
+import { Modal, Badge } from '../v5/ui';
 
 /**
  * Lead detail modal — read-only view với audit trail timeline.

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ExternalLink, DollarSign, Activity, Users, Calculator } from 'lucide-react';
 import { useAdsCampaignsQuery, useAdsAttributionQuery } from '../../../hooks/use-ads-tracker';
-import { GlassCard, KpiCard, EmptyState } from '../../ui';
+import { GlassCard, KpiCard, EmptyState } from '../../v5/ui';
 import { Megaphone } from 'lucide-react';
 
 /**

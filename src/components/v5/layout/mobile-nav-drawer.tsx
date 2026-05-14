@@ -41,7 +41,7 @@ export default function MobileNavDrawer({ open, onClose, onCollapsedChange, onLo
         ref={closeButtonRef}
         type="button"
         onClick={onClose}
-        className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-text-1 shadow-xl"
+        className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-text-1 shadow-elevated"
         aria-label="Close navigation"
       >
         <X size={20} />

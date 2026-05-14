@@ -42,6 +42,7 @@ export function KpiTableV5({ data, isLoading, error }: KpiTableV5Props) {
   return (
     <Card padding="none" glow className="overflow-hidden">
       <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border px-5 py-4">
+        {/* ui-canon-ok: section header font-black for KPI headline */}
         <div>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-accent-text">Daily breakdown</p>
           <h2 className="mt-1 font-headline text-2xl font-black tracking-tight text-text-1">KPI Metrics</h2>
