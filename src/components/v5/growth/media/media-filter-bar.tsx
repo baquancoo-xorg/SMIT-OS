@@ -163,8 +163,7 @@ export function MediaFilterBar({
               onClick={onRefresh}
               disabled={isSyncing}
               aria-label="Refresh posts from social channels"
-              splitLabel={isSyncing ? { action: 'Syncing', object: 'Posts' } : { action: 'Refresh', object: 'Posts' }}
-            />
+            >{isSyncing ? 'Syncing Posts' : 'Refresh Posts'}</Button>
           )}
 
           <DateRangePicker

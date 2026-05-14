@@ -255,7 +255,7 @@ export default function OKRsManagementV2() {
             </Popover>
           </>
         }
-        right={<Button variant="primary" size="sm" iconLeft={<Plus />} onClick={() => setIsAddObjModalOpen(true)} splitLabel={{ action: 'Create', object: 'Objective' }} />}
+        right={<Button variant="primary" size="sm" iconLeft={<Plus />} onClick={() => setIsAddObjModalOpen(true)}>Create Objective</Button>}
       />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
@@ -304,7 +304,7 @@ export default function OKRsManagementV2() {
             title={`No ${activeTab} objectives found`}
             description="Adjust filters hoặc tạo objective mới."
             actions={
-              <Button variant="primary" iconLeft={<Plus />} onClick={() => setIsAddObjModalOpen(true)} splitLabel={{ action: 'Create', object: 'Objective' }} />
+              <Button variant="primary" iconLeft={<Plus />} onClick={() => setIsAddObjModalOpen(true)}>Create Objective</Button>
             }
             decorative
             variant="card"

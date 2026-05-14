@@ -48,7 +48,7 @@ export default function Reports() {
         className="print:hidden"
         right={
           <>
-            <Button variant="primary" size="sm" className="h-8 text-[length:var(--text-body-sm)]" iconLeft={<Download />} onClick={() => window.print()} splitLabel={{ action: 'Export', object: 'Report' }} />
+            <Button variant="primary" size="sm" className="h-8 text-[length:var(--text-body-sm)]" iconLeft={<Download />} onClick={() => window.print()}>Export Report</Button>
             <DateRangePicker value={dateValue} onChange={setDateValue} size="sm" />
           </>
         }

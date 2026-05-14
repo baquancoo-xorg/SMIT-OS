@@ -119,90 +119,30 @@ export default function AdsTrackerV5() {
 
   return (
     <PageSectionStack className="h-[calc(100dvh-var(--header-h)-var(--page-pt)-var(--page-pb))] min-h-0 gap-4 overflow-hidden pb-0">
-      <PageToolbar
-        className="flex-nowrap overflow-hidden"
-        left={
-          <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-hidden">
-            <TabPill<Tab> label="Ads tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="page" className="shrink-0" />
-            <div className="relative flex h-[34px] items-center">
-              <Search className="pointer-events-none absolute left-3 size-3.5 text-on-surface-variant" aria-hidden="true" />
-              <input
-                type="search"
-                value={campaignSearch}
-                onChange={(event) => setCampaignSearch(event.target.value)}
-                placeholder="Search campaigns or UTM"
-                aria-label="Search campaigns or UTM"
-                className="h-[34px] w-[220px] rounded-input border border-outline-variant bg-surface-container-lowest pl-8 pr-3 text-[length:var(--text-body-sm)] font-medium text-on-surface placeholder:text-on-surface-variant/60 hover:border-accent/25 hover:shadow-glass focus-visible:border-accent/25 focus-visible:outline-none"
-              />
-            </div>
-            <FilterChip<CampaignStatusFilter>
-              value={campaignStatus}
-              onChange={(value) => setCampaignStatus(value as CampaignStatusFilter)}
-              options={campaignStatusOptions}
-              icon={<Filter size={14} />}
-              placeholder="All statuses"
-              label="Filter campaigns by status"
-              size="sm"
-              className="shrink-0"
-            />
-            <FilterChip<CampaignGroupFilter>
-              value={campaignGroup}
-              onChange={(value) => setCampaignGroup(value as CampaignGroupFilter)}
-              options={campaignGroupOptions}
-              icon={<LayoutGrid size={14} />}
-              placeholder="No grouping"
-              label="Group campaigns"
-              size="sm"
-              className="shrink-0"
-            />
-          </div>
-        }
-        right={
-          <div className="flex shrink-0 items-center gap-2">
-            {isAdmin && (
-              <Button
-                variant="primary"
-                size="sm"
-                className="h-[34px] text-[length:var(--text-body-sm)]"
-                iconLeft={<RefreshCw className={syncMutation.isPending ? 'animate-spin' : ''} />}
-                onClick={handleSync}
-                disabled={syncMutation.isPending}
-                splitLabel={syncMutation.isPending ? { action: 'Syncing', object: 'Meta' } : { action: 'Sync', object: 'Meta' }}
-              />
-            )}
-            <DateRangePicker
-              value={pickerValue}
-              onChange={setRange}
-              size="sm"
-              label="Ads date range"
-              buttonClassName="h-[34px]"
-            />
-          </div>
-        }
-      />
+      <PageToolbar className="flex-nowrap overflow-hidden" left={<div className="flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-hidden"> <TabPill<Tab> label="Ads tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="page" className="shrink-0" /> <div className="relative flex h-[34px] items-center"> <Search className="pointer-events-none absolute left-3 size-3.5 text-on-surface-variant" aria-hidden="true" /> <input type="search" value={campaignSearch} onChange={(event) => setCampaignSearch(event.target.value)} placeholder="Search campaigns or UTM" aria-label="Search campaigns or UTM" className="h-[34px] w-[220px] rounded-input border border-outline-variant bg-surface-container-lowest pl-8 pr-3 text-[length:var(--text-body-sm)] font-medium text-on-surface placeholder:text-on-surface-variant/60 hover:border-accent/25 hover:shadow-glass focus-visible:border-accent/25 focus-visible:outline-none" /> </div> <FilterChip<CampaignStatusFilter> value={campaignStatus} onChange={(value) => setCampaignStatus(value as CampaignStatusFilter)} options={campaignStatusOptions} icon={<Filter size={14} />} placeholder="All statuses" label="Filter campaigns by status" size="sm" className="shrink-0" /> <FilterChip<CampaignGroupFilter> value={campaignGroup} onChange={(value) => setCampaignGroup(value as CampaignGroupFilter)} options={campaignGroupOptions} icon={<LayoutGrid size={14} />} placeholder="No grouping" label="Group campaigns" size="sm" className="shrink-0" /> </div>} right={<div className="flex shrink-0 items-center gap-2"> {isAdmin && (<Button variant="primary" size="sm" className="h-[34px] text-[length:var(--text-body-sm)]" iconLeft={<RefreshCw className={syncMutation.isPending ? 'animate-spin' : ''} />} onClick={handleSync} disabled={syncMutation.isPending}>{syncMutation.isPending ? 'Syncing Meta' : 'Sync Meta'}</Button>)} <DateRangePicker value={pickerValue} onChange={setRange} size="sm" label="Ads date range" buttonClassName="h-[34px]" /> </div>} />
 
-      <AdsKpiCards
-        spend={totals.spend}
-        active={totals.active}
-        totalCampaigns={campaigns.length}
-        totalLeads={totals.totalLeads}
-        avgCpl={totals.avgCpl}
-        currency={totals.currency}
-      />
+      <div className="grid min-h-0 flex-1 grid-rows-[auto_auto_minmax(0,1fr)] gap-4 overflow-hidden">
+        <AdsKpiCards
+          spend={totals.spend}
+          active={totals.active}
+          totalCampaigns={campaigns.length}
+          totalLeads={totals.totalLeads}
+          avgCpl={totals.avgCpl}
+          currency={totals.currency}
+        />
 
-      <section className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden" aria-label="Ads tracker content">
         {activeTab === 'campaigns' && (
-          <Card padding="none" glow className="flex-1 min-h-0 overflow-hidden">
+          <Card padding="none" glow className="min-h-0 overflow-hidden">
             <CampaignsTable campaigns={filteredCampaigns} />
           </Card>
         )}
         {activeTab === 'performance' && <AdsSpendChart campaigns={campaigns} />}
         {activeTab === 'attribution' && (
-          <Card padding="none" glow className="flex-1 min-h-0 overflow-hidden">
+          <Card padding="none" glow className="min-h-0 overflow-hidden">
             <AttributionTable rows={attribution} unmatched={unmatched} />
           </Card>
         )}
-      </section>
+      </div>
     </PageSectionStack>
   );
 }

@@ -210,7 +210,7 @@ export default function WeeklyCheckinV2() {
   return (
     <PageSectionStack>
       <PageToolbar
-        right={<Button variant="primary" size="sm" iconLeft={<Plus />} onClick={() => setIsModalOpen(true)} splitLabel={{ action: 'Create', object: 'Check-in' }} />}
+        right={<Button variant="primary" size="sm" iconLeft={<Plus />} onClick={() => setIsModalOpen(true)}>Create Check-in</Button>}
       />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">

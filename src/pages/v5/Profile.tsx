@@ -45,7 +45,7 @@ export default function Profile() {
           <Input label="Username" value={username} readOnly helperText="Used for login." />
 
           <div className="flex justify-end pt-3">
-            <Button variant="primary" iconLeft={<Save />} onClick={handleSave} splitLabel={{ action: 'Save', object: 'Changes' }} />
+            <Button variant="primary" iconLeft={<Save />} onClick={handleSave}>Save Changes</Button>
           </div>
         </div>
       </Card>

@@ -72,11 +72,10 @@ export function DailyReportDetailModal({ open, onClose, report, currentUserId, i
             <Button
               variant="primary"
               iconLeft={<Send />}
-              splitLabel={{ action: 'Approve', object: 'Report' }}
               disabled={!approveComment.trim() || approveMutation.isPending}
               isLoading={approveMutation.isPending}
               onClick={handleApprove}
-            />
+            >Approve Report</Button>
           </div>
         </div>
       ) : (

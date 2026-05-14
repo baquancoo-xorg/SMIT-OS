@@ -58,7 +58,7 @@ export function CommentItem({ comment, currentUserId, isAdmin, onEdit, onDelete 
               rows={2}
             />
             <div className="flex gap-2">
-              <Button size="sm" variant="primary" onClick={handleSave} iconLeft={<Check />} splitLabel={{ action: 'Save', object: 'Edit' }} />
+              <Button size="sm" variant="primary" onClick={handleSave} iconLeft={<Check />}>Save Edit</Button>
               <Button size="sm" variant="ghost" onClick={() => { setEditing(false); setEditBody(comment.body); }} iconLeft={<X />}>Hủy</Button>
             </div>
           </div>

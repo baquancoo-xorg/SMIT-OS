@@ -70,7 +70,7 @@ export function ApiKeysPanelV2({ isGenerating, setIsGenerating }: ApiKeysPanelPr
           title="No API keys"
           description="Generate a key to allow external services to read SMIT-OS data."
           actions={
-            <Button variant="primary" iconLeft={<Plus />} onClick={() => setIsGenerating(true)} splitLabel={{ action: 'Generate', object: 'Key' }} />
+            <Button variant="primary" iconLeft={<Plus />} onClick={() => setIsGenerating(true)}>Generate Key</Button>
           }
           decorative
         />

@@ -322,7 +322,7 @@ export default function DailySyncV2() {
         <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface min-w-0">
           Daily <span className="font-semibold text-primary">Sync</span>
         </h2>
-        <Button variant="primary" size="sm" iconLeft={<Plus />} onClick={openForm} splitLabel={{ action: 'Create', object: 'Report' }} />
+        <Button variant="primary" size="sm" iconLeft={<Plus />} onClick={openForm}>Create Report</Button>
       </header>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">

@@ -5,11 +5,6 @@ import { cn } from '../../../lib/cn';
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
-export interface ButtonSplitLabel {
-  action: ReactNode;
-  object: ReactNode;
-}
-
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
@@ -17,14 +12,13 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   iconLeft?: ReactNode;
   iconRight?: ReactNode;
   fullWidth?: boolean;
-  splitLabel?: ButtonSplitLabel;
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary: cn(
     'group relative isolate overflow-hidden border text-text-1 shadow-sm',
     'border-[var(--sys-button-primary-border)] bg-[image:var(--sys-button-primary-bg)]',
-    'hover:border-accent/50 active:scale-[0.99] disabled:opacity-50',
+    'hover:border-accent/50 hover:shadow-[0_0_16px_var(--sys-color-accent-dim)] active:scale-[0.99] disabled:opacity-50',
     '[&>svg]:text-accent',
   ),
   secondary: 'border border-border bg-surface-2 text-text-1 hover:border-border-strong hover:bg-surface-3 disabled:opacity-50',
@@ -47,7 +41,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       iconLeft,
       iconRight,
       fullWidth = false,
-      splitLabel,
       disabled,
       className,
       children,
@@ -57,7 +50,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const isDisabled = disabled || isLoading;
-    const hasSplitLabel = variant === 'primary' && splitLabel && !isLoading;
 
     return (
       <button
@@ -74,42 +66,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         {...props}
       >
-        {isLoading ? (
-          <SpinnerInline />
-        ) : hasSplitLabel ? (
-          <SplitLabelContent iconLeft={iconLeft} iconRight={iconRight} splitLabel={splitLabel} />
-        ) : (
-          <>{iconLeft}{children ?? (splitLabel ? <>{splitLabel.action} {splitLabel.object}</> : null)}{iconRight}</>
-        )}
+        {isLoading ? <SpinnerInline /> : <>{iconLeft}{children}{iconRight}</>}
       </button>
     );
   },
 );
 
 Button.displayName = 'Button';
-
-interface SplitLabelContentProps {
-  iconLeft?: ReactNode;
-  iconRight?: ReactNode;
-  splitLabel: ButtonSplitLabel;
-}
-
-function SplitLabelContent({ iconLeft, iconRight, splitLabel }: SplitLabelContentProps) {
-  return (
-    <>
-      {iconLeft}
-      <span className="relative z-20 inline-flex items-center gap-0">
-        <span className="shrink-0 text-text-1">{splitLabel.action}</span>
-        <span className="relative h-4 w-0 shrink-0 overflow-hidden rounded-full bg-[var(--sys-button-primary-divider)] opacity-0 transition-[width,opacity,background-color] duration-medium ease-standard group-hover:w-0.5 group-hover:opacity-100 group-hover:bg-[var(--sys-button-primary-divider-hover)] md:h-5" aria-hidden="true" />
-        <span className="relative inline-flex min-w-0 items-center overflow-hidden transition-transform duration-medium ease-standard group-hover:translate-x-1 motion-reduce:transform-none">
-          <span className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--sys-color-accent)_28%,transparent)_0%,color-mix(in_oklab,var(--sys-color-accent)_14%,transparent)_38%,transparent_78%)] opacity-0 blur-lg transition-opacity duration-medium ease-standard group-hover:opacity-100 motion-reduce:hidden" aria-hidden="true" />
-          <span className="relative z-10 whitespace-nowrap text-text-1 [text-shadow:none] motion-reduce:[text-shadow:none]">{splitLabel.object}</span>
-        </span>
-      </span>
-      {iconRight}
-    </>
-  );
-}
 
 function SpinnerInline() {
   return <span role="status" aria-label="Loading" className="relative z-10 inline-block size-4 animate-spin rounded-full border-2 border-current/30 border-t-current" />;

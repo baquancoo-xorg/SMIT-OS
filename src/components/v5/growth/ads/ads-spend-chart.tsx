@@ -8,13 +8,15 @@ interface AdsSpendChartProps {
 
 export function AdsSpendChart({ campaigns }: AdsSpendChartProps) {
   return (
-    <Card padding="md" glow className="flex-1 min-h-0 overflow-y-auto">
+    <Card padding="md" glow className="flex min-h-0 flex-col overflow-hidden">
       {/* ui-canon-ok: section header font-black for KPI headline */}
       <div className="mb-4">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-accent-text">Performance</p>
         <h2 className="mt-1 font-headline text-2xl font-black tracking-tight text-text-1">Spend Trend</h2>
       </div>
-      <SpendChart campaigns={campaigns} />
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <SpendChart campaigns={campaigns} />
+      </div>
     </Card>
   );
 }

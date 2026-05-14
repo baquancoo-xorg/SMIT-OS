@@ -149,8 +149,7 @@ export default function DailySyncV5() {
             className="h-8 text-[length:var(--text-body-sm)]"
             onClick={() => setFormOpen(true)}
             iconLeft={<FileText />}
-            splitLabel={{ action: 'Create', object: 'Daily Report' }}
-          />
+          >Create Daily Report</Button>
         }
       />
 
@@ -169,7 +168,7 @@ export default function DailySyncV5() {
             icon={<CalendarCheck />}
             title="No reports available"
             description={isAdmin ? 'No daily reports have been submitted yet' : 'You have not submitted any reports yet'}
-            actions={<Button variant="primary" onClick={() => setFormOpen(true)} iconLeft={<FileText />} splitLabel={{ action: 'Create', object: 'Report Now' }} />}
+            actions={<Button variant="primary" onClick={() => setFormOpen(true)} iconLeft={<FileText />}>Create Report Now</Button>}
             decorative
           />
         ) : (
