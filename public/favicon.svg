@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" role="img" aria-label="SMIT OS">
+  <rect width="40" height="40" rx="10" fill="#0F1115"/>
+  <path d="M20 4V11" stroke="#8A8F98" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M20 29V36" stroke="#8A8F98" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M4 20H11" stroke="#8A8F98" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M29 20H36" stroke="#8A8F98" stroke-width="1.4" stroke-linecap="round"/>
+  <rect x="11" y="11" width="8" height="8" rx="1.5" fill="none" stroke="#F7F8FA" stroke-width="1.7"/>
+  <rect x="21" y="11" width="8" height="8" rx="1.5" fill="none" stroke="#8A8F98" stroke-width="1.4"/>
+  <rect x="11" y="21" width="8" height="8" rx="1.5" fill="none" stroke="#8A8F98" stroke-width="1.4"/>
+  <rect x="21" y="21" width="8" height="8" rx="1.5" fill="#F97316" stroke="#F97316" stroke-width="1.4"/>
+</svg>

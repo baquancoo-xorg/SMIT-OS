@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Bell, CalendarDays, CheckCircle2, Clock, Menu, Moon, Rows3, Sun } from 'lucide-react';
+import { Bell, CalendarDays, CheckCircle2, Clock, Menu, Moon, Sun } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useDensity } from '../../../contexts/density-context';
 import { useTheme } from '../../../contexts/theme-context';
 import { useNotifications } from '../../../hooks/use-notifications';
 import { Button } from '../ui/button';
@@ -53,7 +52,6 @@ export default function HeaderV5({ onMenuClick }: HeaderV5Props) {
   const location = useLocation();
   const navigate = useNavigate();
   const { resolvedTheme, setTheme } = useTheme();
-  const { density, setDensity } = useDensity();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const breadcrumb = resolveBreadcrumb(location.pathname);
@@ -82,8 +80,8 @@ export default function HeaderV5({ onMenuClick }: HeaderV5Props) {
 
   return (
     <>
-      <header className="sticky top-0 z-header h-[var(--header-h)] border-b border-border bg-bg/95 shadow-[0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl">
-        <div className="mx-[var(--content-px-mobile)] flex h-full items-center justify-between gap-4 md:mx-[var(--content-px-tablet)] xl:mx-[var(--content-px-desktop)]">
+      <header className="sticky top-0 z-header h-[var(--header-h)] bg-bg/95 backdrop-blur-xl">
+        <div className="mx-[var(--content-px-mobile)] flex h-full items-center justify-between gap-4 border-b border-border md:mx-[var(--content-px-tablet)] xl:mx-[var(--content-px-desktop)]">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <Button
               variant="ghost"
@@ -106,26 +104,14 @@ export default function HeaderV5({ onMenuClick }: HeaderV5Props) {
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setDensity(density === 'comfortable' ? 'compact' : 'comfortable')}
-              className="hidden min-h-11 border border-border bg-surface-2/80 px-4 shadow-sm md:inline-flex"
-              aria-label={density === 'comfortable' ? 'Switch to compact density' : 'Switch to comfortable density'}
-            >
-              <Rows3 size={16} aria-hidden="true" />
-              <span>{density === 'comfortable' ? 'Comfort' : 'Compact'}</span>
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
+              type="button"
               onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-              className="size-11 border border-border bg-surface-2/80 px-0 shadow-sm"
+              className="relative inline-flex size-9 items-center justify-center rounded-button border border-[var(--sidebar-item-border)] bg-[var(--sidebar-button-bg)] text-text-muted transition hover:bg-[var(--sidebar-button-hover)] hover:text-text-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
               aria-label="Toggle theme"
             >
-              {resolvedTheme === 'dark' ? <Moon size={18} aria-hidden="true" /> : <Sun size={18} aria-hidden="true" />}
-            </Button>
+              {resolvedTheme === 'dark' ? <Moon className="size-4" aria-hidden="true" /> : <Sun className="size-4" aria-hidden="true" />}
+            </button>
 
             <NotificationCenter.Trigger
               count={unreadCount}

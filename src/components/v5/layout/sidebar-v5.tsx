@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { ChevronLeft, ChevronRight, LogOut, Settings, User } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Settings } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { workspaceNavGroups, type WorkspaceNavItem } from './workspace-nav-items';
@@ -15,7 +14,6 @@ const sidebarSections = [
   { label: 'Executive', items: ['Dashboard', 'OKRs'] },
   { label: 'Acquisition', items: ['Leads', 'Ads', 'Media'] },
   { label: 'Rhythm', items: ['Daily Sync', 'Weekly Check-in'] },
-  { label: 'Reports', items: ['Reports'] },
 ];
 
 const navItems = workspaceNavGroups.flatMap(group => group.items);
@@ -26,7 +24,7 @@ function findItem(label: string) {
 
 function SmitGridMark() {
   return (
-    <svg className="h-8 w-8 shrink-0" viewBox="0 0 40 40" role="img" aria-label="SMIT OS">
+    <svg className="h-6 w-6 shrink-0" viewBox="0 0 40 40" role="img" aria-label="SMIT OS">
       <path d="M20 4V11" className="stroke-text-muted" strokeWidth="1.4" strokeLinecap="round" />
       <path d="M20 29V36" className="stroke-text-muted" strokeWidth="1.4" strokeLinecap="round" />
       <path d="M4 20H11" className="stroke-text-muted" strokeWidth="1.4" strokeLinecap="round" />
@@ -50,7 +48,7 @@ function SidebarNavItem({ item, collapsed, active, onNavigate }: { item: Workspa
       aria-label={collapsed ? item.label : undefined}
       className={({ isActive }) => {
         const selected = active || isActive;
-        return `group relative flex min-h-[var(--touch-min)] items-center text-sm font-bold transition-all duration-fast ${collapsed ? 'mx-auto w-14 justify-center' : 'gap-2'} ${
+        return `group relative flex min-h-9 items-center text-[length:var(--text-label)] font-bold transition-all duration-fast ${collapsed ? 'mx-auto w-11 justify-center' : 'gap-2'} ${
           selected ? 'text-text-1' : 'text-text-muted hover:text-text-1'
         }`;
       }}
@@ -60,10 +58,18 @@ function SidebarNavItem({ item, collapsed, active, onNavigate }: { item: Workspa
         return (
           <>
             <span
-              className={`pointer-events-none absolute top-1/2 -translate-y-1/2 rounded-full bg-accent transition-opacity duration-fast ${collapsed ? 'left-2 h-5 w-0.5' : 'left-0 h-9 w-1'} ${selected ? 'opacity-100' : 'opacity-0'}`}
-              style={{ boxShadow: selected ? '0 0 10px var(--sys-color-accent), 0 0 20px var(--sys-color-accent-dim)' : undefined }}
+              className={`pointer-events-none absolute top-1/2 -translate-y-1/2 rounded-full bg-accent transition-opacity duration-fast ${collapsed ? 'left-2 h-5 w-0.5' : 'left-0 h-7 w-1'} ${selected ? 'opacity-100' : 'opacity-0'}`}
             />
-            <span className={`flex min-h-[var(--touch-min)] items-center gap-4 border text-sm font-bold transition-all duration-fast ${collapsed ? 'w-11 justify-center rounded-[var(--radius-input)] border-transparent bg-transparent' : 'flex-1 rounded-[var(--radius-input)] px-4'} ${
+            <span
+              className={`pointer-events-none absolute top-1/2 -translate-y-1/2 transition-opacity duration-fast ${collapsed ? 'left-[0.625rem] h-6 w-8' : 'left-1 h-8 w-20'} ${selected ? 'opacity-100' : 'opacity-0'}`}
+              style={{
+                background: selected
+                  ? 'linear-gradient(90deg, color-mix(in oklab, var(--sys-color-accent) 34%, transparent) 0%, color-mix(in oklab, var(--sys-color-accent) 18%, transparent) 42%, transparent 100%)'
+                  : undefined,
+                filter: selected ? 'blur(7px)' : undefined,
+              }}
+            />
+            <span className={`flex min-h-9 items-center gap-2.5 border text-[length:var(--text-label)] font-bold transition-all duration-fast ${collapsed ? 'w-9 justify-center rounded-[var(--radius-input)] border-transparent bg-transparent' : 'flex-1 rounded-[var(--radius-input)] px-2.5'} ${
               selected
                 ? collapsed
                   ? 'text-text-1'
@@ -72,7 +78,7 @@ function SidebarNavItem({ item, collapsed, active, onNavigate }: { item: Workspa
                   ? 'text-text-muted group-hover:text-text-1'
                   : 'border-transparent text-text-muted group-hover:bg-[var(--sidebar-item-hover)] group-hover:text-text-1'
             }`}>
-              <Icon size={18} className="shrink-0 text-current" />
+              <Icon size={15} className="shrink-0 text-current" />
               {!collapsed && <span className="truncate uppercase tracking-[0.08em]">{item.label}</span>}
             </span>
           </>
@@ -85,7 +91,6 @@ function SidebarNavItem({ item, collapsed, active, onNavigate }: { item: Workspa
 export default function SidebarV5({ collapsed, onCollapsedChange, onLogout, onNavigate }: SidebarV5Props) {
   const { currentUser } = useAuth();
   const location = useLocation();
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const visibleSections = sidebarSections;
 
@@ -95,16 +100,16 @@ export default function SidebarV5({ collapsed, onCollapsedChange, onLogout, onNa
       aria-label="Primary navigation"
     >
       <div className="flex h-full flex-col">
-        <div className={`flex h-24 shrink-0 items-center border-b border-border ${collapsed ? 'justify-center' : 'gap-4 px-9'}`}>
+        <div className={`flex h-[3.25rem] shrink-0 items-center border-b border-border ${collapsed ? 'justify-center' : 'gap-2.5 px-6'}`}>
           <SmitGridMark />
-          {!collapsed && <span className="text-2xl font-extrabold tracking-tight text-text-1">SMIT OS</span>}
+          {!collapsed && <span className="text-sm font-extrabold tracking-tight text-text-1">SMIT OS</span>}
         </div>
 
-        <nav className={`flex-1 overflow-y-auto overflow-x-hidden ${collapsed ? 'space-y-7 px-0 py-7' : 'space-y-8 px-7 py-6'}`} aria-label="Workspace navigation">
+        <nav className={`flex-1 overflow-y-auto overflow-x-hidden ${collapsed ? 'space-y-5 px-0 py-5' : 'space-y-5 px-5 py-4'}`} aria-label="Workspace navigation">
           {visibleSections.map((section, index) => (
-            <div key={section.label} className={collapsed ? 'space-y-5' : 'space-y-3'}>
-              {!collapsed && <p className="px-1 text-xs font-bold uppercase tracking-[0.18em] text-text-muted">{section.label}</p>}
-              <div className={collapsed ? 'space-y-4' : 'space-y-2'}>
+            <div key={section.label} className={collapsed ? 'space-y-3.5' : 'space-y-2'}>
+              {!collapsed && <p className="px-1 text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted">{section.label}</p>}
+              <div className={collapsed ? 'space-y-2.5' : 'space-y-1'}>
                 {section.items.map(label => {
                   const item = findItem(label);
                   if (!item) return null;
@@ -117,39 +122,29 @@ export default function SidebarV5({ collapsed, onCollapsedChange, onLogout, onNa
           ))}
         </nav>
 
-        <div className={`relative shrink-0 border-t border-border ${collapsed ? 'px-0 py-6' : 'flex h-24 items-center gap-3 px-7'}`}>
+        <div className={`relative shrink-0 border-t border-border ${collapsed ? 'px-0 py-4' : 'flex h-[4.5rem] items-center gap-1.5 px-5'}`}>
           {!collapsed && (
-            <>
-              <button
-                type="button"
-                onClick={() => setUserMenuOpen(open => !open)}
-                className="min-w-0 flex-1 rounded-[var(--radius-input)] py-2 text-left transition hover:text-text-1"
-                aria-haspopup="menu"
-                aria-expanded={userMenuOpen}
-              >
-                <p className="truncate text-sm font-extrabold uppercase tracking-[0.08em] text-text-1">{currentUser?.fullName || 'Nguyễn Quân'}</p>
-                <p className="truncate text-xs font-semibold uppercase tracking-[0.12em] text-text-muted">{currentUser?.role || 'Admin'}</p>
-              </button>
-              {userMenuOpen && (
-                <div className="absolute bottom-20 left-7 right-7 z-dropdown rounded-card border border-border bg-surface-2 p-1 shadow-elevated" role="menu">
-                  <NavLink to="/profile" onClick={onNavigate} className="flex min-h-[var(--touch-min)] items-center gap-3 rounded-[var(--radius-input)] px-3 text-sm font-bold text-text-2 transition hover:bg-[var(--sidebar-item-hover)] hover:text-text-1" role="menuitem">
-                    <User size={16} />
-                    Profile
-                  </NavLink>
-                  <NavLink to="/settings" onClick={onNavigate} className="flex min-h-[var(--touch-min)] items-center gap-3 rounded-[var(--radius-input)] px-3 text-sm font-bold text-text-2 transition hover:bg-[var(--sidebar-item-hover)] hover:text-text-1" role="menuitem">
-                    <Settings size={16} />
-                    Settings
-                  </NavLink>
-                  <button type="button" onClick={onLogout} className="flex min-h-[var(--touch-min)] w-full items-center gap-3 rounded-[var(--radius-input)] px-3 text-left text-sm font-bold text-text-2 transition hover:bg-[var(--sidebar-item-hover)] hover:text-error" role="menuitem">
-                    <LogOut size={16} />
-                    Sign out
-                  </button>
-                </div>
-              )}
-            </>
+            <NavLink
+              to="/profile"
+              onClick={onNavigate}
+              className="min-w-0 flex-1 rounded-[var(--radius-input)] py-1.5 text-left transition hover:text-text-1"
+            >
+              <p className="truncate text-[10px] font-extrabold uppercase tracking-[0.04em] text-text-1">{currentUser?.fullName || 'Nguyễn Quân'}</p>
+              <p className="truncate text-[9px] font-semibold uppercase tracking-[0.08em] text-text-muted">{currentUser?.role || 'Admin'}</p>
+            </NavLink>
           )}
-          <button type="button" onClick={() => onCollapsedChange(!collapsed)} className={`touch-target grid place-items-center rounded-full border border-[var(--sidebar-item-border)] bg-[var(--sidebar-button-bg)] text-text-muted transition hover:bg-[var(--sidebar-button-hover)] hover:text-text-1 ${collapsed ? 'mx-auto' : ''}`} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
-            {collapsed ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}
+          {!collapsed && (
+            <NavLink to="/settings" onClick={onNavigate} className="grid size-8 place-items-center rounded-full border border-[var(--sidebar-item-border)] bg-[var(--sidebar-button-bg)] text-text-muted transition hover:bg-[var(--sidebar-button-hover)] hover:text-text-1" aria-label="Settings">
+              <Settings size={14} />
+            </NavLink>
+          )}
+          {!collapsed && (
+            <button type="button" onClick={onLogout} className="grid size-8 place-items-center rounded-full border border-[var(--sidebar-item-border)] bg-[var(--sidebar-button-bg)] text-text-muted transition hover:bg-[var(--sidebar-button-hover)] hover:text-error" aria-label="Sign out">
+              <LogOut size={14} />
+            </button>
+          )}
+          <button type="button" onClick={() => onCollapsedChange(!collapsed)} className={`grid size-8 place-items-center rounded-full border border-[var(--sidebar-item-border)] bg-[var(--sidebar-button-bg)] text-text-muted transition hover:bg-[var(--sidebar-button-hover)] hover:text-text-1 ${collapsed ? 'mx-auto' : ''}`} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+            {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
           </button>
         </div>
       </div>

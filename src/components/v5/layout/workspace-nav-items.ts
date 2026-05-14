@@ -1,7 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   CalendarCheck,
-  ChartSpline,
   ClipboardCheck,
   Gauge,
   Link,
@@ -13,7 +12,7 @@ import {
   UsersRound,
 } from 'lucide-react';
 
-export type Workspace = 'command' | 'growth' | 'execution' | 'intelligence' | 'admin';
+export type Workspace = 'command' | 'growth' | 'execution' | 'admin';
 
 export interface WorkspaceNavItem {
   label: string;
@@ -57,14 +56,6 @@ export const workspaceNavGroups: WorkspaceNavGroup[] = [
       { label: 'OKRs', href: '/okrs', icon: Target, workspace: 'execution' },
       { label: 'Daily Sync', href: '/daily-sync', icon: ClipboardCheck, workspace: 'execution' },
       { label: 'Weekly Check-in', href: '/checkin', icon: CalendarCheck, workspace: 'execution' },
-    ],
-  },
-  {
-    workspace: 'intelligence',
-    label: 'Intelligence',
-    eyebrow: 'Reports',
-    items: [
-      { label: 'Reports', href: '/reports', icon: ChartSpline, workspace: 'intelligence' },
     ],
   },
   {

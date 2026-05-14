@@ -87,9 +87,6 @@ export default function MediaTrackerV5() {
 
   return (
     <div className="flex h-full flex-col gap-5 pb-8">
-      {/* KPI cards */}
-      <MediaKpiSummary kpi={kpi} />
-
       {/* Filter bar */}
       <MediaFilterBar
         filter={filter}
@@ -99,6 +96,9 @@ export default function MediaTrackerV5() {
         onRefresh={() => syncMutation.mutate()}
         showRefresh={isAdmin}
       />
+
+      {/* KPI cards */}
+      <MediaKpiSummary kpi={kpi} />
 
       {/* Posts / groups */}
       <section className="flex flex-1 min-h-0 flex-col" aria-label="Media posts">

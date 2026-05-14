@@ -29,8 +29,8 @@
   --status-error: #ff6b6b;
   --status-info: #7bb7ff;
 
-  --sidebar-width: 18.5rem;
-  --sidebar-width-collapsed: 5.25rem;
+  --sidebar-width: 15.25rem;
+  --sidebar-width-collapsed: 4rem;
   --sidebar-collapsed: var(--sidebar-width-collapsed);
   --header-h: 4rem;
   --content-h: calc(100dvh - var(--header-h));

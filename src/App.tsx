@@ -17,7 +17,6 @@ const WeeklyCheckin = lazy(() => import('./pages/v5/WeeklyCheckin'));
 const DailySync = lazy(() => import('./pages/v5/DailySync'));
 const Settings = lazy(() => import('./pages/v5/Settings'));
 const Profile = lazy(() => import('./pages/v5/Profile'));
-const Reports = lazy(() => import('./pages/v5/Reports'));
 const DashboardOverview = lazy(() => import('./pages/v5/DashboardOverview'));
 const LeadTracker = lazy(() => import('./pages/v5/LeadTracker'));
 const MediaTracker = lazy(() => import('./pages/v5/MediaTracker'));
@@ -59,7 +58,6 @@ function AppContent() {
           <Route path="/okrs" element={<OKRsManagement />} />
           <Route path="/daily-sync" element={<DailySync />} />
           <Route path="/checkin" element={<WeeklyCheckin />} />
-          <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/playground" element={<Playground />} />
