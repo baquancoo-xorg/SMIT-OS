@@ -29,6 +29,7 @@ model User {
   notifications        Notification[]
   crmEmployeeId        Int?           @unique
   createdApiKeys       ApiKey[]
+  dailyReportComments  DailyReportComment[]
 
   // 2FA fields (opt-in, nullable by default)
   totpSecret      String? // AES-256-GCM encrypted TOTP secret
@@ -161,7 +162,24 @@ model DailyReport {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
+  comments            DailyReportComment[]
+
   @@unique([userId, reportDate], name: "user_date_unique")
+}
+
+model DailyReportComment {
+  id        String    @id @default(cuid())
+  reportId  String
+  authorId  String
+  body      String    @db.Text
+  editedAt  DateTime?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  report DailyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  author User        @relation(fields: [authorId], references: [id])
+
+  @@index([reportId, createdAt])
 }
 
 model Lead {

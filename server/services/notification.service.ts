@@ -154,6 +154,45 @@ export function createNotificationService(prisma: PrismaClient) {
       });
     },
 
+    // Notify report owner when admin comments on their report
+    async notifyDailyReportComment(reportOwnerId: string, commenterId: string, reportId: string) {
+      if (reportOwnerId === commenterId) return;
+      const commenter = await prisma.user.findUnique({ where: { id: commenterId }, select: { fullName: true } });
+      await this.create({
+        userId: reportOwnerId,
+        type: 'daily_report_comment',
+        title: 'Bình luận mới',
+        message: `${commenter?.fullName ?? 'Admin'} đã bình luận về báo cáo của bạn`,
+        entityType: 'DailyReport',
+        entityId: reportId,
+      });
+    },
+
+    // Notify other thread participants when someone replies (dedupe: exclude replier + owner)
+    async notifyDailyReportCommentReply(opts: { reportId: string; replierId: string; reportOwnerId: string }) {
+      const { reportId, replierId, reportOwnerId } = opts;
+      const comments = await prisma.dailyReportComment.findMany({
+        where: { reportId, deletedAt: null },
+        select: { authorId: true },
+      });
+      const participants = [...new Set(comments.map(c => c.authorId))].filter(
+        id => id !== replierId && id !== reportOwnerId
+      );
+      if (!participants.length) return;
+      const replier = await prisma.user.findUnique({ where: { id: replierId }, select: { fullName: true } });
+      await prisma.notification.createMany({
+        data: participants.map(userId => ({
+          userId,
+          type: 'daily_report_comment_reply',
+          title: 'Phản hồi mới',
+          message: `${replier?.fullName ?? 'Ai đó'} đã phản hồi trong cuộc trao đổi`,
+          entityType: 'DailyReport',
+          entityId: reportId,
+        })),
+        skipDuplicates: true,
+      });
+    },
+
     // New: emit when a Member is late on weekly check-in.
     // Dedup key = `${lateUserId}:${weekEndingISO}` (a Friday in ICT) stored in entityId.
     async notifyWeeklyLate(
