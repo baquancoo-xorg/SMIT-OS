@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import {
   CalendarCheck,
   ClipboardCheck,
+  FileText,
   Gauge,
   Link,
   Megaphone,
@@ -36,6 +37,7 @@ export const workspaceNavGroups: WorkspaceNavGroup[] = [
     eyebrow: 'Executive',
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: Gauge, workspace: 'command' },
+      { label: 'Reports', href: '/reports', icon: FileText, workspace: 'command' },
     ],
   },
   {

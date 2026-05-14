@@ -2,6 +2,17 @@
 
 Tracks significant changes — features, removals, migrations, infra updates.
 
+## 2026-05-15 — Media baseline layout standardization
+
+- Added shared v5 page layout primitives: `PageToolbar` for left/right toolbar alignment and `PageSectionStack` for Media-derived vertical rhythm.
+- Standardized Media, Ads, Leads, Dashboard, Daily Sync, Reports, and Settings around toolbar → summary/content → data section ordering where semantically relevant.
+- Wired `/reports` into the v5 route table and Command Center navigation so the Reports page is reachable from the shell.
+- Replaced Ads sync blocking alerts with v5 toasts and added table header scopes in Daily Sync for accessibility.
+- Preserved Settings/Profile semantics: no fake KPI cards or tracker-only controls were introduced.
+- Validation passed: `npm run typecheck`, `npm run lint:ui-canon`, `npm run test` (125/125), `npm run build`, canonical route smoke for `/`, `/dashboard`, `/media`, `/ads`, `/leads`, `/reports`, `/daily-sync`, `/checkin`, `/okrs`, `/settings`, `/profile`.
+
+---
+
 ## 2026-05-15 — v5 UI polish and tab validation
 
 - Standardized page-level TabPill status docs for the primary glow rollout.

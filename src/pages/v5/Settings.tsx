@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Facebook, Key, Link2, ShieldCheck, SlidersHorizontal } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { ApiKeysPanelV2, FbConfigTabV2 } from '../../components/settings';
-import { TabPill } from '../../components/v5/ui';
+import { PageSectionStack, PageToolbar, TabPill } from '../../components/v5/ui';
 import type { TabPillItem } from '../../components/v5/ui';
 import {
   IntegrationsTab,
@@ -45,16 +45,20 @@ export default function Settings() {
   }
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
-      <div className="overflow-x-auto pb-1">
-        <TabPill<SettingsTab>
-          label="Settings sections"
-          value={activeTab}
-          onChange={setActiveTab}
-          items={visibleTabs}
-          size="page"
-        />
-      </div>
+    <PageSectionStack className="min-h-full gap-6">
+      <PageToolbar
+        left={
+          <div className="overflow-x-auto pb-1">
+            <TabPill<SettingsTab>
+              label="Settings sections"
+              value={activeTab}
+              onChange={setActiveTab}
+              items={visibleTabs}
+              size="page"
+            />
+          </div>
+        }
+      />
 
       <section className="min-h-0 flex-1" aria-label="Settings content">
         {activeTab === 'security' && <SettingsSecurityTab />}
@@ -67,6 +71,6 @@ export default function Settings() {
           <FbConfigTabV2 isAddingFb={isAddingFb} setIsAddingFb={setIsAddingFb} />
         )}
       </section>
-    </div>
+    </PageSectionStack>
   );
 }

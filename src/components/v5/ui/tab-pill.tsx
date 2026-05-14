@@ -27,12 +27,11 @@ const sizeStyles = {
   page: 'h-8 px-3 text-[length:var(--text-body-sm)] gap-1.5',
 };
 
-// Container padding per size. Total outer height = items height + padding * 2.
-// sm: 28 + 2*2 = 32px; page: 32 + 2*2 = 36px; md: 40 + 2*4 = 48px.
+// Container padding per size. `page` stays 32px total to align with compact toolbar controls.
 const containerPadding = {
   sm: 'p-0.5',
   md: 'p-1',
-  page: 'p-0.5',
+  page: 'p-0',
 };
 
 const activeGlowStyles = {

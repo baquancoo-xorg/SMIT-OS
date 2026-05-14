@@ -9,6 +9,8 @@ import {
   EmptyState,
   KpiCard,
   Modal,
+  PageSectionStack,
+  PageToolbar,
   TableShell,
   SortableTh,
   useSortableData,
@@ -206,16 +208,16 @@ export default function WeeklyCheckinV2() {
   const parsed = selectedReport ? parseReport(selectedReport) : null;
 
   return (
-    <div className="flex h-full flex-col gap-5 pb-8">
+    <PageSectionStack>
+      <PageToolbar
+        right={<Button variant="primary" size="sm" iconLeft={<Plus />} onClick={() => setIsModalOpen(true)} splitLabel={{ action: 'Create', object: 'Check-in' }} />}
+      />
+
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <KpiCard label="Total" value={stats.total} icon={<CalendarCheck2 />} accent="primary" />
         <KpiCard label="Pending review" value={stats.review} icon={<ClipboardCheck />} accent="warning" decorative={stats.review > 0} />
         <KpiCard label="Approved" value={stats.approved} icon={<Zap />} accent="success" />
         <KpiCard label="Mine" value={stats.myReports} icon={<Target />} accent="info" />
-      </div>
-
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        <Button variant="primary" size="sm" iconLeft={<Plus />} onClick={() => setIsModalOpen(true)} splitLabel={{ action: 'Create', object: 'Check-in' }} />
       </div>
 
       <GlassCard variant="surface" padding="none">
@@ -467,6 +469,6 @@ export default function WeeklyCheckinV2() {
           </div>
         )}
       </Modal>
-    </div>
+    </PageSectionStack>
   );
 }

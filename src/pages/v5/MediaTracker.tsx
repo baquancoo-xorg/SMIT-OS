@@ -1,7 +1,7 @@
 import { Suspense, useState } from 'react';
 import { Rss } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Card, EmptyState, Skeleton } from '../../components/v5/ui';
+import { Card, EmptyState, PageSectionStack, Skeleton } from '../../components/v5/ui';
 import { MediaKpiSummary } from '../../components/v5/growth/media/media-kpi-summary';
 import { MediaFilterBar } from '../../components/v5/growth/media/media-filter-bar';
 import { MediaPostsTable } from '../../components/v5/growth/media/media-posts-table';
@@ -86,7 +86,7 @@ export default function MediaTrackerV5() {
     setFilter((prev) => ({ ...prev, ...patch }));
 
   return (
-    <div className="flex h-full flex-col gap-5 pb-8">
+    <PageSectionStack>
       {/* Filter bar */}
       <MediaFilterBar
         filter={filter}
@@ -116,6 +116,6 @@ export default function MediaTrackerV5() {
           </Suspense>
         </Card>
       </section>
-    </div>
+    </PageSectionStack>
   );
 }

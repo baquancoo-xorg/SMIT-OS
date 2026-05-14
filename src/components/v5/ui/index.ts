@@ -37,6 +37,12 @@ export type { FilterChipOption, FilterChipProps, FilterChipSize } from './filter
 export { PageHeader } from './page-header';
 export type { BreadcrumbItem, PageHeaderProps } from './page-header';
 
+export { PageToolbar } from './page-toolbar';
+export type { PageToolbarProps } from './page-toolbar';
+
+export { PageSectionStack } from './page-section-stack';
+export type { PageSectionStackProps } from './page-section-stack';
+
 export { DateRangePicker, DEFAULT_PRESETS } from './date-range-picker';
 export type { DateRange, DateRangePickerProps, DateRangePickerSize, DateRangePreset } from './date-range-picker';
 

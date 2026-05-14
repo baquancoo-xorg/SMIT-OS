@@ -4,7 +4,7 @@ import { format, isToday, parseISO } from 'date-fns';
 import { CalendarCheck, Users, History, FileText } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDailyReportsQuery, useInvalidateDailyReports } from '../../hooks/use-daily-reports';
-import { Button, Card, TabPill, EmptyState, Skeleton } from '../../components/v5/ui';
+import { Button, Card, EmptyState, PageSectionStack, PageToolbar, Skeleton, TabPill } from '../../components/v5/ui';
 import type { TabPillItem } from '../../components/v5/ui';
 import { DailyReportFormDialog } from '../../components/v5/execution/daily-report-form-dialog';
 import { DailyReportDetailModal, type DailyReportData } from '../../components/v5/execution/daily-report-detail-modal';
@@ -48,11 +48,11 @@ export default function DailySyncV5() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-5 pb-8">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <TabPill<Tab> label="Daily sync tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="page" />
-        <Button variant="primary" size="sm" onClick={() => setFormOpen(true)} iconLeft={<FileText />} splitLabel={{ action: 'Create', object: 'Daily Report' }} />
-      </div>
+    <PageSectionStack>
+      <PageToolbar
+        left={<TabPill<Tab> label="Daily sync tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="page" />}
+        right={<Button variant="primary" size="sm" className="h-8 text-[length:var(--text-body-sm)]" onClick={() => setFormOpen(true)} iconLeft={<FileText />} splitLabel={{ action: 'Create', object: 'Daily Report' }} />}
+      />
 
       {isLoading ? (
         <Card><Skeleton className="h-32" /></Card>
@@ -78,7 +78,7 @@ export default function DailySyncV5() {
         currentUserId={currentUser?.id ?? ''}
         isAdmin={isAdmin}
       />
-    </div>
+    </PageSectionStack>
   );
 }
 
@@ -105,7 +105,7 @@ function TeamTab({ reports, onOpenDetail }: { reports: DailyReport[]; onOpenDeta
     <Card padding="none" glow>
       <table className="w-full text-[length:var(--text-body-sm)]">
         <thead className="border-b border-outline-variant/40 bg-surface-container-low/50">
-          <tr><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Member</th><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Status</th><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Submitted at</th></tr>
+          <tr><th scope="col" className="px-4 py-3 text-left font-medium text-on-surface-variant">Member</th><th scope="col" className="px-4 py-3 text-left font-medium text-on-surface-variant">Status</th><th scope="col" className="px-4 py-3 text-left font-medium text-on-surface-variant">Submitted at</th></tr>
         </thead>
         <tbody className="divide-y divide-outline-variant/20">
           {reports.map(r => (
@@ -129,7 +129,7 @@ function HistoryTab({ reports, onOpenDetail }: { reports: DailyReport[]; onOpenD
     <Card padding="none" glow>
       <table className="w-full text-[length:var(--text-body-sm)]">
         <thead className="border-b border-outline-variant/40 bg-surface-container-low/50">
-          <tr><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Date</th><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Member</th><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Status</th></tr>
+          <tr><th scope="col" className="px-4 py-3 text-left font-medium text-on-surface-variant">Date</th><th scope="col" className="px-4 py-3 text-left font-medium text-on-surface-variant">Member</th><th scope="col" className="px-4 py-3 text-left font-medium text-on-surface-variant">Status</th></tr>
         </thead>
         <tbody className="divide-y divide-outline-variant/20">
           {reports.map(r => (

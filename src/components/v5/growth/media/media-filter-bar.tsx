@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import { ChevronDown, Filter, RefreshCw, Search } from 'lucide-react';
-import { Button, CustomSelect, DateRangePicker } from '../../ui';
+import { Button, CustomSelect, DateRangePicker, PageToolbar } from '../../ui';
 import type { DateRange } from '../../ui';
 import type { MediaFilter } from '../../../../hooks/use-media-tracker';
 
@@ -90,93 +90,91 @@ export function MediaFilterBar({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      {/* LEFT: Search → Group → Filter */}
-      <div className="flex flex-1 flex-wrap items-center gap-2">
-        {/* Search */}
-        <div className="relative flex items-center">
-          <Search className="absolute left-3 size-3.5 text-on-surface-variant pointer-events-none" aria-hidden="true" />
-          <input
-            type="search"
-            value={searchDraft}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder="Search posts…"
-            aria-label="Search posts"
-            className="h-8 rounded-input border border-outline-variant bg-surface-container-lowest pl-8 pr-3 text-[length:var(--text-body-sm)] font-medium text-on-surface placeholder:text-on-surface-variant/60 hover:border-accent/25 hover:shadow-glass focus-visible:border-accent/25 focus-visible:outline-none"
+    <PageToolbar
+      left={
+        <>
+          <div className="relative flex items-center">
+            <Search className="absolute left-3 size-3.5 text-on-surface-variant pointer-events-none" aria-hidden="true" />
+            <input
+              type="search"
+              value={searchDraft}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              placeholder="Search posts…"
+              aria-label="Search posts"
+              className="h-8 rounded-input border border-outline-variant bg-surface-container-lowest pl-8 pr-3 text-[length:var(--text-body-sm)] font-medium text-on-surface placeholder:text-on-surface-variant/60 hover:border-accent/25 hover:shadow-glass focus-visible:border-accent/25 focus-visible:outline-none"
+            />
+          </div>
+
+          <CustomSelect
+            value={filter.groupBy ?? ''}
+            onChange={(v) => onChange({ groupBy: (v as MediaFilter['groupBy']) || undefined })}
+            options={GROUP_OPTIONS}
+            className="w-36"
           />
-        </div>
 
-        {/* Group */}
-        <CustomSelect
-          value={filter.groupBy ?? ''}
-          onChange={(v) => onChange({ groupBy: (v as MediaFilter['groupBy']) || undefined })}
-          options={GROUP_OPTIONS}
-          className="w-36"
-        />
-
-        {/* Filter popover */}
-        <Popover className="relative">
-          {({ open }) => (
-            <>
-              <PopoverButton className="flex h-8 items-center gap-2 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] font-medium text-on-surface outline-none transition-all duration-medium ease-standard hover:border-accent/25 hover:shadow-glass focus-visible:border-accent/25">
-                <Filter size={14} className="text-on-surface-variant" />
-                <span>Filter</span>
-                {(filter.channelId || filter.format) && (
-                  <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-on-primary">
-                    {(filter.channelId ? 1 : 0) + (filter.format ? 1 : 0)}
-                  </span>
-                )}
-                <ChevronDown size={14} className={`text-on-surface-variant transition-transform ${open ? 'rotate-180' : ''}`} />
-              </PopoverButton>
-              <PopoverPanel className="absolute left-0 z-50 mt-1.5 w-64 rounded-input border border-outline-variant bg-surface-container-lowest p-3 shadow-elevated">
-                <div className="space-y-3">
-                  <div>
-                    <label className="mb-1.5 block text-[length:var(--text-label-sm)] font-medium text-on-surface-variant">Channel</label>
-                    <CustomSelect
-                      value={filter.channelId ?? ''}
-                      onChange={(v) => onChange({ channelId: v || undefined })}
-                      options={channelOptions}
-                      className="w-full"
-                    />
+          <Popover className="relative">
+            {({ open }) => (
+              <>
+                <PopoverButton className="flex h-8 items-center gap-2 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] font-medium text-on-surface outline-none transition-all duration-medium ease-standard hover:border-accent/25 hover:shadow-glass focus-visible:border-accent/25">
+                  <Filter size={14} className="text-on-surface-variant" />
+                  <span>Filter</span>
+                  {(filter.channelId || filter.format) && (
+                    <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-on-primary">
+                      {(filter.channelId ? 1 : 0) + (filter.format ? 1 : 0)}
+                    </span>
+                  )}
+                  <ChevronDown size={14} className={`text-on-surface-variant transition-transform ${open ? 'rotate-180' : ''}`} />
+                </PopoverButton>
+                <PopoverPanel className="absolute left-0 z-50 mt-1.5 w-64 rounded-input border border-outline-variant bg-surface-container-lowest p-3 shadow-elevated">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="mb-1.5 block text-[length:var(--text-label-sm)] font-medium text-on-surface-variant">Channel</label>
+                      <CustomSelect
+                        value={filter.channelId ?? ''}
+                        onChange={(v) => onChange({ channelId: v || undefined })}
+                        options={channelOptions}
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-[length:var(--text-label-sm)] font-medium text-on-surface-variant">Format</label>
+                      <CustomSelect
+                        value={filter.format ?? ''}
+                        onChange={(v) => onChange({ format: v || undefined })}
+                        options={FORMAT_OPTIONS}
+                        className="w-full"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="mb-1.5 block text-[length:var(--text-label-sm)] font-medium text-on-surface-variant">Format</label>
-                    <CustomSelect
-                      value={filter.format ?? ''}
-                      onChange={(v) => onChange({ format: v || undefined })}
-                      options={FORMAT_OPTIONS}
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-              </PopoverPanel>
-            </>
+                </PopoverPanel>
+              </>
+            )}
+          </Popover>
+        </>
+      }
+      right={
+        <>
+          {showRefresh && (
+            <Button
+              variant="primary"
+              size="sm"
+              className="h-8 text-[length:var(--text-body-sm)]"
+              iconLeft={<RefreshCw className={isSyncing ? 'animate-spin' : ''} />}
+              onClick={onRefresh}
+              disabled={isSyncing}
+              aria-label="Refresh posts from social channels"
+              splitLabel={isSyncing ? { action: 'Syncing', object: 'Posts' } : { action: 'Refresh', object: 'Posts' }}
+            />
           )}
-        </Popover>
-      </div>
 
-      {/* RIGHT: Action → DatePicker */}
-      <div className="ml-auto flex flex-wrap items-center gap-2">
-        {showRefresh && (
-          <Button
-            variant="primary"
+          <DateRangePicker
+            value={dateRangeValue}
+            onChange={handleDateRange}
+            label="Filter date range"
             size="sm"
-            className="h-8 text-[length:var(--text-body-sm)]"
-            iconLeft={<RefreshCw className={isSyncing ? 'animate-spin' : ''} />}
-            onClick={onRefresh}
-            disabled={isSyncing}
-            aria-label="Refresh posts from social channels"
-            splitLabel={isSyncing ? { action: 'Syncing', object: 'Posts' } : { action: 'Refresh', object: 'Posts' }}
           />
-        )}
-
-        <DateRangePicker
-          value={dateRangeValue}
-          onChange={handleDateRange}
-          label="Filter date range"
-          size="sm"
-        />
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

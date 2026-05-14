@@ -21,6 +21,7 @@ const DashboardOverview = lazy(() => import('./pages/v5/DashboardOverview'));
 const LeadTracker = lazy(() => import('./pages/v5/LeadTracker'));
 const MediaTracker = lazy(() => import('./pages/v5/MediaTracker'));
 const AdsTracker = lazy(() => import('./pages/v5/AdsTracker'));
+const Reports = lazy(() => import('./pages/v5/Reports'));
 const Playground = lazy(() => import('./pages/v5/Playground'));
 
 function PageLoader() {
@@ -55,6 +56,7 @@ function AppContent() {
           <Route path="/leads" element={<LeadTracker />} />
           <Route path="/ads" element={<AdsTracker />} />
           <Route path="/media" element={<MediaTracker />} />
+          <Route path="/reports" element={<Reports />} />
           <Route path="/okrs" element={<OKRsManagement />} />
           <Route path="/daily-sync" element={<DailySync />} />
           <Route path="/checkin" element={<WeeklyCheckin />} />

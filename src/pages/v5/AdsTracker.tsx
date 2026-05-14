@@ -8,7 +8,7 @@ import AttributionTable from '../../components/ads-tracker/attribution-table';
 import { AdsKpiCards } from '../../components/v5/growth/ads/ads-kpi-cards';
 import { AdsSpendChart } from '../../components/v5/growth/ads/ads-spend-chart';
 import { fromDateRange, toDateRange } from '../../components/v5/growth/date-range-utils';
-import { Button, Card, DateRangePicker, TabPill } from '../../components/v5/ui';
+import { Button, Card, DateRangePicker, PageSectionStack, PageToolbar, TabPill, useToast } from '../../components/v5/ui';
 import type { DateRange, TabPillItem } from '../../components/v5/ui';
 import {
   useAdsAttributionQuery,
@@ -33,6 +33,7 @@ const tabs: TabPillItem<Tab>[] = [
 
 export default function AdsTrackerV5() {
   const { currentUser } = useAuth();
+  const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const defaultFrom = format(startOfMonth(new Date()), 'yyyy-MM-dd');
   const defaultTo = format(new Date(), 'yyyy-MM-dd');
@@ -78,31 +79,37 @@ export default function AdsTrackerV5() {
   const handleSync = async () => {
     try {
       await syncMutation.mutateAsync(undefined);
-      alert('Sync triggered. Refresh in a few minutes to see new data.');
+      toast({ tone: 'success', title: 'Meta sync triggered', description: 'Refresh in a few minutes to see new data.' });
     } catch (err: any) {
-      alert(err?.message ?? 'Sync failed');
+      toast({ tone: 'error', title: 'Meta sync failed', description: err?.message ?? 'Sync failed' });
     }
   };
 
   return (
-    <div className="flex h-full flex-col gap-5 pb-8">
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        <DateRangePicker value={pickerValue} onChange={setRange} size="sm" label="Ads date range" />
-        {isAdmin && (
-          <Button
-            variant="primary"
-            size="sm"
-            iconLeft={<RefreshCw className={syncMutation.isPending ? 'animate-spin' : ''} />}
-            onClick={handleSync}
-            disabled={syncMutation.isPending}
-            splitLabel={syncMutation.isPending ? { action: 'Syncing', object: 'Meta' } : { action: 'Sync', object: 'Meta' }}
-          />
-        )}
-      </div>
-
-      <div className="overflow-x-auto pb-1">
-        <TabPill<Tab> label="Ads tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="page" className="min-w-max" />
-      </div>
+    <PageSectionStack>
+      <PageToolbar
+        left={
+          <div className="overflow-x-auto pb-1">
+            <TabPill<Tab> label="Ads tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="page" className="min-w-max" />
+          </div>
+        }
+        right={
+          <>
+            {isAdmin && (
+              <Button
+                variant="primary"
+                size="sm"
+                className="h-8 text-[length:var(--text-body-sm)]"
+                iconLeft={<RefreshCw className={syncMutation.isPending ? 'animate-spin' : ''} />}
+                onClick={handleSync}
+                disabled={syncMutation.isPending}
+                splitLabel={syncMutation.isPending ? { action: 'Syncing', object: 'Meta' } : { action: 'Sync', object: 'Meta' }}
+              />
+            )}
+            <DateRangePicker value={pickerValue} onChange={setRange} size="sm" label="Ads date range" />
+          </>
+        }
+      />
 
       <AdsKpiCards
         spend={totals.spend}
@@ -126,6 +133,6 @@ export default function AdsTrackerV5() {
           </Card>
         )}
       </section>
-    </div>
+    </PageSectionStack>
   );
 }

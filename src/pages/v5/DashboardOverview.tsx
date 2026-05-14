@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Activity, BarChart3, Briefcase, Megaphone, Monitor, PhoneCall, Users } from 'lucide-react';
 import { format, startOfMonth } from 'date-fns';
 import { useSearchParams } from 'react-router-dom';
-import { DateRangePicker, TabPill } from '../../components/v5/ui';
+import { DateRangePicker, PageSectionStack, PageToolbar, TabPill } from '../../components/v5/ui';
 import type { DateRange, TabPillItem } from '../../components/v5/ui';
 import { useOverviewAll } from '../../hooks/use-overview-data';
 import {
@@ -71,21 +71,22 @@ export default function DashboardOverviewV5() {
   };
 
   return (
-    <div className="flex h-full flex-col gap-5 pb-8">
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        <DateRangePicker value={pickerValue} onChange={setRange} size="sm" label="Dashboard date range" />
-      </div>
-
-      <div className="overflow-x-auto pb-1">
-        <TabPill<DashboardTab>
-          label="Command Center tabs"
-          value={selectedTab}
-          onChange={setTab}
-          items={tabs}
-          size="page"
-          className="min-w-max"
-        />
-      </div>
+    <PageSectionStack>
+      <PageToolbar
+        left={
+          <div className="overflow-x-auto pb-1">
+            <TabPill<DashboardTab>
+              label="Command Center tabs"
+              value={selectedTab}
+              onChange={setTab}
+              items={tabs}
+              size="page"
+              className="min-w-max"
+            />
+          </div>
+        }
+        right={<DateRangePicker value={pickerValue} onChange={setRange} size="sm" label="Dashboard date range" />}
+      />
 
       <section className="flex-1 space-y-5" aria-label="Dashboard content">
         {selectedTab === 'overview' && (
@@ -107,6 +108,6 @@ export default function DashboardOverviewV5() {
         {selectedTab === 'media' && <MediaTabV5 from={from} to={to} />}
         {selectedTab === 'product' && <ProductTabV5 from={from} to={to} />}
       </section>
-    </div>
+    </PageSectionStack>
   );
 }

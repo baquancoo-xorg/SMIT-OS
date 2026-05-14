@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { endOfMonth, format, startOfMonth, subMonths } from 'date-fns';
 import { Download } from 'lucide-react';
-import { DateRangePicker, Button } from '../../components/v5/ui';
+import { DateRangePicker, Button, PageSectionStack, PageToolbar } from '../../components/v5/ui';
 import type { DateRange } from '../../components/v5/ui';
 import { useOverviewAll } from '../../hooks/use-overview-data';
 import {
@@ -43,15 +43,20 @@ export default function Reports() {
 
   return (
     // ui-canon-ok: print media uses white for printer output
-    <div className="flex min-h-full flex-col gap-6 print:bg-white print:text-black">
-      <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
-        <DateRangePicker value={dateValue} onChange={setDateValue} size="sm" />
-        <Button variant="primary" size="sm" iconLeft={<Download />} onClick={() => window.print()} splitLabel={{ action: 'Export', object: 'Report' }} />
-      </div>
+    <PageSectionStack className="min-h-full gap-6 print:bg-white print:text-black">
+      <PageToolbar
+        className="print:hidden"
+        right={
+          <>
+            <Button variant="primary" size="sm" className="h-8 text-[length:var(--text-body-sm)]" iconLeft={<Download />} onClick={() => window.print()} splitLabel={{ action: 'Export', object: 'Report' }} />
+            <DateRangePicker value={dateValue} onChange={setDateValue} size="sm" />
+          </>
+        }
+      />
 
       <ReportsOverviewSection data={query.data} isLoading={query.isLoading} error={query.error} />
       <ReportsGrowthSection data={query.data} />
       <ReportsExecutionSection />
-    </div>
+    </PageSectionStack>
   );
 }
