@@ -1,0 +1,68 @@
+{
+  "123456789_987654321": {
+    "insights": {
+      "data": [
+        {
+          "name": "post_impressions",
+          "period": "lifetime",
+          "values": [{ "value": 4500 }],
+          "title": "Lifetime Post Total Impressions",
+          "id": "123456789_987654321/insights/post_impressions/lifetime"
+        },
+        {
+          "name": "post_engaged_users",
+          "period": "lifetime",
+          "values": [{ "value": 320 }],
+          "title": "Lifetime Engaged Users",
+          "id": "123456789_987654321/insights/post_engaged_users/lifetime"
+        },
+        {
+          "name": "post_reactions_by_type_total",
+          "period": "lifetime",
+          "values": [{ "value": { "like": 210, "love": 45, "haha": 12 } }],
+          "title": "Lifetime Post Reactions by Type",
+          "id": "123456789_987654321/insights/post_reactions_by_type_total/lifetime"
+        },
+        {
+          "name": "post_clicks",
+          "period": "lifetime",
+          "values": [{ "value": 180 }],
+          "title": "Lifetime Post Clicks",
+          "id": "123456789_987654321/insights/post_clicks/lifetime"
+        }
+      ]
+    },
+    "id": "123456789_987654321"
+  },
+  "123456789_111222333": {
+    "insights": {
+      "data": [
+        {
+          "name": "post_impressions",
+          "period": "lifetime",
+          "values": [{ "value": 8900 }],
+          "id": "123456789_111222333/insights/post_impressions/lifetime"
+        },
+        {
+          "name": "post_engaged_users",
+          "period": "lifetime",
+          "values": [{ "value": 760 }],
+          "id": "123456789_111222333/insights/post_engaged_users/lifetime"
+        },
+        {
+          "name": "post_reactions_by_type_total",
+          "period": "lifetime",
+          "values": [{ "value": { "like": 400, "love": 90 } }],
+          "id": "123456789_111222333/insights/post_reactions_by_type_total/lifetime"
+        },
+        {
+          "name": "post_clicks",
+          "period": "lifetime",
+          "values": [{ "value": 320 }],
+          "id": "123456789_111222333/insights/post_clicks/lifetime"
+        }
+      ]
+    },
+    "id": "123456789_111222333"
+  }
+}

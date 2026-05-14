@@ -17,7 +17,7 @@
 - Growth: `/leads`, `/ads`, `/media`.
 - Execution: `/okrs`, `/daily-sync`, `/checkin`.
 - Intelligence: `/reports`.
-- Admin: `/settings`, `/profile`.
+- Admin: `/settings`, `/profile`, `/integrations` (SocialChannel CRUD, admin-only).
 - Legacy slugs redirect: `/lead-tracker`, `/ads-tracker`, `/media-tracker`.
 
 ## Key Directories
@@ -31,6 +31,10 @@
 - `src/pages/v5/` — v5 route namespace (includes `/playground` for component showcase).
 - `src/hooks/` — TanStack Query hooks for dashboard, trackers, and workspace data.
 - `server/routes/` — Express API routes.
+- `server/services/media-sync.service.ts` — FB Graph post-sync orchestrator (upserts MediaPost + MediaSyncRun).
+- `server/services/social-channel.service.ts` — SocialChannel CRUD with encrypted token storage.
+- `server/lib/fb-graph-client.ts` — FB Graph API client (page posts + post insights).
+- `server/cron/media-sync.cron.ts` — Cron job (every 6h at minute 17) calling syncAllActive().
 
 ## Data Flow
 1. UI route loads page from `src/pages/v5/`.
@@ -38,6 +42,12 @@
 3. Hooks call `/api/*` endpoints with real DB-backed data.
 4. Server routes use Prisma and auth middleware.
 5. UI renders via v5 primitives and tokens.
+
+## Media Data Flow
+- Media posts auto-pull from FB Graph API (no manual entry).
+- Cron fires every 6h; admin can also trigger sync via Refresh button on `/media`.
+- `SocialChannel` stores encrypted page tokens; `MediaPost` stores canonical metrics + `metricsExtra` JSON.
+- `MediaSyncRun` provides audit trail per sync run.
 
 ## Auth
 - `AuthProvider` checks `/api/auth/me` and stores `currentUser`.

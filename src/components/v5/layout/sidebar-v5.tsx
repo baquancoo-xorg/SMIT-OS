@@ -16,6 +16,7 @@ const sidebarSections = [
   { label: 'Acquisition', items: ['Leads', 'Ads', 'Media'] },
   { label: 'Rhythm', items: ['Daily Sync', 'Weekly Check-in'] },
   { label: 'Reports', items: ['Reports'] },
+  { label: 'Admin', items: ['Settings', 'Profile', 'Integrations'] },
 ];
 
 const navItems = workspaceNavGroups.flatMap(group => group.items);
@@ -87,6 +88,13 @@ export default function SidebarV5({ collapsed, onCollapsedChange, onLogout, onNa
   const location = useLocation();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
+  const visibleSections = sidebarSections.map(section => {
+    if (section.label !== 'Admin') return section;
+    if (currentUser?.isAdmin) return section;
+    // Non-admin: hide Integrations from Admin section
+    return { ...section, items: section.items.filter(label => label !== 'Integrations') };
+  });
+
   return (
     <aside
       className={`my-3 ml-3 h-[calc(100dvh-1.5rem)] shrink-0 overflow-hidden border border-border bg-surface shadow-elevated transition-[width] duration-medium ease-standard ${collapsed ? 'w-[var(--sidebar-width-collapsed)] rounded-[2rem]' : 'w-[var(--sidebar-width)] rounded-[2rem]'}`}
@@ -99,7 +107,7 @@ export default function SidebarV5({ collapsed, onCollapsedChange, onLogout, onNa
         </div>
 
         <nav className={`flex-1 overflow-y-auto overflow-x-hidden ${collapsed ? 'space-y-7 px-0 py-7' : 'space-y-8 px-7 py-6'}`} aria-label="Workspace navigation">
-          {sidebarSections.map((section, index) => (
+          {visibleSections.map((section, index) => (
             <div key={section.label} className={collapsed ? 'space-y-5' : 'space-y-3'}>
               {!collapsed && <p className="px-1 text-xs font-bold uppercase tracking-[0.18em] text-text-muted">{section.label}</p>}
               <div className={collapsed ? 'space-y-4' : 'space-y-2'}>
@@ -110,7 +118,7 @@ export default function SidebarV5({ collapsed, onCollapsedChange, onLogout, onNa
                   return <SidebarNavItem key={item.href} item={item} collapsed={collapsed} active={active} onNavigate={onNavigate} />;
                 })}
               </div>
-              {collapsed && index < sidebarSections.length - 1 && <div className="mx-auto h-px w-8 bg-border" />}
+              {collapsed && index < visibleSections.length - 1 && <div className="mx-auto h-px w-8 bg-border" />}
             </div>
           ))}
         </nav>

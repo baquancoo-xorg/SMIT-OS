@@ -1,0 +1,84 @@
+{
+  "data": [
+    {
+      "id": "123456789_987654321",
+      "message": "Check out our latest photo update!",
+      "created_time": "2026-05-13T10:00:00+0000",
+      "permalink_url": "https://www.facebook.com/permalink/987654321",
+      "full_picture": "https://example.com/photo.jpg",
+      "attachments": {
+        "data": [
+          {
+            "media_type": "photo",
+            "subattachments": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "123456789_111222333",
+      "message": "Watch our new video!",
+      "created_time": "2026-05-12T08:30:00+0000",
+      "permalink_url": "https://www.facebook.com/permalink/111222333",
+      "full_picture": "https://example.com/thumb.jpg",
+      "attachments": {
+        "data": [
+          {
+            "media_type": "video",
+            "subattachments": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "123456789_444555666",
+      "message": "Read our blog post",
+      "created_time": "2026-05-11T14:00:00+0000",
+      "permalink_url": "https://www.facebook.com/permalink/444555666",
+      "full_picture": null,
+      "attachments": {
+        "data": [
+          {
+            "media_type": "link",
+            "subattachments": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "123456789_777888999",
+      "message": "Just sharing a status update with no media.",
+      "created_time": "2026-05-10T09:00:00+0000",
+      "permalink_url": "https://www.facebook.com/permalink/777888999",
+      "full_picture": null,
+      "attachments": null
+    },
+    {
+      "id": "123456789_101010101",
+      "message": "Album of our event!",
+      "created_time": "2026-05-09T16:00:00+0000",
+      "permalink_url": "https://www.facebook.com/permalink/101010101",
+      "full_picture": "https://example.com/album_cover.jpg",
+      "attachments": {
+        "data": [
+          {
+            "media_type": "album",
+            "subattachments": {
+              "data": [
+                { "media_type": "photo" },
+                { "media_type": "photo" }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "before": "cursor_before",
+      "after": "cursor_after"
+    },
+    "next": null
+  }
+}

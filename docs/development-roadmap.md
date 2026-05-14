@@ -24,6 +24,18 @@ Before production commit/tag:
 - Dark and light routes smoke-tested.
 - API key masking and auth guards preserved.
 
+## Media Tracker — Phase 1A: FB Fanpage auto-pull
+Status: Complete (2026-05-14).
+- SocialChannel model + encrypted token storage.
+- FB Graph client library (page posts + post insights).
+- MediaSyncRun audit table.
+- Cron sync every 6h; manual Refresh on /media.
+- v5/MediaTracker rebuilt: filter by format/channel/date, group-by channel.
+- /integrations admin UI for SocialChannel CRUD.
+- Legacy manual-entry UI and KOL/PR tabs removed.
+
+Next: Phase 1B (TikTok / Instagram / YouTube) — separate plan.
+
 ## Deferred Backlog
 - Reports custom builder and saved views.
 - Dedicated OKR completion analytics for Intelligence.

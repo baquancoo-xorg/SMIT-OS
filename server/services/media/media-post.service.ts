@@ -1,117 +1,166 @@
 /**
- * Media Tracker CRUD service.
+ * Media Post read service (Phase 04 rewrite).
+ * All CRUD removed — posts are managed via sync only (Phase 03).
  *
- * Phase 4 MVP scope (per plan 260510-0237 + role-simplification 260510-0318):
- *  - Owned media: manual entry for BLOG/OTHER (FB/IG/YouTube auto-sync deferred — needs OAuth + token setup)
- *  - KOL/KOC: manual entry with cost tracking
- *  - PR: manual entry with sentiment metadata
- *  - RBAC: read-shared (everyone), write-own (Member edits own; Admin edits all)
+ * Exports:
+ *   listMediaPosts(query) → { posts: MediaPostDTO[] } | { groups: GroupedResult[] }
+ *   computeMediaKpi(query) → KpiResult
  */
-import { MediaPlatform, MediaPostType, Prisma } from '@prisma/client';
+import { MediaPlatform, MediaFormat, Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
+import type { MediaTrackerListQuery, MediaKpiQuery } from '../../schemas/media-tracker.schema';
 
-export interface MediaPostInput {
-  platform: MediaPlatform;
-  type: MediaPostType;
-  externalId?: string | null;
-  url?: string | null;
-  title?: string | null;
-  publishedAt: Date;
-  reach?: number;
-  engagement?: number;
-  utmCampaign?: string | null;
-  cost?: number | null;
-  meta?: Prisma.InputJsonValue;
+// ── DTO ──────────────────────────────────────────────────────────────────────
+
+export interface MediaPostDTO {
+  id: string;
+  channelId: string;
+  channel: { id: string; name: string; platform: MediaPlatform };
+  externalId: string;
+  url: string | null;
+  permalink: string | null;
+  title: string | null;
+  message: string | null;
+  content: string | null;   // alias for message — frontend consumers use this name
+  publishedAt: string;      // ISO
+  format: MediaFormat;
+  reach: number;
+  views: number;
+  engagement: number;
+  likes: number;
+  comments: number;
+  shares: number;
+  saves: number;
+  thumbnailUrl: string | null;
+  lastSyncedAt: string | null;
 }
 
-export interface ListFilters {
-  platform?: MediaPlatform;
-  type?: MediaPostType;
-  from?: Date;
-  to?: Date;
-  search?: string;
+export interface KpiResult {
+  totalPosts: number;
+  totalReach: number;
+  totalViews: number;
+  totalEngagement: number;
+  avgEngagementRate: number;
 }
 
-export async function listMediaPosts(filters: ListFilters = {}) {
+export interface GroupedResult {
+  key: string;
+  count: number;
+  summary: KpiResult;
+  posts: MediaPostDTO[];
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function buildWhere(q: Pick<MediaTrackerListQuery, 'channelId' | 'platform' | 'format' | 'dateFrom' | 'dateTo' | 'search'>): Prisma.MediaPostWhereInput {
   const where: Prisma.MediaPostWhereInput = {};
-  if (filters.platform) where.platform = filters.platform;
-  if (filters.type) where.type = filters.type;
-  if (filters.from || filters.to) {
+  if (q.channelId) where.channelId = q.channelId;
+  if (q.platform) where.channel = { platform: q.platform };
+  if (q.format) where.format = q.format;
+  if (q.dateFrom || q.dateTo) {
     where.publishedAt = {
-      ...(filters.from ? { gte: filters.from } : {}),
-      ...(filters.to ? { lte: filters.to } : {}),
+      ...(q.dateFrom ? { gte: new Date(q.dateFrom) } : {}),
+      ...(q.dateTo ? { lte: new Date(q.dateTo) } : {}),
     };
   }
-  if (filters.search) {
+  if (q.search) {
     where.OR = [
-      { title: { contains: filters.search, mode: 'insensitive' } },
-      { url: { contains: filters.search, mode: 'insensitive' } },
+      { title: { contains: q.search, mode: 'insensitive' } },
+      { message: { contains: q.search, mode: 'insensitive' } },
     ];
   }
-  return prisma.mediaPost.findMany({
+  return where;
+}
+
+function toDTO(post: Prisma.MediaPostGetPayload<{ include: { channel: true } }>): MediaPostDTO {
+  return {
+    id: post.id,
+    channelId: post.channelId,
+    channel: { id: post.channel.id, name: post.channel.name, platform: post.channel.platform },
+    externalId: post.externalId,
+    url: post.url,
+    permalink: post.permalink,
+    title: post.title,
+    message: post.message,
+    content: post.message,
+    publishedAt: post.publishedAt.toISOString(),
+    format: post.format,
+    reach: post.reach,
+    views: post.views,
+    engagement: post.engagement,
+    likes: post.likes,
+    comments: post.comments,
+    shares: post.shares,
+    saves: post.saves,
+    thumbnailUrl: post.thumbnailUrl,
+    lastSyncedAt: post.lastSyncedAt ? post.lastSyncedAt.toISOString() : null,
+  };
+}
+
+function buildKpi(posts: MediaPostDTO[]): KpiResult {
+  const totalReach = posts.reduce((s, p) => s + p.reach, 0);
+  const totalViews = posts.reduce((s, p) => s + p.views, 0);
+  const totalEngagement = posts.reduce((s, p) => s + p.engagement, 0);
+  const avgEngagementRate = totalReach > 0 ? totalEngagement / totalReach : 0;
+  return { totalPosts: posts.length, totalReach, totalViews, totalEngagement, avgEngagementRate };
+}
+
+// ── Public API ─────────────────────────────────────────────────────────────────
+
+export async function listMediaPosts(query: MediaTrackerListQuery): Promise<
+  { posts: MediaPostDTO[] } | { groups: GroupedResult[] }
+> {
+  const where = buildWhere(query);
+  const orderBy = { [query.sortBy]: query.sortDir } as Prisma.MediaPostOrderByWithRelationInput;
+
+  const raw = await prisma.mediaPost.findMany({
     where,
-    orderBy: { publishedAt: 'desc' },
-    take: 500,
+    include: { channel: true },
+    orderBy,
+    take: query.limit,
   });
-}
 
-export async function createMediaPost(input: MediaPostInput, createdById: string | null) {
-  return prisma.mediaPost.create({
-    data: {
-      platform: input.platform,
-      type: input.type,
-      externalId: input.externalId ?? null,
-      url: input.url ?? null,
-      title: input.title ?? null,
-      publishedAt: input.publishedAt,
-      reach: input.reach ?? 0,
-      engagement: input.engagement ?? 0,
-      utmCampaign: input.utmCampaign ?? null,
-      cost: input.cost ?? null,
-      createdById,
-      meta: input.meta,
-    },
-  });
-}
+  const posts = raw.map(toDTO);
 
-export async function updateMediaPost(
-  id: string,
-  patch: Partial<MediaPostInput>,
-  user: { id: string; isAdmin: boolean }
-) {
-  const existing = await prisma.mediaPost.findUnique({ where: { id } });
-  if (!existing) return { ok: false as const, status: 404, error: 'Media post not found' };
+  if (!query.groupBy) return { posts };
 
-  // Ownership check (read-shared, write-own).
-  if (!user.isAdmin && existing.createdById !== user.id) {
-    return { ok: false as const, status: 403, error: 'You can only edit your own media posts' };
+  // Group-by logic
+  const buckets = new Map<string, MediaPostDTO[]>();
+  for (const p of posts) {
+    let key: string;
+    if (query.groupBy === 'channel') key = p.channelId;
+    else if (query.groupBy === 'format') key = p.format;
+    else key = p.publishedAt.slice(0, 7); // month: YYYY-MM
+    const arr = buckets.get(key) ?? [];
+    arr.push(p);
+    buckets.set(key, arr);
   }
 
-  const updated = await prisma.mediaPost.update({
-    where: { id },
-    data: {
-      ...(patch.platform ? { platform: patch.platform } : {}),
-      ...(patch.type ? { type: patch.type } : {}),
-      ...(patch.externalId !== undefined ? { externalId: patch.externalId } : {}),
-      ...(patch.url !== undefined ? { url: patch.url } : {}),
-      ...(patch.title !== undefined ? { title: patch.title } : {}),
-      ...(patch.publishedAt ? { publishedAt: patch.publishedAt } : {}),
-      ...(patch.reach !== undefined ? { reach: patch.reach } : {}),
-      ...(patch.engagement !== undefined ? { engagement: patch.engagement } : {}),
-      ...(patch.utmCampaign !== undefined ? { utmCampaign: patch.utmCampaign } : {}),
-      ...(patch.cost !== undefined ? { cost: patch.cost } : {}),
-      ...(patch.meta !== undefined ? { meta: patch.meta } : {}),
-    },
-  });
-  return { ok: true as const, post: updated };
+  const groups: GroupedResult[] = Array.from(buckets.entries()).map(([key, items]) => ({
+    key,
+    count: items.length,
+    summary: buildKpi(items),
+    posts: items,
+  }));
+
+  return { groups };
 }
 
-export async function deleteMediaPost(id: string, user: { id: string; isAdmin: boolean }) {
-  const existing = await prisma.mediaPost.findUnique({ where: { id } });
-  if (!existing) return { ok: false as const, status: 404, error: 'Media post not found' };
-  if (!user.isAdmin && existing.createdById !== user.id) {
-    return { ok: false as const, status: 403, error: 'You can only delete your own media posts' };
-  }
-  await prisma.mediaPost.delete({ where: { id } });
-  return { ok: true as const };
+export async function computeMediaKpi(query: MediaKpiQuery): Promise<KpiResult> {
+  const where = buildWhere(query);
+
+  const [agg, count] = await Promise.all([
+    prisma.mediaPost.aggregate({
+      where,
+      _sum: { reach: true, views: true, engagement: true },
+    }),
+    prisma.mediaPost.count({ where }),
+  ]);
+
+  const totalReach = agg._sum.reach ?? 0;
+  const totalViews = agg._sum.views ?? 0;
+  const totalEngagement = agg._sum.engagement ?? 0;
+  const avgEngagementRate = totalReach > 0 ? totalEngagement / totalReach : 0;
+
+  return { totalPosts: count, totalReach, totalViews, totalEngagement, avgEngagementRate };
 }

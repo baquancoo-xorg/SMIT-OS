@@ -41,8 +41,10 @@ import { initAlertScheduler } from "./server/jobs/alert-scheduler";
 import { initLeadSyncPrisma } from "./server/services/lead-sync/state";
 import { startLeadSyncCron } from "./server/cron/lead-sync.cron";
 import { startAdsSyncCron } from "./server/cron/ads-sync.cron";
+import { startMediaSyncCron } from "./server/cron/media-sync.cron";
 import { createAdsTrackerRoutes } from "./server/routes/ads-tracker.routes";
 import { createMediaTrackerRoutes } from "./server/routes/media-tracker.routes";
+import { createSocialChannelsRoutes } from "./server/routes/social-channels.routes";
 import { createAcquisitionRoutes } from "./server/routes/acquisition.routes";
 import { createOKRService } from "./server/services/okr.service";
 
@@ -147,6 +149,7 @@ app.use("/api/dashboard/product", createDashboardProductRoutes());
 app.use("/api/sync/facebook-ads", createFbSyncRoutes());
 app.use("/api/ads-tracker", createAdsTrackerRoutes());
 app.use("/api/media-tracker", createMediaTrackerRoutes());
+app.use("/api/social-channels", createSocialChannelsRoutes());
 app.use("/api/acquisition", createAcquisitionRoutes());
 app.use("/api/admin", requireAdmin, createAdminFbConfigRoutes());
 app.use("/api/admin/api-keys", requireAdmin, createAdminApiKeysRoutes(prisma));
@@ -196,6 +199,7 @@ async function startServer() {
     initAlertScheduler(prisma, notificationService);
     startLeadSyncCron();
     startAdsSyncCron();
+    startMediaSyncCron();
   });
 }
 

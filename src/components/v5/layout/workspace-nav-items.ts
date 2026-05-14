@@ -4,6 +4,7 @@ import {
   ChartSpline,
   ClipboardCheck,
   Gauge,
+  Link,
   Megaphone,
   Newspaper,
   Settings,
@@ -73,6 +74,7 @@ export const workspaceNavGroups: WorkspaceNavGroup[] = [
     items: [
       { label: 'Settings', href: '/settings', icon: Settings, workspace: 'admin' },
       { label: 'Profile', href: '/profile', icon: User, workspace: 'admin' },
+      { label: 'Integrations', href: '/integrations', icon: Link, workspace: 'admin' },
     ],
   },
 ];

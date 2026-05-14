@@ -11,23 +11,23 @@ datasource db {
 }
 
 model User {
-  id                   String         @id @default(uuid())
+  id                   String               @id @default(uuid())
   fullName             String
-  username             String         @unique
+  username             String               @unique
   password             String
   departments          String[] // Multiple departments supported
   role                 String // Admin, Member
   scope                String? // Vị trí công việc (e.g., "Backend Developer")
   avatar               String
-  isAdmin              Boolean        @default(false)
+  isAdmin              Boolean              @default(false)
   objectives           Objective[]
-  ownedKRs             KeyResult[]    @relation("OwnedKRs")
+  ownedKRs             KeyResult[]          @relation("OwnedKRs")
   reports              WeeklyReport[]
-  approvedReports      WeeklyReport[] @relation("ApprovedReports")
+  approvedReports      WeeklyReport[]       @relation("ApprovedReports")
   dailyReports         DailyReport[]
-  approvedDailyReports DailyReport[]  @relation("ApprovedDailyReports")
+  approvedDailyReports DailyReport[]        @relation("ApprovedDailyReports")
   notifications        Notification[]
-  crmEmployeeId        Int?           @unique
+  crmEmployeeId        Int?                 @unique
   createdApiKeys       ApiKey[]
   dailyReportComments  DailyReportComment[]
 
@@ -42,14 +42,14 @@ model User {
 // ============================================
 
 model ApiKey {
-  id         String            @id @default(uuid())
+  id         String           @id @default(uuid())
   name       String
-  keyHash    String            @unique // bcrypt hash of raw key, cost 10
-  prefix     String            @unique // e.g. smk_a1b2 — first 8 chars of raw key for fast lookup
-  scopes     String[]          // e.g. ["read:reports", "read:crm"]
+  keyHash    String           @unique // bcrypt hash of raw key, cost 10
+  prefix     String           @unique // e.g. smk_a1b2 — first 8 chars of raw key for fast lookup
+  scopes     String[] // e.g. ["read:reports", "read:crm"]
   createdBy  String
-  creator    User              @relation(fields: [createdBy], references: [id])
-  createdAt  DateTime          @default(now())
+  creator    User             @relation(fields: [createdBy], references: [id])
+  createdAt  DateTime         @default(now())
   lastUsedAt DateTime?
   revokedAt  DateTime?
   auditLogs  ApiKeyAuditLog[]
@@ -62,12 +62,12 @@ model ApiKeyAuditLog {
   id           String   @id @default(uuid())
   apiKeyId     String
   apiKey       ApiKey   @relation(fields: [apiKeyId], references: [id])
-  endpoint     String   // e.g. /api/daily-reports
-  method       String   // GET, POST, etc.
+  endpoint     String // e.g. /api/daily-reports
+  method       String // GET, POST, etc.
   statusCode   Int
-  responseSize Int      // bytes, from content-length header
-  userAgent    String?  // truncated to 255 chars
-  sourceIp     String?  // CF-Connecting-IP or x-forwarded-for[0] or req.ip
+  responseSize Int // bytes, from content-length header
+  userAgent    String? // truncated to 255 chars
+  sourceIp     String? // CF-Connecting-IP or x-forwarded-for[0] or req.ip
   timestamp    DateTime @default(now())
 
   @@index([apiKeyId, timestamp])
@@ -125,44 +125,44 @@ model KeyResult {
 }
 
 model WeeklyReport {
-  id          String    @id @default(uuid())
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
-  weekEnding  DateTime
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  weekEnding      DateTime
   // Wodtke 5-block check-in JSON columns
-  krProgress  String // JSON: [{krId, currentValue, confidence0to10, note}]
-  progress    String // JSON: {priorities: [{text, done}]} — last week priorities
-  plans       String // JSON: {topThree: string[]} — next week top 3
-  blockers    String // JSON: {risks: string, helpNeeded: string}
-  status      String    @default("Review") // Review, Approved
-  approvedBy  String?
-  approver    User?     @relation("ApprovedReports", fields: [approvedBy], references: [id])
-  approvedAt  DateTime?
+  krProgress      String // JSON: [{krId, currentValue, confidence0to10, note}]
+  progress        String // JSON: {priorities: [{text, done}]} — last week priorities
+  plans           String // JSON: {topThree: string[]} — next week top 3
+  blockers        String // JSON: {risks: string, helpNeeded: string}
+  status          String    @default("Review") // Review, Approved
+  approvedBy      String?
+  approver        User?     @relation("ApprovedReports", fields: [approvedBy], references: [id])
+  approvedAt      DateTime?
   approvalComment String    @default("") // Nhận xét bắt buộc của admin khi duyệt
-  rawData     Json? // Full snapshot of submitted payload for recovery
-  createdAt   DateTime  @default(now())
+  rawData         Json? // Full snapshot of submitted payload for recovery
+  createdAt       DateTime  @default(now())
 }
 
 model DailyReport {
-  id                  String    @id @default(uuid())
-  userId              String
-  user                User      @relation(fields: [userId], references: [id])
-  reportDate          DateTime
-  status              String    @default("Review") // Review, Approved
+  id                 String    @id @default(uuid())
+  userId             String
+  user               User      @relation(fields: [userId], references: [id])
+  reportDate         DateTime
+  status             String    @default("Review") // Review, Approved
   // 4-field text report (Wodtke / standup style)
-  completedYesterday  String    @default("")
-  doingYesterday      String    @default("")
-  blockers            String    @default("")
-  planToday           String    @default("")
-  rawData             Json? // Full snapshot of submitted payload for recovery
-  approvedBy          String?
-  approver            User?     @relation("ApprovedDailyReports", fields: [approvedBy], references: [id])
-  approvedAt          DateTime?
-  approvalComment     String    @default("") // Nhận xét bắt buộc của admin khi duyệt
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  completedYesterday String    @default("")
+  doingYesterday     String    @default("")
+  blockers           String    @default("")
+  planToday          String    @default("")
+  rawData            Json? // Full snapshot of submitted payload for recovery
+  approvedBy         String?
+  approver           User?     @relation("ApprovedDailyReports", fields: [approvedBy], references: [id])
+  approvedAt         DateTime?
+  approvalComment    String    @default("") // Nhận xét bắt buộc của admin khi duyệt
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  comments            DailyReportComment[]
+  comments DailyReportComment[]
 
   @@unique([userId, reportDate], name: "user_date_unique")
 }
@@ -360,20 +360,28 @@ enum AdPlatform {
 }
 
 enum MediaPlatform {
-  FACEBOOK
+  FACEBOOK_PAGE
+  FACEBOOK_GROUP // reserved — Phase 1 does not create channels with this value
   INSTAGRAM
+  TIKTOK
   YOUTUBE
-  BLOG
-  PR
-  OTHER
-  // TIKTOK: deferred (chưa launch platform)
+  THREADS
 }
 
-enum MediaPostType {
-  ORGANIC
-  KOL
-  KOC
-  PR
+enum MediaFormat {
+  STATUS
+  PHOTO
+  VIDEO
+  REEL
+  ALBUM
+  LINK
+  EVENT
+}
+
+enum MediaSyncStatus {
+  SUCCESS
+  PARTIAL
+  FAILED
 }
 
 model AdCampaign {
@@ -412,26 +420,69 @@ model AdSpendRecord {
   @@index([date])
 }
 
-model MediaPost {
-  id          String        @id @default(uuid())
-  platform    MediaPlatform
-  externalId  String? // post id từ platform (nếu có API)
-  url         String?
-  title       String?
-  publishedAt DateTime
-  reach       Int           @default(0)
-  engagement  Int           @default(0)
-  utmCampaign String?
-  type        MediaPostType @default(ORGANIC)
-  cost        Decimal?      @db.Decimal(12, 2) // cho KOL/PR
-  createdById String? // owner cho RBAC read-shared/write-own (Member sửa được record do mình tạo)
-  meta        Json? // KOL name, PR outlet, sentiment, deliverable links
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+model SocialChannel {
+  id                   String        @id @default(uuid())
+  platform             MediaPlatform
+  externalId           String // page_id / user_id / channel_id from platform
+  name                 String
+  accessTokenEncrypted String        @db.Text // AES-GCM base64 ciphertext; decrypt at app layer
+  tokenExpiresAt       DateTime?
+  active               Boolean       @default(true)
+  lastSyncedAt         DateTime?
+  lastSyncStatus       String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
 
-  @@index([platform, type])
-  @@index([utmCampaign])
-  @@index([publishedAt])
-  @@index([createdById])
+  posts    MediaPost[]
+  syncRuns MediaSyncRun[]
+
+  @@unique([platform, externalId])
+  @@index([platform, active])
 }
 
+model MediaPost {
+  id           String      @id @default(uuid())
+  channelId    String
+  externalId   String // post id from platform API
+  url          String?
+  title        String?
+  message      String?     @db.Text
+  publishedAt  DateTime
+  format       MediaFormat @default(STATUS)
+  reach        Int         @default(0)
+  views        Int         @default(0) // replaces deprecated impressions
+  engagement   Int         @default(0)
+  likes        Int         @default(0)
+  comments     Int         @default(0)
+  shares       Int         @default(0)
+  saves        Int         @default(0)
+  thumbnailUrl String?
+  permalink    String?
+  metricsExtra Json? // platform-specific extras
+  lastSyncedAt DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  channel SocialChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([channelId, externalId])
+  @@index([channelId, publishedAt(sort: Desc)])
+  @@index([format])
+  @@index([publishedAt])
+}
+
+model MediaSyncRun {
+  id           String          @id @default(uuid())
+  channelId    String
+  startedAt    DateTime        @default(now())
+  finishedAt   DateTime?
+  status       MediaSyncStatus
+  fetched      Int             @default(0)
+  upserted     Int             @default(0)
+  errorMessage String?
+  createdAt    DateTime        @default(now())
+
+  channel SocialChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@index([channelId, startedAt])
+}

@@ -1,131 +1,121 @@
-import { useMemo, useState } from 'react';
-import { Globe, Mic, Newspaper, Plus } from 'lucide-react';
+import { Suspense, useState } from 'react';
+import { Rss } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import MediaPostDialog from '../../components/media-tracker/media-post-dialog';
-import MediaPostsTable from '../../components/media-tracker/media-posts-table';
+import { Card, EmptyState, Skeleton } from '../../components/v5/ui';
 import { MediaKpiSummary } from '../../components/v5/growth/media/media-kpi-summary';
-import { Button, Card, TabPill } from '../../components/v5/ui';
-import type { TabPillItem } from '../../components/v5/ui';
+import { MediaFilterBar } from '../../components/v5/growth/media/media-filter-bar';
+import { MediaPostsTable } from '../../components/v5/growth/media/media-posts-table';
+import { MediaGroupTable } from '../../components/v5/growth/media/media-group-table';
 import {
-  useCreateMediaPostMutation,
-  useDeleteMediaPostMutation,
   useMediaPostsQuery,
-  useUpdateMediaPostMutation,
+  useMediaKpiQuery,
+  useMediaSyncMutation,
 } from '../../hooks/use-media-tracker';
-import type { MediaPost, MediaPostType } from '../../types';
+import { useSocialChannelsList } from '../../hooks/use-social-channels';
+import type { MediaFilter } from '../../hooks/use-media-tracker';
+import type { ChannelOption } from '../../components/v5/growth/media/media-filter-bar';
 
-type Tab = 'owned' | 'kol' | 'pr';
-
-const tabTypes: Record<Tab, MediaPostType[]> = {
-  owned: ['ORGANIC'],
-  kol: ['KOL', 'KOC'],
-  pr: ['PR'],
+const DEFAULT_KPI = {
+  totalPosts: 0,
+  totalReach: 0,
+  totalViews: 0,
+  totalEngagement: 0,
+  avgEngagementRate: 0,
 };
 
-const defaultType: Record<Tab, MediaPostType> = {
-  owned: 'ORGANIC',
-  kol: 'KOL',
-  pr: 'PR',
-};
+function TableSection({ filter }: { filter: MediaFilter }) {
+  const postsQuery = useMediaPostsQuery(filter);
 
-const tabs: TabPillItem<Tab>[] = [
-  { value: 'owned', label: 'Owned', icon: <Globe /> },
-  { value: 'kol', label: 'KOL/KOC', icon: <Mic /> },
-  { value: 'pr', label: 'PR', icon: <Newspaper /> },
-];
+  if (postsQuery.isError) {
+    return (
+      <EmptyState
+        variant="inline"
+        title="Failed to load posts"
+        description={(postsQuery.error as Error)?.message ?? 'Unknown error'}
+      />
+    );
+  }
+
+  const data = postsQuery.data;
+  const isGrouped = !!filter.groupBy;
+
+  if (!postsQuery.isLoading && !data) return null;
+
+  if (postsQuery.isLoading) {
+    return (
+      <div className="flex flex-col gap-2 p-4">
+        <Skeleton variant="rect" height={40} />
+        <Skeleton variant="rect" height={40} />
+        <Skeleton variant="rect" height={40} />
+      </div>
+    );
+  }
+
+  const groups = data?.groups ?? [];
+  const posts = data?.posts ?? [];
+
+  if (isGrouped && groups.length === 0) {
+    return <EmptyState variant="inline" icon={<Rss />} title="No posts synced yet" description="Add a Social Channel in Integrations to start pulling posts." />;
+  }
+
+  if (!isGrouped && posts.length === 0) {
+    return <EmptyState variant="inline" icon={<Rss />} title="No posts synced yet" description="Add a Social Channel in Integrations to start pulling posts." />;
+  }
+
+  if (isGrouped) return <MediaGroupTable groups={groups} />;
+  return <MediaPostsTable posts={posts} />;
+}
 
 export default function MediaTrackerV5() {
-  const { currentUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<Tab>('owned');
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<MediaPost | null>(null);
+  const { isAdmin } = useAuth();
+  const [filter, setFilter] = useState<MediaFilter>({});
 
-  const postsQuery = useMediaPostsQuery({});
-  const createMutation = useCreateMediaPostMutation();
-  const updateMutation = useUpdateMediaPostMutation();
-  const deleteMutation = useDeleteMediaPostMutation();
+  const kpiQuery = useMediaKpiQuery(filter);
+  const channelsQuery = useSocialChannelsList();
+  const syncMutation = useMediaSyncMutation();
 
-  const allPosts = postsQuery.data ?? [];
-  const filtered = useMemo(() => allPosts.filter((post) => tabTypes[activeTab].includes(post.type)), [allPosts, activeTab]);
-  const totals = useMemo(() => {
-    const totalPosts = allPosts.length;
-    const totalReach = allPosts.reduce((sum, post) => sum + post.reach, 0);
-    const totalEngagement = allPosts.reduce((sum, post) => sum + post.engagement, 0);
-    const kolSpend = allPosts
-      .filter((post) => post.type === 'KOL' || post.type === 'KOC')
-      .reduce((sum, post) => sum + Number(post.cost ?? 0), 0);
-    return { totalPosts, totalReach, totalEngagement, kolSpend };
-  }, [allPosts]);
+  const kpi = kpiQuery.data ?? DEFAULT_KPI;
 
-  const handleSubmit = async (data: any) => {
-    try {
-      if (editing) await updateMutation.mutateAsync({ id: editing.id, data });
-      else await createMutation.mutateAsync(data);
-      setEditing(null);
-      setDialogOpen(false);
-    } catch (err: any) {
-      alert(err?.message ?? 'Save failed');
-    }
-  };
+  const channels: ChannelOption[] = (channelsQuery.data ?? []).map((c) => ({
+    id: c.id,
+    name: c.name,
+    platform: c.platform,
+  }));
 
-  const handleDelete = async (post: MediaPost) => {
-    if (!window.confirm(`Delete "${post.title ?? post.url ?? post.id}"?`)) return;
-    try {
-      await deleteMutation.mutateAsync(post.id);
-    } catch (err: any) {
-      alert(err?.message ?? 'Delete failed');
-    }
-  };
+  const patchFilter = (patch: Partial<MediaFilter>) =>
+    setFilter((prev) => ({ ...prev, ...patch }));
 
   return (
     <div className="flex h-full flex-col gap-5 pb-8">
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        <Button
-          variant="primary"
-          size="sm"
-          iconLeft={<Plus />}
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-        >
-          Add post
-        </Button>
-      </div>
+      {/* KPI cards */}
+      <MediaKpiSummary kpi={kpi} />
 
-      <div className="overflow-x-auto pb-1">
-        <TabPill<Tab> label="Media tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="sm" className="min-w-max" />
-      </div>
+      {/* Filter bar */}
+      <MediaFilterBar
+        filter={filter}
+        onChange={patchFilter}
+        channels={channels}
+        isSyncing={syncMutation.isPending}
+        onRefresh={() => syncMutation.mutate()}
+        showRefresh={isAdmin}
+      />
 
-      <MediaKpiSummary {...totals} />
-
-      <section className="flex flex-1 min-h-0 flex-col" aria-label="Media tracker content">
+      {/* Posts / groups */}
+      <section className="flex flex-1 min-h-0 flex-col" aria-label="Media posts">
         <Card padding="none" glow className="flex-1 min-h-0 overflow-y-auto">
-          <MediaPostsTable
-            posts={filtered}
-            currentUserId={currentUser?.id}
-            isAdmin={!!currentUser?.isAdmin}
-            onEdit={(post) => {
-              setEditing(post);
-              setDialogOpen(true);
-            }}
-            onDelete={handleDelete}
-            showCost={activeTab === 'kol' || activeTab === 'pr'}
-            showSentiment={activeTab === 'pr'}
-          />
+          <Suspense
+            fallback={
+              <div className="flex flex-col gap-2 p-4">
+                <Skeleton variant="rect" height={40} />
+                <Skeleton variant="rect" height={40} />
+                <Skeleton variant="rect" height={40} />
+              </div>
+            }
+          >
+            <TableSection filter={filter} />
+          </Suspense>
         </Card>
       </section>
-
-      <MediaPostDialog
-        open={dialogOpen}
-        onClose={() => {
-          setDialogOpen(false);
-          setEditing(null);
-        }}
-        onSubmit={handleSubmit}
-        initial={editing}
-        defaultType={editing ? undefined : defaultType[activeTab]}
-      />
     </div>
   );
 }

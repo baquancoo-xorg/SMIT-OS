@@ -1,11 +1,13 @@
 /**
- * Seed dev data cho Phase 2 Acquisition tracking.
+ * Seed dev data cho Acquisition tracking.
  * - 1 AdCampaign Meta + 7 AdSpendRecord (last 7 days)
- * - 5 MediaPost: 2 ORGANIC (FB+IG), 1 KOL, 1 KOC, 1 PR
+ *
+ * Media seed dropped — Media schema now pulls from FB Graph API (cron + Refresh).
+ * To seed Media data dev, create a SocialChannel via /integrations admin UI.
  *
  * Idempotent qua upsert key. Run: `npx tsx prisma/seeds/acquisition.seed.ts`
  */
-import { PrismaClient, AdPlatform, MediaPlatform, MediaPostType } from '@prisma/client';
+import { PrismaClient, AdPlatform } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -71,110 +73,17 @@ async function seedAdCampaign() {
   return campaign;
 }
 
-async function seedMediaPosts() {
-  const posts = [
-    {
-      platform: MediaPlatform.FACEBOOK,
-      type: MediaPostType.ORGANIC,
-      externalId: 'seed_fb_post_1',
-      url: 'https://facebook.com/smitx/posts/seed1',
-      title: 'Ra mắt module mới - team feedback',
-      reach: 12_300,
-      engagement: 412,
-      utmCampaign: UTM_CAMPAIGN,
-      cost: null,
-      meta: { source: 'seed' },
-    },
-    {
-      platform: MediaPlatform.INSTAGRAM,
-      type: MediaPostType.ORGANIC,
-      externalId: 'seed_ig_post_1',
-      url: 'https://instagram.com/p/seed1',
-      title: 'Behind the scenes office',
-      reach: 5_400,
-      engagement: 232,
-      utmCampaign: null,
-      cost: null,
-      meta: { source: 'seed' },
-    },
-    {
-      platform: MediaPlatform.FACEBOOK,
-      type: MediaPostType.KOL,
-      externalId: null,
-      url: 'https://facebook.com/kol-handle/posts/seed-kol',
-      title: 'KOL review SMIT OS',
-      reach: 28_000,
-      engagement: 1_240,
-      utmCampaign: UTM_CAMPAIGN,
-      cost: 5_000_000, // 5M VND
-      meta: { kolName: 'KOL Demo', deliverable: '1 post + 3 stories', source: 'seed' },
-    },
-    {
-      platform: MediaPlatform.INSTAGRAM,
-      type: MediaPostType.KOC,
-      externalId: null,
-      url: 'https://instagram.com/koc-handle/p/seed-koc',
-      title: 'KOC trải nghiệm SMIT OS',
-      reach: 8_500,
-      engagement: 480,
-      utmCampaign: null,
-      cost: 1_500_000,
-      meta: { kocName: 'KOC Demo', source: 'seed' },
-    },
-    {
-      platform: MediaPlatform.PR,
-      type: MediaPostType.PR,
-      externalId: null,
-      url: 'https://example-news.vn/seed-pr',
-      title: 'SMIT OS được giới thiệu trên báo công nghệ',
-      reach: 45_000,
-      engagement: 0,
-      utmCampaign: null,
-      cost: 8_000_000,
-      meta: { outlet: 'Example News', sentiment: 'positive', source: 'seed' },
-    },
-  ] as const;
-
-  for (const post of posts) {
-    // Idempotent on (platform, url) via deleteMany + create (no unique on these fields).
-    await prisma.mediaPost.deleteMany({
-      where: {
-        platform: post.platform,
-        url: post.url,
-      },
-    });
-    await prisma.mediaPost.create({
-      data: {
-        platform: post.platform,
-        type: post.type,
-        externalId: post.externalId,
-        url: post.url,
-        title: post.title,
-        publishedAt: daysAgo(Math.floor(Math.random() * 14)),
-        reach: post.reach,
-        engagement: post.engagement,
-        utmCampaign: post.utmCampaign,
-        cost: post.cost ?? null,
-        meta: post.meta,
-      },
-    });
-  }
-}
-
 async function main() {
   const campaign = await seedAdCampaign();
-  await seedMediaPosts();
 
   const totalSpend = await prisma.adSpendRecord.aggregate({
     where: { campaignId: campaign.id },
     _sum: { spend: true },
   });
-  const mediaCount = await prisma.mediaPost.count();
 
   console.log('[acquisition.seed] done.');
   console.log(`  AdCampaign: ${campaign.name} (utm=${campaign.utmCampaign})`);
   console.log(`  AdSpendRecord total spend (7d): ${totalSpend._sum.spend?.toString() ?? 0}`);
-  console.log(`  MediaPost count: ${mediaCount}`);
 }
 
 main()

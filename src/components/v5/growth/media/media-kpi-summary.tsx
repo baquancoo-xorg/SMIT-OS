@@ -1,11 +1,12 @@
-import { DollarSign, Eye, Heart, Newspaper } from 'lucide-react';
+import { Eye, Heart, Newspaper, TrendingUp } from 'lucide-react';
 import { KpiCard } from '../../ui';
 
-interface MediaKpiSummaryProps {
+export interface MediaKpiData {
   totalPosts: number;
   totalReach: number;
+  totalViews: number;
   totalEngagement: number;
-  kolSpend: number;
+  avgEngagementRate: number;
 }
 
 function fmtNumber(n: number) {
@@ -14,13 +15,18 @@ function fmtNumber(n: number) {
   return n.toLocaleString('en-US');
 }
 
-export function MediaKpiSummary({ totalPosts, totalReach, totalEngagement, kolSpend }: MediaKpiSummaryProps) {
+interface MediaKpiSummaryProps {
+  kpi: MediaKpiData;
+}
+
+export function MediaKpiSummary({ kpi }: MediaKpiSummaryProps) {
+  const { totalPosts, totalReach, totalEngagement, avgEngagementRate } = kpi;
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-      <KpiCard label="Total Posts" value={totalPosts.toLocaleString()} icon={<Newspaper />} />
-      <KpiCard label="Total Reach" value={fmtNumber(totalReach)} icon={<Eye />} accent="info" />
-      <KpiCard label="Total Engagement" value={fmtNumber(totalEngagement)} icon={<Heart />} accent="success" />
-      <KpiCard label="KOL/KOC Spend" value={kolSpend.toLocaleString()} unit="VND" icon={<DollarSign />} accent="warning" />
+      <KpiCard label="Total Posts"       value={totalPosts.toLocaleString()}    icon={<Newspaper />} />
+      <KpiCard label="Total Reach"       value={fmtNumber(totalReach)}          icon={<Eye />}       accent="info" />
+      <KpiCard label="Total Engagement"  value={fmtNumber(totalEngagement)}     icon={<Heart />}     accent="success" />
+      <KpiCard label="Avg Eng. Rate"     value={`${avgEngagementRate.toFixed(2)}%`} icon={<TrendingUp />} accent="warning" />
     </div>
   );
 }

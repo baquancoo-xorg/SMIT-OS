@@ -2,6 +2,18 @@
 
 Tracks significant changes — features, removals, migrations, infra updates.
 
+## 2026-05-14 — Media Tracker auto-pull rewrite
+
+- Drop manual input. v5/MediaTracker now auto-syncs FB Fanpage posts via Graph API (cron every 6h + manual Refresh).
+- New schema: SocialChannel + MediaPost (channelId FK, canonical metrics, metricsExtra JSON) + MediaSyncRun audit.
+- New admin route `/integrations` for SocialChannel CRUD with encrypted token storage + expiry warnings.
+- Drop tabs Owned/KOL/PR (KOL/PR not auto-pullable via API).
+- Drop legacy `MediaPost.{type, cost, utmCampaign, createdById, meta}` fields.
+- FB Group support dropped entirely (Graph API removed Apr 2024).
+- `impressions` field replaced with `views` (Meta deprecated post_impressions Nov 2025).
+
+---
+
 ## 2026-05-13 — UI Ref Compliance Milestone Complete
 
 Full alignment of SMIT OS v5 UI with Playground v4 reference style across all 10 phases.
