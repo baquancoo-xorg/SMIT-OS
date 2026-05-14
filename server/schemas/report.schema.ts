@@ -16,8 +16,10 @@ export const createWeeklyReportSchema = z.object({
 });
 
 // Daily Sync — 4 plain text fields.
+// userId is taken from authenticated session in the route handler, NOT from body
+// (prevents client spoofing). Zod's default strip mode silently drops legacy
+// body.userId sent by v1 form — backward compatible.
 export const createDailyReportSchema = z.object({
-  userId: z.string().uuid(),
   reportDate: z.string(),
   completedYesterday: z.string().max(4000).default(''),
   doingYesterday: z.string().max(4000).default(''),
