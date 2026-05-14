@@ -2,6 +2,14 @@
 
 Tracks significant changes — features, removals, migrations, infra updates.
 
+## 2026-05-15 — TabPill height alignment
+
+- Aligned the canonical `TabPill` page size to 34px so page-level tab bars now match compact toolbar controls, date pickers, and filters across v5 pages.
+- Kept the underlying tab bar behavior and active-state styling unchanged; this is a sizing-only refinement on the shared primitive.
+- Validation pending: `npm run typecheck`.
+
+---
+
 ## 2026-05-15 — Media baseline layout standardization
 
 - Added shared v5 page layout primitives: `PageToolbar` for left/right toolbar alignment and `PageSectionStack` for Media-derived vertical rhythm.

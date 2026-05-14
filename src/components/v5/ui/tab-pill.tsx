@@ -24,7 +24,7 @@ export interface TabPillProps<T extends string = string> extends Omit<HTMLAttrib
 const sizeStyles = {
   sm: 'h-7 px-2.5 text-[length:var(--text-body-sm)] gap-1.5',
   md: 'h-10 px-4 text-[length:var(--text-body)] gap-2',
-  page: 'h-8 px-3 text-[length:var(--text-body-sm)] gap-1.5',
+  page: 'h-[34px] px-3 text-[length:var(--text-body-sm)] gap-1.5',
 };
 
 // Container padding per size. `page` stays 32px total to align with compact toolbar controls.

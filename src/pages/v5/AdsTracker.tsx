@@ -1,14 +1,14 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { format, startOfMonth } from 'date-fns';
 import { useSearchParams } from 'react-router-dom';
-import { LayoutList, RefreshCw, Target, TrendingUp } from 'lucide-react';
+import { Filter, LayoutList, RefreshCw, Search, Target, TrendingUp } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import CampaignsTable from '../../components/ads-tracker/campaigns-table';
 import AttributionTable from '../../components/ads-tracker/attribution-table';
 import { AdsKpiCards } from '../../components/v5/growth/ads/ads-kpi-cards';
 import { AdsSpendChart } from '../../components/v5/growth/ads/ads-spend-chart';
 import { fromDateRange, toDateRange } from '../../components/v5/growth/date-range-utils';
-import { Button, Card, DateRangePicker, PageSectionStack, PageToolbar, TabPill, useToast } from '../../components/v5/ui';
+import { Button, Card, DateRangePicker, FilterChip, PageSectionStack, PageToolbar, TabPill, useToast } from '../../components/v5/ui';
 import type { DateRange, TabPillItem } from '../../components/v5/ui';
 import {
   useAdsAttributionQuery,
@@ -18,6 +18,7 @@ import {
 } from '../../hooks/use-ads-tracker';
 
 type Tab = 'campaigns' | 'performance' | 'attribution';
+type CampaignStatusFilter = 'ALL' | 'ACTIVE' | 'PAUSED' | 'ARCHIVED' | 'DELETED';
 
 const validTabs = new Set<Tab>(['campaigns', 'performance', 'attribution']);
 
@@ -31,10 +32,20 @@ const tabs: TabPillItem<Tab>[] = [
   { value: 'attribution', label: 'Attribution', icon: <Target /> },
 ];
 
+const campaignStatusOptions = [
+  { value: 'ALL', label: 'All statuses' },
+  { value: 'ACTIVE', label: 'Active' },
+  { value: 'PAUSED', label: 'Paused' },
+  { value: 'ARCHIVED', label: 'Archived' },
+  { value: 'DELETED', label: 'Deleted' },
+] satisfies Array<{ value: CampaignStatusFilter; label: string }>;
+
 export default function AdsTrackerV5() {
   const { currentUser } = useAuth();
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [campaignSearch, setCampaignSearch] = useState('');
+  const [campaignStatus, setCampaignStatus] = useState<CampaignStatusFilter>('ALL');
   const defaultFrom = format(startOfMonth(new Date()), 'yyyy-MM-dd');
   const defaultTo = format(new Date(), 'yyyy-MM-dd');
   const dateFrom = searchParams.get('date_from') ?? defaultFrom;
@@ -52,6 +63,19 @@ export default function AdsTrackerV5() {
   const attribution = attributionQuery.data ?? [];
   const unmatched = unmatchedQuery.data ?? [];
   const isAdmin = !!currentUser?.isAdmin;
+
+  const filteredCampaigns = useMemo(() => {
+    const q = campaignSearch.trim().toLowerCase();
+    return campaigns.filter((campaign) => {
+      const matchesSearch =
+        q.length === 0 ||
+        campaign.name.toLowerCase().includes(q) ||
+        campaign.externalId.toLowerCase().includes(q) ||
+        (campaign.utmCampaign?.toLowerCase().includes(q) ?? false);
+      const matchesStatus = campaignStatus === 'ALL' || campaign.status === campaignStatus;
+      return matchesSearch && matchesStatus;
+    });
+  }, [campaignSearch, campaignStatus, campaigns]);
 
   const totals = useMemo(() => {
     const spend = campaigns.reduce((sum, campaign) => sum + Number(campaign.spendTotal ?? 0), 0);
@@ -111,6 +135,35 @@ export default function AdsTrackerV5() {
         }
       />
 
+      <PageToolbar
+        left={
+          <>
+            <div className="relative flex items-center">
+              <Search className="pointer-events-none absolute left-3 size-3.5 text-on-surface-variant" aria-hidden="true" />
+              <input
+                type="search"
+                value={campaignSearch}
+                onChange={(event) => setCampaignSearch(event.target.value)}
+                placeholder="Search campaigns or UTM"
+                aria-label="Search campaigns or UTM"
+                className="h-8 w-[260px] rounded-input border border-outline-variant bg-surface-container-lowest pl-8 pr-3 text-[length:var(--text-body-sm)] font-medium text-on-surface placeholder:text-on-surface-variant/60 hover:border-accent/25 hover:shadow-glass focus-visible:border-accent/25 focus-visible:outline-none"
+              />
+            </div>
+            <FilterChip<CampaignStatusFilter>
+              value={campaignStatus}
+              onChange={(value) => setCampaignStatus(value as CampaignStatusFilter)}
+              options={campaignStatusOptions}
+              icon={<Filter size={14} />}
+              placeholder="All statuses"
+              label="Filter campaigns by status"
+              size="sm"
+            />
+          </>
+
+        }
+        className="mt-2"
+      />
+
       <AdsKpiCards
         spend={totals.spend}
         active={totals.active}
@@ -122,8 +175,8 @@ export default function AdsTrackerV5() {
 
       <section className="flex flex-1 min-h-0 flex-col gap-4" aria-label="Ads tracker content">
         {activeTab === 'campaigns' && (
-          <Card padding="none" glow className="flex-1 min-h-0 overflow-y-auto">
-            <CampaignsTable campaigns={campaigns} />
+          <Card padding="none" glow className="flex-1 min-h-0 overflow-hidden">
+            <CampaignsTable campaigns={filteredCampaigns} />
           </Card>
         )}
         {activeTab === 'performance' && <AdsSpendChart campaigns={campaigns} />}

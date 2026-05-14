@@ -229,26 +229,26 @@ export default function LeadLogsTab({ filters }: LeadLogsTabProps) {
             const sla = getLeadSla(l, now);
             return sla.label.startsWith('Overdue');
           }).length;
-          const statCls = 'flex items-center gap-4 px-4 py-2 bg-surface-2 border border-outline-variant/40 rounded-card shadow-sm text-[10px] font-black uppercase tracking-widest whitespace-nowrap';
+          const statCls = 'flex items-center gap-3 px-4 py-2 bg-surface-2 border border-outline-variant/40 rounded-card shadow-sm text-[10px] font-black uppercase tracking-widest whitespace-nowrap';
           const dot = (color: string) => <span className={`size-2 rounded-full inline-block ${color}`} />;
           const stat = (color: string, label: string, val: number) => (
             <span className="flex items-center gap-1.5 text-on-surface-variant whitespace-nowrap">{dot(color)}{label}: {val}</span>
           );
           return (
-            <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1">
-              <div className={statCls}>
-                {stat('bg-on-surface-variant', 'Total', filteredLeads.length)}
-                {stat('bg-primary/80', 'NEW', c('Mới'))}
-                {stat('bg-info', 'ATT', c('Đang liên hệ'))}
-                {stat('bg-warning/80', 'NUR', c('Đang nuôi dưỡng'))}
-                {stat('bg-success', 'QLD', c('Qualified'))}
-                {stat('bg-error/80', 'UQLD', c('Unqualified'))}
-                {stat('bg-success/80', 'OT', onTime)}
-                {stat('bg-error', 'OVD', overdue)}
+            <div className="flex w-full items-center justify-between gap-2 overflow-x-auto pb-1">
+              <div className={`${statCls} shrink-0`}>
+                {stat('bg-on-surface-variant', 'Total Leads', filteredLeads.length)}
+                {stat('bg-primary/80', 'New Leads', c('Mới'))}
+                {stat('bg-info', 'Attending Leads', c('Đang liên hệ'))}
+                {stat('bg-warning/80', 'Nurturing Leads', c('Đang nuôi dưỡng'))}
+                {stat('bg-success', 'Qualified Leads', c('Qualified'))}
+                {stat('bg-error/80', 'Unqualified Leads', c('Unqualified'))}
+                {stat('bg-success/80', 'On-time Leads', onTime)}
+                {stat('bg-error', 'Overdue Leads', overdue)}
               </div>
-              <div className={statCls}>
-                {stat('bg-error/80', 'VN', vn)}
-                {stat('bg-info/80', 'QT', intl)}
+              <div className={`${statCls} shrink-0`}>
+                {stat('bg-error/80', 'Vietnam', vn)}
+                {stat('bg-info/80', 'International', intl)}
               </div>
             </div>
           );
