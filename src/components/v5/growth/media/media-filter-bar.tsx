@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { RefreshCw, Search } from 'lucide-react';
-import { Button, CustomSelect, DateRangePicker } from '../../ui';
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
+import { ChevronDown, Filter, RefreshCw, Search } from 'lucide-react';
+import { CustomSelect, DateRangePicker } from '../../ui';
 import type { DateRange } from '../../ui';
 import type { MediaFilter } from '../../../../hooks/use-media-tracker';
 
@@ -90,67 +91,92 @@ export function MediaFilterBar({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {/* Channel */}
-      <CustomSelect
-        value={filter.channelId ?? ''}
-        onChange={(v) => onChange({ channelId: v || undefined })}
-        options={channelOptions}
-        className="w-48"
-      />
+      {/* LEFT: Search → Group → Filter */}
+      <div className="flex flex-1 flex-wrap items-center gap-2">
+        {/* Search */}
+        <div className="relative flex items-center">
+          <Search className="absolute left-3 size-3.5 text-on-surface-variant pointer-events-none" aria-hidden="true" />
+          <input
+            type="search"
+            value={searchDraft}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            placeholder="Search posts…"
+            aria-label="Search posts"
+            className="h-8 rounded-input border border-outline-variant bg-surface-container-lowest pl-8 pr-3 text-[length:var(--text-body-sm)] font-medium text-on-surface placeholder:text-on-surface-variant/60 hover:border-accent/25 hover:shadow-glass focus-visible:border-accent/25 focus-visible:outline-none"
+          />
+        </div>
 
-      {/* Format */}
-      <CustomSelect
-        value={filter.format ?? ''}
-        onChange={(v) => onChange({ format: v || undefined })}
-        options={FORMAT_OPTIONS}
-        className="w-40"
-      />
-
-      {/* Date range */}
-      <DateRangePicker
-        value={dateRangeValue}
-        onChange={handleDateRange}
-        label="Filter date range"
-        size="sm"
-      />
-
-      {/* Search */}
-      <div className="relative flex items-center">
-        <Search className="absolute left-3 size-3.5 text-on-surface-variant pointer-events-none" aria-hidden="true" />
-        <input
-          type="search"
-          value={searchDraft}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          placeholder="Search posts…"
-          aria-label="Search posts"
-          className="h-8 rounded-input border border-outline-variant bg-surface-container-lowest pl-8 pr-3 text-[length:var(--text-body-sm)] text-on-surface placeholder:text-on-surface-variant/60 focus-visible:border-primary focus-visible:outline-none"
-        />
-      </div>
-
-      {/* Group-by — pushed to right via ml-auto */}
-      <div className="ml-auto flex items-center gap-2">
-        <span className="text-[length:var(--text-body-sm)] text-on-surface-variant whitespace-nowrap">Group:</span>
+        {/* Group */}
         <CustomSelect
           value={filter.groupBy ?? ''}
           onChange={(v) => onChange({ groupBy: (v as MediaFilter['groupBy']) || undefined })}
           options={GROUP_OPTIONS}
           className="w-36"
         />
+
+        {/* Filter popover */}
+        <Popover className="relative">
+          {({ open }) => (
+            <>
+              <PopoverButton className="flex h-8 items-center gap-2 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] font-medium text-on-surface outline-none transition-all duration-medium ease-standard hover:border-accent/25 hover:shadow-glass focus-visible:border-accent/25">
+                <Filter size={14} className="text-on-surface-variant" />
+                <span>Filter</span>
+                {(filter.channelId || filter.format) && (
+                  <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-on-primary">
+                    {(filter.channelId ? 1 : 0) + (filter.format ? 1 : 0)}
+                  </span>
+                )}
+                <ChevronDown size={14} className={`text-on-surface-variant transition-transform ${open ? 'rotate-180' : ''}`} />
+              </PopoverButton>
+              <PopoverPanel className="absolute left-0 z-50 mt-1.5 w-64 rounded-input border border-outline-variant bg-surface-container-lowest p-3 shadow-elevated">
+                <div className="space-y-3">
+                  <div>
+                    <label className="mb-1.5 block text-[length:var(--text-label-sm)] font-medium text-on-surface-variant">Channel</label>
+                    <CustomSelect
+                      value={filter.channelId ?? ''}
+                      onChange={(v) => onChange({ channelId: v || undefined })}
+                      options={channelOptions}
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-[length:var(--text-label-sm)] font-medium text-on-surface-variant">Format</label>
+                    <CustomSelect
+                      value={filter.format ?? ''}
+                      onChange={(v) => onChange({ format: v || undefined })}
+                      options={FORMAT_OPTIONS}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </PopoverPanel>
+            </>
+          )}
+        </Popover>
       </div>
 
-      {/* Refresh — admin only */}
-      {showRefresh && (
-        <Button
-          variant="ghost"
+      {/* RIGHT: Action → DatePicker */}
+      <div className="ml-auto flex flex-wrap items-center gap-2">
+        {showRefresh && (
+          <button
+            type="button"
+            onClick={onRefresh}
+            disabled={isSyncing}
+            aria-label="Refresh posts from social channels"
+            className="flex h-8 items-center gap-2 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] font-medium text-on-surface outline-none transition-all duration-medium ease-standard hover:border-accent/25 hover:shadow-glass focus-visible:border-accent/25 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <RefreshCw size={14} className={isSyncing ? 'animate-spin text-primary' : 'text-primary'} />
+            <span>{isSyncing ? 'Syncing…' : 'Refresh'}</span>
+          </button>
+        )}
+
+        <DateRangePicker
+          value={dateRangeValue}
+          onChange={handleDateRange}
+          label="Filter date range"
           size="sm"
-          iconLeft={<RefreshCw className={isSyncing ? 'animate-spin text-accent' : 'text-accent'} />}
-          onClick={onRefresh}
-          disabled={isSyncing}
-          aria-label="Refresh posts from social channels"
-        >
-          {isSyncing ? 'Syncing…' : 'Refresh'}
-        </Button>
-      )}
+        />
+      </div>
     </div>
   );
 }

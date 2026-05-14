@@ -17,6 +17,7 @@ interface CustomSelectProps<T = string> {
   placeholder?: string;
   icon?: React.ReactNode;
   className?: string;
+  buttonClassName?: string;
   disabled?: boolean;
 }
 
@@ -27,6 +28,7 @@ export default function CustomSelect<T = string>({
   placeholder = 'Select...',
   icon,
   className = '',
+  buttonClassName = '',
   disabled = false
 }: CustomSelectProps<T>) {
   const selectedOption = options.find(opt => opt.value === value);
@@ -38,10 +40,10 @@ export default function CustomSelect<T = string>({
           <ListboxButton
             className={`
               flex w-full items-center justify-between gap-2
-              rounded-card border border-outline-variant/40 bg-surface px-4 py-3
               text-[length:var(--text-body-sm)] font-medium
               outline-none transition-colors
-              hover:border-outline focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/35
+              focus-visible:ring-2 focus-visible:ring-primary/35
+              ${buttonClassName || 'h-8 rounded-input px-3 border border-outline-variant bg-surface-container-lowest hover:border-accent/25 hover:shadow-glass focus-visible:border-accent/25'}
               ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
             `}
           >
@@ -72,7 +74,7 @@ export default function CustomSelect<T = string>({
               >
               <ListboxOptions
                 static
-                className="absolute z-50 mt-2 max-h-60 w-full overflow-hidden overflow-y-auto rounded-card border border-outline-variant/40 bg-surface shadow-elevated"
+                className="absolute z-50 mt-1.5 max-h-60 w-full overflow-hidden overflow-y-auto rounded-input border border-outline-variant bg-surface-container-lowest shadow-elevated"
               >
                 {options.map((option) => (
                   <ListboxOption key={String(option.value)} value={option.value} as={Fragment}>
@@ -80,9 +82,9 @@ export default function CustomSelect<T = string>({
                       <div
                         className={`
                           flex cursor-pointer items-center justify-between gap-2
-                          px-4 py-2.5 text-[length:var(--text-body-sm)] font-medium transition-colors
-                          ${focus ? 'bg-surface-variant/40' : ''}
-                          ${selected ? 'bg-primary/5 text-primary' : 'text-on-surface'}
+                          px-3 py-2 text-[length:var(--text-body-sm)] font-medium transition-colors
+                          ${focus ? 'bg-surface-variant/30' : ''}
+                          ${selected ? 'bg-primary/10 text-primary' : 'text-on-surface'}
                         `}
                       >
                         <span className="flex items-center gap-2 truncate">

@@ -135,7 +135,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
                   'inline-flex items-center rounded-input border border-outline-variant bg-surface-container-lowest',
                   'text-on-surface',
                   'transition-colors motion-fast ease-standard',
-                  'hover:border-outline focus-visible:outline-none data-[open]:border-primary',
+                  'hover:border-accent/25 hover:shadow-glass focus-visible:outline-none focus-visible:border-accent/25 data-[open]:border-accent/25',
                   'disabled:cursor-not-allowed disabled:opacity-50',
                   SIZE_CLASSES[size],
                 ].join(' ')}
