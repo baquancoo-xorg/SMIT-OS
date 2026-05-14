@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import type { DailyReport } from '../types';
 
@@ -18,6 +18,18 @@ export function useDailyReportQuery(id: string | null) {
     queryFn: () => (id ? api.get<DailyReport>(`/daily-reports/${id}`) : null),
     enabled: !!id,
     staleTime: 30_000,
+  });
+}
+
+export function useApproveDailyReportMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, comment }: { id: string; comment: string }) =>
+      api.post<void>(`/daily-reports/${id}/approve`, { comment }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
   });
 }
 

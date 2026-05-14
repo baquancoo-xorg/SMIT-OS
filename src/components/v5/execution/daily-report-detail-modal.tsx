@@ -1,9 +1,11 @@
-import { Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { format } from 'date-fns';
-import { FileText, CheckCircle, Clock } from 'lucide-react';
+import { FileText, CheckCircle, Clock, Send } from 'lucide-react';
 import { Modal } from '../ui/modal';
+import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { CommentThread } from './comment-thread';
+import { useApproveDailyReportMutation } from '../../../hooks/use-daily-reports';
 
 export interface DailyReportData {
   id: string;
@@ -27,17 +29,61 @@ interface DailyReportDetailModalProps {
   report: DailyReportData | null;
   currentUserId: string;
   isAdmin: boolean;
+  onApproved?: () => void;
 }
 
-export function DailyReportDetailModal({ open, onClose, report, currentUserId, isAdmin }: DailyReportDetailModalProps) {
+export function DailyReportDetailModal({ open, onClose, report, currentUserId, isAdmin, onApproved }: DailyReportDetailModalProps) {
+  const [approveComment, setApproveComment] = useState('');
+  const approveMutation = useApproveDailyReportMutation();
+
+  useEffect(() => {
+    setApproveComment('');
+  }, [report?.id]);
+
   if (!report) return null;
 
   const isApproved = report.status === 'Approved';
+  const canApprove = isAdmin && !isApproved;
   const dateFormatted = format(new Date(report.reportDate), 'dd/MM/yyyy');
 
+  async function handleApprove() {
+    const comment = approveComment.trim();
+    if (!comment) return;
+
+    await approveMutation.mutateAsync({ id: report.id, comment });
+    onApproved?.();
+    onClose();
+  }
+
   return (
-    <Modal open={open} onClose={onClose} title={`Báo cáo ngày ${dateFormatted}`} icon={<FileText />} size="lg">
-      <div className="space-y-5">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={`Báo cáo ngày ${dateFormatted}`}
+      icon={<FileText />}
+      size="xl"
+      footer={canApprove ? (
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[length:var(--text-body-sm)] text-on-surface-variant">
+            Nhập nhận xét trước khi phê duyệt báo cáo.
+          </p>
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button variant="ghost" onClick={onClose}>Đóng</Button>
+            <Button
+              variant="primary"
+              iconLeft={<Send />}
+              splitLabel={{ action: 'Approve', object: 'Report' }}
+              disabled={!approveComment.trim() || approveMutation.isPending}
+              isLoading={approveMutation.isPending}
+              onClick={handleApprove}
+            />
+          </div>
+        </div>
+      ) : (
+        <Button variant="ghost" onClick={onClose}>Đóng</Button>
+      )}
+    >
+      <div className="flex flex-col gap-5">
         <div className="flex items-center gap-2 text-[length:var(--text-body-sm)]">
           <span className="font-semibold text-on-surface">{report.user.fullName}</span>
           <StatusBadge approved={isApproved} />
@@ -59,8 +105,27 @@ export function DailyReportDetailModal({ open, onClose, report, currentUserId, i
           </div>
         )}
 
+        {canApprove && (
+          <div className="rounded-card border border-outline-variant/40 bg-surface-container-low p-4 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <h4 className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface">
+                Phê duyệt báo cáo
+              </h4>
+              <span className="text-[length:var(--text-caption)] text-on-surface-variant">
+                Cần nhận xét trước khi duyệt
+              </span>
+            </div>
+            <textarea
+              value={approveComment}
+              onChange={(e) => setApproveComment(e.target.value)}
+              placeholder="Nhập nhận xét phê duyệt..."
+              className="min-h-28 w-full rounded-input border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-[length:var(--text-body)] text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:outline-none"
+            />
+          </div>
+        )}
+
         <div className="pt-2 border-t border-outline-variant/40">
-          <h4 className="text-[length:var(--text-label)] font-semibold text-on-surface mb-3">Trao đổi</h4>
+          <h4 className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface mb-3">Trao đổi</h4>
           <Suspense fallback={<Skeleton className="h-24" />}>
             <CommentThread reportId={report.id} currentUserId={currentUserId} isAdmin={isAdmin} />
           </Suspense>
@@ -73,8 +138,10 @@ export function DailyReportDetailModal({ open, onClose, report, currentUserId, i
 function Section({ label, content }: { label: string; content: string }) {
   return (
     <div className="space-y-1">
-      <h4 className="text-[length:var(--text-label)] font-medium text-on-surface-variant">{label}</h4>
-      <p className="whitespace-pre-wrap text-[length:var(--text-body-sm)] text-on-surface">{content || '—'}</p>
+      <h4 className="text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-wide)] text-on-surface">
+        {label}
+      </h4>
+      <p className="whitespace-pre-wrap text-[length:var(--text-body)] leading-[1.65] text-on-surface">{content || '—'}</p>
     </div>
   );
 }

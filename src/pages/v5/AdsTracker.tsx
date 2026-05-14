@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { format, startOfMonth } from 'date-fns';
 import { useSearchParams } from 'react-router-dom';
-import { Filter, LayoutList, RefreshCw, Search, Target, TrendingUp } from 'lucide-react';
+import { Filter, LayoutGrid, LayoutList, RefreshCw, Search, Target, TrendingUp } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import CampaignsTable from '../../components/ads-tracker/campaigns-table';
 import AttributionTable from '../../components/ads-tracker/attribution-table';
@@ -19,6 +19,7 @@ import {
 
 type Tab = 'campaigns' | 'performance' | 'attribution';
 type CampaignStatusFilter = 'ALL' | 'ACTIVE' | 'PAUSED' | 'ARCHIVED' | 'DELETED';
+type CampaignGroupFilter = 'none' | 'platform' | 'status';
 
 const validTabs = new Set<Tab>(['campaigns', 'performance', 'attribution']);
 
@@ -40,12 +41,19 @@ const campaignStatusOptions = [
   { value: 'DELETED', label: 'Deleted' },
 ] satisfies Array<{ value: CampaignStatusFilter; label: string }>;
 
+const campaignGroupOptions = [
+  { value: 'none', label: 'No grouping' },
+  { value: 'platform', label: 'By platform' },
+  { value: 'status', label: 'By status' },
+] satisfies Array<{ value: CampaignGroupFilter; label: string }>;
+
 export default function AdsTrackerV5() {
   const { currentUser } = useAuth();
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const [campaignSearch, setCampaignSearch] = useState('');
   const [campaignStatus, setCampaignStatus] = useState<CampaignStatusFilter>('ALL');
+  const [campaignGroup, setCampaignGroup] = useState<CampaignGroupFilter>('none');
   const defaultFrom = format(startOfMonth(new Date()), 'yyyy-MM-dd');
   const defaultTo = format(new Date(), 'yyyy-MM-dd');
   const dateFrom = searchParams.get('date_from') ?? defaultFrom;
@@ -110,35 +118,13 @@ export default function AdsTrackerV5() {
   };
 
   return (
-    <PageSectionStack>
+    <PageSectionStack className="h-[calc(100dvh-var(--header-h)-var(--page-pt)-var(--page-pb))] min-h-0 gap-4 overflow-hidden pb-0">
       <PageToolbar
+        className="flex-nowrap overflow-hidden"
         left={
-          <div className="overflow-x-auto pb-1">
-            <TabPill<Tab> label="Ads tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="page" className="min-w-max" />
-          </div>
-        }
-        right={
-          <>
-            {isAdmin && (
-              <Button
-                variant="primary"
-                size="sm"
-                className="h-8 text-[length:var(--text-body-sm)]"
-                iconLeft={<RefreshCw className={syncMutation.isPending ? 'animate-spin' : ''} />}
-                onClick={handleSync}
-                disabled={syncMutation.isPending}
-                splitLabel={syncMutation.isPending ? { action: 'Syncing', object: 'Meta' } : { action: 'Sync', object: 'Meta' }}
-              />
-            )}
-            <DateRangePicker value={pickerValue} onChange={setRange} size="sm" label="Ads date range" />
-          </>
-        }
-      />
-
-      <PageToolbar
-        left={
-          <>
-            <div className="relative flex items-center">
+          <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-hidden">
+            <TabPill<Tab> label="Ads tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="page" className="shrink-0" />
+            <div className="relative flex h-[34px] items-center">
               <Search className="pointer-events-none absolute left-3 size-3.5 text-on-surface-variant" aria-hidden="true" />
               <input
                 type="search"
@@ -146,7 +132,7 @@ export default function AdsTrackerV5() {
                 onChange={(event) => setCampaignSearch(event.target.value)}
                 placeholder="Search campaigns or UTM"
                 aria-label="Search campaigns or UTM"
-                className="h-8 w-[260px] rounded-input border border-outline-variant bg-surface-container-lowest pl-8 pr-3 text-[length:var(--text-body-sm)] font-medium text-on-surface placeholder:text-on-surface-variant/60 hover:border-accent/25 hover:shadow-glass focus-visible:border-accent/25 focus-visible:outline-none"
+                className="h-[34px] w-[220px] rounded-input border border-outline-variant bg-surface-container-lowest pl-8 pr-3 text-[length:var(--text-body-sm)] font-medium text-on-surface placeholder:text-on-surface-variant/60 hover:border-accent/25 hover:shadow-glass focus-visible:border-accent/25 focus-visible:outline-none"
               />
             </div>
             <FilterChip<CampaignStatusFilter>
@@ -157,11 +143,42 @@ export default function AdsTrackerV5() {
               placeholder="All statuses"
               label="Filter campaigns by status"
               size="sm"
+              className="shrink-0"
             />
-          </>
-
+            <FilterChip<CampaignGroupFilter>
+              value={campaignGroup}
+              onChange={(value) => setCampaignGroup(value as CampaignGroupFilter)}
+              options={campaignGroupOptions}
+              icon={<LayoutGrid size={14} />}
+              placeholder="No grouping"
+              label="Group campaigns"
+              size="sm"
+              className="shrink-0"
+            />
+          </div>
         }
-        className="mt-2"
+        right={
+          <div className="flex shrink-0 items-center gap-2">
+            {isAdmin && (
+              <Button
+                variant="primary"
+                size="sm"
+                className="h-[34px] text-[length:var(--text-body-sm)]"
+                iconLeft={<RefreshCw className={syncMutation.isPending ? 'animate-spin' : ''} />}
+                onClick={handleSync}
+                disabled={syncMutation.isPending}
+                splitLabel={syncMutation.isPending ? { action: 'Syncing', object: 'Meta' } : { action: 'Sync', object: 'Meta' }}
+              />
+            )}
+            <DateRangePicker
+              value={pickerValue}
+              onChange={setRange}
+              size="sm"
+              label="Ads date range"
+              buttonClassName="h-[34px]"
+            />
+          </div>
+        }
       />
 
       <AdsKpiCards
@@ -173,7 +190,7 @@ export default function AdsTrackerV5() {
         currency={totals.currency}
       />
 
-      <section className="flex flex-1 min-h-0 flex-col gap-4" aria-label="Ads tracker content">
+      <section className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden" aria-label="Ads tracker content">
         {activeTab === 'campaigns' && (
           <Card padding="none" glow className="flex-1 min-h-0 overflow-hidden">
             <CampaignsTable campaigns={filteredCampaigns} />
@@ -181,7 +198,7 @@ export default function AdsTrackerV5() {
         )}
         {activeTab === 'performance' && <AdsSpendChart campaigns={campaigns} />}
         {activeTab === 'attribution' && (
-          <Card padding="none" glow className="flex-1 min-h-0 overflow-y-auto">
+          <Card padding="none" glow className="flex-1 min-h-0 overflow-hidden">
             <AttributionTable rows={attribution} unmatched={unmatched} />
           </Card>
         )}

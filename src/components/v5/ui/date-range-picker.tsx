@@ -26,6 +26,8 @@ export interface DateRangePickerProps {
   presets?: DateRangePreset[];
   /** Size variant. 'sm' = h-8 (32px), 'md' = h-10 (40px, default). */
   size?: DateRangePickerSize;
+  /** Extra class names for the trigger button. */
+  buttonClassName?: string;
   /** Disable the trigger. */
   disabled?: boolean;
   className?: string;
@@ -106,6 +108,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
       label = 'Date range',
       presets = DEFAULT_PRESETS,
       size = 'md',
+      buttonClassName = '',
       disabled,
       className = '',
     },
@@ -138,6 +141,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
                   'hover:border-accent/25 hover:shadow-glass focus-visible:outline-none focus-visible:border-accent/25 data-[open]:border-accent/25',
                   'disabled:cursor-not-allowed disabled:opacity-50',
                   SIZE_CLASSES[size],
+                  buttonClassName,
                 ].join(' ')}
               >
                 <Calendar aria-hidden="true" className={size === 'sm' ? 'size-3.5 text-on-surface-variant' : 'size-4 text-on-surface-variant'} />
