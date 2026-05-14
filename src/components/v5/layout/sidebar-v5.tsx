@@ -48,9 +48,7 @@ function SidebarNavItem({ item, collapsed, active, onNavigate }: { item: Workspa
       aria-label={collapsed ? item.label : undefined}
       className={({ isActive }) => {
         const selected = active || isActive;
-        return `group relative flex min-h-9 items-center text-[length:var(--text-label)] font-bold transition-all duration-fast ${collapsed ? 'mx-auto w-11 justify-center' : 'gap-2'} ${
-          selected ? 'text-text-1' : 'text-text-muted hover:text-text-1'
-        }`;
+        return `group relative flex min-h-9 items-center text-[length:var(--text-label)] font-bold transition-all duration-fast ${collapsed ? 'mx-auto w-11 justify-center' : 'gap-2'} ${selected ? 'text-text-1' : 'text-text-muted hover:text-text-1'}`;
       }}
     >
       {({ isActive }) => {
@@ -58,26 +56,26 @@ function SidebarNavItem({ item, collapsed, active, onNavigate }: { item: Workspa
         return (
           <>
             <span
-              className={`pointer-events-none absolute top-1/2 -translate-y-1/2 rounded-full bg-accent transition-opacity duration-fast ${collapsed ? 'left-2 h-5 w-0.5' : 'left-0 h-7 w-1'} ${selected ? 'opacity-100' : 'opacity-0'}`}
+              className={`pointer-events-none absolute top-1/2 -translate-y-1/2 rounded-full transition-colors duration-fast ${collapsed ? 'left-2 h-5 w-0.5' : 'left-0 h-7 w-1'} ${selected ? 'bg-[var(--sys-sidebar-active-bar)] opacity-100' : 'opacity-0'}`}
             />
             <span
-              className={`pointer-events-none absolute top-1/2 -translate-y-1/2 transition-opacity duration-fast ${collapsed ? 'left-[0.625rem] h-6 w-8' : 'left-1 h-8 w-20'} ${selected ? 'opacity-100' : 'opacity-0'}`}
+              className={`pointer-events-none absolute top-1/2 -translate-y-1/2 ${collapsed ? 'left-[0.625rem] h-6 w-8' : 'left-1 h-8 w-20'} transition-[opacity,transform] duration-medium ease-standard ${selected ? 'opacity-0 group-hover:opacity-100 group-hover:translate-x-1.5' : 'opacity-0'}`}
               style={{
-                background: selected
-                  ? 'linear-gradient(90deg, color-mix(in oklab, var(--sys-color-accent) 34%, transparent) 0%, color-mix(in oklab, var(--sys-color-accent) 18%, transparent) 42%, transparent 100%)'
-                  : undefined,
-                filter: selected ? 'blur(7px)' : undefined,
+                background: 'linear-gradient(90deg, color-mix(in oklab, var(--sys-color-accent) 34%, transparent) 0%, color-mix(in oklab, var(--sys-color-accent) 18%, transparent) 42%, transparent 100%)',
+                filter: 'blur(7px)',
               }}
             />
-            <span className={`flex min-h-9 items-center gap-2.5 border text-[length:var(--text-label)] font-bold transition-all duration-fast ${collapsed ? 'w-9 justify-center rounded-[var(--radius-input)] border-transparent bg-transparent' : 'flex-1 rounded-[var(--radius-input)] px-2.5'} ${
-              selected
-                ? collapsed
-                  ? 'text-text-1'
-                  : 'border-[var(--sidebar-item-border)] bg-[var(--sidebar-item-active)] text-text-1 shadow-card'
-                : collapsed
-                  ? 'text-text-muted group-hover:text-text-1'
-                  : 'border-transparent text-text-muted group-hover:bg-[var(--sidebar-item-hover)] group-hover:text-text-1'
-            }`}>
+            <span
+              className={`flex min-h-9 items-center gap-2.5 border text-[length:var(--text-label)] font-bold transition-all duration-fast ${collapsed ? 'w-9 justify-center rounded-[var(--radius-input)] border-transparent bg-transparent' : 'flex-1 rounded-[var(--radius-input)] px-2.5'} ${
+                selected
+                  ? collapsed
+                    ? 'text-text-1'
+                    : 'border-[var(--sidebar-item-border)] bg-[var(--sidebar-item-active)] text-text-1 shadow-card'
+                  : collapsed
+                    ? 'text-text-muted group-hover:text-text-1'
+                    : 'border-transparent text-text-muted group-hover:bg-[var(--sidebar-item-hover)] group-hover:text-text-1'
+              }`}
+            >
               <Icon size={15} className="shrink-0 text-current" />
               {!collapsed && <span className="truncate uppercase tracking-[0.08em]">{item.label}</span>}
             </span>
@@ -124,11 +122,7 @@ export default function SidebarV5({ collapsed, onCollapsedChange, onLogout, onNa
 
         <div className={`relative shrink-0 border-t border-border ${collapsed ? 'px-0 py-4' : 'flex h-[4.5rem] items-center gap-1.5 px-5'}`}>
           {!collapsed && (
-            <NavLink
-              to="/profile"
-              onClick={onNavigate}
-              className="min-w-0 flex-1 rounded-[var(--radius-input)] py-1.5 text-left transition hover:text-text-1"
-            >
+            <NavLink to="/profile" onClick={onNavigate} className="min-w-0 flex-1 rounded-[var(--radius-input)] py-1.5 text-left transition hover:text-text-1">
               <p className="truncate text-[10px] font-extrabold uppercase tracking-[0.04em] text-text-1">{currentUser?.fullName || 'Nguyễn Quân'}</p>
               <p className="truncate text-[9px] font-semibold uppercase tracking-[0.08em] text-text-muted">{currentUser?.role || 'Admin'}</p>
             </NavLink>
@@ -151,3 +145,4 @@ export default function SidebarV5({ collapsed, onCollapsedChange, onLogout, onNa
     </aside>
   );
 }
+

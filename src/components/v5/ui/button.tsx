@@ -22,9 +22,9 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary: cn(
-    'relative isolate overflow-hidden border text-text-1 shadow-sm',
+    'group relative isolate overflow-hidden border text-text-1 shadow-sm',
     'border-[var(--sys-button-primary-border)] bg-[image:var(--sys-button-primary-bg)]',
-    'hover:border-accent/50 hover:shadow-glass active:scale-[0.99] disabled:opacity-50',
+    'hover:border-accent/50 active:scale-[0.99] disabled:opacity-50',
     '[&>svg]:text-accent',
   ),
   secondary: 'border border-border bg-surface-2 text-text-1 hover:border-border-strong hover:bg-surface-3 disabled:opacity-50',
@@ -74,7 +74,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         {...props}
       >
-        {isLoading ? <SpinnerInline /> : hasSplitLabel ? (
+        {isLoading ? (
+          <SpinnerInline />
+        ) : hasSplitLabel ? (
           <SplitLabelContent iconLeft={iconLeft} iconRight={iconRight} splitLabel={splitLabel} />
         ) : (
           <>{iconLeft}{children ?? (splitLabel ? <>{splitLabel.action} {splitLabel.object}</> : null)}{iconRight}</>
@@ -96,13 +98,12 @@ function SplitLabelContent({ iconLeft, iconRight, splitLabel }: SplitLabelConten
   return (
     <>
       {iconLeft}
-      <span className="relative z-20 inline-flex items-center gap-1">
-        <span className="text-text-1">{splitLabel.action}</span>
-        <span className="relative h-4 w-0.5 rounded-full bg-[linear-gradient(180deg,transparent,var(--sys-color-accent)_18%,var(--sys-color-accent)_82%,transparent)] md:h-5" aria-hidden="true" />
-        <span className="relative z-10 text-text-1 [text-shadow:0_0_12px_color-mix(in_oklab,var(--sys-color-accent)_45%,transparent),0_0_28px_var(--sys-color-accent-dim)] motion-reduce:[text-shadow:none]">
-          <span className="pointer-events-none absolute -left-0.5 -right-14 top-1/2 -z-10 h-16 -translate-y-1/2 bg-[conic-gradient(from_-22deg_at_0%_50%,transparent_0deg,color-mix(in_oklab,var(--sys-color-accent)_24%,transparent)_16deg,color-mix(in_oklab,var(--sys-color-accent)_14%,transparent)_32deg,transparent_58deg)] blur-xl motion-reduce:hidden" aria-hidden="true" />
-          <span className="pointer-events-none absolute -left-0.5 -right-10 top-1/2 -z-10 h-10 -translate-y-1/2 bg-[radial-gradient(ellipse_at_left,color-mix(in_oklab,var(--sys-color-accent)_22%,transparent)_0%,color-mix(in_oklab,var(--sys-color-accent)_12%,transparent)_42%,transparent_76%)] blur-lg motion-reduce:hidden" aria-hidden="true" />
-          {splitLabel.object}
+      <span className="relative z-20 inline-flex items-center gap-0">
+        <span className="shrink-0 text-text-1">{splitLabel.action}</span>
+        <span className="relative h-4 w-0 shrink-0 overflow-hidden rounded-full bg-[var(--sys-button-primary-divider)] opacity-0 transition-[width,opacity,background-color] duration-medium ease-standard group-hover:w-0.5 group-hover:opacity-100 group-hover:bg-[var(--sys-button-primary-divider-hover)] md:h-5" aria-hidden="true" />
+        <span className="relative inline-flex min-w-0 items-center overflow-hidden transition-transform duration-medium ease-standard group-hover:translate-x-1 motion-reduce:transform-none">
+          <span className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--sys-color-accent)_28%,transparent)_0%,color-mix(in_oklab,var(--sys-color-accent)_14%,transparent)_38%,transparent_78%)] opacity-0 blur-lg transition-opacity duration-medium ease-standard group-hover:opacity-100 motion-reduce:hidden" aria-hidden="true" />
+          <span className="relative z-10 whitespace-nowrap text-text-1 [text-shadow:none] motion-reduce:[text-shadow:none]">{splitLabel.object}</span>
         </span>
       </span>
       {iconRight}
