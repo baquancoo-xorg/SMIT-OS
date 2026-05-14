@@ -23,7 +23,6 @@ const LeadTracker = lazy(() => import('./pages/v5/LeadTracker'));
 const MediaTracker = lazy(() => import('./pages/v5/MediaTracker'));
 const AdsTracker = lazy(() => import('./pages/v5/AdsTracker'));
 const Playground = lazy(() => import('./pages/v5/Playground'));
-const IntegrationsManagement = lazy(() => import('./pages/v5/IntegrationsManagement'));
 
 function PageLoader() {
   return (
@@ -64,7 +63,7 @@ function AppContent() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/playground" element={<Playground />} />
-          <Route path="/integrations" element={<IntegrationsManagement />} />
+          <Route path="/integrations" element={<Navigate to="/settings?tab=integrations" replace />} />
           <Route path="/lead-tracker" element={<Navigate to="/leads" replace />} />
           <Route path="/ads-tracker" element={<Navigate to="/ads" replace />} />
           <Route path="/media-tracker" element={<Navigate to="/media" replace />} />

@@ -1,5 +1,5 @@
-import { ShieldCheck } from 'lucide-react';
 import { Card, Input, Button } from '../ui';
+import { TwoFactorCard } from './two-factor-card';
 
 export function SettingsSecurityTab() {
   return (
@@ -15,17 +15,7 @@ export function SettingsSecurityTab() {
         </div>
       </Card>
 
-      <Card padding="lg" glow>
-        <div className="flex items-start gap-3">
-          <ShieldCheck className="mt-1 size-6 text-accent-text" />
-          <div>
-            {/* ui-canon-ok: font-black for KPI */}
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-text-muted">2FA</p>
-            <h2 className="mt-2 font-headline text-2xl font-black text-text-1">Authenticator</h2>
-            <p className="mt-2 text-sm font-medium text-text-2">2FA status đang được quản lý ở auth layer; UI cấu hình chi tiết sẽ nối vào backend security endpoint ở vòng sau.</p>
-          </div>
-        </div>
-      </Card>
+      <TwoFactorCard />
     </div>
   );
 }

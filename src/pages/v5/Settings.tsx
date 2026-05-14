@@ -1,24 +1,48 @@
-import { useState } from 'react';
-import { Key, ShieldCheck, SlidersHorizontal, UserCircle } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Facebook, Key, Link2, ShieldCheck, SlidersHorizontal } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { ApiKeysPanelV2, ProfileTabV2 } from '../../components/settings';
+import { ApiKeysPanelV2, FbConfigTabV2 } from '../../components/settings';
 import { TabPill } from '../../components/v5/ui';
 import type { TabPillItem } from '../../components/v5/ui';
-import { SettingsAppearanceTab, SettingsSecurityTab } from '../../components/v5/admin';
+import {
+  IntegrationsTab,
+  SettingsAppearanceTab,
+  SettingsSecurityTab,
+} from '../../components/v5/admin';
 
-type SettingsTab = 'profile' | 'security' | 'appearance' | 'api-keys';
+type SettingsTab = 'security' | 'appearance' | 'integrations' | 'api-keys' | 'fb-config';
 
-const tabs: TabPillItem<SettingsTab>[] = [
-  { value: 'profile', label: 'Profile', icon: <UserCircle /> },
+const ALL_TABS: TabPillItem<SettingsTab>[] = [
   { value: 'security', label: 'Security', icon: <ShieldCheck /> },
   { value: 'appearance', label: 'Appearance', icon: <SlidersHorizontal /> },
+  { value: 'integrations', label: 'Integrations', icon: <Link2 /> },
   { value: 'api-keys', label: 'API Keys', icon: <Key /> },
+  { value: 'fb-config', label: 'FB Config', icon: <Facebook /> },
 ];
+
+const ADMIN_ONLY: SettingsTab[] = ['integrations', 'api-keys', 'fb-config'];
 
 export default function Settings() {
   const { isAdmin } = useAuth();
-  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  const [params, setParams] = useSearchParams();
   const [isGeneratingKey, setIsGeneratingKey] = useState(false);
+  const [isAddingFb, setIsAddingFb] = useState(false);
+
+  const visibleTabs = useMemo(
+    () => ALL_TABS.filter((tab) => isAdmin || !ADMIN_ONLY.includes(tab.value)),
+    [isAdmin],
+  );
+
+  const requested = (params.get('tab') ?? 'security') as SettingsTab;
+  const isVisible = visibleTabs.some((tab) => tab.value === requested);
+  const activeTab: SettingsTab = isVisible ? requested : 'security';
+
+  function setActiveTab(next: SettingsTab) {
+    const nextParams = new URLSearchParams(params);
+    nextParams.set('tab', next);
+    setParams(nextParams, { replace: true });
+  }
 
   return (
     <div className="flex min-h-full flex-col gap-6">
@@ -27,16 +51,19 @@ export default function Settings() {
           label="Settings sections"
           value={activeTab}
           onChange={setActiveTab}
-          items={isAdmin ? tabs : tabs.filter((tab) => tab.value !== 'api-keys')}
+          items={visibleTabs}
         />
       </div>
 
       <section className="min-h-0 flex-1" aria-label="Settings content">
-        {activeTab === 'profile' && <ProfileTabV2 />}
         {activeTab === 'security' && <SettingsSecurityTab />}
         {activeTab === 'appearance' && <SettingsAppearanceTab />}
+        {activeTab === 'integrations' && isAdmin && <IntegrationsTab />}
         {activeTab === 'api-keys' && isAdmin && (
           <ApiKeysPanelV2 isGenerating={isGeneratingKey} setIsGenerating={setIsGeneratingKey} />
+        )}
+        {activeTab === 'fb-config' && isAdmin && (
+          <FbConfigTabV2 isAddingFb={isAddingFb} setIsAddingFb={setIsAddingFb} />
         )}
       </section>
     </div>

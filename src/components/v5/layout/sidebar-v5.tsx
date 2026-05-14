@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, LogOut, Settings } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Settings, User } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { workspaceNavGroups, type WorkspaceNavItem } from './workspace-nav-items';
@@ -16,7 +16,6 @@ const sidebarSections = [
   { label: 'Acquisition', items: ['Leads', 'Ads', 'Media'] },
   { label: 'Rhythm', items: ['Daily Sync', 'Weekly Check-in'] },
   { label: 'Reports', items: ['Reports'] },
-  { label: 'Admin', items: ['Settings', 'Profile', 'Integrations'] },
 ];
 
 const navItems = workspaceNavGroups.flatMap(group => group.items);
@@ -88,12 +87,7 @@ export default function SidebarV5({ collapsed, onCollapsedChange, onLogout, onNa
   const location = useLocation();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const visibleSections = sidebarSections.map(section => {
-    if (section.label !== 'Admin') return section;
-    if (currentUser?.isAdmin) return section;
-    // Non-admin: hide Integrations from Admin section
-    return { ...section, items: section.items.filter(label => label !== 'Integrations') };
-  });
+  const visibleSections = sidebarSections;
 
   return (
     <aside
@@ -138,11 +132,15 @@ export default function SidebarV5({ collapsed, onCollapsedChange, onLogout, onNa
               </button>
               {userMenuOpen && (
                 <div className="absolute bottom-20 left-7 right-7 z-dropdown rounded-card border border-border bg-surface-2 p-1 shadow-elevated" role="menu">
-                  <NavLink to="/settings" onClick={onNavigate}                     className="flex min-h-[var(--touch-min)] items-center gap-3 rounded-[var(--radius-input)] px-3 text-sm font-bold text-text-2 transition hover:bg-[var(--sidebar-item-hover)] hover:text-text-1" role="menuitem">
+                  <NavLink to="/profile" onClick={onNavigate} className="flex min-h-[var(--touch-min)] items-center gap-3 rounded-[var(--radius-input)] px-3 text-sm font-bold text-text-2 transition hover:bg-[var(--sidebar-item-hover)] hover:text-text-1" role="menuitem">
+                    <User size={16} />
+                    Profile
+                  </NavLink>
+                  <NavLink to="/settings" onClick={onNavigate} className="flex min-h-[var(--touch-min)] items-center gap-3 rounded-[var(--radius-input)] px-3 text-sm font-bold text-text-2 transition hover:bg-[var(--sidebar-item-hover)] hover:text-text-1" role="menuitem">
                     <Settings size={16} />
                     Settings
                   </NavLink>
-                  <button type="button" onClick={onLogout}                     className="flex min-h-[var(--touch-min)] w-full items-center gap-3 rounded-[var(--radius-input)] px-3 text-left text-sm font-bold text-text-2 transition hover:bg-[var(--sidebar-item-hover)] hover:text-error" role="menuitem">
+                  <button type="button" onClick={onLogout} className="flex min-h-[var(--touch-min)] w-full items-center gap-3 rounded-[var(--radius-input)] px-3 text-left text-sm font-bold text-text-2 transition hover:bg-[var(--sidebar-item-hover)] hover:text-error" role="menuitem">
                     <LogOut size={16} />
                     Sign out
                   </button>
