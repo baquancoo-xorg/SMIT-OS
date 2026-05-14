@@ -19,7 +19,7 @@
 - Date: 2026-05-14
 - Description: Rewrite media-tracker routes (drop POST/PATCH/DELETE), add filter/groupBy/search params. New social-channels routes for admin CRUD + sync trigger. Define API contract that Phase 05 + 06 consume.
 - Priority: P2
-- Status: pending
+- Status: completed
 
 ## Key Insights
 
@@ -138,14 +138,14 @@ Shared edit (additive):
 
 ## Todo list
 
-- [ ] Write Zod schemas
-- [ ] Rewrite `media-post.service.ts` (list + kpi only)
-- [ ] Write `social-channel.service.ts` with encrypt/decrypt
-- [ ] Rewrite `media-tracker.routes.ts` (GET + sync only)
-- [ ] Create `social-channels.routes.ts` (CRUD + test)
-- [ ] Mount new router in `server.ts`
-- [ ] Supertest integration tests pass
-- [ ] DTO contract documented in JSDoc on service
+- [x] Write Zod schemas
+- [x] Rewrite `media-post.service.ts` (list + kpi only)
+- [x] Write `social-channel.service.ts` with encrypt/decrypt
+- [x] Rewrite `media-tracker.routes.ts` (GET + sync only)
+- [x] Create `social-channels.routes.ts` (CRUD + test)
+- [x] Mount new router in `server.ts`
+- [x] Supertest integration tests pass
+- [x] DTO contract documented in JSDoc on service
 
 ## Success Criteria
 
@@ -175,6 +175,15 @@ Routes/services files are exclusively owned by Phase 04. `server.ts` is touched 
 - Admin middleware required for: POST/PATCH/DELETE social-channels, POST sync.
 - Read of media posts requires auth (any role).
 - Input validation prevents SQL injection (Prisma + Zod).
+
+## Implementation Result
+
+**DONE** — See `reports/phase-04-report.md`.
+
+- 7 files created/rewritten: schemas (2), services (2), routes (2), 1 server.ts line added.
+- API contract defined: GET /media-tracker + /media-tracker/sync + full /social-channels CRUD.
+- Token redaction: `SAFE_SELECT` const removes `accessTokenEncrypted` from all GET responses.
+- 0 new TS errors, all files <200 lines. Soft-delete implemented per KISS.
 
 ## Next steps
 

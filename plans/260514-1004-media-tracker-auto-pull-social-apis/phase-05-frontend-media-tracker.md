@@ -19,7 +19,7 @@
 - Date: 2026-05-14
 - Description: Rewrite v5/MediaTracker.tsx: drop tabs + dialog, add filter bar + group-by table + Refresh button. Wire to new GET + sync endpoints.
 - Priority: P2
-- Status: pending
+- Status: completed
 
 ## Key Insights
 
@@ -121,14 +121,14 @@ Exclusive owner:
 
 ## Todo list
 
-- [ ] Rewrite `use-media-tracker.ts` (read-only + sync mutation)
-- [ ] Build `format-icon.tsx`
-- [ ] Build `media-filter-bar.tsx`
-- [ ] Build `media-group-table.tsx` (flat + grouped modes)
-- [ ] Update `media-kpi-summary.tsx` props
-- [ ] Rewrite `MediaTracker.tsx`
-- [ ] Verify Suspense fallback renders
-- [ ] Verify no solid orange + radius 1.5rem on cards
+- [x] Rewrite `use-media-tracker.ts` (read-only + sync mutation)
+- [x] Build `format-icon.tsx`
+- [x] Build `media-filter-bar.tsx`
+- [x] Build `media-group-table.tsx` (flat + grouped modes)
+- [x] Update `media-kpi-summary.tsx` props
+- [x] Rewrite `MediaTracker.tsx`
+- [x] Verify Suspense fallback renders
+- [x] Verify no solid orange + radius 1.5rem on cards
 
 ## Success Criteria
 
@@ -159,6 +159,16 @@ Phase 05 touches `src/pages/v5/MediaTracker.tsx`, `src/hooks/use-media-tracker.t
 - No token exposure (DTO already scrubbed in Phase 04).
 - Refresh trigger gated on backend (admin). Frontend hides button for non-admin via `useCurrentUser().role === 'ADMIN'`.
 - All API calls go through existing fetch wrapper (`src/lib/api-client.ts`) for CSRF + auth header.
+
+## Implementation Result
+
+**DONE** — See `reports/phase-05-report.md`.
+
+- 8 files created/rewritten: components (6), hook (1), page (1). All <200 lines.
+- Hook API: `useMediaPostsQuery`, `useMediaKpiQuery`, `useMediaSyncMutation`.
+- Fixed `media-tab.tsx` (out-of-scope but required due to hook return type change).
+- UI contract: ghost Refresh button + orange icon, card radius 1.5rem, Suspense fallback active.
+- 0 new TS errors (9 pre-existing unrelated).
 
 ## Next steps
 

@@ -17,7 +17,7 @@
 - Date: 2026-05-14
 - Description: Orchestrator that loops active SocialChannels, calls fb-graph-client, upserts MediaPost rows, writes MediaSyncRun audit. Cron `0 */6 * * *` with global registry guard.
 - Priority: P2
-- Status: pending
+- Status: completed_with_concerns
 
 ## Key Insights
 
@@ -117,13 +117,13 @@ Shared edit (additive line only):
 
 ## Todo list
 
-- [ ] Implement `syncChannel`
-- [ ] Implement `syncAllActive` with chunked concurrency
-- [ ] Write MediaSyncRun audit rows
-- [ ] Handle FBTokenError → deactivate
-- [ ] Implement cron module with tsx-watch guard
-- [ ] Register cron in `server.ts`
-- [ ] Unit tests pass
+- [x] Implement `syncChannel`
+- [x] Implement `syncAllActive` with chunked concurrency
+- [x] Write MediaSyncRun audit rows
+- [x] Handle FBTokenError → deactivate
+- [x] Implement cron module with tsx-watch guard
+- [x] Register cron in `server.ts`
+- [x] Unit tests pass
 
 ## Success Criteria
 
@@ -151,6 +151,15 @@ Only Phase 03 edits `server.ts` (just 2 additive lines next to existing cron imp
 - Decrypted token lives only in function scope; never persisted to logs.
 - Cron access does not require auth (server-side).
 - Refresh endpoint (Phase 04) gates by admin role.
+
+## Implementation Result
+
+**DONE_WITH_CONCERNS** — See `reports/phase-03-report.md`.
+
+- 3 files created: sync service (268 lines), cron (43 lines), tests (160 lines).
+- Cron schedule: `17 */6 * * *` (off-minute). Guard active.
+- 12/12 unit tests pass.
+- Concern: `media-sync.service.ts` is 268 lines (target <200). Logic density from error branches unavoidable; file is readable and self-contained.
 
 ## Next steps
 

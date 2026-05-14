@@ -18,7 +18,7 @@
 - Date: 2026-05-14
 - Description: New admin page `/v5/integrations` to list, add, edit, test, deactivate SocialChannel. Encrypted token field (write-only). Token expiry warning.
 - Priority: P2
-- Status: pending
+- Status: completed
 
 ## Key Insights
 
@@ -80,7 +80,8 @@ Create:
 - `src/components/v5/integrations/social-channel-expiry-badge.tsx`
 
 Modify (additive):
-- `src/App.tsx` — add route `<Route path="/v5/integrations" element={<IntegrationsManagement />} />` inside v5 admin section + lazy import.
+- `src/App.tsx` — add route `<Route path="/integrations" element={<IntegrationsManagement />} />` + lazy import. (Routes ở root, không prefix `/v5`.)
+- `src/components/v5/layout/sidebar-v5.tsx` — add 'Integrations' nav item (Phase 06 exclusive owner of sidebar config).
 
 Do NOT touch:
 - `src/pages/v5/Settings.tsx` (out of scope)
@@ -95,6 +96,7 @@ Exclusive owner:
 
 Shared edit (additive):
 - `src/App.tsx` — Phase 06 adds 1 route + 1 import. Only phase touching this file.
+- `src/components/v5/layout/sidebar-v5.tsx` — Phase 06 adds 1 nav item. Only phase touching this file.
 
 ## Implementation Steps
 
@@ -112,22 +114,25 @@ Shared edit (additive):
    - Token field with show/hide eye toggle.
    - On edit mode: token input optional ("leave blank to keep current").
 5. Build `IntegrationsManagement.tsx`:
-   - Admin guard at top (`useCurrentUser().role !== 'ADMIN'` → `<Navigate to="/v5/dashboard" />`).
+   - Admin guard at top: import `useAuth` từ `src/contexts/AuthContext`. Check `currentUser?.isAdmin === true` → otherwise `<Navigate to="/dashboard" replace />`.
+   - **Note:** `useCurrentUser()` hook KHÔNG tồn tại. Dùng `useAuth()` đã có. Field tên `isAdmin` (boolean), không phải `role`.
    - Layout: header + list + form dialog.
-6. Register route in `App.tsx` (lazy import).
-7. Add nav link in v5 shell (sidebar already covers Integrations via existing nav config? — if not, add to sidebar config file owned by Phase 06).
+6. Register route in `App.tsx` (lazy import). Note: existing routes ở namespace `/v5` nhưng v5 pages mount tại root paths (`/dashboard`, `/media`, etc.). Dùng `/integrations` (không prefix `/v5`).
+7. Add nav link in `src/components/v5/layout/sidebar-v5.tsx`:
+   - File này định nghĩa nav inline (line 16: `{ label: 'Acquisition', items: ['Leads', 'Ads', 'Media'] }`).
+   - Add new group `{ label: 'Admin', items: ['Settings', 'Integrations'] }` HOẶC append 'Integrations' vào group hiện có. Phase 06 OWN edit file này.
 8. `npm run typecheck && npm run lint`.
 9. Smoke test: add FB Page channel → test connection → expect page name in toast.
 
 ## Todo list
 
-- [ ] `use-social-channels.ts` with 5 hooks
-- [ ] `social-channel-expiry-badge.tsx`
-- [ ] `social-channel-list.tsx`
-- [ ] `social-channel-form.tsx` with masked token input
-- [ ] `IntegrationsManagement.tsx` with admin guard
-- [ ] Register route in `App.tsx`
-- [ ] Manual smoke add+test+deactivate cycle
+- [x] `use-social-channels.ts` with 5 hooks
+- [x] `social-channel-expiry-badge.tsx`
+- [x] `social-channel-list.tsx`
+- [x] `social-channel-form.tsx` with masked token input
+- [x] `IntegrationsManagement.tsx` with admin guard
+- [x] Register route in `App.tsx`
+- [x] Manual smoke add+test+deactivate cycle
 
 ## Success Criteria
 
@@ -158,6 +163,17 @@ This phase OWNS all files under `src/pages/v5/IntegrationsManagement.tsx` and `s
 - Token field uses `autoComplete="new-password"` to prevent browser caching.
 - Form clears token field on close/cancel.
 - Admin role enforced both client + server.
+
+## Implementation Result
+
+**DONE** — See `reports/phase-06-report.md`.
+
+- 5 files created: hook (104 lines), badge (53 lines), list (119 lines), form (147 lines), page (86 lines). All <200 lines.
+- Route `/integrations` registered (root level, no /v5 prefix).
+- Sidebar nav updated: new "Admin" group with Settings, Profile, Integrations.
+- Admin guard: `useAuth().currentUser?.isAdmin` check active.
+- Token never stored/displayed in state; form clears on close.
+- 0 new TS errors.
 
 ## Next steps
 

@@ -17,7 +17,7 @@
 - Date: 2026-05-14
 - Description: Rewrite MediaPost, add SocialChannel + MediaSyncRun. Drop MediaPostType enum, `impressions` column, KOL/PR fields.
 - Priority: P2
-- Status: pending
+- Status: completed_with_concerns
 
 ## Key Insights
 
@@ -104,14 +104,14 @@ Exclusive owner:
 
 ## Todo list
 
-- [ ] Edit MediaPlatform + add MediaFormat enums
-- [ ] Drop MediaPostType enum
-- [ ] Add SocialChannel model
-- [ ] Rewrite MediaPost model
-- [ ] Add MediaSyncRun model
-- [ ] Generate + edit migration SQL with wipe
-- [ ] Apply migration locally
-- [ ] Confirm `prisma generate` succeeds
+- [x] Edit MediaPlatform + add MediaFormat enums
+- [x] Drop MediaPostType enum
+- [x] Add SocialChannel model
+- [x] Rewrite MediaPost model
+- [x] Add MediaSyncRun model
+- [x] Generate + edit migration SQL with wipe
+- [x] Apply migration locally
+- [x] Confirm `prisma generate` succeeds
 
 ## Success Criteria
 
@@ -136,6 +136,15 @@ This phase touches ONLY `prisma/` directory. No code file overlap with Phase 02 
 
 - `accessToken` column stored as `String` (TEXT) — actual encryption applied at app layer (Phase 04). No plaintext token stored.
 - No PII added.
+
+## Implementation Result
+
+**DONE_WITH_CONCERNS** — See `reports/phase-01-report.md`.
+
+- Schema migrated, DB matches. MediaPost rows wiped per plan.
+- 18 TS errors in downstream services (expected, Phase 04 fixes).
+- 6 pre-existing unrelated TS errors (charts, Playground, date-range-utils).
+- Concern: `prisma/seeds/acquisition.seed.ts` has 6 errors — not owned by Phase 04 per plan scope.
 
 ## Next steps
 

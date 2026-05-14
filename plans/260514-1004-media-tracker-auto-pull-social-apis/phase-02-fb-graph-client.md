@@ -16,7 +16,7 @@
 - Date: 2026-05-14
 - Description: Typed Graph API client for FB Fanpage feed + post insights. Isolated module with fixture-based unit tests. No DB access.
 - Priority: P2
-- Status: pending
+- Status: completed
 
 ## Key Insights
 
@@ -115,22 +115,24 @@ Exclusive owner:
    - Batch 50 IDs per request via `?ids=...`.
    - Parse Meta error envelope `error.code` → throw typed errors.
 5. Implement BUC header parsing helper.
-6. Write Jest/Vitest tests:
-   - Mock `global.fetch` with fixtures.
+6. Write tests using **Node built-in test runner** (`node:test`), NOT vitest/jest:
+   - `import { describe, it, mock } from 'node:test';`
+   - `import assert from 'node:assert/strict';`
+   - Mock `global.fetch` with `mock.method(globalThis, 'fetch', async () => ({ ok: true, json: async () => fixture }) as any)`.
    - Test pagination stops on empty `data`.
    - Test mapper covers all enum values + fallback.
    - Test token error throws `FBTokenError`.
-7. Run `npm run typecheck && npm run lint && npm run test -- fb-graph-client`.
+7. Run `npm run typecheck && npm run lint && npm run test`.
 
 ## Todo list
 
-- [ ] Create fixtures (posts + insights)
-- [ ] Implement `fetchPagePosts` with pagination
-- [ ] Implement `mapAttachmentToFormat`
-- [ ] Implement `fetchPostInsights` (batched)
-- [ ] Implement typed errors + BUC parser
-- [ ] Write unit tests (≥80% coverage on this file)
-- [ ] Lint + typecheck clean
+- [x] Create fixtures (posts + insights)
+- [x] Implement `fetchPagePosts` with pagination
+- [x] Implement `mapAttachmentToFormat`
+- [x] Implement `fetchPostInsights` (batched)
+- [x] Implement typed errors + BUC parser
+- [x] Write unit tests (≥80% coverage on this file)
+- [x] Lint + typecheck clean
 
 ## Success Criteria
 
@@ -157,6 +159,14 @@ This phase creates NEW files only under `server/services/facebook/` (new file na
 - Token passed via Authorization header `Bearer {token}` OR `access_token` query param. Prefer header.
 - Never log token. Redact in errors (`token=***`).
 - No write operations on FB graph (read-only).
+
+## Implementation Result
+
+**DONE** — See `reports/phase-02-report.md`.
+
+- 5 files created: client (182 lines), mapper (47 lines), tests (284 lines), fixtures (152 lines total).
+- 27 tests pass (100% coverage).
+- Deviations: mapper split (intentional at >180 lines), token via query param (codebase pattern), fields left undefined (can extend in Phase 03).
 
 ## Next steps
 
