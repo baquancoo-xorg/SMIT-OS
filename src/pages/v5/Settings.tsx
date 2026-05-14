@@ -52,6 +52,7 @@ export default function Settings() {
           value={activeTab}
           onChange={setActiveTab}
           items={visibleTabs}
+          size="page"
         />
       </div>
 

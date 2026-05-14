@@ -17,20 +17,28 @@ export interface TabPillProps<T extends string = string> extends Omit<HTMLAttrib
   onChange: (value: T) => void;
   /** ARIA label for the tablist (required for a11y). */
   label: string;
-  /** `sm` for compact tabs in dialogs, `md` for page-level. */
-  size?: 'sm' | 'md';
+  /** `sm` for compact tabs, `page` for page-level navigation, `md` for legacy larger tabs. */
+  size?: 'sm' | 'md' | 'page';
 }
 
 const sizeStyles = {
   sm: 'h-7 px-2.5 text-[length:var(--text-body-sm)] gap-1.5',
   md: 'h-10 px-4 text-[length:var(--text-body)] gap-2',
+  page: 'h-8 px-3 text-[length:var(--text-body-sm)] gap-1.5',
 };
 
 // Container padding per size. Total outer height = items height + padding * 2.
-// sm: 28 + 2*2 = 32px (matches DateRangePicker h-8); md: 40 + 2*4 = 48px.
+// sm: 28 + 2*2 = 32px; page: 32 + 2*2 = 36px; md: 40 + 2*4 = 48px.
 const containerPadding = {
   sm: 'p-0.5',
   md: 'p-1',
+  page: 'p-0.5',
+};
+
+const activeGlowStyles = {
+  sm: '',
+  md: '',
+  page: 'ring-1 ring-[color:color-mix(in_oklab,var(--brand-500)_30%,transparent)] shadow-[0_0_8px_0_color-mix(in_oklab,var(--brand-500)_25%,transparent)]',
 };
 
 /**
@@ -72,6 +80,7 @@ export const TabPill = forwardRef<HTMLDivElement, TabPillProps>(
       e.preventDefault();
 
       const currentIdx = items.findIndex((i) => i.value === value);
+      if (currentIdx === -1 || enabledIndices.length === 0) return;
       const enabledPos = enabledIndices.indexOf(currentIdx);
 
       let nextIdx = currentIdx;
@@ -127,7 +136,7 @@ export const TabPill = forwardRef<HTMLDivElement, TabPillProps>(
                 'disabled:cursor-not-allowed disabled:opacity-40',
                 sizeStyles[size],
                 isActive
-                  ? 'bg-surface-container text-on-surface shadow-sm'
+                  ? `bg-surface-container text-on-surface shadow-sm ${activeGlowStyles[size]}`
                   : 'text-on-surface-variant hover:bg-surface-container/60 hover:text-on-surface',
                 '[&>svg]:size-4',
               ].join(' ')}

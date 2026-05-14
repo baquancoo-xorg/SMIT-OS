@@ -4,7 +4,7 @@ import { format, isToday, parseISO } from 'date-fns';
 import { CalendarCheck, Users, History, FileText } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDailyReportsQuery, useInvalidateDailyReports } from '../../hooks/use-daily-reports';
-import { Button, Card, TabPill, EmptyState, Skeleton, PageHeader } from '../../components/v5/ui';
+import { Button, Card, TabPill, EmptyState, Skeleton } from '../../components/v5/ui';
 import type { TabPillItem } from '../../components/v5/ui';
 import { DailyReportFormDialog } from '../../components/v5/execution/daily-report-form-dialog';
 import { DailyReportDetailModal, type DailyReportData } from '../../components/v5/execution/daily-report-detail-modal';
@@ -13,9 +13,9 @@ import type { DailyReport } from '../../types';
 type Tab = 'today' | 'team' | 'history';
 
 const buildTabs = (isAdmin: boolean): TabPillItem<Tab>[] => [
-  { value: 'today', label: 'Hôm nay', icon: <CalendarCheck /> },
-  ...(isAdmin ? [{ value: 'team' as const, label: 'Đội nhóm', icon: <Users /> }] : []),
-  { value: 'history', label: 'Lịch sử', icon: <History /> },
+  { value: 'today', label: 'Today', icon: <CalendarCheck /> },
+  ...(isAdmin ? [{ value: 'team' as const, label: 'Team', icon: <Users /> }] : []),
+  { value: 'history', label: 'History', icon: <History /> },
 ];
 
 export default function DailySyncV5() {
@@ -41,14 +41,18 @@ export default function DailySyncV5() {
 
   const openDetail = (r: DailyReport) => setDetailReport(r as DailyReportData);
 
+  function setActiveTab(next: Tab) {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('tab', next);
+    setSearchParams(nextParams, { replace: true });
+  }
+
   return (
     <div className="flex h-full flex-col gap-5 pb-8">
-      <PageHeader
-        title="Daily Sync"
-        description="Báo cáo & trao đổi tiến độ hằng ngày"
-        actions={<Button variant="primary" onClick={() => setFormOpen(true)} iconLeft={<FileText />}>Báo cáo hôm nay</Button>}
-      />
-      <TabPill<Tab> label="Daily sync tabs" value={activeTab} onChange={(v) => setSearchParams({ tab: v })} items={tabs} size="sm" />
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <TabPill<Tab> label="Daily sync tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="page" />
+        <Button variant="primary" size="sm" onClick={() => setFormOpen(true)} iconLeft={<FileText />} splitLabel={{ action: 'Create', object: 'Daily Report' }} />
+      </div>
 
       {isLoading ? (
         <Card><Skeleton className="h-32" /></Card>
@@ -80,12 +84,12 @@ export default function DailySyncV5() {
 
 function TodayTab({ report, onOpenForm, onOpenDetail }: { report?: DailyReport; onOpenForm: () => void; onOpenDetail: (r: DailyReport) => void }) {
   if (!report) {
-    return <EmptyState icon={<CalendarCheck />} title="Bạn chưa báo cáo hôm nay" description="Chia sẻ tiến độ với team" actions={<Button variant="primary" onClick={onOpenForm}>Báo cáo ngay</Button>} decorative />;
+    return <EmptyState icon={<CalendarCheck />} title="No report submitted today" description="Share your progress with the team" actions={<Button variant="primary" onClick={onOpenForm} iconLeft={<FileText />} splitLabel={{ action: 'Create', object: 'Report Now' }} />} decorative />;
   }
   return (
     <Card glow className="cursor-pointer hover:border-accent/30" onClick={() => onOpenDetail(report)}>
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[length:var(--text-body-sm)] text-on-surface-variant">Báo cáo của bạn</span>
+        <span className="text-[length:var(--text-body-sm)] text-on-surface-variant">Report submitted today</span>
         <StatusBadge status={report.status} />
       </div>
       <p className="text-[length:var(--text-body-sm)] text-on-surface line-clamp-2">{report.completedYesterday || '—'}</p>
@@ -95,13 +99,13 @@ function TodayTab({ report, onOpenForm, onOpenDetail }: { report?: DailyReport; 
 
 function TeamTab({ reports, onOpenDetail }: { reports: DailyReport[]; onOpenDetail: (r: DailyReport) => void }) {
   if (reports.length === 0) {
-    return <EmptyState icon={<Users />} title="Chưa có báo cáo nào hôm nay" description="Các thành viên chưa nộp báo cáo" variant="inline" />;
+    return <EmptyState icon={<Users />} title="No reports today" description="No team members have submitted reports yet" variant="inline" />;
   }
   return (
     <Card padding="none" glow>
       <table className="w-full text-[length:var(--text-body-sm)]">
         <thead className="border-b border-outline-variant/40 bg-surface-container-low/50">
-          <tr><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Thành viên</th><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Trạng thái</th><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Gửi lúc</th></tr>
+          <tr><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Member</th><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Status</th><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Submitted at</th></tr>
         </thead>
         <tbody className="divide-y divide-outline-variant/20">
           {reports.map(r => (
@@ -119,13 +123,13 @@ function TeamTab({ reports, onOpenDetail }: { reports: DailyReport[]; onOpenDeta
 
 function HistoryTab({ reports, onOpenDetail }: { reports: DailyReport[]; onOpenDetail: (r: DailyReport) => void }) {
   if (reports.length === 0) {
-    return <EmptyState icon={<History />} title="Chưa có lịch sử báo cáo" description="Các báo cáo của bạn sẽ xuất hiện ở đây" variant="inline" />;
+    return <EmptyState icon={<History />} title="No report history" description="Your reports will appear here" variant="inline" />;
   }
   return (
     <Card padding="none" glow>
       <table className="w-full text-[length:var(--text-body-sm)]">
         <thead className="border-b border-outline-variant/40 bg-surface-container-low/50">
-          <tr><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Ngày</th><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Thành viên</th><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Trạng thái</th></tr>
+          <tr><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Date</th><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Member</th><th className="px-4 py-3 text-left font-medium text-on-surface-variant">Status</th></tr>
         </thead>
         <tbody className="divide-y divide-outline-variant/20">
           {reports.map(r => (
@@ -144,8 +148,8 @@ function HistoryTab({ reports, onOpenDetail }: { reports: DailyReport[]; onOpenD
 function StatusBadge({ status }: { status: string }) {
   const isApproved = status === 'Approved';
   return isApproved ? (
-    <span className="inline-flex rounded-full bg-success-container px-2 py-0.5 text-[length:var(--text-caption)] text-on-success-container">Đã duyệt</span>
+    <span className="inline-flex rounded-full bg-success-container px-2 py-0.5 text-[length:var(--text-caption)] text-on-success-container">Approved</span>
   ) : (
-    <span className="inline-flex rounded-full bg-warning-container px-2 py-0.5 text-[length:var(--text-caption)] text-on-warning-container">Chờ duyệt</span>
+    <span className="inline-flex rounded-full bg-warning-container px-2 py-0.5 text-[length:var(--text-caption)] text-on-warning-container">Pending review</span>
   );
 }

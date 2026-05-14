@@ -1,5 +1,6 @@
 import { Eye, Edit2, Trash2 } from 'lucide-react';
 import type { TableVariant } from './table-contract';
+import { cn } from '../../../lib/cn';
 
 interface TableRowActionsProps {
   onView?: () => void;
@@ -11,6 +12,12 @@ interface TableRowActionsProps {
   buttonClassName?: string;
   variant?: TableVariant;
 }
+
+const actionButtonBase = cn(
+  'rounded-chip border border-border bg-surface-2/70 text-on-surface-variant backdrop-blur-sm',
+  'transition-all duration-fast ease-standard hover:border-accent/35 hover:bg-surface-3 hover:text-accent hover:shadow-[0_0_14px_var(--sys-color-accent-dim)]',
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/35 motion-reduce:transition-none',
+);
 
 export function TableRowActions({
   onView,
@@ -36,7 +43,7 @@ export function TableRowActions({
           type="button"
           onClick={onView}
           aria-label="View"
-          className={`${paddingClass} ${buttonClassName} text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-chip transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35`}
+          className={cn(actionButtonBase, paddingClass, buttonClassName)}
         >
           <Eye size={iconSize} />
         </button>
@@ -47,7 +54,7 @@ export function TableRowActions({
           type="button"
           onClick={onEdit}
           aria-label="Edit"
-          className={`${paddingClass} ${buttonClassName} text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-chip transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35`}
+          className={cn(actionButtonBase, paddingClass, buttonClassName)}
         >
           <Edit2 size={iconSize} />
         </button>
@@ -58,7 +65,12 @@ export function TableRowActions({
           type="button"
           onClick={onDelete}
           aria-label="Delete"
-          className={`${paddingClass} ${buttonClassName} text-on-surface-variant hover:text-error hover:bg-error/5 rounded-chip transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error/35`}
+          className={cn(
+            actionButtonBase,
+            'hover:border-error/35 hover:bg-error-container hover:text-error hover:shadow-[0_0_14px_color-mix(in_oklab,var(--status-error)_18%,transparent)] focus-visible:ring-error/35',
+            paddingClass,
+            buttonClassName,
+          )}
         >
           <Trash2 size={iconSize} />
         </button>

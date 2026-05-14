@@ -13,14 +13,20 @@ import type { DateRange, TabPillItem } from '../../components/v5/ui';
 
 type ActiveTab = 'logs' | 'stats';
 
+const validTabs = new Set<ActiveTab>(['logs', 'stats']);
+
+function parseTab(raw: string | null): ActiveTab {
+  return raw && validTabs.has(raw as ActiveTab) ? (raw as ActiveTab) : 'logs';
+}
+
 const tabs: TabPillItem<ActiveTab>[] = [
   { value: 'logs', label: 'Lead Logs', icon: <List /> },
   { value: 'stats', label: 'CRM Stats', icon: <BarChart2 /> },
 ];
 
 export default function LeadTrackerV5() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('logs');
   const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = parseTab(searchParams.get('tab'));
 
   const today = format(new Date(), 'yyyy-MM-dd');
   const sevenDaysAgo = new Date();
@@ -59,10 +65,16 @@ export default function LeadTrackerV5() {
     setSearchParams(nextParams);
   };
 
+  function setActiveTab(next: ActiveTab) {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('tab', next);
+    setSearchParams(nextParams, { replace: true });
+  }
+
   return (
     <div className="flex h-full flex-col gap-5 pb-8">
       <div className="flex flex-wrap items-center justify-end gap-2">
-        <TabPill<ActiveTab> label="Lead tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="sm" />
+        <TabPill<ActiveTab> label="Lead tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="page" />
         {activeTab === 'logs' && (
           <>
             <DateRangePicker value={pickerValue} onChange={setDateRange} size="sm" label="Lead date range" />

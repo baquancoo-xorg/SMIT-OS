@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { format, startOfMonth } from 'date-fns';
 import { useSearchParams } from 'react-router-dom';
 import { LayoutList, RefreshCw, Target, TrendingUp } from 'lucide-react';
@@ -19,6 +19,12 @@ import {
 
 type Tab = 'campaigns' | 'performance' | 'attribution';
 
+const validTabs = new Set<Tab>(['campaigns', 'performance', 'attribution']);
+
+function parseTab(raw: string | null): Tab {
+  return raw && validTabs.has(raw as Tab) ? (raw as Tab) : 'campaigns';
+}
+
 const tabs: TabPillItem<Tab>[] = [
   { value: 'campaigns', label: 'Campaigns', icon: <LayoutList /> },
   { value: 'performance', label: 'Performance', icon: <TrendingUp /> },
@@ -27,12 +33,12 @@ const tabs: TabPillItem<Tab>[] = [
 
 export default function AdsTrackerV5() {
   const { currentUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<Tab>('campaigns');
   const [searchParams, setSearchParams] = useSearchParams();
   const defaultFrom = format(startOfMonth(new Date()), 'yyyy-MM-dd');
   const defaultTo = format(new Date(), 'yyyy-MM-dd');
   const dateFrom = searchParams.get('date_from') ?? defaultFrom;
   const dateTo = searchParams.get('date_to') ?? defaultTo;
+  const activeTab = parseTab(searchParams.get('tab'));
   const pickerValue = useMemo(() => toDateRange(dateFrom, dateTo), [dateFrom, dateTo]);
   const params = useMemo(() => ({ from: dateFrom, to: dateTo }), [dateFrom, dateTo]);
 
@@ -63,6 +69,12 @@ export default function AdsTrackerV5() {
     setSearchParams(nextParams);
   };
 
+  function setActiveTab(next: Tab) {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('tab', next);
+    setSearchParams(nextParams, { replace: true });
+  }
+
   const handleSync = async () => {
     try {
       await syncMutation.mutateAsync(undefined);
@@ -90,7 +102,7 @@ export default function AdsTrackerV5() {
       </div>
 
       <div className="overflow-x-auto pb-1">
-        <TabPill<Tab> label="Ads tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="sm" className="min-w-max" />
+        <TabPill<Tab> label="Ads tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="page" className="min-w-max" />
       </div>
 
       <AdsKpiCards

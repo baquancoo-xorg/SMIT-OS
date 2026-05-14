@@ -82,7 +82,7 @@ export default function DashboardOverviewV5() {
           value={selectedTab}
           onChange={setTab}
           items={tabs}
-          size="sm"
+          size="page"
           className="min-w-max"
         />
       </div>
@@ -91,7 +91,6 @@ export default function DashboardOverviewV5() {
         {selectedTab === 'overview' && (
           <>
             <SummaryCardsV5 data={data?.summary} isLoading={isLoading} error={error as Error | null} />
-            <JourneyFunnelV5 from={from} to={to} />
             <KpiTableV5 data={data?.kpiMetrics} isLoading={isLoading} error={error as Error | null} />
           </>
         )}

@@ -78,9 +78,7 @@ export function CommentThread({ reportId, currentUserId, isAdmin }: CommentThrea
           className="flex-1 rounded-input border border-outline-variant bg-surface-container-lowest p-2 text-[length:var(--text-body-sm)] text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:outline-none resize-none"
           rows={2}
         />
-        <Button variant="primary" size="sm" onClick={handleSubmit} disabled={!body.trim() || createMutation.isPending} isLoading={createMutation.isPending} iconLeft={<Send />}>
-          Gửi
-        </Button>
+        <Button variant="primary" size="sm" onClick={handleSubmit} disabled={!body.trim() || createMutation.isPending} isLoading={createMutation.isPending} iconLeft={<Send />} splitLabel={{ action: 'Send', object: 'Comment' }} />
       </div>
     </div>
   );

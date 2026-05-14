@@ -7,18 +7,16 @@ export type StatusDotSize = 'sm' | 'md' | 'lg';
 export interface StatusDotProps extends HTMLAttributes<HTMLSpanElement> {
   variant?: StatusDotVariant;
   size?: StatusDotSize;
-  /** Pulse animation. Auto-disabled when prefers-reduced-motion is set (handled in CSS). */
   pulse?: boolean;
-  /** Accessible label. If omitted, dot is decorative (aria-hidden). */
   label?: string;
 }
 
 const variantStyles: Record<StatusDotVariant, string> = {
-  success: 'bg-success',
-  warning: 'bg-warning',
-  error: 'bg-error',
-  info: 'bg-info',
-  neutral: 'bg-on-surface-variant',
+  success: 'bg-success shadow-[0_0_10px_color-mix(in_oklab,var(--status-success)_55%,transparent)]',
+  warning: 'bg-warning shadow-[0_0_10px_color-mix(in_oklab,var(--status-warning)_55%,transparent)]',
+  error: 'bg-error shadow-[0_0_10px_color-mix(in_oklab,var(--status-error)_55%,transparent)]',
+  info: 'bg-info shadow-[0_0_10px_color-mix(in_oklab,var(--status-info)_55%,transparent)]',
+  neutral: 'bg-on-surface-variant shadow-[0_0_10px_color-mix(in_oklab,var(--sys-color-text-muted)_35%,transparent)]',
 };
 
 const sizeStyles: Record<StatusDotSize, string> = {
@@ -33,16 +31,6 @@ const ringSize: Record<StatusDotSize, string> = {
   lg: 'size-5',
 };
 
-/**
- * StatusDot v2 — small colored dot indicator with optional pulse ring.
- *
- * Use to indicate live status (online, syncing, error, etc.) next to text labels.
- * Pulse animation respects `prefers-reduced-motion` via global CSS rule (Phase 2).
- *
- * @example
- * <StatusDot variant="success" pulse label="Server online" />
- * <StatusDot variant="warning" /> // decorative dot beside an icon
- */
 export const StatusDot = forwardRef<HTMLSpanElement, StatusDotProps>(
   (
     {
@@ -73,7 +61,7 @@ export const StatusDot = forwardRef<HTMLSpanElement, StatusDotProps>(
         {pulse && (
           <span
             className={[
-              'absolute inset-0 rounded-full opacity-60 animate-ping',
+              'absolute inset-0 rounded-full opacity-60 animate-ping motion-reduce:animate-none',
               variantStyles[variant],
             ].join(' ')}
             aria-hidden="true"

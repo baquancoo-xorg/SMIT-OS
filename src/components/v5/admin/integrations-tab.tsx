@@ -38,9 +38,7 @@ export function IntegrationsTab() {
           <h2 className="font-headline text-2xl font-extrabold tracking-tight text-text-1">Integrations</h2>
           <p className="mt-1 text-sm text-text-muted">Manage social channel connections for media tracking.</p>
         </div>
-        <Button variant="primary" size="md" iconLeft={<Plus />} onClick={openAdd}>
-          Add channel
-        </Button>
+        <Button variant="primary" size="md" iconLeft={<Plus />} onClick={openAdd} splitLabel={{ action: 'Add', object: 'Channel' }} />
       </div>
 
       {isLoading ? (

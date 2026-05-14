@@ -46,9 +46,7 @@ export default function Reports() {
     <div className="flex min-h-full flex-col gap-6 print:bg-white print:text-black">
       <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
         <DateRangePicker value={dateValue} onChange={setDateValue} size="sm" />
-        <Button variant="primary" size="sm" iconLeft={<Download />} onClick={() => window.print()}>
-          Export
-        </Button>
+        <Button variant="primary" size="sm" iconLeft={<Download />} onClick={() => window.print()} splitLabel={{ action: 'Export', object: 'Report' }} />
       </div>
 
       <ReportsOverviewSection data={query.data} isLoading={query.isLoading} error={query.error} />

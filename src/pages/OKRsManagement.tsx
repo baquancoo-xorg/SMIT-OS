@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Plus,
   Filter,
@@ -31,6 +32,12 @@ import {
 import type { TabPillItem } from '../components/v5/ui';
 
 type ActiveTab = 'L1' | 'L2';
+
+const validTabs = new Set<ActiveTab>(['L1', 'L2']);
+
+function parseTab(raw: string | null): ActiveTab {
+  return raw && validTabs.has(raw as ActiveTab) ? (raw as ActiveTab) : 'L1';
+}
 
 const TABS: TabPillItem<ActiveTab>[] = [
   { value: 'L1', label: 'Company (L1)' },
@@ -80,7 +87,8 @@ const STATUS_FILTER_OPTIONS = [
  *  ⑬ Edit KR (ownership: own only, Admin all) ✓ (KeyResultRow v1 logic)
  */
 export default function OKRsManagementV2() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('L1');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = parseTab(searchParams.get('tab'));
   const [isAddObjModalOpen, setIsAddObjModalOpen] = useState(false);
   const [departmentFilter, setDepartmentFilter] = useState<string>('All');
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -157,6 +165,12 @@ export default function OKRsManagementV2() {
     });
   };
 
+  function setActiveTab(next: ActiveTab) {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('tab', next);
+    setSearchParams(nextParams, { replace: true });
+  }
+
   const handleLinkObjective = async (krId: string, parentKrId: string) => {
     try {
       const res = await fetch(`/api/key-results/${krId}`, {
@@ -209,13 +223,10 @@ export default function OKRsManagementV2() {
     activeTab === 'L1' ? filteredL1Objectives : filteredL2Objectives;
 
   return (
-    <div className="flex h-full flex-col gap-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-headline text-[length:var(--text-h2)] font-bold leading-tight text-on-surface min-w-0">
-          Quarterly <span className="font-semibold text-primary">OKRs</span>
-        </h2>
+    <div className="flex h-full flex-col gap-5 pb-8">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <TabPill<ActiveTab> label="OKR level tabs" value={activeTab} onChange={setActiveTab} items={TABS} size="page" />
         <div className="flex flex-wrap items-center gap-2">
-          <TabPill<ActiveTab> label="OKR level tabs" value={activeTab} onChange={setActiveTab} items={TABS} size="sm" />
           <FilterChip<string>
             value={departmentFilter}
             onChange={setDepartmentFilter}
@@ -230,11 +241,9 @@ export default function OKRsManagementV2() {
             icon={<Filter size={14} />}
             size="sm"
           />
-          <Button variant="primary" size="sm" iconLeft={<Plus />} onClick={() => setIsAddObjModalOpen(true)}>
-            New Objective
-          </Button>
+          <Button variant="primary" size="sm" iconLeft={<Plus />} onClick={() => setIsAddObjModalOpen(true)} splitLabel={{ action: 'Create', object: 'Objective' }} />
         </div>
-      </header>
+      </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <KpiCard
@@ -282,9 +291,7 @@ export default function OKRsManagementV2() {
             title={`No ${activeTab} objectives found`}
             description="Adjust filters hoặc tạo objective mới."
             actions={
-              <Button variant="primary" iconLeft={<Plus />} onClick={() => setIsAddObjModalOpen(true)}>
-                New Objective
-              </Button>
+              <Button variant="primary" iconLeft={<Plus />} onClick={() => setIsAddObjModalOpen(true)} splitLabel={{ action: 'Create', object: 'Objective' }} />
             }
             decorative
             variant="card"
