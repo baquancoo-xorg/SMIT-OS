@@ -95,9 +95,8 @@ export default function AdsTrackerV5() {
             iconLeft={<RefreshCw className={syncMutation.isPending ? 'animate-spin' : ''} />}
             onClick={handleSync}
             disabled={syncMutation.isPending}
-          >
-            {syncMutation.isPending ? 'Syncing...' : 'Sync Meta'}
-          </Button>
+            splitLabel={syncMutation.isPending ? { action: 'Syncing', object: 'Meta' } : { action: 'Sync', object: 'Meta' }}
+          />
         )}
       </div>
 

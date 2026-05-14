@@ -55,7 +55,7 @@ export function BarChart<T extends Record<string, unknown>>({
       <RechartsBarChart data={data} layout={layout} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
         <CartesianGrid stroke={theme.grid} strokeDasharray="3 3" vertical={layout === 'vertical'} horizontal={layout === 'horizontal'} />
         <XAxis
-          dataKey={layout === 'horizontal' ? xKey : undefined}
+          dataKey={layout === 'horizontal' ? (xKey as any) : undefined}
           type={layout === 'horizontal' ? 'category' : 'number'}
           stroke={theme.axis}
           tick={{ fill: theme.text, fontSize: 11 }}
@@ -64,7 +64,7 @@ export function BarChart<T extends Record<string, unknown>>({
           tickFormatter={layout === 'horizontal' ? xAxisFormatter : yAxisFormatter}
         />
         <YAxis
-          dataKey={layout === 'vertical' ? xKey : undefined}
+          dataKey={layout === 'vertical' ? (xKey as any) : undefined}
           type={layout === 'vertical' ? 'category' : 'number'}
           stroke={theme.axis}
           tick={{ fill: theme.text, fontSize: 11 }}

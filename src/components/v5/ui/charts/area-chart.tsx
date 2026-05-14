@@ -61,7 +61,7 @@ export function AreaChart<T extends Record<string, unknown>>({
         </defs>
         <CartesianGrid stroke={theme.grid} strokeDasharray="3 3" vertical={false} />
         <XAxis
-          dataKey={xKey}
+          dataKey={xKey as any}
           stroke={theme.axis}
           tick={{ fill: theme.text, fontSize: 11 }}
           tickLine={false}

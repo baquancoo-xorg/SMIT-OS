@@ -56,7 +56,7 @@ export function LineChart<T extends Record<string, unknown>>({
       <RechartsLineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
         <CartesianGrid stroke={theme.grid} strokeDasharray="3 3" vertical={false} />
         <XAxis
-          dataKey={xKey}
+          dataKey={xKey as any}
           stroke={theme.axis}
           tick={{ fill: theme.text, fontSize: 11 }}
           tickLine={false}

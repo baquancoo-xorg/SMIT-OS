@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import { ChevronDown, Filter, RefreshCw, Search } from 'lucide-react';
-import { CustomSelect, DateRangePicker } from '../../ui';
+import { Button, CustomSelect, DateRangePicker } from '../../ui';
 import type { DateRange } from '../../ui';
 import type { MediaFilter } from '../../../../hooks/use-media-tracker';
 
@@ -158,16 +158,15 @@ export function MediaFilterBar({
       {/* RIGHT: Action → DatePicker */}
       <div className="ml-auto flex flex-wrap items-center gap-2">
         {showRefresh && (
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="sm"
+            iconLeft={<RefreshCw className={isSyncing ? 'animate-spin' : ''} />}
             onClick={onRefresh}
             disabled={isSyncing}
             aria-label="Refresh posts from social channels"
-            className="flex h-8 items-center gap-2 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body-sm)] font-medium text-on-surface outline-none transition-all duration-medium ease-standard hover:border-accent/25 hover:shadow-glass focus-visible:border-accent/25 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <RefreshCw size={14} className={isSyncing ? 'animate-spin text-primary' : 'text-primary'} />
-            <span>{isSyncing ? 'Syncing…' : 'Refresh'}</span>
-          </button>
+            splitLabel={isSyncing ? { action: 'Syncing', object: 'Posts' } : { action: 'Refresh', object: 'Posts' }}
+          />
         )}
 
         <DateRangePicker

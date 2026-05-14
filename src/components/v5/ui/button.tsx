@@ -98,7 +98,7 @@ function SplitLabelContent({ iconLeft, iconRight, splitLabel }: SplitLabelConten
       {iconLeft}
       <span className="relative z-20 inline-flex items-center gap-1">
         <span className="text-text-1">{splitLabel.action}</span>
-        <span className="relative h-5 w-0.5 rounded-full bg-[linear-gradient(180deg,transparent,var(--sys-color-accent)_14%,var(--sys-color-accent)_86%,transparent)] md:h-6" aria-hidden="true" />
+        <span className="relative h-4 w-0.5 rounded-full bg-[linear-gradient(180deg,transparent,var(--sys-color-accent)_18%,var(--sys-color-accent)_82%,transparent)] md:h-5" aria-hidden="true" />
         <span className="relative z-10 text-text-1 [text-shadow:0_0_12px_color-mix(in_oklab,var(--sys-color-accent)_45%,transparent),0_0_28px_var(--sys-color-accent-dim)] motion-reduce:[text-shadow:none]">
           <span className="pointer-events-none absolute -left-0.5 -right-14 top-1/2 -z-10 h-16 -translate-y-1/2 bg-[conic-gradient(from_-22deg_at_0%_50%,transparent_0deg,color-mix(in_oklab,var(--sys-color-accent)_24%,transparent)_16deg,color-mix(in_oklab,var(--sys-color-accent)_14%,transparent)_32deg,transparent_58deg)] blur-xl motion-reduce:hidden" aria-hidden="true" />
           <span className="pointer-events-none absolute -left-0.5 -right-10 top-1/2 -z-10 h-10 -translate-y-1/2 bg-[radial-gradient(ellipse_at_left,color-mix(in_oklab,var(--sys-color-accent)_22%,transparent)_0%,color-mix(in_oklab,var(--sys-color-accent)_12%,transparent)_42%,transparent_76%)] blur-lg motion-reduce:hidden" aria-hidden="true" />

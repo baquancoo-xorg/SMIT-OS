@@ -89,8 +89,8 @@ export default function Playground() {
         </div>
         <div className="mt-4 flex gap-4">
           <Skeleton variant="text" className="w-32" />
-          <Skeleton variant="circular" className="size-10" />
-          <Skeleton variant="rectangular" className="h-20 w-32" />
+          <Skeleton variant="circle" className="size-10" />
+          <Skeleton variant="rect" className="h-20 w-32" />
         </div>
       </Section>
 
@@ -122,7 +122,7 @@ export default function Playground() {
           />
           <FilterChip
             value={filterValue}
-            onChange={setFilterValue}
+            onChange={(value) => setFilterValue(String(value))}
             options={[
               { value: 'all', label: 'All' },
               { value: 'pending', label: 'Pending' },

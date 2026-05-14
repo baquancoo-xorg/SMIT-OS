@@ -43,7 +43,7 @@
   --radius-card: 1.25rem;
   --radius-modal: 1.25rem;
   --radius-input: 0.75rem;
-  --radius-button: 9999px;
+  --radius-button: 0.75rem;
   --radius-chip: 9999px;
   --radius-full: 9999px;
 
@@ -241,7 +241,7 @@
   --radius-3xl: 1.5rem;
   --radius-full: 9999px;
   --radius-input: 0.75rem;
-  --radius-button: 9999px;
+  --radius-button: 0.75rem;
   --radius-chip: 9999px;
   --radius-card: 1.25rem;
   --radius-modal: 1.25rem;

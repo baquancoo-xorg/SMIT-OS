@@ -5,7 +5,7 @@ export interface SparklineChartProps<T extends Record<string, unknown>> {
   data: T[];
   dataKey: keyof T & string;
   height?: number;
-  width?: number | string;
+  width?: number | `${number}%`;
   colorIndex?: ChartColorIndex;
   showDot?: boolean;
 }
