@@ -9,6 +9,7 @@ import V5Shell from './components/v5/layout/v5-shell';
 import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './components/v5/ui';
+import { LogoMark } from './ui/components/layout/logo-mark';
 
 // Phase 8 (2026-05-11) — v1 pages hard-deleted. Rollback flag `?v=1` retired.
 // Old `?v=2` flag is harmless no-op for legacy bookmarks.
@@ -24,23 +25,28 @@ const AdsTracker = lazy(() => import('./pages/v5/AdsTracker'));
 const Reports = lazy(() => import('./pages/v5/Reports'));
 const Playground = lazy(() => import('./pages/v5/Playground'));
 
-function PageLoader() {
+function AppLogoLoader({ fullScreen = false }: { fullScreen?: boolean }) {
   return (
-    <div className="h-full w-full flex items-center justify-center bg-surface">
-      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
+    <div
+      role="status"
+      aria-live="polite"
+      className={`${fullScreen ? 'h-screen w-screen' : 'h-full w-full'} flex items-center justify-center bg-surface`}
+    >
+      <LogoMark mode="loop" size={72} loopInterval={2000} />
+      <span className="sr-only">Đang tải SMIT OS…</span>
     </div>
   );
+}
+
+function PageLoader() {
+  return <AppLogoLoader />;
 }
 
 function AppContent() {
   const { currentUser, loading, logout } = useAuth();
 
   if (loading) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-surface">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <AppLogoLoader fullScreen />;
   }
 
   if (!currentUser) {
