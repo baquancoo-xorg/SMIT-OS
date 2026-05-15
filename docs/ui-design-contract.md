@@ -23,10 +23,10 @@ Playground v4 (`docs/ref-ui-playground/Playground .html`) là **visual canon** �
 ## Source of Truth
 
 - Visual ref: `docs/ref-ui-playground/Playground .html`
-- Canonical primitives: `src/components/v5/ui/**`
+- Canonical primitives: `src/components/ui/**`
 - Global tokens: `src/index.css`
 - Runtime token mirror: `src/design/v5/tokens.ts`
-- Layout shell: `src/components/v5/layout/**`
+- Layout shell: `src/components/layout/**`
 
 ## Global Contract
 
@@ -120,7 +120,7 @@ Playground v4 (`docs/ref-ui-playground/Playground .html`) là **visual canon** �
 
 | Component | Contract |
 |---|---|
-| `V5Shell` | Global chrome only; no page-specific styling |
+| `AppShell` | Global chrome only; no page-specific styling |
 | Main area | Uses token page padding and content height |
 | Error boundary | Wrap route content |
 | Responsive | Desktop sidebar, mobile drawer |
@@ -560,7 +560,7 @@ Playground v4 (`docs/ref-ui-playground/Playground .html`) là **visual canon** �
 | Lazy state init | `useState(() => expensive())` cho initial value tốn |
 | Transitions | Filter/search update dùng `startTransition` để giữ input responsive |
 | Code splitting | Route-level `React.lazy`; component > 30KB lazy |
-| Direct import | `import { Button } from "@/components/v5/ui/button"`, KHÔNG `import { Button } from "@/components/v5/ui"` (barrel) |
+| Direct import | `import { Button } from "@/components/ui/button"`, KHÔNG `import { Button } from "@/components/ui"` (barrel) |
 | Conditional render | `cond ? <A /> : <B />` thay vì `cond && <A />` để tránh edge case `0`/`""` leak |
 | Hoist static JSX | JSX không depend props/state → khai báo ngoài component |
 | Animate wrapper | Animate `<div>` wrapper, không animate `<svg>` element trực tiếp |

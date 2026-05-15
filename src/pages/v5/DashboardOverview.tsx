@@ -1,9 +1,14 @@
-import { useMemo } from 'react';
-import { Activity, BarChart3, Briefcase, Megaphone, Monitor, PhoneCall, Users } from 'lucide-react';
+import { Suspense, useMemo } from 'react';
+import { Activity, BarChart3, Briefcase, Megaphone, Monitor, PhoneCall, Users, Users2 } from 'lucide-react';
 import { format, startOfMonth } from 'date-fns';
 import { useSearchParams } from 'react-router-dom';
-import { DateRangePicker, PageSectionStack, PageToolbar, TabPill } from '../../components/v5/ui';
-import type { DateRange, TabPillItem } from '../../components/v5/ui';
+import { DateRangePicker } from '../../components/ui/date-range-picker';
+import { PageSectionStack } from '../../components/ui/page-section-stack';
+import { PageToolbar } from '../../components/ui/page-toolbar';
+import { Skeleton } from '../../components/ui/skeleton';
+import { TabPill } from '../../components/ui/tab-pill';
+import type { DateRange } from '../../components/ui/date-range-picker';
+import type { TabPillItem } from '../../components/ui/tab-pill';
 import { useOverviewAll } from '../../hooks/use-overview-data';
 import {
   CallPerfSectionV5,
@@ -15,9 +20,10 @@ import {
   MediaTabV5,
   ProductTabV5,
   SummaryCardsV5,
-} from '../../components/v5/dashboard';
+} from '../../components/workspace/dashboard';
+import { PeopleTabV5 } from '../../components/workspace/dashboard/people-tab-v5';
 
-type DashboardTab = 'overview' | 'acquisition' | 'call' | 'distribution' | 'marketing' | 'media' | 'product';
+type DashboardTab = 'overview' | 'acquisition' | 'call' | 'distribution' | 'marketing' | 'media' | 'product' | 'people';
 
 const tabs: TabPillItem<DashboardTab>[] = [
   { value: 'overview', label: 'Overview', icon: <Activity /> },
@@ -27,6 +33,7 @@ const tabs: TabPillItem<DashboardTab>[] = [
   { value: 'marketing', label: 'Marketing', icon: <Megaphone /> },
   { value: 'media', label: 'Media', icon: <Monitor /> },
   { value: 'product', label: 'Product', icon: <Briefcase /> },
+  { value: 'people', label: 'People', icon: <Users2 /> },
 ];
 
 const validTabs = new Set<DashboardTab>(tabs.map((tab) => tab.value));
@@ -107,6 +114,11 @@ export default function DashboardOverviewV5() {
         {selectedTab === 'marketing' && <MarketingTabV5 from={from} to={to} />}
         {selectedTab === 'media' && <MediaTabV5 from={from} to={to} />}
         {selectedTab === 'product' && <ProductTabV5 from={from} to={to} />}
+        {selectedTab === 'people' && (
+          <Suspense fallback={<Skeleton variant="rect" className="h-64 w-full rounded-[var(--radius-card)]" />}>
+            <PeopleTabV5 />
+          </Suspense>
+        )}
       </section>
     </PageSectionStack>
   );

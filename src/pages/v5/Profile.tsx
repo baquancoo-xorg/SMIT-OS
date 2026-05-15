@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Camera, Save } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Button, Card, Input, useToast } from '../../components/v5/ui';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
+import { useToast } from '../../components/ui/notification-toast';
 
 export default function Profile() {
   const { currentUser } = useAuth();

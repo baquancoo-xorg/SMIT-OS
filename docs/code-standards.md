@@ -11,15 +11,15 @@
 - Component exports may stay PascalCase.
 - File names should describe purpose clearly for grep/search.
 
-## V5 UI Rules
-- Use `src/components/v5/ui/` primitives before adding custom UI.
+## Component UI Rules
+- Use `src/components/ui/` primitives before adding custom UI.
 - Follow `docs/ui-design-contract.md` for all UI surfaces: pages, charts, KPIs, tables, tabs, forms, overlays, sidebar/header, iconography, typography, spacing, states, motion, responsive, and accessibility.
 - Use `cn()` for conditional className composition.
 - Use token classes (`bg-surface`, `text-text-1`, `border-border`, etc.) instead of raw colors.
 - Primary CTA uses dark gradient + orange beam/icon; avoid solid orange buttons for primary actions.
 - Keep orange accent as decorative/icon text unless it is an approved data visualization or status-intensity fill.
 - Do not use solid orange fill for CTA, tab, checkbox, sidebar/nav, or generic selection states.
-- If a canonical primitive is missing, add/update the primitive under `src/components/v5/ui/` before styling page-local UI.
+- If a canonical primitive is missing, add/update the primitive under `src/components/ui/` before styling page-local UI.
 
 ## Theme & Density
 - Use `ThemeProvider` and `useTheme()` for dark/light/system controls.
@@ -49,4 +49,4 @@ Run before closing implementation phases:
 For UI changes, also verify:
 - Changed surfaces pass `docs/ui-design-contract.md` in dark and light mode.
 - No solid orange fill is introduced for CTA, tab, checkbox, sidebar/nav, or generic selection states.
-- Tables/charts/KPIs/forms use canonical v5 primitives or update the primitive contract first.
+- Tables/charts/KPIs/forms use canonical component primitives or update the primitive contract first.

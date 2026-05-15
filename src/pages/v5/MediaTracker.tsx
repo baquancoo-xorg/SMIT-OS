@@ -1,11 +1,14 @@
 import { Suspense, useState } from 'react';
 import { Rss } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Card, EmptyState, PageSectionStack, Skeleton } from '../../components/v5/ui';
-import { MediaKpiSummary } from '../../components/v5/growth/media/media-kpi-summary';
-import { MediaFilterBar } from '../../components/v5/growth/media/media-filter-bar';
-import { MediaPostsTable } from '../../components/v5/growth/media/media-posts-table';
-import { MediaGroupTable } from '../../components/v5/growth/media/media-group-table';
+import { Card } from '../../components/ui/card';
+import { EmptyState } from '../../components/ui/empty-state';
+import { PageSectionStack } from '../../components/ui/page-section-stack';
+import { Skeleton } from '../../components/ui/skeleton';
+import { MediaKpiSummary } from '../../components/workspace/growth/media/media-kpi-summary';
+import { MediaFilterBar } from '../../components/workspace/growth/media/media-filter-bar';
+import { MediaPostsTable } from '../../components/workspace/growth/media/media-posts-table';
+import { MediaGroupTable } from '../../components/workspace/growth/media/media-group-table';
 import {
   useMediaPostsQuery,
   useMediaKpiQuery,
@@ -13,7 +16,7 @@ import {
 } from '../../hooks/use-media-tracker';
 import { useSocialChannelsList } from '../../hooks/use-social-channels';
 import type { MediaFilter } from '../../hooks/use-media-tracker';
-import type { ChannelOption } from '../../components/v5/growth/media/media-filter-bar';
+import type { ChannelOption } from '../../components/workspace/growth/media/media-filter-bar';
 
 const DEFAULT_KPI = {
   totalPosts: 0,

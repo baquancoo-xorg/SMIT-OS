@@ -1,6 +1,6 @@
 /**
  * Shared CSV export utility for Acquisition trackers.
- * Pattern adapted from `src/components/lead-tracker/csv-export.ts`.
+ * Pattern adapted from `src/components/workspace/growth/lead/csv-export.ts`.
  */
 
 function escapeCsvCell(value: string): string {

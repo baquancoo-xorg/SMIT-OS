@@ -16,22 +16,20 @@ import {
   ObjectiveAccordionCard,
   ObjectiveAccordionCardL2,
   AddObjectiveModal,
-} from '../components/okr/okr-accordion-cards';
+} from '../components/workspace/execution/okr/okr-accordion-cards';
 import {
   getDeptColor,
   getOkrStatus,
   getCriticalPathHealth,
   getQ2Deadline,
-} from '../components/okr/department-color-config';
-import {
-  Button,
-  TabPill,
-  KpiCard,
-  EmptyState,
-  PageSectionStack,
-  PageToolbar,
-} from '../components/v5/ui';
-import type { TabPillItem } from '../components/v5/ui';
+} from '../components/workspace/execution/okr/department-color-config';
+import { Button } from '../components/ui/button';
+import { EmptyState } from '../components/ui/empty-state';
+import { KpiCard } from '../components/ui/kpi-card';
+import { PageSectionStack } from '../components/ui/page-section-stack';
+import { PageToolbar } from '../components/ui/page-toolbar';
+import { TabPill } from '../components/ui/tab-pill';
+import type { TabPillItem } from '../components/ui/tab-pill';
 
 type ActiveTab = 'L1' | 'L2';
 

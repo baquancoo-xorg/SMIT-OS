@@ -46,6 +46,7 @@ import { createAdsTrackerRoutes } from "./server/routes/ads-tracker.routes";
 import { createMediaTrackerRoutes } from "./server/routes/media-tracker.routes";
 import { createSocialChannelsRoutes } from "./server/routes/social-channels.routes";
 import { createAcquisitionRoutes } from "./server/routes/acquisition.routes";
+import { createPersonnelRoutes } from "./server/routes/personnel.routes";
 import { createOKRService } from "./server/services/okr.service";
 
 initFbSyncService(prisma);
@@ -151,6 +152,7 @@ app.use("/api/ads-tracker", createAdsTrackerRoutes());
 app.use("/api/media-tracker", createMediaTrackerRoutes());
 app.use("/api/social-channels", createSocialChannelsRoutes());
 app.use("/api/acquisition", createAcquisitionRoutes());
+app.use("/api/personnel", createPersonnelRoutes(prisma));
 app.use("/api/admin", requireAdmin, createAdminFbConfigRoutes());
 app.use("/api/admin/api-keys", requireAdmin, createAdminApiKeysRoutes(prisma));
 

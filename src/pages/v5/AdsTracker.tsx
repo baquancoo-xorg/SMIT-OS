@@ -3,13 +3,21 @@ import { format, startOfMonth } from 'date-fns';
 import { useSearchParams } from 'react-router-dom';
 import { Filter, LayoutGrid, LayoutList, RefreshCw, Search, Target, TrendingUp } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import CampaignsTable from '../../components/ads-tracker/campaigns-table';
-import AttributionTable from '../../components/ads-tracker/attribution-table';
-import { AdsKpiCards } from '../../components/v5/growth/ads/ads-kpi-cards';
-import { AdsSpendChart } from '../../components/v5/growth/ads/ads-spend-chart';
-import { fromDateRange, toDateRange } from '../../components/v5/growth/date-range-utils';
-import { Button, Card, DateRangePicker, FilterChip, PageSectionStack, PageToolbar, TabPill, useToast } from '../../components/v5/ui';
-import type { DateRange, TabPillItem } from '../../components/v5/ui';
+import CampaignsTable from '../../components/workspace/growth/ads/campaigns-table';
+import AttributionTable from '../../components/workspace/growth/ads/attribution-table';
+import { AdsKpiCards } from '../../components/workspace/growth/ads/ads-kpi-cards';
+import { AdsSpendChart } from '../../components/workspace/growth/ads/ads-spend-chart';
+import { fromDateRange, toDateRange } from '../../components/workspace/growth/date-range-utils';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
+import { DateRangePicker } from '../../components/ui/date-range-picker';
+import { FilterChip } from '../../components/ui/filter-chip';
+import { useToast } from '../../components/ui/notification-toast';
+import { PageSectionStack } from '../../components/ui/page-section-stack';
+import { PageToolbar } from '../../components/ui/page-toolbar';
+import { TabPill } from '../../components/ui/tab-pill';
+import type { DateRange } from '../../components/ui/date-range-picker';
+import type { TabPillItem } from '../../components/ui/tab-pill';
 import {
   useAdsAttributionQuery,
   useAdsAttributionUnmatchedQuery,

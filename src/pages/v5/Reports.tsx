@@ -1,14 +1,17 @@
 import { useMemo, useState } from 'react';
 import { endOfMonth, format, startOfMonth, subMonths } from 'date-fns';
 import { Download } from 'lucide-react';
-import { DateRangePicker, Button, PageSectionStack, PageToolbar } from '../../components/v5/ui';
-import type { DateRange } from '../../components/v5/ui';
+import { Button } from '../../components/ui/button';
+import { DateRangePicker } from '../../components/ui/date-range-picker';
+import { PageSectionStack } from '../../components/ui/page-section-stack';
+import { PageToolbar } from '../../components/ui/page-toolbar';
+import type { DateRange } from '../../components/ui/date-range-picker';
 import { useOverviewAll } from '../../hooks/use-overview-data';
 import {
   ReportsExecutionSection,
   ReportsGrowthSection,
   ReportsOverviewSection,
-} from '../../components/v5/intelligence';
+} from '../../components/workspace/intelligence';
 
 function initialRange(): DateRange {
   const now = new Date();

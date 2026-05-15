@@ -2,22 +2,20 @@ import { useEffect, useMemo, useState } from 'react';
 import { Plus, CalendarCheck2, ClipboardCheck, Zap, Eye, Target } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import type { WeeklyReport, KrCheckin, WeeklyPriority } from '../types';
-import WeeklyCheckinModal from '../components/modals/WeeklyCheckinModal';
-import {
-  Button,
-  Badge,
-  EmptyState,
-  KpiCard,
-  Modal,
-  PageSectionStack,
-  PageToolbar,
-  TableShell,
-  SortableTh,
-  useSortableData,
-  GlassCard,
-  type SortableValue,
-} from '../components/v5/ui';
-import { getTableContract } from '../components/v5/ui';
+import WeeklyCheckinModal from '../components/workspace/execution/checkin/WeeklyCheckinModal';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { EmptyState } from '../components/ui/empty-state';
+import { GlassCard } from '../components/ui/glass-card';
+import { KpiCard } from '../components/ui/kpi-card';
+import { Modal } from '../components/ui/modal';
+import { PageSectionStack } from '../components/ui/page-section-stack';
+import { PageToolbar } from '../components/ui/page-toolbar';
+import { SortableTh } from '../components/ui/sortable-th';
+import { TableShell } from '../components/ui/table-shell';
+import type { SortableValue } from '../components/ui/use-sortable-data';
+import { useSortableData } from '../components/ui/use-sortable-data';
+import { getTableContract } from '../components/ui/table-contract';
 
 interface ParsedReport {
   krProgress: KrCheckin[];

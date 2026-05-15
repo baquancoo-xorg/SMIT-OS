@@ -3,9 +3,17 @@ import { format, isToday, parseISO } from 'date-fns';
 import { CalendarCheck, Users, History, FileText, BadgeCheck, Search, Filter, CheckCircle2, Clock3 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDailyReportsQuery, useInvalidateDailyReports } from '../../hooks/use-daily-reports';
-import { Button, Card, EmptyState, PageSectionStack, PageToolbar, Skeleton, Badge, KpiCard, Input } from '../../components/v5/ui';
-import { DailyReportFormDialog } from '../../components/v5/execution/daily-report-form-dialog';
-import { DailyReportDetailModal, type DailyReportData } from '../../components/v5/execution/daily-report-detail-modal';
+import { Badge } from '../../components/ui/badge';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
+import { EmptyState } from '../../components/ui/empty-state';
+import { Input } from '../../components/ui/input';
+import { KpiCard } from '../../components/ui/kpi-card';
+import { PageSectionStack } from '../../components/ui/page-section-stack';
+import { PageToolbar } from '../../components/ui/page-toolbar';
+import { Skeleton } from '../../components/ui/skeleton';
+import { DailyReportFormDialog } from '../../components/workspace/execution/daily-report-form-dialog';
+import { DailyReportDetailModal, type DailyReportData } from '../../components/workspace/execution/daily-report-detail-modal';
 import type { DailyReport } from '../../types';
 
 interface SubmissionStatus {

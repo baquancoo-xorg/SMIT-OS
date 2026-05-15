@@ -1,11 +1,26 @@
 import { useState } from 'react';
 import { Moon, Sun, Bell, Search, User, TrendingUp, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useTheme } from '../../contexts/theme-context';
-import {
-  Button, Badge, Card, Input, Spinner, Skeleton, KpiCard, EmptyState,
-  StatusDot, TabPill, FilterChip, Modal, DropdownMenu,
-  ChartCard, LineChart, BarChart, AreaChart, PieChart, DonutChart, SparklineChart,
-} from '../../components/v5/ui';
+import { Badge } from '../../components/ui/badge';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
+import { AreaChart } from '../../components/ui/charts/area-chart';
+import { BarChart } from '../../components/ui/charts/bar-chart';
+import { ChartCard } from '../../components/ui/charts/chart-card';
+import { DonutChart } from '../../components/ui/charts/donut-chart';
+import { LineChart } from '../../components/ui/charts/line-chart';
+import { PieChart } from '../../components/ui/charts/pie-chart';
+import { SparklineChart } from '../../components/ui/charts/sparkline-chart';
+import { DropdownMenu } from '../../components/ui/dropdown-menu';
+import { EmptyState } from '../../components/ui/empty-state';
+import { FilterChip } from '../../components/ui/filter-chip';
+import { Input } from '../../components/ui/input';
+import { KpiCard } from '../../components/ui/kpi-card';
+import { Modal } from '../../components/ui/modal';
+import { Skeleton } from '../../components/ui/skeleton';
+import { Spinner } from '../../components/ui/spinner';
+import { StatusDot } from '../../components/ui/status-dot';
+import { TabPill } from '../../components/ui/tab-pill';
 
 const sampleLineData = [
   { date: 'Mon', value: 100, value2: 80 },

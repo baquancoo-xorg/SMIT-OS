@@ -4,12 +4,18 @@ import { BarChart2, List, Search } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../../lib/api';
-import DailyStatsTab from '../../components/lead-tracker/daily-stats-tab';
-import LeadFiltersPopover from '../../components/lead-tracker/lead-filters-popover';
-import LeadLogsTab, { type LeadFilters } from '../../components/lead-tracker/lead-logs-tab';
-import { fromDateRange, toDateRange } from '../../components/v5/growth/date-range-utils';
-import { Card, DateRangePicker, Input, PageSectionStack, PageToolbar, TabPill } from '../../components/v5/ui';
-import type { DateRange, TabPillItem } from '../../components/v5/ui';
+import DailyStatsTab from '../../components/workspace/growth/lead/daily-stats-tab';
+import LeadFiltersPopover from '../../components/workspace/growth/lead/lead-filters-popover';
+import LeadLogsTab, { type LeadFilters } from '../../components/workspace/growth/lead/lead-logs-tab';
+import { fromDateRange, toDateRange } from '../../components/workspace/growth/date-range-utils';
+import { Card } from '../../components/ui/card';
+import { DateRangePicker } from '../../components/ui/date-range-picker';
+import { Input } from '../../components/ui/input';
+import { PageSectionStack } from '../../components/ui/page-section-stack';
+import { PageToolbar } from '../../components/ui/page-toolbar';
+import { TabPill } from '../../components/ui/tab-pill';
+import type { DateRange } from '../../components/ui/date-range-picker';
+import type { TabPillItem } from '../../components/ui/tab-pill';
 
 type ActiveTab = 'logs' | 'stats';
 

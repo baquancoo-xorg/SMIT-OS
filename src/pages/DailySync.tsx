@@ -2,20 +2,18 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Plus, Calendar, CheckCircle, ListChecks, AlertTriangle, Target, Zap, Eye, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import type { DailyReport } from '../types';
-import {
-  Button,
-  Badge,
-  GlassCard,
-  EmptyState,
-  KpiCard,
-  Modal,
-  FormDialog,
-  TableShell,
-  SortableTh,
-  useSortableData,
-  type SortableValue,
-} from '../components/v5/ui';
-import { getTableContract } from '../components/v5/ui';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { EmptyState } from '../components/ui/empty-state';
+import { FormDialog } from '../components/ui/form-dialog';
+import { GlassCard } from '../components/ui/glass-card';
+import { KpiCard } from '../components/ui/kpi-card';
+import { Modal } from '../components/ui/modal';
+import { SortableTh } from '../components/ui/sortable-th';
+import { TableShell } from '../components/ui/table-shell';
+import type { SortableValue } from '../components/ui/use-sortable-data';
+import { useSortableData } from '../components/ui/use-sortable-data';
+import { getTableContract } from '../components/ui/table-contract';
 
 function todayIso(): string {
   return new Date().toISOString().split('T')[0];

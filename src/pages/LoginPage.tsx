@@ -3,7 +3,8 @@ import type { FormEvent } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Eye, EyeOff, Shield, ArrowRight, ArrowLeft, Sparkles, Zap, LayoutDashboard, Grid2X2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Button, Input } from '../components/v5/ui';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 import { LogoMark } from '@/ui/components/layout/logo-mark';
 
 /**

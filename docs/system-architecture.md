@@ -15,7 +15,7 @@ SMIT OS is a single React/Vite app served behind an Express API. The client and 
 `AppContent` reads `useAuth()`.
 - Loading: full-screen spinner.
 - No user: `LoginPage`.
-- Authenticated: `V5Shell` with lazy route content.
+- Authenticated: `AppShell` with lazy route content.
 
 ## Routing
 `src/App.tsx` owns route declarations. Route pages are lazy loaded from `src/pages/v5/`.
@@ -24,7 +24,7 @@ SMIT OS is a single React/Vite app served behind an Express API. The client and 
 - Old tracker slugs redirect to new canonical Growth routes.
 
 ## Layout
-`V5Shell` owns global app chrome:
+`AppShell` owns global app chrome:
 - Sidebar navigation grouped by workspace.
 - Header actions.
 - Main content region.
@@ -33,10 +33,10 @@ SMIT OS is a single React/Vite app served behind an Express API. The client and 
 ## Design System
 `src/index.css` defines CSS variables and Tailwind v4 theme tokens.
 `src/design/v5/tokens.ts` stores storage keys and canonical v5 token references.
-`src/components/v5/ui/` provides component primitives.
+`src/components/ui/` provides component primitives.
 
 ## Workspaces
-- Dashboard uses `useOverviewAll` and section wrappers under `components/v5/dashboard`.
+- Dashboard uses `useOverviewAll` and section wrappers under `src/components/workspace/dashboard/`.
 - Growth uses real tracker hooks/pages for leads, ads, and media.
 - Execution uses real OKR, Daily Sync, and Weekly Check-in pages through v5 namespace routes.
 - Intelligence uses dashboard overview data plus v5 reports sections.

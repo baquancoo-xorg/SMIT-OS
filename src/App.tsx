@@ -5,10 +5,10 @@
 
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import V5Shell from './components/v5/layout/v5-shell';
+import AppShell from './components/layout/app-shell';
 import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { ToastProvider } from './components/v5/ui';
+import { ToastProvider } from './components/ui/notification-toast';
 import { LogoMark } from './ui/components/layout/logo-mark';
 
 // Phase 8 (2026-05-11) — v1 pages hard-deleted. Rollback flag `?v=1` retired.
@@ -24,6 +24,7 @@ const MediaTracker = lazy(() => import('./pages/v5/MediaTracker'));
 const AdsTracker = lazy(() => import('./pages/v5/AdsTracker'));
 const Reports = lazy(() => import('./pages/v5/Reports'));
 const Playground = lazy(() => import('./pages/v5/Playground'));
+const Personnel = lazy(() => import('./pages/v5/Personnel'));
 
 function AppLogoLoader({ fullScreen = false }: { fullScreen?: boolean }) {
   return (
@@ -54,7 +55,7 @@ function AppContent() {
   }
 
   return (
-    <V5Shell onLogout={logout}>
+    <AppShell onLogout={logout}>
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -68,6 +69,7 @@ function AppContent() {
           <Route path="/checkin" element={<WeeklyCheckin />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/personnel" element={<Personnel />} />
           <Route path="/playground" element={<Playground />} />
           <Route path="/integrations" element={<Navigate to="/settings?tab=integrations" replace />} />
           <Route path="/lead-tracker" element={<Navigate to="/leads" replace />} />
@@ -76,7 +78,7 @@ function AppContent() {
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Suspense>
-    </V5Shell>
+    </AppShell>
   );
 }
 
