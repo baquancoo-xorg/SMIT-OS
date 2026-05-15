@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMIT OS v6 — Sidebar Mockup & 8 Routes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: oklch(0.683 0.213 38.5);
+    --primary-bright: oklch(0.76 0.215 38.5);
+    --primary-glow: oklch(0.683 0.213 38.5 / 0.45);
+    --primary-glow-soft: oklch(0.683 0.213 38.5 / 0.20);
+
+    --bg: oklch(0.13 0.003 60);
+    --surface: oklch(0.165 0.004 60);
+    --surface-2: oklch(0.21 0.005 60);
+    --surface-3: oklch(0.25 0.006 60);
+    --border: oklch(0.24 0.006 60);
+    --border-strong: oklch(0.32 0.008 60);
+    --text-1: oklch(0.95 0.003 60);
+    --text-2: oklch(0.72 0.005 60);
+    --text-3: oklch(0.5 0.005 60);
+
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-smooth: cubic-bezier(0.32, 0.72, 0, 1);
+
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 14px; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    background: oklch(0.10 0.003 60);
+    min-height: 100vh;
+    padding: 32px 24px 64px;
+    color: var(--text-1);
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    align-items: center;
+  }
+
+  .container { width: 100%; max-width: 1240px; }
+
+  .page-title {
+    font-size: 18px; font-weight: 500;
+    letter-spacing: -0.02em; margin-bottom: 6px;
+  }
+  .page-subtitle {
+    font-size: 12px; color: var(--text-2);
+    letter-spacing: -0.005em; margin-bottom: 24px;
+  }
+  .section-title {
+    font-size: 11px; font-weight: 500;
+    color: var(--text-3); text-transform: uppercase;
+    letter-spacing: 0.08em; margin-bottom: 16px; margin-top: 24px;
+  }
+
+  /* ===================================================
+     SIDEBAR MOCKUP (giống ảnh user gửi)
+     =================================================== */
+  .sidebar-demo {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  @media (max-width: 880px) {
+    .sidebar-demo { grid-template-columns: 1fr; }
+  }
+
+  .sidebar {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 18px;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 640px;
+  }
+
+  /* Sidebar header */
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px 16px;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 12px;
+  }
+
+  .sidebar-logo {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-brand {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-1);
+    letter-spacing: 0.06em;
+  }
+
+  /* Section labels */
+  .sidebar-section-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-3);
+    letter-spacing: 0.12em;
+    padding: 14px 12px 8px;
+    text-transform: uppercase;
+  }
+
+  /* Nav item */
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--radius-md);
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: relative;
+    transition:
+      background 260ms var(--ease-smooth),
+      color 240ms var(--ease-smooth);
+  }
+
+  .nav-item .nav-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--text-3);
+    transition: color 280ms var(--ease-smooth), transform 380ms var(--ease-out-expo);
+  }
+
+  .nav-item:hover {
+    background: var(--surface-2);
+    color: var(--text-1);
+  }
+  .nav-item:hover .nav-icon { color: var(--text-1); }
+
+  .nav-item.active {
+    background: oklch(0.21 0.006 60);
+    color: var(--text-1);
+    box-shadow: inset 0 0 0 0.5px var(--border-strong);
+  }
+  .nav-item.active .nav-icon { color: var(--text-1); }
+
+  /* Settings — special bottom item */
+  .sidebar-footer {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 0.5px solid var(--border);
+  }
+
+  /* ===================================================
+     LOGO REFINED — 8 routes
+     =================================================== */
+  .logo-stage {
+    width: 28px;
+    height: 28px;
+  }
+
+  .logo-stage.large {
+    width: 96px;
+    height: 96px;
+  }
+
+  .logo-refined .tile {
+    transition: transform 800ms var(--ease-smooth);
+  }
+
+  .logo-refined .tile-white {
+    fill: none;
+    stroke: oklch(0.97 0 0);
+    stroke-width: 1.5;
+  }
+
+  .logo-refined .tile-orange {
+    fill: var(--primary);
+    stroke: var(--primary);
+    stroke-width: 1.4;
+  }
+
+  .logo-refined .tile-frame {
+    fill: none;
+    stroke: oklch(0.32 0.006 60);
+    stroke-width: 1.3;
+  }
+
+  .logo-refined .crosshair {
+    stroke: oklch(0.32 0.005 60);
+    stroke-width: 1;
+  }
+
+  /* 8 ROUTE → 8 POSITION PAIRS
+     Grid layout (viewBox 0-40):
+       pos 0: (11, 11) — top-left
+       pos 1: (21, 11) — top-right
+       pos 2: (11, 21) — bottom-left
+       pos 3: (21, 21) — bottom-right
+
+     Base origin:
+       white tile rendered at pos 0 → (11, 11)
+       orange tile rendered at pos 3 → (21, 21)
+
+     Each route assigns (white_pos, orange_pos) and we compute translate.
+  */
+
+  /* 1. DASHBOARD — white=0, orange=3 (default) */
+  .logo-refined[data-route="dashboard"] .tile-white { transform: translate(0, 0); }
+  .logo-refined[data-route="dashboard"] .tile-orange { transform: translate(0, 0); }
+
+  /* 2. OKRS — white=1, orange=2 (diagonal swap horizontal) */
+  .logo-refined[data-route="okrs"] .tile-white { transform: translate(10px, 0); }
+  .logo-refined[data-route="okrs"] .tile-orange { transform: translate(-10px, 0); }
+
+  /* 3. LEADS — white=3, orange=0 (full diagonal flip) */
+  .logo-refined[data-route="leads"] .tile-white { transform: translate(10px, 10px); }
+  .logo-refined[data-route="leads"] .tile-orange { transform: translate(-10px, -10px); }
+
+  /* 4. ADS — white=2, orange=1 (opposite diagonal) */
+  .logo-refined[data-route="ads"] .tile-white { transform: translate(0, 10px); }
+  .logo-refined[data-route="ads"] .tile-orange { transform: translate(0, -10px); }
+
+  /* 5. MEDIA — white=0, orange=1 (adjacent horizontal top) */
+  .logo-refined[data-route="media"] .tile-white { transform: translate(0, 0); }
+  .logo-refined[data-route="media"] .tile-orange { transform: translate(0, -10px); }
+
+  /* 6. DAILY-SYNC — white=2, orange=3 (adjacent horizontal bottom) */
+  .logo-refined[data-route="daily-sync"] .tile-white { transform: translate(0, 10px); }
+  .logo-refined[data-route="daily-sync"] .tile-orange { transform: translate(0, 0); }
+
+  /* 7. CHECKIN — white=0, orange=2 (adjacent vertical left) */
+  .logo-refined[data-route="checkin"] .tile-white { transform: translate(0, 0); }
+  .logo-refined[data-route="checkin"] .tile-orange { transform: translate(-10px, 0); }
+
+  /* 8. SETTINGS — white=1, orange=3 (adjacent vertical right) */
+  .logo-refined[data-route="settings"] .tile-white { transform: translate(10px, 0); }
+  .logo-refined[data-route="settings"] .tile-orange { transform: translate(0, 0); }
+
+  /* Pulse 2x on route change */
+  @keyframes pulseTwice {
+    0% { filter: drop-shadow(0 0 0 oklch(0.683 0.213 38.5 / 0)); }
+    20% { filter: drop-shadow(0 0 5px oklch(0.683 0.213 38.5 / 0.7)); }
+    40% { filter: drop-shadow(0 0 0 oklch(0.683 0.213 38.5 / 0)); }
+    60% { filter: drop-shadow(0 0 4px oklch(0.683 0.213 38.5 / 0.5)); }
+    100% { filter: drop-shadow(0 0 0 oklch(0.683 0.213 38.5 / 0)); }
+  }
+
+  .logo-refined.pulse .tile-orange {
+    animation: pulseTwice 1400ms var(--ease-smooth);
+  }
+
+  /* ===================================================
+     RIGHT PANEL — visualization
+     =================================================== */
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .stage-big {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: 18px;
+    padding: 36px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .stage-big .route-label {
+    font-size: 12px;
+    color: var(--text-2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .stage-big .route-label strong {
+    color: var(--primary);
+    font-weight: 500;
+    margin-left: 6px;
+  }
+
+  /* 8 route mini-previews */
+  .preview-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  @media (max-width: 700px) {
+    .preview-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .preview-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 240ms var(--ease-smooth);
+  }
+
+  .preview-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+
+  .preview-card.active {
+    border-color: oklch(0.683 0.213 38.5 / 0.6);
+    box-shadow: 0 0 0 0.5px var(--primary), 0 0 16px -4px var(--primary-glow);
+  }
+
+  .preview-card .mini-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .preview-card .mini-logo .tile-white {
+    fill: none;
+    stroke: oklch(0.97 0 0);
+    stroke-width: 1.6;
+  }
+
+  .preview-card .mini-logo .tile-orange {
+    fill: var(--primary);
+    stroke: var(--primary);
+    stroke-width: 1.4;
+  }
+
+  .preview-card .mini-logo .tile-frame {
+    fill: none;
+    stroke: oklch(0.32 0.006 60);
+    stroke-width: 1.2;
+  }
+
+  .preview-card-label {
+    font-size: 9.5px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .preview-card.active .preview-card-label {
+    color: var(--text-1);
+  }
+
+  /* Position description below stage */
+  .position-info {
+    font-size: 11px;
+    color: var(--text-3);
+    line-height: 1.5;
+    max-width: 360px;
+    text-align: center;
+  }
+
+  .position-info code {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px;
+    color: var(--text-2);
+    background: var(--surface-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ===================================================
+     ICONS
+     =================================================== */
+  .icon { display: block; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <p class="page-title">Sidebar mockup — 8 routes + logo dynamic</p>
+  <p class="page-subtitle">Click các nav item bên dưới hoặc các mini-preview phải để xem logo dịch chuyển. Mỗi route có 1 cặp vị trí trắng+cam riêng.</p>
+
+  <div class="sidebar-demo">
+
+    <!-- LEFT: SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- HEADER -->
+      <div class="sidebar-header">
+        <svg class="sidebar-logo logo-refined" viewBox="0 0 40 40" id="sidebarLogo" data-route="dashboard">
+          <line class="crosshair" x1="20" y1="3" x2="20" y2="10"/>
+          <line class="crosshair" x1="20" y1="30" x2="20" y2="37"/>
+          <line class="crosshair" x1="3" y1="20" x2="10" y2="20"/>
+          <line class="crosshair" x1="30" y1="20" x2="37" y2="20"/>
+          <rect class="tile-frame" x="11" y="11" width="8" height="8" rx="1.5"/>
+          <rect class="tile-frame" x="21" y="11" width="8" height="8" rx="1.5"/>
+          <rect class="tile-frame" x="11" y="21" width="8" height="8" rx="1.5"/>
+          <rect class="tile-frame" x="21" y="21" width="8" height="8" rx="1.5"/>
+          <rect class="tile tile-white" x="11" y="11" width="8" height="8" rx="1.5"/>
+          <rect class="tile tile-orange" x="21" y="21" width="8" height="8" rx="1.5"/>
+        </svg>
+        <span class="sidebar-brand">SMIT OS</span>
+      </div>
+
+      <!-- EXECUTIVE -->
+      <p class="sidebar-section-label">Executive</p>
+      <div class="nav-item active" data-route="dashboard" onclick="navTo('dashboard', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <line x1="12" y1="12" x2="16" y2="9"/>
+          <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+        </svg>
+        Dashboard
+      </div>
+      <div class="nav-item" data-route="okrs" onclick="navTo('okrs', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/>
+          <circle cx="12" cy="12" r="5"/>
+          <circle cx="12" cy="12" r="1" fill="currentColor"/>
+        </svg>
+        OKRs
+      </div>
+
+      <!-- ACQUISITION -->
+      <p class="sidebar-section-label">Acquisition</p>
+      <div class="nav-item" data-route="leads" onclick="navTo('leads', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Leads
+      </div>
+      <div class="nav-item" data-route="ads" onclick="navTo('ads', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+        </svg>
+        Ads
+      </div>
+      <div class="nav-item" data-route="media" onclick="navTo('media', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <line x1="9" y1="9" x2="15" y2="9"/>
+          <line x1="9" y1="13" x2="15" y2="13"/>
+          <line x1="9" y1="17" x2="12" y2="17"/>
+        </svg>
+        Media
+      </div>
+
+      <!-- RHYTHM -->
+      <p class="sidebar-section-label">Rhythm</p>
+      <div class="nav-item" data-route="daily-sync" onclick="navTo('daily-sync', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+          <polyline points="9 15 11 17 15 13"/>
+        </svg>
+        Daily Sync
+      </div>
+      <div class="nav-item" data-route="checkin" onclick="navTo('checkin', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        Weekly Check-in
+      </div>
+
+      <!-- FOOTER: SETTINGS -->
+      <div class="sidebar-footer">
+        <div class="nav-item" data-route="settings" onclick="navTo('settings', this)">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          Settings
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: BIG STAGE + PREVIEW GRID -->
+    <div class="right-panel">
+      <div class="stage-big">
+        <svg class="logo-stage large logo-refined" viewBox="0 0 40 40" id="bigLogo" data-route="dashboard">
+          <line class="crosshair" x1="20" y1="3" x2="20" y2="10"/>
+          <line class="crosshair" x1="20" y1="30" x2="20" y2="37"/>
+          <line class="crosshair" x1="3" y1="20" x2="10" y2="20"/>
+          <line class="crosshair" x1="30" y1="20" x2="37" y2="20"/>
+          <rect class="tile-frame" x="11" y="11" width="8" height="8" rx="1.5"/>
+          <rect class="tile-frame" x="21" y="11" width="8" height="8" rx="1.5"/>
+          <rect class="tile-frame" x="11" y="21" width="8" height="8" rx="1.5"/>
+          <rect class="tile-frame" x="21" y="21" width="8" height="8" rx="1.5"/>
+          <rect class="tile tile-white" x="11" y="11" width="8" height="8" rx="1.5"/>
+          <rect class="tile tile-orange" x="21" y="21" width="8" height="8" rx="1.5"/>
+        </svg>
+        <p class="route-label">Current route: <strong id="currentRouteLabel">Dashboard</strong></p>
+        <p class="position-info" id="positionInfo">
+          <code>white → top-left</code> · <code>orange → bottom-right</code><br>
+          Diagonal pair (default identity)
+        </p>
+      </div>
+
+      <p class="section-title">All 8 route signatures</p>
+      <div class="preview-grid" id="previewGrid">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Mapping reference -->
+<div class="container">
+  <div style="background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; font-size: 12px; line-height: 1.7; color: var(--text-2);">
+    <p style="color: var(--text-1); font-weight: 500; margin-bottom: 12px;">8 route → 8 cặp vị trí unique (4 diagonals + 4 adjacents)</p>
+    <p style="margin-bottom: 8px;"><strong style="color: var(--text-1); font-weight: 500;">Diagonal pairs</strong> (2 ô đối góc — 4 cặp):</p>
+    <ul style="list-style: none; padding-left: 16px; margin-bottom: 12px;">
+      <li>1. <strong style="color: var(--primary); font-weight: 500;">Dashboard</strong> — white TL + orange BR <span style="color: var(--text-3);">(default identity)</span></li>
+      <li>2. <strong style="color: var(--primary); font-weight: 500;">OKRs</strong> — white TR + orange BL <span style="color: var(--text-3);">(top-down inverted)</span></li>
+      <li>3. <strong style="color: var(--primary); font-weight: 500;">Leads</strong> — white BR + orange TL <span style="color: var(--text-3);">(180° rotation)</span></li>
+      <li>4. <strong style="color: var(--primary); font-weight: 500;">Ads</strong> — white BL + orange TR <span style="color: var(--text-3);">(diagonal opposite)</span></li>
+    </ul>
+    <p style="margin-bottom: 8px;"><strong style="color: var(--text-1); font-weight: 500;">Adjacent pairs</strong> (2 ô cạnh nhau — 4 cặp):</p>
+    <ul style="list-style: none; padding-left: 16px;">
+      <li>5. <strong style="color: var(--primary); font-weight: 500;">Media</strong> — white TL + orange TR <span style="color: var(--text-3);">(top row, side by side)</span></li>
+      <li>6. <strong style="color: var(--primary); font-weight: 500;">Daily Sync</strong> — white BL + orange BR <span style="color: var(--text-3);">(bottom row, side by side)</span></li>
+      <li>7. <strong style="color: var(--primary); font-weight: 500;">Weekly Check-in</strong> — white TL + orange BL <span style="color: var(--text-3);">(left column, stacked)</span></li>
+      <li>8. <strong style="color: var(--primary); font-weight: 500;">Settings</strong> — white TR + orange BR <span style="color: var(--text-3);">(right column, stacked)</span></li>
+    </ul>
+    <p style="margin-top: 14px; padding-top: 12px; border-top: 0.5px solid var(--border); color: var(--text-3); font-size: 11px;">
+      💡 Pulse heartbeat: 2 lần ngắn (1.4s tổng) khi route mới load xong rồi dừng. Tránh distraction lâu dài.
+    </p>
+  </div>
+</div>
+
+<script>
+  const ROUTES = {
+    dashboard:    { label: 'Dashboard',       white: 'TL', orange: 'BR' },
+    okrs:         { label: 'OKRs',            white: 'TR', orange: 'BL' },
+    leads:        { label: 'Leads',           white: 'BR', orange: 'TL' },
+    ads:          { label: 'Ads',             white: 'BL', orange: 'TR' },
+    media:        { label: 'Media',           white: 'TL', orange: 'TR' },
+    'daily-sync': { label: 'Daily Sync',      white: 'BL', orange: 'BR' },
+    checkin:      { label: 'Weekly Check-in', white: 'TL', orange: 'BL' },
+    settings:     { label: 'Settings',        white: 'TR', orange: 'BR' },
+  };
+
+  // Build preview grid
+  const previewGrid = document.getElementById('previewGrid');
+  Object.entries(ROUTES).forEach(([key, val]) => {
+    const card = document.createElement('div');
+    card.className = 'preview-card';
+    card.setAttribute('data-route', key);
+    if (key === 'dashboard') card.classList.add('active');
+    card.onclick = () => navTo(key, document.querySelector(`.nav-item[data-route="${key}"]`));
+
+    card.innerHTML = `
+      <svg class="mini-logo logo-refined" viewBox="0 0 40 40" data-route="${key}">
+        <line class="crosshair" x1="20" y1="3" x2="20" y2="10" stroke="oklch(0.32 0.005 60)" stroke-width="1"/>
+        <line class="crosshair" x1="20" y1="30" x2="20" y2="37" stroke="oklch(0.32 0.005 60)" stroke-width="1"/>
+        <line class="crosshair" x1="3" y1="20" x2="10" y2="20" stroke="oklch(0.32 0.005 60)" stroke-width="1"/>
+        <line class="crosshair" x1="30" y1="20" x2="37" y2="20" stroke="oklch(0.32 0.005 60)" stroke-width="1"/>
+        <rect class="tile-frame" x="11" y="11" width="8" height="8" rx="1.5"/>
+        <rect class="tile-frame" x="21" y="11" width="8" height="8" rx="1.5"/>
+        <rect class="tile-frame" x="11" y="21" width="8" height="8" rx="1.5"/>
+        <rect class="tile-frame" x="21" y="21" width="8" height="8" rx="1.5"/>
+        <rect class="tile tile-white" x="11" y="11" width="8" height="8" rx="1.5"/>
+        <rect class="tile tile-orange" x="21" y="21" width="8" height="8" rx="1.5"/>
+      </svg>
+      <p class="preview-card-label">${val.label}</p>
+    `;
+    previewGrid.appendChild(card);
+  });
+
+  function navTo(route, sourceEl) {
+    const sidebarLogo = document.getElementById('sidebarLogo');
+    const bigLogo = document.getElementById('bigLogo');
+
+    // Update data-route
+    sidebarLogo.setAttribute('data-route', route);
+    bigLogo.setAttribute('data-route', route);
+
+    // Restart pulse
+    sidebarLogo.classList.remove('pulse');
+    bigLogo.classList.remove('pulse');
+    void sidebarLogo.offsetWidth;
+    void bigLogo.offsetWidth;
+    sidebarLogo.classList.add('pulse');
+    bigLogo.classList.add('pulse');
+
+    // Update active state in sidebar
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    if (sourceEl) sourceEl.classList.add('active');
+
+    // Update active state in preview grid
+    document.querySelectorAll('.preview-card').forEach(c => c.classList.remove('active'));
+    const previewCard = document.querySelector(`.preview-card[data-route="${route}"]`);
+    if (previewCard) previewCard.classList.add('active');
+
+    // Update label
+    const r = ROUTES[route];
+    document.getElementById('currentRouteLabel').textContent = r.label;
+    const posMap = {
+      TL: 'top-left', TR: 'top-right',
+      BL: 'bottom-left', BR: 'bottom-right'
+    };
+    const isDiagonal = (r.white === 'TL' && r.orange === 'BR') ||
+                       (r.white === 'TR' && r.orange === 'BL') ||
+                       (r.white === 'BR' && r.orange === 'TL') ||
+                       (r.white === 'BL' && r.orange === 'TR');
+    document.getElementById('positionInfo').innerHTML =
+      `<code>white → ${posMap[r.white]}</code> · <code>orange → ${posMap[r.orange]}</code><br>` +
+      (isDiagonal ? 'Diagonal pair' : 'Adjacent pair');
+  }
+</script>
+
+</body>
+</html>
