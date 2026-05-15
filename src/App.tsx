@@ -23,7 +23,6 @@ const MediaTracker = lazy(() => import('./pages/v5/MediaTracker'));
 const AdsTracker = lazy(() => import('./pages/v5/AdsTracker'));
 const Reports = lazy(() => import('./pages/v5/Reports'));
 const Playground = lazy(() => import('./pages/v5/Playground'));
-const V6Storybook = lazy(() => import('./pages/v6-storybook'));
 
 function PageLoader() {
   return (
@@ -46,15 +45,6 @@ function AppContent() {
 
   if (!currentUser) {
     return <LoginPage />;
-  }
-
-  // v6 storybook route — isolated, no auth required for dev testing
-  if (window.location.pathname === '/v6-storybook') {
-    return (
-      <Suspense fallback={<PageLoader />}>
-        <V6Storybook />
-      </Suspense>
-    );
   }
 
   return (

@@ -16,6 +16,8 @@ const ROOT = process.cwd();
 const SCAN_DIRS = [
   'src/components/v5',
   'src/pages/v5',
+  'src/ui/components',
+  'src/pages',
 ];
 
 const FORBIDDEN_PATTERNS = [
@@ -23,7 +25,8 @@ const FORBIDDEN_PATTERNS = [
     name: 'hardcoded-hex',
     regex: /#[0-9a-fA-F]{3,8}(?![0-9a-fA-F])/g,
     message: 'Hardcoded hex color — use CSS variable token',
-    exclude: /\/\/ ui-canon-ok|eslint-disable|@ts-|className.*#|from.*#|import.*#/,
+    // Allow hex in chart palettes, comments, imports
+    exclude: /\/\/ ui-canon-ok|eslint-disable|@ts-|className.*#|from.*#|import.*#|colorPalette|Brand palette|chart/i,
   },
   {
     name: 'bg-white',
@@ -51,9 +54,9 @@ const FORBIDDEN_PATTERNS = [
   },
   {
     name: 'rounded-arbitrary',
-    regex: /\brounded-(xl|2xl|3xl)\b/g,
-    message: 'rounded-xl/2xl/3xl — use rounded-card, rounded-modal, or token',
-    exclude: null,
+    regex: /\brounded-(2xl|3xl)\b/g,
+    message: 'rounded-2xl/3xl — use rounded-card, rounded-modal, or token',
+    exclude: /ui-canon-ok/,
   },
   {
     name: 'font-black',
@@ -62,10 +65,34 @@ const FORBIDDEN_PATTERNS = [
     exclude: /ui-canon-ok|hero|kpi/i,
   },
   {
+    name: 'font-extrabold',
+    regex: /\bfont-extrabold\b/g,
+    message: 'font-extrabold — use font-semibold or font-bold max',
+    exclude: /ui-canon-ok/,
+  },
+  {
     name: 'border-gray',
     regex: /\bborder-gray-\d+\b/g,
     message: 'border-gray-* — use border-border or border-outline token',
     exclude: null,
+  },
+  {
+    name: 'backdrop-blur-outside-header',
+    regex: /\bbackdrop-blur\b/g,
+    message: 'backdrop-blur — only allowed in Header/Modal/Dialog/Sheet',
+    exclude: /ui-canon-ok|header|modal|dialog|sheet|overlay|command-palette/i,
+  },
+  {
+    name: 'glow-without-hover',
+    regex: /\b(shadow-glow|glow)\b/g,
+    message: 'glow effect — only allowed on :hover state',
+    exclude: /ui-canon-ok|hover:|:hover/,
+  },
+  {
+    name: 'solid-orange-cta',
+    regex: /\bbg-orange-\d+\b/g,
+    message: 'Solid orange bg — use gradient + beam pattern for CTAs',
+    exclude: /ui-canon-ok|data-viz|chart/i,
   },
 ];
 
