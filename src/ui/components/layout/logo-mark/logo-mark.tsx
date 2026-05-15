@@ -43,26 +43,24 @@ export function LogoMark({ route, size = 28, className }: LogoMarkProps) {
       <rect x="11" y="21" width="8" height="8" rx="1.5" className="logo-frame" />
       <rect x="21" y="21" width="8" height="8" rx="1.5" className="logo-frame" />
 
-      {/* White tile — animated from base TL (11,11) */}
+      {/* White tile — animated between grid positions */}
       <motion.rect
-        x={11}
-        y={11}
         width="8"
         height="8"
         rx="1.5"
         className="logo-tile-white"
+        initial={false}
         animate={{ x: 11 + whiteT.dx, y: 11 + whiteT.dy }}
         transition={springs.glacial}
       />
 
-      {/* Orange tile — animated from base TL (11,11), same as white */}
+      {/* Orange tile — animated between grid positions */}
       <motion.rect
-        x={11}
-        y={11}
         width="8"
         height="8"
         rx="1.5"
         className="logo-tile-orange"
+        initial={false}
         animate={{ x: 11 + orangeT.dx, y: 11 + orangeT.dy }}
         transition={springs.glacial}
       />
