@@ -803,7 +803,6 @@
   fill: var(--v6-primary);
   stroke: var(--v6-primary);
   stroke-width: 1.4;
-  animation: tilePulseTwice 1400ms var(--v6-ease-smooth);
 }
 
 @keyframes tilePulseTwice {

@@ -8,6 +8,16 @@ interface LogoMarkProps {
   className?: string;
 }
 
+/**
+ * LogoMark — SMIT OS animated logo
+ *
+ * 4 frame tiles form a 2x2 grid. White + Orange tiles move between positions
+ * based on current route. Both tiles animate smoothly from position to position.
+ *
+ * Grid positions:
+ *   TL (11,11)  TR (21,11)
+ *   BL (11,21)  BR (21,21)
+ */
 export function LogoMark({ route, size = 28, className }: LogoMarkProps) {
   const { white, orange } = ROUTE_POSITIONS[route];
   const whiteT = POSITION_TRANSFORMS[white];
@@ -33,29 +43,28 @@ export function LogoMark({ route, size = 28, className }: LogoMarkProps) {
       <rect x="11" y="21" width="8" height="8" rx="1.5" className="logo-frame" />
       <rect x="21" y="21" width="8" height="8" rx="1.5" className="logo-frame" />
 
-      {/* White tile — animated */}
+      {/* White tile — animated from base TL (11,11) */}
       <motion.rect
-        x="11"
-        y="11"
+        x={11}
+        y={11}
         width="8"
         height="8"
         rx="1.5"
         className="logo-tile-white"
-        animate={{ x: whiteT.dx, y: whiteT.dy }}
+        animate={{ x: 11 + whiteT.dx, y: 11 + whiteT.dy }}
         transition={springs.glacial}
       />
 
-      {/* Orange tile — animated + pulse on route change */}
+      {/* Orange tile — animated from base TL (11,11), same as white */}
       <motion.rect
-        x="21"
-        y="21"
+        x={11}
+        y={11}
         width="8"
         height="8"
         rx="1.5"
         className="logo-tile-orange"
-        animate={{ x: orangeT.dx - 10, y: orangeT.dy - 10 }}
+        animate={{ x: 11 + orangeT.dx, y: 11 + orangeT.dy }}
         transition={springs.glacial}
-        key={route}
       />
     </svg>
   );

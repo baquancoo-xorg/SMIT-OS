@@ -90,18 +90,18 @@ export default function LoginPageV2() {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <h1 className="font-headline text-4xl xl:text-5xl font-extrabold leading-tight">
-              The Kinetic
+              Command Center
               <br />
-              <em className="not-italic font-extrabold text-on-primary/90">Workspace</em>
+              <em className="not-italic font-extrabold text-on-primary/90">for SMIT Agency</em>
             </h1>
             <p className="max-w-md text-on-primary/80 text-lg leading-relaxed">
-              Nền tảng quản lý dự án thông minh, giúp team của bạn làm việc hiệu quả và sáng tạo hơn mỗi ngày.
+              Tất cả trong một: OKRs, Leads, Ads, Reports. Vận hành agency hiệu quả, theo dõi KPI thời gian thực.
             </p>
 
             <div className="flex flex-col gap-3 pt-2">
-              <FeatureItem icon={Zap} text="Quản lý task thông minh với AI" />
-              <FeatureItem icon={Sparkles} text="Dashboard thời gian thực" />
-              <FeatureItem icon={LayoutDashboard} text="Tích hợp đa nền tảng" />
+              <FeatureItem icon={Zap} text="Theo dõi OKRs & Check-in hàng tuần" />
+              <FeatureItem icon={Sparkles} text="Dashboard & Reports real-time" />
+              <FeatureItem icon={LayoutDashboard} text="Lead Tracker & Ads Analytics" />
             </div>
           </motion.div>
 
@@ -354,32 +354,26 @@ function AnimatedLoginLogo() {
 
       {/* White tile - animated */}
       <motion.rect
-        x={whitePos.x}
-        y={whitePos.y}
         width={cellSize}
         height={cellSize}
         rx={3}
         fill="none"
         stroke="oklch(0.97 0 0)"
         strokeWidth="2"
-        animate={{ x: whitePos.x - 11, y: whitePos.y - 11 }}
+        animate={{ x: whitePos.x, y: whitePos.y }}
         transition={{ type: 'spring', stiffness: 80, damping: 22 }}
-        style={{ x: 11, y: 11 }}
       />
 
       {/* Orange tile - animated */}
       <motion.rect
-        x={orangePos.x}
-        y={orangePos.y}
         width={cellSize}
         height={cellSize}
         rx={3}
         fill="oklch(0.683 0.213 38.5)"
         stroke="oklch(0.683 0.213 38.5)"
         strokeWidth="2"
-        animate={{ x: orangePos.x - 33, y: orangePos.y - 33 }}
+        animate={{ x: orangePos.x, y: orangePos.y }}
         transition={{ type: 'spring', stiffness: 80, damping: 22 }}
-        style={{ x: 33, y: 33 }}
       />
     </svg>
   );
