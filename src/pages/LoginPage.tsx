@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Eye, EyeOff, Shield, ArrowRight, ArrowLeft, Sparkles, Zap, LayoutDashboard, Grid2X2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button, Input } from '../components/v5/ui';
+import { LogoMark } from '@/ui/components/layout/logo-mark';
 
 /**
  * LoginPage v2 — token-driven redesign.
@@ -123,7 +124,7 @@ export default function LoginPageV2() {
           transition={{ duration: 0.5, delay: 0.15 }}
         >
           <div className="flex flex-col items-center gap-3 pb-6">
-            <AnimatedLoginLogo />
+            <LogoMark mode="loop" size={72} loopInterval={2000} className="drop-shadow-lg" />
             <div className="text-center">
               <h2 className="font-headline text-2xl font-bold text-on-surface">Welcome back</h2>
               <p className="mt-1 text-sm text-on-surface-variant">
@@ -284,97 +285,3 @@ function FeatureItem({ icon: Icon, text }: { icon: React.ElementType; text: stri
   );
 }
 
-/**
- * Animated Login Logo — 2x2 grid với white + orange tiles di chuyển
- * Loop qua các positions giống LogoMark trong sidebar
- */
-function AnimatedLoginLogo() {
-  const [posIndex, setPosIndex] = useState(0);
-
-  const positions = [
-    { white: { x: 0, y: 0 }, orange: { x: 1, y: 1 } },     // TL + BR (dashboard)
-    { white: { x: 1, y: 0 }, orange: { x: 0, y: 1 } },     // TR + BL (okrs)
-    { white: { x: 1, y: 1 }, orange: { x: 0, y: 0 } },     // BR + TL (leads)
-    { white: { x: 0, y: 1 }, orange: { x: 1, y: 0 } },     // BL + TR (ads)
-    { white: { x: 0, y: 0 }, orange: { x: 1, y: 0 } },     // TL + TR (media)
-    { white: { x: 0, y: 1 }, orange: { x: 1, y: 1 } },     // BL + BR (daily-sync)
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPosIndex((i) => (i + 1) % positions.length);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [positions.length]);
-
-  const current = positions[posIndex];
-  const cellSize = 18;
-  const gap = 4;
-  const getPos = (coord: { x: number; y: number }) => ({
-    x: 11 + coord.x * (cellSize + gap),
-    y: 11 + coord.y * (cellSize + gap),
-  });
-
-  const whitePos = getPos(current.white);
-  const orangePos = getPos(current.orange);
-
-  return (
-    <svg
-      viewBox="0 0 60 60"
-      width={72}
-      height={72}
-      aria-label="SMIT OS Logo"
-      className="drop-shadow-lg"
-    >
-      {/* Crosshair guides */}
-      <line x1="30" y1="3" x2="30" y2="10" stroke="oklch(0.32 0.005 60)" strokeWidth="1" />
-      <line x1="30" y1="50" x2="30" y2="57" stroke="oklch(0.32 0.005 60)" strokeWidth="1" />
-      <line x1="3" y1="30" x2="10" y2="30" stroke="oklch(0.32 0.005 60)" strokeWidth="1" />
-      <line x1="50" y1="30" x2="57" y2="30" stroke="oklch(0.32 0.005 60)" strokeWidth="1" />
-
-      {/* 4 frame tiles */}
-      {[0, 1].map((row) =>
-        [0, 1].map((col) => {
-          const pos = getPos({ x: col, y: row });
-          return (
-            <rect
-              key={`frame-${row}-${col}`}
-              x={pos.x}
-              y={pos.y}
-              width={cellSize}
-              height={cellSize}
-              rx={3}
-              fill="none"
-              stroke="oklch(0.32 0.006 60)"
-              strokeWidth="1.5"
-            />
-          );
-        })
-      )}
-
-      {/* White tile - animated */}
-      <motion.rect
-        width={cellSize}
-        height={cellSize}
-        rx={3}
-        fill="none"
-        stroke="oklch(0.97 0 0)"
-        strokeWidth="2"
-        animate={{ x: whitePos.x, y: whitePos.y }}
-        transition={{ type: 'spring', stiffness: 80, damping: 22 }}
-      />
-
-      {/* Orange tile - animated */}
-      <motion.rect
-        width={cellSize}
-        height={cellSize}
-        rx={3}
-        fill="oklch(0.683 0.213 38.5)"
-        stroke="oklch(0.683 0.213 38.5)"
-        strokeWidth="2"
-        animate={{ x: orangePos.x, y: orangePos.y }}
-        transition={{ type: 'spring', stiffness: 80, damping: 22 }}
-      />
-    </svg>
-  );
-}

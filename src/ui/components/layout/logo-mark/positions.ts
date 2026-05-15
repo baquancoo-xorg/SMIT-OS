@@ -8,7 +8,10 @@ export type RouteKey =
   | 'media'
   | 'daily-sync'
   | 'checkin'
-  | 'settings';
+  | 'settings'
+  | 'reports'
+  | 'profile'
+  | 'playground';
 
 export interface LogoTilePair {
   white: TilePosition;
@@ -24,6 +27,9 @@ export const ROUTE_POSITIONS: Record<RouteKey, LogoTilePair> = {
   'daily-sync': { white: 'BL', orange: 'BR' },
   checkin: { white: 'TL', orange: 'BL' },
   settings: { white: 'TR', orange: 'BR' },
+  reports: { white: 'BR', orange: 'TR' },
+  profile: { white: 'TR', orange: 'TL' },
+  playground: { white: 'BL', orange: 'TL' },
 };
 
 export const POSITION_TRANSFORMS: Record<TilePosition, { dx: number; dy: number }> = {
@@ -32,3 +38,13 @@ export const POSITION_TRANSFORMS: Record<TilePosition, { dx: number; dy: number 
   BL: { dx: 0, dy: 10 },
   BR: { dx: 10, dy: 10 },
 };
+
+export const LOOP_ROUTES: RouteKey[] = [
+  'dashboard',
+  'okrs',
+  'leads',
+  'ads',
+  'media',
+  'checkin',
+  'settings',
+];

@@ -2,6 +2,8 @@ import { ChevronLeft, ChevronRight, LogOut, Settings } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { workspaceNavGroups, type WorkspaceNavItem } from './workspace-nav-items';
+import { LogoMark } from '@/ui/components/layout/logo-mark';
+import { useRouteKey } from '@/ui/hooks/use-route-key';
 
 interface SidebarV5Props {
   collapsed: boolean;
@@ -23,18 +25,8 @@ function findItem(label: string) {
 }
 
 function SmitGridMark() {
-  return (
-    <svg className="h-6 w-6 shrink-0" viewBox="0 0 40 40" role="img" aria-label="SMIT OS">
-      <path d="M20 4V11" className="stroke-text-muted" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M20 29V36" className="stroke-text-muted" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M4 20H11" className="stroke-text-muted" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M29 20H36" className="stroke-text-muted" strokeWidth="1.4" strokeLinecap="round" />
-      <rect x="11" y="11" width="8" height="8" rx="1.5" className="fill-transparent stroke-text-1" strokeWidth="1.7" />
-      <rect x="21" y="11" width="8" height="8" rx="1.5" className="fill-transparent stroke-text-muted" strokeWidth="1.4" />
-      <rect x="11" y="21" width="8" height="8" rx="1.5" className="fill-transparent stroke-text-muted" strokeWidth="1.4" />
-      <rect x="21" y="21" width="8" height="8" rx="1.5" className="fill-accent stroke-accent" strokeWidth="1.4" />
-    </svg>
-  );
+  const routeKey = useRouteKey();
+  return <LogoMark route={routeKey} size={32} className="shrink-0" />;
 }
 
 function SidebarNavItem({ item, collapsed, active, onNavigate }: { item: WorkspaceNavItem; collapsed: boolean; active: boolean; onNavigate?: () => void }) {
