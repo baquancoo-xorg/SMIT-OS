@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { PieChart as RechartsPieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useTheme } from '@/contexts/theme-context';
 import { chartColors } from './chart-palette';
@@ -17,7 +18,7 @@ export interface PieChartProps {
   valueFormatter?: (value: number) => string;
 }
 
-export function PieChart({
+function PieChartImpl({
   data,
   height = 300,
   innerRadius = 0,
@@ -60,3 +61,5 @@ export function PieChart({
     </ResponsiveContainer>
   );
 }
+
+export const PieChart = memo(PieChartImpl);

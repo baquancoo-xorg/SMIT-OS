@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { ChevronUp, ChevronDown, ChevronsUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Skeleton } from './skeleton';
 import { EmptyState } from './empty-state';
@@ -48,11 +49,19 @@ export interface DataTableProps<T> {
   /** Sort state. Controlled if both `sort` and `onSortChange` provided. Uncontrolled otherwise. */
   sort?: SortState;
   onSortChange?: (sort: SortState | null) => void;
-  /** Pagination. Controlled if provided. */
+  /** Pagination. Controlled if provided. Cannot be combined with `virtual`. */
   pagination?: PaginationState;
   onPaginationChange?: (page: number) => void;
   /** Row click handler. Adds hover + cursor styling. */
   onRowClick?: (row: T, rowIndex: number) => void;
+  /**
+   * Enable row virtualization for large datasets (100+ rows).
+   * Requires a fixed scroll-container height — set via `virtualHeight`.
+   * Do NOT combine with `pagination`.
+   */
+  virtual?: boolean;
+  /** Height of the virtualized scroll container in px. Default: 400. */
+  virtualHeight?: number;
   /** Optional aria-label for the table. */
   label?: string;
   className?: string;
@@ -62,6 +71,12 @@ const densityRowPadding: Record<TableDensity, string> = {
   compact: 'h-9',
   normal: 'h-12',
   comfortable: 'h-14',
+};
+
+const densityRowHeight: Record<TableDensity, number> = {
+  compact: 36,
+  normal: 48,
+  comfortable: 56,
 };
 
 const alignStyle: Record<ColumnAlign, string> = {
@@ -77,10 +92,11 @@ const hideBelowStyle: Record<NonNullable<DataTableColumn<unknown>['hideBelow']>,
 };
 
 /**
- * DataTable v2 — generic typed table with sort + pagination + density.
+ * DataTable v2 — generic typed table with sort + pagination + density + optional virtualization.
  *
  * Sort: controlled via `sort` + `onSortChange`, or uncontrolled (internal state).
  * Pagination: pass `pagination` (caller manages slicing). Total page count derived from `total / pageSize`.
+ * Virtualization: pass `virtual` for large lists (100+ rows). Incompatible with `pagination`.
  *
  * @example
  * <DataTable
@@ -94,6 +110,9 @@ const hideBelowStyle: Record<NonNullable<DataTableColumn<unknown>['hideBelow']>,
  *   pagination={{ page, pageSize: 20, total: leads.length }}
  *   onPaginationChange={setPage}
  * />
+ *
+ * // With virtualization:
+ * <DataTable data={bigList} rowKey={(r) => r.id} columns={cols} virtual virtualHeight={600} />
  */
 export function DataTable<T>({
   data,
@@ -108,12 +127,16 @@ export function DataTable<T>({
   pagination,
   onPaginationChange,
   onRowClick,
+  virtual = false,
+  virtualHeight = 400,
   label,
   className = '',
 }: DataTableProps<T>) {
   const [internalSort, setInternalSort] = useState<SortState | null>(null);
   const isSortControlled = sortProp !== undefined && onSortChange !== undefined;
   const sort = isSortControlled ? sortProp : internalSort;
+
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const handleSort = (col: DataTableColumn<T>) => {
     if (!col.sortable || !col.sort) return;
@@ -141,15 +164,92 @@ export function DataTable<T>({
     return copy;
   }, [data, sort, columns]);
 
+  const useVirtual = virtual && !loading && !pagination;
+
+  const virtualizer = useVirtualizer({
+    count: useVirtual ? sortedData.length : 0,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => densityRowHeight[density],
+    overscan: 5,
+  });
+
   const totalPages = pagination ? Math.max(1, Math.ceil(pagination.total / pagination.pageSize)) : 1;
   const showPagination = pagination !== undefined && totalPages > 1;
 
   const isEmpty = !loading && sortedData.length === 0;
 
+  const renderRow = (row: T, rowIdx: number, style?: React.CSSProperties) => {
+    const interactive = Boolean(onRowClick);
+    return (
+      <tr
+        key={rowKey(row, rowIdx)}
+        onClick={interactive ? () => onRowClick!(row, rowIdx) : undefined}
+        style={style}
+        className={[
+          densityRowPadding[density],
+          'border-b border-outline-variant/30 last:border-0',
+          interactive
+            ? 'cursor-pointer transition-colors motion-fast ease-standard hover:bg-surface-container-low'
+            : '',
+        ].join(' ')}
+      >
+        {columns.map((col) => (
+          <td
+            key={col.key}
+            className={[
+              'px-3 text-[length:var(--text-body-sm)] text-on-surface',
+              alignStyle[col.align ?? 'left'],
+              col.hideBelow ? hideBelowStyle[col.hideBelow] : '',
+            ].join(' ')}
+          >
+            {col.render
+              ? col.render(row, rowIdx)
+              : ((row as Record<string, unknown>)[col.key] as ReactNode) ?? '—'}
+          </td>
+        ))}
+      </tr>
+    );
+  };
+
+  const renderTbody = () => {
+    if (loading) {
+      return Array.from({ length: loadingRows }).map((_, rowIdx) => (
+        <tr key={`skeleton-${rowIdx}`} className={[densityRowPadding[density], 'border-b border-outline-variant/30 last:border-0'].join(' ')}>
+          {columns.map((col) => (
+            <td key={col.key} className={['px-3', col.hideBelow ? hideBelowStyle[col.hideBelow] : ''].join(' ')}>
+              <Skeleton variant="text" width="80%" />
+            </td>
+          ))}
+        </tr>
+      ));
+    }
+
+    if (useVirtual) {
+      const items = virtualizer.getVirtualItems();
+      const paddingTop = items.length > 0 ? items[0].start : 0;
+      const paddingBottom = items.length > 0
+        ? virtualizer.getTotalSize() - items[items.length - 1].end
+        : 0;
+      return (
+        <>
+          {paddingTop > 0 && <tr><td style={{ height: paddingTop }} /></tr>}
+          {items.map((vRow) => renderRow(sortedData[vRow.index], vRow.index))}
+          {paddingBottom > 0 && <tr><td style={{ height: paddingBottom }} /></tr>}
+        </>
+      );
+    }
+
+    return sortedData.map((row, rowIdx) => renderRow(row, rowIdx));
+  };
+
   return (
     <div className={['flex flex-col gap-3', className].filter(Boolean).join(' ')}>
       <div className="overflow-hidden rounded-card border border-outline-variant/40 bg-surface">
-        <div className="overflow-x-auto">
+        <div
+          ref={scrollRef}
+          className="overflow-x-auto"
+          style={useVirtual ? { height: virtualHeight, overflowY: 'auto' } : undefined}
+        >
           <table className="w-full border-collapse" aria-label={label}>
             <thead className="sticky top-0 z-10">
               <tr className="border-b border-outline-variant/40 bg-surface-container-low/95 backdrop-blur-sm">
@@ -193,47 +293,7 @@ export function DataTable<T>({
               </tr>
             </thead>
             <tbody>
-              {loading
-                ? Array.from({ length: loadingRows }).map((_, rowIdx) => (
-                    <tr key={`skeleton-${rowIdx}`} className={[densityRowPadding[density], 'border-b border-outline-variant/30 last:border-0'].join(' ')}>
-                      {columns.map((col) => (
-                        <td key={col.key} className={['px-3', col.hideBelow ? hideBelowStyle[col.hideBelow] : ''].join(' ')}>
-                          <Skeleton variant="text" width="80%" />
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                : sortedData.map((row, rowIdx) => {
-                    const interactive = Boolean(onRowClick);
-                    return (
-                      <tr
-                        key={rowKey(row, rowIdx)}
-                        onClick={interactive ? () => onRowClick!(row, rowIdx) : undefined}
-                        className={[
-                          densityRowPadding[density],
-                          'border-b border-outline-variant/30 last:border-0',
-                          interactive
-                            ? 'cursor-pointer transition-colors motion-fast ease-standard hover:bg-surface-container-low'
-                            : '',
-                        ].join(' ')}
-                      >
-                        {columns.map((col) => (
-                          <td
-                            key={col.key}
-                            className={[
-                              'px-3 text-[length:var(--text-body-sm)] text-on-surface',
-                              alignStyle[col.align ?? 'left'],
-                              col.hideBelow ? hideBelowStyle[col.hideBelow] : '',
-                            ].join(' ')}
-                          >
-                            {col.render
-                              ? col.render(row, rowIdx)
-                              : ((row as Record<string, unknown>)[col.key] as ReactNode) ?? '—'}
-                          </td>
-                        ))}
-                      </tr>
-                    );
-                  })}
+              {renderTbody()}
             </tbody>
           </table>
         </div>

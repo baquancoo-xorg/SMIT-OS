@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 export interface RadarAxis {
   key: string;
   label: string;
@@ -25,7 +27,7 @@ function polarToCartesian(
   return [cx + r * Math.cos(angleRad), cy + r * Math.sin(angleRad)];
 }
 
-export function RadarChart({
+function RadarChartImpl({
   axes,
   size = 260,
   showLabels = true,
@@ -181,3 +183,5 @@ export function RadarChart({
     </figure>
   );
 }
+
+export const RadarChart = memo(RadarChartImpl);

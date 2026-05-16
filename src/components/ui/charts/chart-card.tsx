@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { memo, type ReactNode } from 'react';
 import { Card } from '../card';
 import { ChartEmptyState } from './chart-empty-state';
 import { ChartLoadingState } from './chart-loading-state';
@@ -18,7 +18,7 @@ export interface ChartCardProps {
   className?: string;
 }
 
-export function ChartCard({
+function ChartCardImpl({
   title,
   subtitle,
   state = 'ready',
@@ -51,3 +51,5 @@ export function ChartCard({
     </Card>
   );
 }
+
+export const ChartCard = memo(ChartCardImpl);

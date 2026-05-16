@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import { chartColors, type ChartColorIndex } from './chart-palette';
 
@@ -10,7 +11,7 @@ export interface SparklineChartProps<T extends Record<string, unknown>> {
   showDot?: boolean;
 }
 
-export function SparklineChart<T extends Record<string, unknown>>({
+function SparklineChartImpl<T extends Record<string, unknown>>({
   data,
   dataKey,
   height = 32,
@@ -35,3 +36,5 @@ export function SparklineChart<T extends Record<string, unknown>>({
     </ResponsiveContainer>
   );
 }
+
+export const SparklineChart = memo(SparklineChartImpl) as typeof SparklineChartImpl;

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { PieChart } from './pie-chart';
 import type { PieChartDataItem } from './pie-chart';
 
@@ -11,7 +12,7 @@ export interface DonutChartProps {
   centerValue?: string;
 }
 
-export function DonutChart({
+function DonutChartImpl({
   data,
   height = 300,
   thickness = 20,
@@ -42,3 +43,5 @@ export function DonutChart({
     </div>
   );
 }
+
+export const DonutChart = memo(DonutChartImpl);

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { useTheme } from '@/contexts/theme-context';
 import { chartColors } from './chart-palette';
 
@@ -16,7 +16,7 @@ export interface FunnelChartProps {
   valueFormatter?: (value: number) => string;
 }
 
-export function FunnelChart({
+function FunnelChartImpl({
   data,
   height = 300,
   showValues = true,
@@ -71,3 +71,5 @@ export function FunnelChart({
     </div>
   );
 }
+
+export const FunnelChart = memo(FunnelChartImpl);

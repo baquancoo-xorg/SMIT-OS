@@ -1,8 +1,10 @@
+import { memo } from 'react';
+
 interface ChartLoadingStateProps {
   barCount?: number;
 }
 
-export function ChartLoadingState({ barCount = 7 }: ChartLoadingStateProps) {
+function ChartLoadingStateImpl({ barCount = 7 }: ChartLoadingStateProps) {
   return (
     <div className="flex h-48 items-end justify-around gap-2 px-4 py-8" role="status" aria-label="Loading chart">
       {Array.from({ length: barCount }).map((_, i) => (
@@ -15,3 +17,5 @@ export function ChartLoadingState({ barCount = 7 }: ChartLoadingStateProps) {
     </div>
   );
 }
+
+export const ChartLoadingState = memo(ChartLoadingStateImpl);

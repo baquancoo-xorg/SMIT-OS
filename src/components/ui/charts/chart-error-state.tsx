@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '../button';
 
@@ -6,7 +7,7 @@ interface ChartErrorStateProps {
   onRetry?: () => void;
 }
 
-export function ChartErrorState({
+function ChartErrorStateImpl({
   message = 'Failed to load chart data',
   onRetry,
 }: ChartErrorStateProps) {
@@ -27,3 +28,5 @@ export function ChartErrorState({
     </div>
   );
 }
+
+export const ChartErrorState = memo(ChartErrorStateImpl);

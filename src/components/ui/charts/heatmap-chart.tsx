@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { useTheme } from '@/contexts/theme-context';
 import { chartColors } from './chart-palette';
 
@@ -26,7 +26,7 @@ const colorScales = {
   error: ['#450a0a', '#7f1d1d', '#991b1b', '#b91c1c', '#dc2626', '#ef4444', '#f87171', '#fca5a5'],
 };
 
-export function HeatmapChart({
+function HeatmapChartImpl({
   data,
   xLabels,
   yLabels,
@@ -92,3 +92,5 @@ export function HeatmapChart({
     </div>
   );
 }
+
+export const HeatmapChart = memo(HeatmapChartImpl);

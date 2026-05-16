@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -29,7 +29,7 @@ export interface LineChartProps<T extends Record<string, unknown>> {
   tooltipFormatter?: (value: unknown, name: string) => [string, string];
 }
 
-export function LineChart<T extends Record<string, unknown>>({
+function LineChartImpl<T extends Record<string, unknown>>({
   data,
   xKey,
   series,
@@ -102,3 +102,5 @@ export function LineChart<T extends Record<string, unknown>>({
     </ResponsiveContainer>
   );
 }
+
+export const LineChart = memo(LineChartImpl) as typeof LineChartImpl;

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { BarChart3 } from 'lucide-react';
 import { Button } from '../button';
 
@@ -8,7 +9,7 @@ interface ChartEmptyStateProps {
   onAction?: () => void;
 }
 
-export function ChartEmptyState({
+function ChartEmptyStateImpl({
   title = 'No data available',
   description = 'Data will appear here once available.',
   actionLabel,
@@ -31,3 +32,5 @@ export function ChartEmptyState({
     </div>
   );
 }
+
+export const ChartEmptyState = memo(ChartEmptyStateImpl);
