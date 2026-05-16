@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Activity, BarChart3, Briefcase, Megaphone, Monitor, PhoneCall, Users } from 'lucide-react';
 import { format, startOfMonth } from 'date-fns';
 import { useSearchParams } from 'react-router-dom';
@@ -52,7 +52,9 @@ export default function DashboardOverviewV5() {
   const to = searchParams.get('date_to') ?? defaultTo;
   const pickerValue = useMemo(() => rangeToDateValue(from, to), [from, to]);
 
-  const { data, isLoading, error } = useOverviewAll({ from, to });
+  const [kpiViewMode, setKpiViewMode] = useState<'realtime' | 'cohort'>('realtime');
+
+  const { data, isLoading, error } = useOverviewAll({ from, to, viewMode: kpiViewMode });
 
   const setRange = (next: DateRange) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -90,7 +92,13 @@ export default function DashboardOverviewV5() {
         {selectedTab === 'overview' && (
           <>
             <SummaryCards data={data?.summary} isLoading={isLoading} error={error as Error | null} />
-            <KpiTable data={data?.kpiMetrics} isLoading={isLoading} error={error as Error | null} />
+            <KpiTable
+              data={data?.kpiMetrics}
+              isLoading={isLoading}
+              error={error as Error | null}
+              viewMode={kpiViewMode}
+              onViewModeChange={setKpiViewMode}
+            />
           </>
         )}
 
