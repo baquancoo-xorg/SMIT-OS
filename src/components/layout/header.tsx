@@ -87,7 +87,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
               variant="ghost"
               size="sm"
               onClick={onMenuClick}
-              className="size-11 shrink-0 border border-border bg-surface-2/80 px-0 shadow-sm xl:hidden"
+              className="size-11 shrink-0 border border-border bg-surface-2/80 px-0 shadow-sm md:hidden"
               aria-label="Open navigation menu"
             >
               <Menu size={20} aria-hidden="true" />
