@@ -143,6 +143,9 @@ model WeeklyReport {
   approvalComment String    @default("") // Nhận xét bắt buộc của admin khi duyệt
   rawData         Json? // Full snapshot of submitted payload for recovery
   createdAt       DateTime  @default(now())
+
+  @@index([weekEnding])
+  @@index([userId])
 }
 
 model DailyReport {
@@ -167,6 +170,8 @@ model DailyReport {
   comments DailyReportComment[]
 
   @@unique([userId, reportDate], name: "user_date_unique")
+  @@index([reportDate])
+  @@index([userId])
 }
 
 model DailyReportComment {

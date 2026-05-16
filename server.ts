@@ -3,6 +3,7 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { prisma } from "./server/lib/prisma";
 import cors from "cors";
+import compression from "compression";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -76,6 +77,7 @@ app.use(cors({
   }
 }));
 const isDev = process.env.NODE_ENV !== 'production';
+app.use(compression({ threshold: 1024 }));
 app.use(helmet({
   contentSecurityPolicy: {
     useDefaults: true,
