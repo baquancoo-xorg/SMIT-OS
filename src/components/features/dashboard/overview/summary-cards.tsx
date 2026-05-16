@@ -1,12 +1,10 @@
 import { CreditCard, DollarSign, TrendingUp, Users } from 'lucide-react';
 import { formatCurrency } from '../../../../lib/formatters';
 import type { SummaryMetrics, MetricWithTrend } from '../../../../types/dashboard-overview';
-import { Card, KpiCard, Skeleton } from '../../../ui';
+import { KpiCard } from '../../../ui';
 
-interface SummaryCardsProps {
-  data?: SummaryMetrics;
-  isLoading: boolean;
-  error?: Error | null;
+interface SummaryKpiRowProps {
+  data: SummaryMetrics;
 }
 
 function trendFrom(metric: MetricWithTrend) {
@@ -15,25 +13,7 @@ function trendFrom(metric: MetricWithTrend) {
   return 'flat';
 }
 
-export function SummaryCards({ data, isLoading, error }: SummaryCardsProps) {
-  if (isLoading) {
-    return (
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {[0, 1, 2, 3].map((item) => <Skeleton key={item} variant="rect" className="h-36 rounded-card" />)}
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card padding="md">
-        <p className="text-sm font-semibold text-error">Không tải được KPI: {error.message}</p>
-      </Card>
-    );
-  }
-
-  if (!data) return null;
-
+export function SummaryKpiRow({ data }: SummaryKpiRowProps) {
   const metrics = [
     { label: 'Revenue', value: formatCurrency(data.revenue.value), icon: <DollarSign />, metric: data.revenue },
     { label: 'Ad Spend', value: formatCurrency(data.adSpend.value), icon: <CreditCard />, metric: data.adSpend },

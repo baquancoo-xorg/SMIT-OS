@@ -3,7 +3,7 @@ import CallPerformanceAeTable from './call-performance-ae-table';
 import CallPerformanceHeatmap from './call-performance-heatmap';
 import CallPerformanceConversion from './call-performance-conversion';
 import CallPerformanceTrend from './call-performance-trend';
-import { DashboardPanel, DashboardSectionTitle } from '../ui';
+import { DashboardPanel } from '../ui';
 import { SectionCard } from '../../../ui';
 
 interface Props {
@@ -16,11 +16,6 @@ export default function CallPerformanceSection({ from, to }: Props) {
 
   return (
     <SectionCard eyebrow="Call performance" title="Conversion Operations">
-      <section className="space-y-3">
-      <DashboardSectionTitle>
-        Call Performance
-      </DashboardSectionTitle>
-
       {isLoading ? (
         <DashboardPanel className="p-6 text-[length:var(--text-body-sm)] text-on-surface-variant">
           Đang tải dữ liệu call performance...
@@ -37,7 +32,6 @@ export default function CallPerformanceSection({ from, to }: Props) {
           <CallPerformanceTrend data={data?.trend ?? []} />
         </div>
       )}
-    </section>
     </SectionCard>
   );
 }

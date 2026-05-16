@@ -1,9 +1,10 @@
 import { memo, useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import { ArrowUp, ArrowDown, ArrowUpDown, Medal, Award, Trophy, Activity, Users, TrendingUp, Layers } from 'lucide-react';
 import { formatCurrency, formatNumber, formatPercent } from '../../../../lib/formatters';
-import type { KpiMetricsResponse, KpiMetricsRow } from '../../../../types/dashboard-overview';
+import type { KpiMetricsResponse, KpiMetricsRow, SummaryMetrics } from '../../../../types/dashboard-overview';
 import { Card } from '../../../ui';
 import { SegmentedTabs } from '../ui';
+import { SummaryKpiRow } from './summary-cards';
 import { type SortConfig, type SortField, sortData, handleSortClick, formatDateVN } from './kpi-table-utils';
 
 type ViewMode = 'realtime' | 'cohort';
@@ -215,6 +216,7 @@ function SkeletonTable() {
 
 interface KpiTableProps {
   data?: KpiMetricsResponse;
+  summary?: SummaryMetrics;
   isLoading: boolean;
   error?: Error | null;
   viewMode: ViewMode;
@@ -256,6 +258,7 @@ const COLGROUP = (
 
 export const KpiTable = memo(function KpiTable({
   data,
+  summary,
   isLoading,
   error,
   viewMode,
@@ -343,6 +346,12 @@ export const KpiTable = memo(function KpiTable({
           </div>
         </div>
       </div>
+
+      {summary && (
+        <div className="border-b border-border px-5 py-4">
+          <SummaryKpiRow data={summary} />
+        </div>
+      )}
 
       <div ref={headerScrollRef} onScroll={handleHeaderScroll} className="bg-surface-2 border-b border-border overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         <table className="w-full text-sm table-fixed min-w-[1680px]">

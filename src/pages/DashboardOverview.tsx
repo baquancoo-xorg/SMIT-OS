@@ -13,7 +13,6 @@ import DashboardTab from '../components/features/leads/dashboard-tab';
 import MarketingTab from '../components/features/dashboard/marketing/marketing-tab';
 import MediaTab from '../components/features/dashboard/media/media-tab';
 import { ProductSection } from '../components/features/dashboard/product';
-import { SummaryCards } from '../components/features/dashboard/overview/summary-cards';
 
 type DashboardTab = 'overview' | 'acquisition' | 'call' | 'distribution' | 'marketing' | 'media' | 'product';
 
@@ -90,16 +89,14 @@ export default function DashboardOverviewV5() {
 
       <section className="flex-1 space-y-5" aria-label="Dashboard content">
         {selectedTab === 'overview' && (
-          <>
-            <SummaryCards data={data?.summary} isLoading={isLoading} error={error as Error | null} />
-            <KpiTable
-              data={data?.kpiMetrics}
-              isLoading={isLoading}
-              error={error as Error | null}
-              viewMode={kpiViewMode}
-              onViewModeChange={setKpiViewMode}
-            />
-          </>
+          <KpiTable
+            data={data?.kpiMetrics}
+            summary={data?.summary}
+            isLoading={isLoading}
+            error={error as Error | null}
+            viewMode={kpiViewMode}
+            onViewModeChange={setKpiViewMode}
+          />
         )}
 
         {selectedTab === 'acquisition' && <AcquisitionOverviewTab from={from} to={to} />}

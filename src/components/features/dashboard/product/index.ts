@@ -1,4 +1,9 @@
 export { ProductSection } from './product-section';
+export { ProductExecutiveOverview } from './product-executive-overview';
+export { ProductConversionFunnel } from './product-conversion-funnel';
+export { ProductCohortRetentionSection } from './product-cohort-retention-section';
+export { ProductChannelAttribution } from './product-channel-attribution';
+export { ProductOperational } from './product-operational';
 export { ProductKpiCards } from './product-kpi-cards';
 export { ProductFunnelChart } from './product-funnel-chart';
 export { ProductTopFeaturesTable } from './product-top-features-table';
