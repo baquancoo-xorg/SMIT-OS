@@ -3,7 +3,7 @@
  */
 
 import { RefreshCw } from 'lucide-react';
-import { useSmitosMetricsQuery, useRefreshSmitosMutation } from '../../../../hooks/use-personnel-integrations';
+import { useSmitosMetricsQuery, useRefreshSmitosMutation } from '../../../../hooks/use-smitos-metrics';
 import { Card } from '../../../ui';
 
 interface Props {

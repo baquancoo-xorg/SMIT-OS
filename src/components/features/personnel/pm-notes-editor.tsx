@@ -71,8 +71,8 @@ export function PmNotesEditor({ personnelId }: Props) {
     <Card padding="lg">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-text-muted">PM Notes</p>
-          <h3 className="mt-1 font-headline text-lg font-black text-text-1">Ghi chú coaching theo quý</h3>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-text-muted">Ghi chú coaching</p>
+          <h3 className="mt-1 font-headline text-lg font-black text-text-1">Theo dõi coaching theo quý</h3>
         </div>
         {isAdmin && !draftOpen && (
           <Button variant="primary" iconLeft={<Plus />} size="sm" onClick={() => setDraftOpen(true)}>
@@ -96,7 +96,7 @@ export function PmNotesEditor({ personnelId }: Props) {
             value={draftContent}
             onChange={(e) => setDraftContent(e.target.value)}
             rows={4}
-            placeholder="Coaching point, observations, action items..."
+            placeholder="Điểm cần focus trong quý tới, blockers cần gỡ, strengths cần phát huy..."
             className="w-full rounded-input border border-border bg-surface p-3 text-sm text-text-1 focus-visible:outline-none focus-visible:border-accent"
           />
           <div className="flex justify-end gap-2">

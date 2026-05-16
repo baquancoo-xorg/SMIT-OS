@@ -1,22 +1,20 @@
 /**
- * Personnel auto-flag rules (spec §6.1):
+ * Personnel auto-flag rules (SMIT-OS internal data only — no external systems):
  *  1. Any skill score Δ ≤ -1 vs previous quarter
- *  2. Jira overdue count >= 3
- *  3. Daily report submission rate < 80% current month
- *  4. Any owned KR < 50% progress with <= 2 weeks left in quarter
- *  5. Quarterly assessment overdue > 2 weeks into new quarter
+ *  2. Daily report submission rate < 80% current month
+ *  3. Any owned KR < 50% progress with <= 2 weeks left in quarter
+ *  4. Quarterly assessment overdue > 2 weeks into new quarter
  *
  * Status: 0 flag = on_track, 1-2 = needs_attention, ≥3 = at_risk
  */
 
 import type { PrismaClient } from '@prisma/client';
 import { buildSmitosSnapshot } from './smitos-metrics-aggregator';
-import { fetchJiraTasksForAccount, isJiraConfigured } from './jira-client';
 import { cached, cacheKey } from './external-cache';
 
 const TTL_MS = 5 * 60 * 1000;
 
-export type FlagCode = 'skill_regression' | 'jira_overdue' | 'low_attendance' | 'kr_at_risk' | 'assessment_overdue';
+export type FlagCode = 'skill_regression' | 'low_attendance' | 'kr_at_risk' | 'assessment_overdue';
 
 export interface PersonnelFlag {
   code: FlagCode;
@@ -60,7 +58,7 @@ export async function calculateFlags(prisma: PrismaClient, personnelId: string):
 
   const personnel = await prisma.personnel.findUnique({
     where: { id: personnelId },
-    select: { id: true, userId: true, user: { select: { id: true, jiraAccountId: true } } },
+    select: { id: true, userId: true },
   });
   if (!personnel) {
     return { flags: [], status: 'on_track', generatedAt: new Date().toISOString() };
@@ -91,26 +89,12 @@ export async function calculateFlags(prisma: PrismaClient, personnelId: string):
     }
   }
 
-  // Rule 5: assessment overdue > 2 weeks into quarter
+  // Rule 4: assessment overdue > 2 weeks into quarter
   if (!curAssess && weeksIntoQuarter() > 2) {
     flags.push({ code: 'assessment_overdue', message: `Chưa hoàn thành đánh giá quý ${currentQ}` });
   }
 
-  // Rule 2: Jira overdue
-  if (isJiraConfigured() && personnel.user.jiraAccountId) {
-    try {
-      const summary = await cached(cacheKey('jira', personnel.user.id), TTL_MS, () =>
-        fetchJiraTasksForAccount(personnel.user.jiraAccountId!),
-      );
-      if (summary && summary.overdue >= 3) {
-        flags.push({ code: 'jira_overdue', message: `${summary.overdue} task quá hạn trên Jira` });
-      }
-    } catch {
-      // network errors do not flag
-    }
-  }
-
-  // Rule 3 + 4: from SMIT-OS snapshot
+  // Rule 2 + 3: from SMIT-OS snapshot
   const snapshot = await cached(cacheKey('smitos', personnel.userId), TTL_MS, () =>
     buildSmitosSnapshot(prisma, personnel.userId),
   );

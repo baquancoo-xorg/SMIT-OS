@@ -1,5 +1,5 @@
 /**
- * Shared in-process LRU cache for external API calls (Jira, SMIT-OS aggregations).
+ * Shared in-process LRU cache for SMIT-OS aggregation results.
  * 5min TTL by default. Singleton — survives across requests within a single Node process.
  *
  * Migrate to Postgres/Redis when scaling > 20 concurrent users or multi-instance.

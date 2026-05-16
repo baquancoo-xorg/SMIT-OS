@@ -1,6 +1,6 @@
 /**
  * Dashboard Personnel tab — team overview for admin.
- * Mini cards (avatar + status + jira count + lastAssessment) + drilldown drawer reused.
+ * Mini cards (avatar + status + lastAssessment) + drilldown drawer reused.
  */
 
 import { Suspense, useState } from 'react';

@@ -12,7 +12,9 @@
 
 ### 1.1 Vấn đề cần giải quyết
 
-Hiện tại, SMIT OS theo dõi hiệu suất nhân sự thông qua Jira tasks và daily reports — nhưng 2 nguồn này chỉ phản ánh **output** (làm gì, hoàn thành chưa), không phản ánh **capability** và **context** cá nhân của từng nhân sự.
+Hiện tại, SMIT-OS theo dõi hiệu suất nhân sự qua daily reports và OKR/KR — nhưng 2 nguồn này chỉ phản ánh **output** (làm gì, hoàn thành chưa), không phản ánh **capability** và **context** cá nhân của từng nhân sự.
+
+> **Ghi chú kiến trúc (2026-05-17):** SMIT-OS, Jira, và CoWork là 3 hệ thống độc lập. SMIT-OS **không** kết nối Jira. Mọi data trong Personnel feature đến từ SMIT-OS database.
 
 Mỗi nhân sự có năng lực khác nhau, tính cách khác nhau, vị trí khác nhau, SOW khác nhau, và mục tiêu cá nhân khác nhau. Một hệ thống đánh giá cào bằng dẫn đến:
 - Không nhận ra ai đang phát triển thực sự vs ai đang "chạy đủ quota"
@@ -24,7 +26,7 @@ Mỗi nhân sự có năng lực khác nhau, tính cách khác nhau, vị trí k
 
 - Số hóa năng lực và tính cách từng nhân sự thành dữ liệu có thể đo lường
 - Theo dõi sự phát triển theo thời gian (quarterly trend)
-- Kết hợp với Jira + SMIT-OS để có góc nhìn 360° về từng cá nhân
+- Kết hợp Skill assessment + Personality + Daily report + OKR/KR để có góc nhìn 360° về từng cá nhân
 - Hỗ trợ Admin (Quân) đưa ra quyết định phân công, coaching, và phát triển nhân sự dựa trên data
 
 ### 1.3 Vị trí trong Navigation
@@ -313,8 +315,7 @@ POST   /api/personnel/:id/assessments    — submit assessment (self or manager)
 GET    /api/personnel/:id/personality    — personality test history
 POST   /api/personnel/:id/personality/:testType  — submit personality result
 
-GET    /api/personnel/:id/jira-tasks     — proxy to Jira KKDS (live)
-GET    /api/personnel/:id/smitos-metrics — aggregated from DailyReport + reports
+GET    /api/personnel/:id/smitos-metrics — aggregated from DailyReport + KR
 ```
 
 ---
@@ -347,7 +348,6 @@ GET    /api/personnel/:id/smitos-metrics — aggregated from DailyReport + repor
 
 **Auto-flag logic:**
 - Skill score giảm ≥ 1 điểm so với quý trước (bất kỳ skill nào)
-- Jira overdue tasks ≥ 3
 - Daily report submission rate < 80% trong tháng hiện tại
 - KR progress < 50% khi còn ≤ 2 tuần trong quý
 - Chưa hoàn thành quarterly assessment sau 2 tuần vào quý mới
@@ -396,31 +396,11 @@ Toggle: [Self] [Manager] [Both]
 - Hỉ Dụng Thần (màu sắc hợp)
 - 4 pillars dạng text (Thiên Can · Địa Chi)
 
-#### Zone C — Jira Task Overview (Live)
+#### Zone C — SMIT-OS Performance (DB-only)
 
-Kết nối Jira KKDS cloudId: `ba86c0eb-afcd-40b5-bf8c-541e25dbb45a`
-
-```
-┌── Jira Overview ──────────────────────────────┐
-│  Total: 12   Done: 7   In Progress: 3         │
-│  To Do: 1    Blocked: 1   Overdue: 2 ⚠️        │
-│                                               │
-│  Completion Rate (30d): 78%                   │
-│  [progress bar]                               │
-│                                               │
-│  Recent Tasks:                                │
-│  ● KKDS-142  Setup landing page  In Progress  │
-│  ● KKDS-138  Client call report  Done ✓       │
-│  ● KKDS-135  Weekly report Q1    Overdue ⚠️   │
-│  [See all in Jira →]                          │
-└───────────────────────────────────────────────┘
-```
-
-Query mặc định: `project = KKDS AND assignee = {jiraAccountId} ORDER BY updated DESC`
-
-#### Zone D — SMIT-OS Performance (Live)
-
-Kết nối SMIT-OS MCP: `mcp__smitos__list_daily_reports`, `mcp__smitos__kr_progress`
+Query trực tiếp từ SMIT-OS database — không external API call:
+- `DailyReport` table → attendance heatmap tháng hiện tại
+- `KeyResult` table (owner = userId) → top KR progress
 
 ```
 ┌── SMIT-OS Snapshot ───────────────────────────┐
@@ -440,10 +420,19 @@ Kết nối SMIT-OS MCP: `mcp__smitos__list_daily_reports`, `mcp__smitos__kr_pro
 └───────────────────────────────────────────────┘
 ```
 
-KPI hiển thị theo vị trí:
-- **Marketing:** Leads generated, ad spend efficiency, campaigns launched
-- **Account:** Doanh thu, deals closed, số cuộc gọi, tỉ lệ chốt
-- **Media:** Số deliverables, revision rate, on-time delivery rate
+#### Zone D — Ghi chú coaching (PM Notes)
+
+Section đơn giản: textarea + save button. Lưu vào table `PmNote` (per quarter + content + author + createdAt). Admin viết, nhân sự chỉ read.
+
+```
+┌── Ghi chú coaching ───────────────────────────┐
+│  Quý 2026-Q2                                  │
+│  [textarea — placeholder:                     │
+│   "Điểm cần focus trong quý tới, blockers     │
+│    cần gỡ, strengths cần phát huy..."]        │
+│  [Lưu]                                        │
+└───────────────────────────────────────────────┘
+```
 
 ---
 
@@ -457,7 +446,7 @@ Mini card cho từng nhân sự:
 - Avatar + tên + vị trí
 - Status badge (On Track / Needs Attention / At Risk)
 - Tiny radar snapshot
-- Số Jira tasks open + overdue count
+- Số daily report submitted tháng này
 
 ### 7.2 Individual Drill-down (Hướng B — Individual Progress)
 
@@ -475,7 +464,7 @@ Click vào nhân sự → slide-in panel với:
 | AI-Powered Marketing | 2 | 2.5 | 3.5 | +1.5 ↑ |
 | CRO | 4 | 3.5 | 3 | -1 ↓⚠️ |
 
-**Jira + SMIT-OS summary** (condensed version của Zone C + D trong Profile)
+**SMIT-OS summary** (condensed version của Zone C trong Profile)
 
 **PM Notes:** Text area cho Admin note coaching points cho nhân sự này theo quý. Lưu vào DB, hiển thị lại ở quý tiếp theo làm reference.
 
@@ -493,9 +482,7 @@ Click vào nhân sự → slide-in panel với:
 
 **DISC assessment:** Custom implementation. Câu hỏi (24 items × 4 words) và scoring algorithm viết tay dựa trên William Marston's model (public domain). Lưu trong `server/data/disc-questions.json`.
 
-**Jira Integration:** Dùng `mcp__a1019570__searchJiraIssuesUsingJql` trực tiếp từ backend hoặc MCP proxy. cloudId: `ba86c0eb-afcd-40b5-bf8c-541e25dbb45a`, project: KKDS.
-
-**SMIT-OS Integration:** Dùng internal API calls đến SMIT-OS MCP endpoints: `list_daily_reports`, `kr_progress`, `revenue_summary`, `call_performance`.
+**SMIT-OS Integration:** Backend Express routes query trực tiếp Prisma tables `DailyReport` + `KeyResult`. Không external API call. Không Jira / Atlassian / CoWork dependency.
 
 ---
 
@@ -513,7 +500,7 @@ src/
 │   ├── personnel-card.tsx              ← grid card
 │   ├── skill-radar-panel.tsx           ← zone A
 │   ├── personality-profile-panel.tsx   ← zone B
-│   ├── jira-task-widget.tsx            ← zone C
+│   ├── smitos-zone.tsx                ← zone C
 │   ├── smitos-performance-widget.tsx   ← zone D
 │   ├── skill-assessment-form.tsx       ← quarterly input form
 │   ├── personality-test-modal.tsx      ← Big Five / DISC test UI
@@ -562,8 +549,8 @@ server/
 - [ ] Numerology + Bát tự auto-calculation và display
 
 ### Phase 3 — Live Integration + Dashboard (Priority: P2)
-- [ ] Zone C: Jira task widget (live query)
-- [ ] Zone D: SMIT-OS performance snapshot (live)
+- [ ] Zone C: SMIT-OS performance snapshot (DailyReport + KR)
+- [ ] Zone D: PM Notes (Ghi chú coaching)
 - [ ] Auto-flag logic (On Track / Needs Attention / At Risk)
 - [ ] Dashboard Personnel Tab với team grid + drill-down
 - [ ] PM Notes per quarter per person

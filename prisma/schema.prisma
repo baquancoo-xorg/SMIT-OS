@@ -37,9 +37,8 @@ model User {
   totpBackupCodes String[] // bcrypt-hashed backup codes, empty array by default
 
   // Personnel Profile feature
-  jiraAccountId String? // Atlassian accountId, resolved via MCP email lookup (Phase 3)
-  personnel     Personnel?
-  pmNotes       PmNote[]   @relation("PmNoteAuthor")
+  personnel Personnel?
+  pmNotes   PmNote[]   @relation("PmNoteAuthor")
 }
 
 // ============================================

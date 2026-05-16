@@ -8,7 +8,6 @@ import { createPersonnelRoutes } from './personnel.routes';
 import { createAssessmentsRoutes } from './assessments.routes';
 import { createPersonalityRoutes, createPersonalityQuestionRoutes } from './personality.routes';
 import { createSmitosIntegrationRoutes } from './smitos-integration.routes';
-import { createJiraIntegrationRoutes } from './jira-integration.routes';
 import { createFlagsRoutes } from './flags.routes';
 import { createPmNotesRoutes } from './pm-notes.routes';
 
@@ -20,7 +19,6 @@ export function createPersonnelMount(prisma: PrismaClient) {
   router.use('/:id/assessments', createAssessmentsRoutes(prisma));
   router.use('/:id/personality', createPersonalityRoutes(prisma));
   router.use('/:id/smitos-metrics', createSmitosIntegrationRoutes(prisma));
-  router.use('/:id/jira-tasks', createJiraIntegrationRoutes(prisma));
   router.use('/:id/flags', createFlagsRoutes(prisma));
   router.use('/:id/pm-notes', createPmNotesRoutes(prisma));
   return router;

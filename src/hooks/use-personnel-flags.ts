@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 
 export interface PersonnelFlag {
-  code: 'skill_regression' | 'jira_overdue' | 'low_attendance' | 'kr_at_risk' | 'assessment_overdue';
+  code: 'skill_regression' | 'low_attendance' | 'kr_at_risk' | 'assessment_overdue';
   message: string;
 }
 
