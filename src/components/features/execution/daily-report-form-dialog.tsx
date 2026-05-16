@@ -26,7 +26,9 @@ export function DailyReportFormDialog({ open, onClose, userId, reportDate, onSub
   const [submitting, setSubmitting] = useState(false);
   const [restoredAt, setRestoredAt] = useState<string | null>(null);
   const { toast } = useToast();
-  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const now = new Date();
+  const minDateStr = format(new Date(now.getTime() - 7 * 86_400_000), 'yyyy-MM-dd');
+  const maxDateStr = format(new Date(now.getTime() + 1 * 86_400_000), 'yyyy-MM-dd');
 
   const { savedAt, flush, clear, available } = useDraftAutosave({ form, userId, date: selectedDate, enabled: open && !submitting });
 
@@ -103,7 +105,8 @@ export function DailyReportFormDialog({ open, onClose, userId, reportDate, onSub
       <DateField
         label="Báo cáo cho ngày"
         value={selectedDate}
-        max={todayStr}
+        min={minDateStr}
+        max={maxDateStr}
         onChange={(v) => setSelectedDate(v)}
       />
       {restoredAt && <DraftRestoredBanner savedAt={restoredAt} onClear={handleClearDraft} />}
@@ -129,7 +132,7 @@ function TextareaField({ label, value, onChange }: { label: string; value: strin
   );
 }
 
-function DateField({ label, value, max, onChange }: { label: string; value: string; max?: string; onChange: (v: string) => void }) {
+function DateField({ label, value, min, max, onChange }: { label: string; value: string; min?: string; max?: string; onChange: (v: string) => void }) {
   return (
     <div className="flex flex-col gap-1.5">
       <label className="flex items-center gap-2 text-[length:var(--text-label)] font-medium text-on-surface-variant">
@@ -139,6 +142,7 @@ function DateField({ label, value, max, onChange }: { label: string; value: stri
       <input
         type="date"
         value={value}
+        min={min}
         max={max}
         onChange={(e) => onChange(e.target.value)}
         className="w-full max-w-[220px] rounded-input border border-outline-variant bg-surface-container-lowest p-3 text-[length:var(--text-body)] text-on-surface focus:border-primary focus:outline-none"
