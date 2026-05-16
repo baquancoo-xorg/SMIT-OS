@@ -78,7 +78,7 @@ export function createDailyReportRoutes(prisma: PrismaClient) {
       res.json(report);
     } catch (err: any) {
       if (err.code === 'P2002') {
-        return res.status(409).json({ error: 'Report for this date already exists' });
+        return res.status(409).json({ error: 'Đã tồn tại báo cáo cho ngày này. Vui lòng chỉnh sửa báo cáo đã có thay vì gửi mới.' });
       }
       throw err;
     }

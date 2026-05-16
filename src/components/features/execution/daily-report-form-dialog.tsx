@@ -4,6 +4,7 @@ import { FileText, Save, Calendar } from 'lucide-react';
 import { FormDialog } from '../../ui/form-dialog';
 import { useToast } from '../../ui/notification-toast';
 import { Button } from '../../ui/button';
+import DatePicker from '../../ui/date-picker';
 import { DraftRestoredBanner } from './draft-restored-banner';
 import { useDraftAutosave } from '../../../hooks/use-draft-autosave';
 import { loadDraft, clearDraft } from '../../../lib/draft-storage';
@@ -139,14 +140,7 @@ function DateField({ label, value, min, max, onChange }: { label: string; value:
         <Calendar className="h-3.5 w-3.5" />
         {label}
       </label>
-      <input
-        type="date"
-        value={value}
-        min={min}
-        max={max}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full max-w-[220px] rounded-input border border-outline-variant bg-surface-container-lowest p-3 text-[length:var(--text-body)] text-on-surface focus:border-primary focus:outline-none"
-      />
+      <DatePicker value={value} onChange={onChange} min={min} max={max} />
     </div>
   );
 }

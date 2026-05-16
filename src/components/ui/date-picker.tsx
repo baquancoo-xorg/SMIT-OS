@@ -24,9 +24,11 @@ interface DatePickerProps {
   className?: string;
   variant?: 'default' | 'dark';
   disabled?: boolean;
+  min?: string; // yyyy-MM-dd, inclusive lower bound
+  max?: string; // yyyy-MM-dd, inclusive upper bound
 }
 
-export default function DatePicker({ value, onChange, placeholder = 'Chọn ngày', className = '', variant = 'default', disabled = false }: DatePickerProps) {
+export default function DatePicker({ value, onChange, placeholder = 'Chọn ngày', className = '', variant = 'default', disabled = false, min, max }: DatePickerProps) {
   const [open, setOpen] = useState(false);
   const [month, setMonth] = useState<Date>(() => {
     const d = value ? parseISO(value) : new Date();
@@ -72,7 +74,15 @@ export default function DatePicker({ value, onChange, placeholder = 'Chọn ngà
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
+  const isOutOfRange = (d: Date): boolean => {
+    const key = format(d, 'yyyy-MM-dd');
+    if (min && key < min) return true;
+    if (max && key > max) return true;
+    return false;
+  };
+
   const select = (d: Date) => {
+    if (isOutOfRange(d)) return;
     onChange(format(d, 'yyyy-MM-dd'));
     setOpen(false);
   };
@@ -147,16 +157,20 @@ export default function DatePicker({ value, onChange, placeholder = 'Chọn ngà
                   const isCurrentMonth = day.getMonth() === month.getMonth();
                   const isSel = selected ? isSameDay(day, selected) : false;
                   const isNow = isToday(day);
+                  const oor = isOutOfRange(day);
                   return (
                     <button
                       key={day.toISOString()}
                       onClick={() => select(day)}
+                      disabled={oor}
+                      aria-disabled={oor}
                       className={`
                         flex aspect-square w-full items-center justify-center rounded-chip text-[length:var(--text-body-sm)] font-semibold transition-colors
-                        ${isSel ? 'bg-primary text-on-primary shadow-md shadow-primary/30' : ''}
-                        ${isNow && !isSel ? 'ring-2 ring-primary/40 text-primary' : ''}
-                        ${!isSel && isCurrentMonth ? 'text-on-surface hover:bg-primary/10 hover:text-primary' : ''}
-                        ${!isCurrentMonth ? 'text-on-surface-variant/40 hover:bg-surface-variant/40' : ''}
+                        ${oor ? 'cursor-not-allowed text-on-surface-variant/25 hover:bg-transparent' : ''}
+                        ${!oor && isSel ? 'bg-primary text-on-primary shadow-md shadow-primary/30' : ''}
+                        ${!oor && isNow && !isSel ? 'ring-2 ring-primary/40 text-primary' : ''}
+                        ${!oor && !isSel && isCurrentMonth ? 'text-on-surface hover:bg-primary/10 hover:text-primary' : ''}
+                        ${!oor && !isCurrentMonth ? 'text-on-surface-variant/40 hover:bg-surface-variant/40' : ''}
                       `}
                     >
                       {format(day, 'd')}
@@ -174,6 +188,7 @@ export default function DatePicker({ value, onChange, placeholder = 'Chọn ngà
                   Xóa
                 </button>
                 <button
+                  disabled={isOutOfRange(new Date())}
                   onClick={() => select(new Date())}
                   className="text-[length:var(--text-caption)] font-semibold uppercase tracking-[var(--tracking-wide)] text-primary transition-colors hover:text-primary/70"
                 >
