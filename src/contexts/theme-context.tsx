@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { V5_THEME_STORAGE_KEY } from '../design/v5';
+import { THEME_STORAGE_KEY } from '../design';
 
 export type Theme = 'dark' | 'light' | 'system';
 export type ResolvedTheme = 'dark' | 'light';
@@ -20,7 +20,7 @@ function getSystemTheme(): ResolvedTheme {
 
 function getInitialTheme(defaultTheme: Theme): Theme {
   if (typeof window === 'undefined') return defaultTheme;
-  const storedTheme = window.localStorage.getItem(V5_THEME_STORAGE_KEY);
+  const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
   return storedTheme === 'dark' || storedTheme === 'light' || storedTheme === 'system'
     ? storedTheme
     : defaultTheme;
@@ -55,7 +55,7 @@ export function ThemeProvider({ children, defaultTheme = 'dark' }: ThemeProvider
   }, [resolvedTheme]);
 
   const setTheme = useCallback((nextTheme: Theme) => {
-    window.localStorage.setItem(V5_THEME_STORAGE_KEY, nextTheme);
+    window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
     setThemeState(nextTheme);
   }, []);
 

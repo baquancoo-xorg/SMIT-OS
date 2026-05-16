@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '../components/v5/ui';
+import { useToast } from '../components/ui';
 
 // ── DTO shapes (Phase 04 API contract) ──────────────────────────────────────
 

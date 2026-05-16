@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { V5_DENSITY_STORAGE_KEY } from '../design/v5';
+import { DENSITY_STORAGE_KEY } from '../design';
 
 export type Density = 'comfortable' | 'compact';
 
@@ -13,7 +13,7 @@ const DensityContext = createContext<DensityContextValue | null>(null);
 
 function getInitialDensity(defaultDensity: Density): Density {
   if (typeof window === 'undefined') return defaultDensity;
-  const storedDensity = window.localStorage.getItem(V5_DENSITY_STORAGE_KEY);
+  const storedDensity = window.localStorage.getItem(DENSITY_STORAGE_KEY);
   return storedDensity === 'comfortable' || storedDensity === 'compact'
     ? storedDensity
     : defaultDensity;
@@ -32,7 +32,7 @@ export function DensityProvider({ children, defaultDensity = 'comfortable' }: De
   }, [density]);
 
   const setDensity = useCallback((nextDensity: Density) => {
-    window.localStorage.setItem(V5_DENSITY_STORAGE_KEY, nextDensity);
+    window.localStorage.setItem(DENSITY_STORAGE_KEY, nextDensity);
     setDensityState(nextDensity);
   }, []);
 
