@@ -10,6 +10,9 @@ import { useSkillAssessmentsQuery } from '../../../hooks/use-skill-assessments';
 import { POSITION_LABEL } from '../../../lib/personnel/personnel-types';
 import { SkillRadarZone } from './zones/skill-radar-zone';
 import { PersonalityZone } from './zones/personality-zone';
+import { JiraZone } from './zones/jira-zone';
+import { SmitosZone } from './zones/smitos-zone';
+import { PmNotesEditor } from './pm-notes-editor';
 import { SkillAssessmentForm } from './forms/skill-assessment-form';
 import { PersonnelStatusBadge } from './status-badge';
 
@@ -18,14 +21,15 @@ interface Props {
   onClose: () => void;
 }
 
-type Tab = 'overview' | 'assessment' | 'personality' | 'jira' | 'smitos';
+type Tab = 'overview' | 'assessment' | 'personality' | 'jira' | 'smitos' | 'notes';
 
 const TABS: Array<{ key: Tab; label: string; phase: 1 | 2 | 3 }> = [
   { key: 'overview', label: 'Skill Radar', phase: 1 },
   { key: 'assessment', label: 'Đánh giá quý', phase: 1 },
-  { key: 'personality', label: 'Personality', phase: 1 }, // P2 shipped
-  { key: 'jira', label: 'Jira', phase: 3 },
-  { key: 'smitos', label: 'SMIT-OS', phase: 3 },
+  { key: 'personality', label: 'Personality', phase: 1 },
+  { key: 'jira', label: 'Jira', phase: 1 },
+  { key: 'smitos', label: 'SMIT-OS', phase: 1 },
+  { key: 'notes', label: 'PM Notes', phase: 1 },
 ];
 
 export function PersonnelProfileDrawer({ personnelId, onClose }: Props) {
@@ -71,7 +75,7 @@ export function PersonnelProfileDrawer({ personnelId, onClose }: Props) {
                   {POSITION_LABEL[personnel.position]} · @{personnel.user.username}
                 </p>
                 <div className="mt-1">
-                  <PersonnelStatusBadge />
+                  <PersonnelStatusBadge personnelId={personnel.id} />
                 </div>
               </div>
             </div>
@@ -132,6 +136,9 @@ export function PersonnelProfileDrawer({ personnelId, onClose }: Props) {
             {personnel && tab === 'personality' && (
               <PersonalityZone personnel={personnel} isSelf={isSelf} />
             )}
+            {personnel && tab === 'jira' && <JiraZone personnelId={personnel.id} />}
+            {personnel && tab === 'smitos' && <SmitosZone personnelId={personnel.id} />}
+            {personnel && tab === 'notes' && <PmNotesEditor personnelId={personnel.id} />}
           </Suspense>
         </div>
       </aside>

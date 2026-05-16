@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Activity, BarChart3, Briefcase, Megaphone, Monitor, PhoneCall, RefreshCw, Users } from 'lucide-react';
+import { Activity, BarChart3, Briefcase, Megaphone, Monitor, PhoneCall, RefreshCw, UserCircle2, Users } from 'lucide-react';
 import { format, startOfMonth } from 'date-fns';
 import { useSearchParams } from 'react-router-dom';
 import { Button, DateRangePicker, PageSectionStack, PageToolbar, TabPill } from '../components/ui';
@@ -14,8 +14,9 @@ import DashboardTab from '../components/features/leads/dashboard-tab';
 import MarketingTab from '../components/features/dashboard/marketing/marketing-tab';
 import MediaTab from '../components/features/dashboard/media/media-tab';
 import { ProductSection } from '../components/features/dashboard/product';
+import PersonnelDashboardTab from '../components/features/dashboard/personnel/personnel-dashboard-tab';
 
-type DashboardTab = 'overview' | 'acquisition' | 'call' | 'distribution' | 'marketing' | 'media' | 'product';
+type DashboardTab = 'overview' | 'acquisition' | 'call' | 'distribution' | 'marketing' | 'media' | 'product' | 'personnel';
 
 const tabs: TabPillItem<DashboardTab>[] = [
   { value: 'overview', label: 'Overview', icon: <Activity /> },
@@ -25,6 +26,7 @@ const tabs: TabPillItem<DashboardTab>[] = [
   { value: 'marketing', label: 'Marketing', icon: <Megaphone /> },
   { value: 'media', label: 'Media', icon: <Monitor /> },
   { value: 'product', label: 'Product', icon: <Briefcase /> },
+  { value: 'personnel', label: 'Personnel', icon: <UserCircle2 /> },
 ];
 
 const validTabs = new Set<DashboardTab>(tabs.map((tab) => tab.value));
@@ -137,6 +139,7 @@ export default function DashboardOverviewV5() {
         {selectedTab === 'marketing' && <MarketingTab from={from} to={to} />}
         {selectedTab === 'media' && <MediaTab from={from} to={to} />}
         {selectedTab === 'product' && <ProductSection from={from} to={to} />}
+        {selectedTab === 'personnel' && <PersonnelDashboardTab />}
       </section>
     </PageSectionStack>
   );

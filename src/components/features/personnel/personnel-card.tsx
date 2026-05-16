@@ -63,7 +63,7 @@ export function PersonnelCard({ personnel, assessments, onOpen }: Props) {
       </div>
 
       <div className="mt-3 flex items-center justify-between text-xs">
-        <PersonnelStatusBadge />
+        <PersonnelStatusBadge personnelId={personnel.id} />
         <span className="text-neutral-500">{lastAssessmentLabel(assessments)}</span>
       </div>
     </button>

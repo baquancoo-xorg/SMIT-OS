@@ -45,6 +45,7 @@ import { initLeadSyncPrisma } from "./server/services/lead-sync/state";
 import { startLeadSyncCron } from "./server/cron/lead-sync.cron";
 import { startAdsSyncCron } from "./server/cron/ads-sync.cron";
 import { startMediaSyncCron } from "./server/cron/media-sync.cron";
+import { startPersonnelCleanupCron } from "./server/cron/personnel-cleanup.cron";
 import { createAdsTrackerRoutes } from "./server/routes/ads-tracker.routes";
 import { createMediaTrackerRoutes } from "./server/routes/media-tracker.routes";
 import { createSocialChannelsRoutes } from "./server/routes/social-channels.routes";
@@ -230,6 +231,7 @@ async function startServer() {
     startLeadSyncCron();
     startAdsSyncCron();
     startMediaSyncCron();
+    startPersonnelCleanupCron(prisma);
   });
 }
 
