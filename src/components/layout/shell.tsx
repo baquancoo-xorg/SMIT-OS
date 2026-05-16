@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { motion } from 'motion/react';
+import { useLocation } from 'react-router-dom';
 import { useMediaQuery } from '../../hooks/use-media-query';
 import { ErrorBoundary } from '../ui';
 import Header from './header';
@@ -20,6 +22,7 @@ function getInitialCollapsed() {
 export default function AppShell({ children, onLogout }: AppShellProps) {
   const [collapsed, setCollapsed] = useState(getInitialCollapsed);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
 
   const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1279px)');
 
@@ -69,9 +72,15 @@ export default function AppShell({ children, onLogout }: AppShellProps) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <Header onMenuClick={() => setMobileOpen(true)} />
-        <main className="min-h-[var(--content-h)] flex-1 overflow-y-auto px-[var(--content-px-mobile)] py-[var(--page-pt)] md:px-[var(--content-px-tablet)] xl:px-[var(--content-px-desktop)]">
+        <motion.main
+          key={location.pathname}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.15, ease: 'easeOut' }}
+          className="min-h-[var(--content-h)] flex-1 overflow-y-auto px-[var(--content-px-mobile)] py-[var(--page-pt)] md:px-[var(--content-px-tablet)] xl:px-[var(--content-px-desktop)]"
+        >
           <ErrorBoundary>{children}</ErrorBoundary>
-        </main>
+        </motion.main>
       </div>
     </div>
   );

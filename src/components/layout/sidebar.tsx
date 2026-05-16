@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, LogOut, Settings, User } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { prefetchRoute } from '../../route-imports';
 import { AnimatedLogo } from '../branding';
 import { workspaceNavGroups, type WorkspaceNavItem } from './workspace-nav-items';
 
@@ -17,7 +18,7 @@ interface SidebarProps {
 const sidebarSections = [
   { label: 'Executive', items: ['Dashboard', 'OKRs'] },
   { label: 'Acquisition', items: ['Personnel', 'Leads', 'Ads', 'Media'] },
-  { label: 'Rhythm', items: ['Daily Sync', 'Weekly Check-in'] },
+  { label: 'Rhythm', items: ['Daily Sync', 'Check-In'] },
 ];
 
 const navItems = workspaceNavGroups.flatMap(group => group.items);
@@ -33,6 +34,9 @@ function SidebarNavItem({ item, collapsed, active, onNavigate }: { item: Workspa
     <NavLink
       to={item.href}
       onClick={onNavigate}
+      onMouseEnter={() => prefetchRoute(item.href)}
+      onFocus={() => prefetchRoute(item.href)}
+      onTouchStart={() => prefetchRoute(item.href)}
       title={collapsed ? item.label : undefined}
       aria-label={collapsed ? item.label : undefined}
       className={({ isActive }) => {
