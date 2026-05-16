@@ -9,6 +9,7 @@ import AppShell from './components/layout/shell';
 import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './components/ui';
+import { PageLoader } from './components/branding';
 
 // Phase 8 (2026-05-11) — v1 pages hard-deleted. Rollback flag `?v=1` retired.
 // Old `?v=2` flag is harmless no-op for legacy bookmarks.
@@ -24,21 +25,13 @@ const AdsTracker = lazy(() => import('./pages/AdsTracker'));
 const Reports = lazy(() => import('./pages/Reports'));
 const Playground = lazy(() => import('./pages/Playground'));
 
-function PageLoader() {
-  return (
-    <div className="h-full w-full flex items-center justify-center bg-surface">
-      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
-    </div>
-  );
-}
-
 function AppContent() {
   const { currentUser, loading, logout } = useAuth();
 
   if (loading) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-surface">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <PageLoader label="Đang xác thực" />
       </div>
     );
   }

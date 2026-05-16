@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, LogOut, Settings } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { AnimatedLogo } from '../branding';
 import { workspaceNavGroups, type WorkspaceNavItem } from './workspace-nav-items';
 
 interface SidebarProps {
@@ -20,21 +21,6 @@ const navItems = workspaceNavGroups.flatMap(group => group.items);
 
 function findItem(label: string) {
   return navItems.find(item => item.label === label);
-}
-
-function SmitGridMark() {
-  return (
-    <svg className="h-6 w-6 shrink-0" viewBox="0 0 40 40" role="img" aria-label="SMIT OS">
-      <path d="M20 4V11" className="stroke-text-muted" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M20 29V36" className="stroke-text-muted" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M4 20H11" className="stroke-text-muted" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M29 20H36" className="stroke-text-muted" strokeWidth="1.4" strokeLinecap="round" />
-      <rect x="11" y="11" width="8" height="8" rx="1.5" className="fill-transparent stroke-text-1" strokeWidth="1.7" />
-      <rect x="21" y="11" width="8" height="8" rx="1.5" className="fill-transparent stroke-text-muted" strokeWidth="1.4" />
-      <rect x="11" y="21" width="8" height="8" rx="1.5" className="fill-transparent stroke-text-muted" strokeWidth="1.4" />
-      <rect x="21" y="21" width="8" height="8" rx="1.5" className="fill-accent stroke-accent" strokeWidth="1.4" />
-    </svg>
-  );
 }
 
 function SidebarNavItem({ item, collapsed, active, onNavigate }: { item: WorkspaceNavItem; collapsed: boolean; active: boolean; onNavigate?: () => void }) {
@@ -99,7 +85,7 @@ export default function Sidebar({ collapsed, onCollapsedChange, onLogout, onNavi
     >
       <div className="flex h-full flex-col">
         <div className={`flex h-[3.25rem] shrink-0 items-center border-b border-border ${collapsed ? 'justify-center' : 'gap-2.5 px-6'}`}>
-          <SmitGridMark />
+          <AnimatedLogo route={location.pathname} size="md" />
           {!collapsed && <span className="text-sm font-extrabold tracking-tight text-text-1">SMIT OS</span>}
         </div>
 

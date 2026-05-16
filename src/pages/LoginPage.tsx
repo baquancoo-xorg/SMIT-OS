@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Eye, EyeOff, Shield, ArrowRight, ArrowLeft, Sparkles, Zap, LayoutDashboard } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button, Input } from '../components/ui';
+import { AnimatedLogo } from '../components/branding';
 
 /**
  * LoginPage v2 — token-driven redesign.
@@ -123,7 +124,7 @@ export default function LoginPageV2() {
           transition={{ duration: 0.5, delay: 0.15 }}
         >
           <div className="flex flex-col items-center gap-3 pb-6">
-            <img src="/logo-only.png" alt="SMIT OS" className="size-20 drop-shadow-md" />
+            <AnimatedLogo looping size="lg" label="SMIT OS" className="drop-shadow-md" />
             <div className="text-center">
               <h2 className="font-headline text-2xl font-bold text-on-surface">Welcome back</h2>
               <p className="mt-1 text-sm text-on-surface-variant">

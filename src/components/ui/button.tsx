@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { cn } from '../../lib/cn';
+import { InlineLoader } from '../branding';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -66,14 +67,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         {...props}
       >
-        {isLoading ? <SpinnerInline /> : <>{iconLeft}{children}{iconRight}</>}
+        {isLoading ? <InlineLoader size="xs" className="relative z-10" /> : <>{iconLeft}{children}{iconRight}</>}
       </button>
     );
   },
 );
 
 Button.displayName = 'Button';
-
-function SpinnerInline() {
-  return <span role="status" aria-label="Loading" className="relative z-10 inline-block size-4 animate-spin rounded-full border-2 border-current/30 border-t-current" />;
-}
