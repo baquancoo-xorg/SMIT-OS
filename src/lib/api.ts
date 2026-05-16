@@ -36,7 +36,11 @@ class ApiClient {
 
     if (!res.ok) {
       const error = await res.json().catch(() => ({ error: 'Unknown error' }));
-      throw new Error(error.error || `HTTP ${res.status}`);
+      const detailMsg = Array.isArray(error.details)
+        ? error.details.map((d: any) => `${d.field}: ${d.message}`).join('; ')
+        : '';
+      const base = error.error || `HTTP ${res.status}`;
+      throw new Error(detailMsg ? `${base} — ${detailMsg}` : base);
     }
 
     if (res.status === 204) {

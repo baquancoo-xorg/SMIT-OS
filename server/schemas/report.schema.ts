@@ -21,10 +21,10 @@ export const createWeeklyReportSchema = z.object({
 // body.userId sent by v1 form — backward compatible.
 export const createDailyReportSchema = z.object({
   reportDate: z.string(),
-  completedYesterday: z.string().max(4000).default(''),
-  doingYesterday: z.string().max(4000).default(''),
-  blockers: z.string().max(4000).default(''),
-  planToday: z.string().max(4000).default(''),
+  completedYesterday: z.string().max(20000).default(''),
+  doingYesterday: z.string().max(20000).default(''),
+  blockers: z.string().max(20000).default(''),
+  planToday: z.string().max(20000).default(''),
   rawData: z.record(z.string(), z.any()).optional().nullable(),
 });
 
