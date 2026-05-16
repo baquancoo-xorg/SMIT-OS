@@ -47,23 +47,18 @@ export function SkillRadarZone({ skills, assessments }: Props) {
         </div>
 
         <div className="flex rounded-full border border-white/10 bg-neutral-900 p-1">
-          {(['SELF', 'MANAGER', 'BOTH'] as const).map((t) => {
-            const disabled = t !== 'SELF';
-            return (
-              <button
-                key={t}
-                type="button"
-                disabled={disabled}
-                title={disabled ? 'Khả dụng từ Phase 2' : undefined}
-                onClick={() => setAssessor(t)}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-                  assessor === t ? 'bg-white/10 text-white' : 'text-neutral-400 hover:text-neutral-200'
-                } ${disabled ? 'cursor-not-allowed opacity-40' : ''}`}
-              >
-                {t === 'SELF' ? 'Tự đánh giá' : t === 'MANAGER' ? 'Manager' : 'Cả hai'}
-              </button>
-            );
-          })}
+          {(['SELF', 'MANAGER', 'BOTH'] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setAssessor(t)}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                assessor === t ? 'bg-white/10 text-white' : 'text-neutral-400 hover:text-neutral-200'
+              }`}
+            >
+              {t === 'SELF' ? 'Tự đánh giá' : t === 'MANAGER' ? 'Manager' : 'Cả hai'}
+            </button>
+          ))}
         </div>
       </div>
 

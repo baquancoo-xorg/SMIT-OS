@@ -4,10 +4,12 @@
  */
 
 import { Suspense, useState } from 'react';
+import { useAuth } from '../../../contexts/AuthContext';
 import { usePersonnelQuery, useSkillsQuery } from '../../../hooks/use-personnel';
 import { useSkillAssessmentsQuery } from '../../../hooks/use-skill-assessments';
 import { POSITION_LABEL } from '../../../lib/personnel/personnel-types';
 import { SkillRadarZone } from './zones/skill-radar-zone';
+import { PersonalityZone } from './zones/personality-zone';
 import { SkillAssessmentForm } from './forms/skill-assessment-form';
 import { PersonnelStatusBadge } from './status-badge';
 
@@ -21,12 +23,13 @@ type Tab = 'overview' | 'assessment' | 'personality' | 'jira' | 'smitos';
 const TABS: Array<{ key: Tab; label: string; phase: 1 | 2 | 3 }> = [
   { key: 'overview', label: 'Skill Radar', phase: 1 },
   { key: 'assessment', label: 'Đánh giá quý', phase: 1 },
-  { key: 'personality', label: 'Personality', phase: 2 },
+  { key: 'personality', label: 'Personality', phase: 1 }, // P2 shipped
   { key: 'jira', label: 'Jira', phase: 3 },
   { key: 'smitos', label: 'SMIT-OS', phase: 3 },
 ];
 
 export function PersonnelProfileDrawer({ personnelId, onClose }: Props) {
+  const { currentUser } = useAuth();
   const [tab, setTab] = useState<Tab>('overview');
   const { data: personnel, isLoading } = usePersonnelQuery(personnelId);
   const { data: assessments } = useSkillAssessmentsQuery(personnelId);
@@ -37,6 +40,9 @@ export function PersonnelProfileDrawer({ personnelId, onClose }: Props) {
   if (!personnelId) return null;
 
   const allSkills = [...(jobSkills ?? []), ...(generalSkills ?? []), ...(personalSkills ?? [])];
+  const isSelf = !!personnel && personnel.userId === currentUser?.id;
+  const isAdminViewer = !!currentUser?.isAdmin;
+  const assessorTypeForForm = isSelf ? 'SELF' : isAdminViewer ? 'MANAGER' : 'SELF';
 
   return (
     <div className="fixed inset-0 z-50 flex" role="dialog" aria-modal="true">
@@ -120,8 +126,11 @@ export function PersonnelProfileDrawer({ personnelId, onClose }: Props) {
                 personnelId={personnel.id}
                 position={personnel.position}
                 skills={allSkills}
-                assessorType={personnel.user.isAdmin ? 'MANAGER' : 'SELF'}
+                assessorType={assessorTypeForForm}
               />
+            )}
+            {personnel && tab === 'personality' && (
+              <PersonalityZone personnel={personnel} isSelf={isSelf} />
             )}
           </Suspense>
         </div>

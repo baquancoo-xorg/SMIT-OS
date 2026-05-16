@@ -12,18 +12,20 @@ import { scoreDisc } from '../../lib/disc-scoring';
 import bigfiveData from '../../data/bigfive-vi.json';
 import discData from '../../data/disc-vi.json';
 
+export function createPersonalityQuestionRoutes() {
+  const router = Router();
+  router.get('/big-five', handleAsync(async (_req: any, res: any) => {
+    res.json(bigfiveData);
+  }));
+  router.get('/disc', handleAsync(async (_req: any, res: any) => {
+    res.json(discData);
+  }));
+  return router;
+}
+
 export function createPersonalityRoutes(prisma: PrismaClient) {
   const router = Router({ mergeParams: true });
   const personnelAccess = createPersonnelAccess(prisma);
-
-  // Public-ish: serve questions (auth required for any logged-in user; lightweight)
-  router.get('/questions/big-five', handleAsync(async (_req: any, res: any) => {
-    res.json(bigfiveData);
-  }));
-
-  router.get('/questions/disc', handleAsync(async (_req: any, res: any) => {
-    res.json(discData);
-  }));
 
   // History
   router.get('/', personnelAccess, handleAsync(async (req: any, res: any) => {
