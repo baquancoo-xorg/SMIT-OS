@@ -16,7 +16,7 @@ interface SidebarProps {
 
 const sidebarSections = [
   { label: 'Executive', items: ['Dashboard', 'OKRs'] },
-  { label: 'Acquisition', items: ['Leads', 'Ads', 'Media'] },
+  { label: 'Acquisition', items: ['Personnel', 'Leads', 'Ads', 'Media'] },
   { label: 'Rhythm', items: ['Daily Sync', 'Weekly Check-in'] },
 ];
 

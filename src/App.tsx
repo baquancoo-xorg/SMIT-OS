@@ -20,6 +20,7 @@ const Settings = lazy(() => import('./pages/Settings'));
 const Profile = lazy(() => import('./pages/Profile'));
 const DashboardOverview = lazy(() => import('./pages/DashboardOverview'));
 const LeadTracker = lazy(() => import('./pages/LeadTracker'));
+const Personnel = lazy(() => import('./pages/Personnel'));
 const MediaTracker = lazy(() => import('./pages/MediaTracker'));
 const AdsTracker = lazy(() => import('./pages/AdsTracker'));
 const Reports = lazy(() => import('./pages/Reports'));
@@ -46,6 +47,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardOverview />} />
+          <Route path="/personnel" element={<Personnel />} />
           <Route path="/leads" element={<LeadTracker />} />
           <Route path="/ads" element={<AdsTracker />} />
           <Route path="/media" element={<MediaTracker />} />

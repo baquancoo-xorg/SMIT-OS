@@ -1,7 +1,6 @@
 import { useCallPerformance } from '../../../../hooks/use-call-performance';
 import CallPerformanceAeTable from './call-performance-ae-table';
 import CallPerformanceHeatmap from './call-performance-heatmap';
-import CallPerformanceConversion from './call-performance-conversion';
 import CallPerformanceTrend from './call-performance-trend';
 import { DashboardPanel } from '../ui';
 import { SectionCard } from '../../../ui';
@@ -28,7 +27,6 @@ export default function CallPerformanceSection({ from, to }: Props) {
         <div className="space-y-3">
           <CallPerformanceAeTable data={data?.perAe ?? []} />
           <CallPerformanceHeatmap data={data?.heatmap ?? []} />
-          <CallPerformanceConversion data={data?.conversion ?? []} />
           <CallPerformanceTrend data={data?.trend ?? []} />
         </div>
       )}

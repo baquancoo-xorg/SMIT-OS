@@ -5,10 +5,9 @@ import { Filter, LayoutGrid, LayoutList, RefreshCw, Search, Target, TrendingUp }
 import { useAuth } from '../contexts/AuthContext';
 import CampaignsTable from '../components/features/ads/campaigns-table';
 import AttributionTable from '../components/features/ads/attribution-table';
-import { AdsKpiCards } from '../components/features/ads/ads-kpi-cards';
 import SpendChart from '../components/features/ads/spend-chart';
 import { fromDateRange, toDateRange } from '../components/features/media/date-range-utils';
-import { Button, Card, DateRangePicker, FilterChip, PageSectionStack, PageToolbar, TabPill, useToast } from '../components/ui';
+import { Button, Card, DateRangePicker, FilterChip, GlassCard, PageSectionStack, PageToolbar, StatBar, TabPill, useToast } from '../components/ui';
 import type { DateRange, TabPillItem } from '../components/ui';
 import {
   useAdsAttributionQuery,
@@ -85,14 +84,28 @@ export default function AdsTrackerV5() {
     });
   }, [campaignSearch, campaignStatus, campaigns]);
 
-  const totals = useMemo(() => {
-    const spend = campaigns.reduce((sum, campaign) => sum + Number(campaign.spendTotal ?? 0), 0);
-    const active = campaigns.filter((campaign) => campaign.status === 'ACTIVE').length;
-    const totalLeads = attribution.reduce((sum, row) => sum + Number(row.leadCount ?? 0), 0);
-    const avgCpl = totalLeads > 0 ? spend / totalLeads : null;
-    const currency = campaigns[0]?.currency ?? 'VND';
-    return { spend, active, totalLeads, avgCpl, currency };
-  }, [campaigns, attribution]);
+  const statGroups = useMemo(() => {
+    const countStatus = (s: string) => campaigns.filter((c) => c.status === s).length;
+    const platformMap = new Map<string, number>();
+    campaigns.forEach((c) => platformMap.set(c.platform, (platformMap.get(c.platform) ?? 0) + 1));
+
+    const statusGroup = {
+      items: [
+        { label: 'Total', value: campaigns.length, dotClass: 'bg-on-surface-variant' },
+        { label: 'Active', value: countStatus('ACTIVE'), dotClass: 'bg-success' },
+        { label: 'Paused', value: countStatus('PAUSED'), dotClass: 'bg-warning' },
+        { label: 'Ended', value: countStatus('ARCHIVED') + countStatus('DELETED'), dotClass: 'bg-error' },
+      ],
+    };
+    const platformGroup = {
+      items: Array.from(platformMap.entries()).map(([platform, count]) => ({
+        label: platform,
+        value: count,
+        dotClass: platform === 'META' ? 'bg-info' : 'bg-accent',
+      })),
+    };
+    return platformGroup.items.length > 0 ? [statusGroup, platformGroup] : [statusGroup];
+  }, [campaigns]);
 
   const setRange = (next: DateRange) => {
     const formatted = fromDateRange(next);
@@ -122,14 +135,9 @@ export default function AdsTrackerV5() {
       <PageToolbar className="flex-nowrap overflow-hidden" left={<div className="flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-hidden"> <TabPill<Tab> label="Ads tracker tabs" value={activeTab} onChange={setActiveTab} items={tabs} size="page" className="shrink-0" /> <div className="relative flex h-[34px] items-center"> <Search className="pointer-events-none absolute left-3 size-3.5 text-on-surface-variant" aria-hidden="true" /> <input type="search" value={campaignSearch} onChange={(event) => setCampaignSearch(event.target.value)} placeholder="Search campaigns or UTM" aria-label="Search campaigns or UTM" className="h-[34px] w-[220px] rounded-input border border-outline-variant bg-surface-container-lowest pl-8 pr-3 text-[length:var(--text-body-sm)] font-medium text-on-surface placeholder:text-on-surface-variant/60 hover:border-accent/25 hover:shadow-glass focus-visible:border-accent/25 focus-visible:outline-none" /> </div> <FilterChip<CampaignStatusFilter> value={campaignStatus} onChange={(value) => setCampaignStatus(value as CampaignStatusFilter)} options={campaignStatusOptions} icon={<Filter size={14} />} placeholder="All statuses" label="Filter campaigns by status" size="sm" className="shrink-0" /> <FilterChip<CampaignGroupFilter> value={campaignGroup} onChange={(value) => setCampaignGroup(value as CampaignGroupFilter)} options={campaignGroupOptions} icon={<LayoutGrid size={14} />} placeholder="No grouping" label="Group campaigns" size="sm" className="shrink-0" /> </div>} right={<div className="flex shrink-0 items-center gap-2"> {isAdmin && (<Button variant="primary" size="sm" className="h-[34px] text-[length:var(--text-body-sm)]" iconLeft={<RefreshCw className={syncMutation.isPending ? 'animate-spin' : ''} />} onClick={handleSync} disabled={syncMutation.isPending}>{syncMutation.isPending ? 'Syncing Meta' : 'Sync Meta'}</Button>)} <DateRangePicker value={pickerValue} onChange={setRange} size="sm" label="Ads date range" buttonClassName="h-[34px]" /> </div>} />
 
       <div className="grid min-h-0 flex-1 grid-rows-[auto_auto_minmax(0,1fr)] gap-4 overflow-hidden">
-        <AdsKpiCards
-          spend={totals.spend}
-          active={totals.active}
-          totalCampaigns={campaigns.length}
-          totalLeads={totals.totalLeads}
-          avgCpl={totals.avgCpl}
-          currency={totals.currency}
-        />
+        <GlassCard variant="surface" padding="sm" className="shrink-0">
+          <StatBar groups={statGroups} />
+        </GlassCard>
 
         {activeTab === 'campaigns' && (
           <Card padding="none" glow className="min-h-0 overflow-hidden">

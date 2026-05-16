@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pencil, Trash2, MoreHorizontal, UserCog, Users as UsersIcon } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import type { User } from '../../../types';
+import type { Personnel, PersonnelPosition } from '../../../lib/personnel/personnel-types';
+import { POSITION_LABEL } from '../../../lib/personnel/personnel-types';
 import {
   DataTable,
   Badge,
@@ -39,6 +41,30 @@ const EMPTY_FORM: UserFormState = {
   isAdmin: false,
 };
 
+interface PersonnelFormState {
+  hasPersonnel: boolean;
+  position: PersonnelPosition | '';
+  startDate: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+}
+
+const EMPTY_PERSONNEL_FORM: PersonnelFormState = {
+  hasPersonnel: false,
+  position: '',
+  startDate: '',
+  birthDate: '',
+  birthTime: '',
+  birthPlace: '',
+};
+
+const POSITIONS: PersonnelPosition[] = ['MARKETING', 'MEDIA', 'ACCOUNT'];
+
+function toDateInput(iso: string | null): string {
+  return iso ? iso.slice(0, 10) : '';
+}
+
 interface UserManagementTabProps {
   onDeleteConfirm: (type: 'user', id: string) => void;
   isAddingUser: boolean;
@@ -56,7 +82,43 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
   const { users, refreshUsers, currentUser } = useAuth();
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [formData, setFormData] = useState<UserFormState>(EMPTY_FORM);
+  const [personnelForm, setPersonnelForm] = useState<PersonnelFormState>(EMPTY_PERSONNEL_FORM);
   const [submitting, setSubmitting] = useState(false);
+
+  // Load existing Personnel record when editing
+  useEffect(() => {
+    if (!editingUser) {
+      setPersonnelForm(EMPTY_PERSONNEL_FORM);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/personnel?_=${editingUser.id}`, { credentials: 'include' });
+        if (!res.ok) return;
+        const list = (await res.json()) as Personnel[];
+        const match = list.find((p) => p.userId === editingUser.id);
+        if (cancelled) return;
+        if (match) {
+          setPersonnelForm({
+            hasPersonnel: true,
+            position: match.position,
+            startDate: toDateInput(match.startDate),
+            birthDate: toDateInput(match.birthDate),
+            birthTime: match.birthTime ?? '',
+            birthPlace: match.birthPlace ?? '',
+          });
+        } else {
+          setPersonnelForm({ ...EMPTY_PERSONNEL_FORM, position: '' });
+        }
+      } catch {
+        // network errors silenced — form keeps EMPTY_PERSONNEL_FORM, admin can still save
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [editingUser]);
 
   const isEditing = editingUser !== null;
   const dialogOpen = isAddingUser || isEditing;
@@ -115,10 +177,30 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
           credentials: 'include',
           body: JSON.stringify(data),
         });
-        if (res.ok) {
-          await refreshUsers();
-          closeDialog();
+        if (!res.ok) {
+          setSubmitting(false);
+          return;
         }
+
+        // Sync Personnel if position selected
+        if (personnelForm.position) {
+          const pData: Record<string, unknown> = {
+            position: personnelForm.position,
+            birthDate: personnelForm.birthDate || null,
+            birthTime: personnelForm.birthTime || null,
+            birthPlace: personnelForm.birthPlace || null,
+          };
+          if (personnelForm.startDate) pData.startDate = personnelForm.startDate;
+          await fetch(`/api/personnel/by-user/${editingUser.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(pData),
+          });
+        }
+
+        await refreshUsers();
+        closeDialog();
       } else {
         const res = await fetch('/api/users', {
           method: 'POST',
@@ -157,31 +239,11 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
       ),
     },
     {
-      key: 'departments',
-      label: 'Dept',
-      hideBelow: 'md',
-      render: (u) => (
-        <div className="flex flex-wrap gap-1">
-          {(u.departments ?? []).map((d) => (
-            <Badge key={d} variant="primary" size="sm">
-              {d}
-            </Badge>
-          ))}
-        </div>
-      ),
-    },
-    {
       key: 'role',
       label: 'Role',
       sortable: true,
       sort: (a, b) => a.role.localeCompare(b.role),
       render: (u) => <Badge variant={ROLE_BADGE[u.role] ?? 'neutral'}>{u.role}</Badge>,
-    },
-    {
-      key: 'scope',
-      label: 'Scope',
-      hideBelow: 'lg',
-      render: (u) => <span className="text-on-surface-variant">{u.scope || '—'}</span>,
     },
     {
       key: 'actions',
@@ -330,6 +392,67 @@ export function UserManagementTab({ onDeleteConfirm, isAddingUser, setIsAddingUs
           />
           <span>Grant admin access</span>
         </label>
+
+        {isEditing && (
+          <div className="mt-2 flex flex-col gap-3 rounded-card border border-outline-variant bg-surface-container-low p-4">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-on-surface-variant">Personnel profile</p>
+              {personnelForm.hasPersonnel ? (
+                <Badge variant="primary" size="sm">Đã có hồ sơ</Badge>
+              ) : (
+                <Badge variant="neutral" size="sm">Chưa khởi tạo</Badge>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="personnel-position" className="text-[length:var(--text-label)] font-medium text-on-surface-variant">
+                  Position
+                </label>
+                <select
+                  id="personnel-position"
+                  value={personnelForm.position}
+                  onChange={(e) => setPersonnelForm({ ...personnelForm, position: e.target.value as PersonnelPosition | '' })}
+                  className="h-10 rounded-input border border-outline-variant bg-surface-container-lowest px-3 text-[length:var(--text-body)] text-on-surface focus-visible:outline-none focus-visible:border-primary"
+                >
+                  <option value="">— Không có Personnel —</option>
+                  {POSITIONS.map((p) => (
+                    <option key={p} value={p}>{POSITION_LABEL[p]}</option>
+                  ))}
+                </select>
+              </div>
+              <Input
+                label="Start date"
+                type="date"
+                value={personnelForm.startDate}
+                onChange={(e) => setPersonnelForm({ ...personnelForm, startDate: e.target.value })}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Input
+                label="Ngày sinh"
+                type="date"
+                value={personnelForm.birthDate}
+                onChange={(e) => setPersonnelForm({ ...personnelForm, birthDate: e.target.value })}
+                helperText="Cần thiết để tính numerology + bát tự."
+              />
+              <Input
+                label="Giờ sinh (tuỳ chọn)"
+                type="time"
+                value={personnelForm.birthTime}
+                onChange={(e) => setPersonnelForm({ ...personnelForm, birthTime: e.target.value })}
+              />
+            </div>
+
+            <Input
+              label="Nơi sinh (tuỳ chọn)"
+              placeholder="VD: Hà Nội"
+              value={personnelForm.birthPlace}
+              onChange={(e) => setPersonnelForm({ ...personnelForm, birthPlace: e.target.value })}
+            />
+          </div>
+        )}
       </FormDialog>
     </div>
   );

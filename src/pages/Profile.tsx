@@ -1,54 +1,63 @@
-import { useEffect, useState } from 'react';
-import { Camera, Save } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { Button, Card, Input, useToast } from '../components/ui';
+import { Suspense, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Briefcase, ShieldCheck, SlidersHorizontal, User as UserIcon } from 'lucide-react';
+import { PageSectionStack, PageToolbar, TabPill } from '../components/ui';
+import type { TabPillItem } from '../components/ui';
+import { SettingsAppearanceTab, SettingsSecurityTab } from '../components/features/settings';
+import { ProfileGeneralTab } from '../components/features/profile/profile-general-tab';
+
+type ProfileTab = 'general' | 'security' | 'appearance';
+
+const TABS: TabPillItem<ProfileTab>[] = [
+  { value: 'general', label: 'Thông tin', icon: <UserIcon /> },
+  { value: 'security', label: 'Bảo mật', icon: <ShieldCheck /> },
+  { value: 'appearance', label: 'Giao diện', icon: <SlidersHorizontal /> },
+];
+
+const VALID = new Set<ProfileTab>(['general', 'security', 'appearance']);
 
 export default function Profile() {
-  const { currentUser } = useAuth();
-  const { toast } = useToast();
-  const [name, setName] = useState(currentUser?.fullName ?? '');
-  const [role, setRole] = useState(currentUser?.scope || currentUser?.role || '');
-  const username = currentUser?.username ?? '';
-  const initials = (name || username || 'U').slice(0, 2).toUpperCase();
+  const [params, setParams] = useSearchParams();
+  const requested = (params.get('tab') ?? 'general') as ProfileTab;
+  const activeTab: ProfileTab = VALID.has(requested) ? requested : 'general';
 
-  useEffect(() => {
-    setName(currentUser?.fullName ?? '');
-    setRole(currentUser?.scope || currentUser?.role || '');
-  }, [currentUser]);
-
-  function handleSave() {
-    toast({ tone: 'info', title: 'Profile update queued', description: 'Profile API chưa có endpoint ghi; dữ liệu hiển thị đang lấy từ phiên đăng nhập thật.' });
+  function setActiveTab(next: ProfileTab) {
+    const nextParams = new URLSearchParams(params);
+    nextParams.set('tab', next);
+    setParams(nextParams, { replace: true });
   }
 
+  // memo TabPill items (icon JSX stable)
+  const items = useMemo(() => TABS, []);
+
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
-      <Card padding="lg" glow>
-        <div className="flex flex-wrap items-center gap-5 border-b border-border pb-6">
-          {/* ui-canon-ok: font-black for hero avatar initial */}
-          <div className="flex size-20 items-center justify-center rounded-card border border-border bg-surface-2 font-headline text-2xl font-black text-accent-text shadow-card">
-            {currentUser?.avatar ? (
-              <img src={currentUser.avatar} alt={`${name} avatar`} className="size-full rounded-card object-cover" />
-            ) : initials}
-          </div>
-          <div className="flex flex-col gap-1.5">
-            {/* ui-canon-ok: font-black for label */}
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-text-muted">Profile photo</p>
-            <Button variant="secondary" size="sm" iconLeft={<Camera />} disabled>
-              Change avatar
-            </Button>
-          </div>
-        </div>
+    <PageSectionStack className="min-h-full gap-6">
+      <header className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-text-muted">
+        <Briefcase className="size-3.5" aria-hidden="true" />
+        <span>Profile</span>
+      </header>
 
-        <div className="flex flex-col gap-4 pt-6">
-          <Input label="Full name" value={name} onChange={(event) => setName(event.target.value)} required />
-          <Input label="Role" value={role} onChange={(event) => setRole(event.target.value)} />
-          <Input label="Username" value={username} readOnly helperText="Used for login." />
-
-          <div className="flex justify-end pt-3">
-            <Button variant="primary" iconLeft={<Save />} onClick={handleSave}>Save Changes</Button>
+      <PageToolbar
+        left={
+          <div className="overflow-x-auto pb-1">
+            <TabPill<ProfileTab>
+              label="Profile sections"
+              value={activeTab}
+              onChange={setActiveTab}
+              items={items}
+              size="page"
+            />
           </div>
-        </div>
-      </Card>
-    </div>
+        }
+      />
+
+      <section className="min-h-0 flex-1" aria-label="Profile content">
+        <Suspense fallback={<div className="h-72 animate-pulse rounded-card bg-surface-2" />}>
+          {activeTab === 'general' && <ProfileGeneralTab />}
+          {activeTab === 'security' && <SettingsSecurityTab />}
+          {activeTab === 'appearance' && <SettingsAppearanceTab />}
+        </Suspense>
+      </section>
+    </PageSectionStack>
   );
 }

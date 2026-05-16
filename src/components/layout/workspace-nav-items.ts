@@ -10,6 +10,7 @@ import {
   Settings,
   Target,
   User,
+  UserCircle2,
   UsersRound,
 } from 'lucide-react';
 
@@ -45,6 +46,7 @@ export const workspaceNavGroups: WorkspaceNavGroup[] = [
     label: 'Growth Workspace',
     eyebrow: 'Acquisition',
     items: [
+      { label: 'Personnel', href: '/personnel', icon: UserCircle2, workspace: 'growth' },
       { label: 'Leads', href: '/leads', icon: UsersRound, workspace: 'growth', legacyHrefs: ['/lead-tracker'] },
       { label: 'Ads', href: '/ads', icon: Megaphone, workspace: 'growth', legacyHrefs: ['/ads-tracker'] },
       { label: 'Media', href: '/media', icon: Newspaper, workspace: 'growth', legacyHrefs: ['/media-tracker'] },

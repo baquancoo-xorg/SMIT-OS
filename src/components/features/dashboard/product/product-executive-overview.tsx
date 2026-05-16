@@ -5,13 +5,11 @@ import { ProductActivationHeatmap } from './product-activation-heatmap';
 
 interface Props {
   range: DateRange;
-  action?: React.ReactNode;
 }
 
-export function ProductExecutiveOverview({ range, action }: Props) {
+export function ProductExecutiveOverview({ range }: Props) {
   return (
     <div className="space-y-4">
-      {action && <div className="flex justify-end">{action}</div>}
       <ProductKpiCards range={range} />
       <ProductPrePqlTrend range={range} />
       <ProductActivationHeatmap range={range} />

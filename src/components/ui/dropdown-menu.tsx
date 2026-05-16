@@ -1,5 +1,5 @@
 import { Menu, MenuButton, MenuItems, MenuItem, MenuSeparator } from '@headlessui/react';
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 export interface DropdownMenuItem {
@@ -53,7 +53,7 @@ export function DropdownMenu({
 }: DropdownMenuProps) {
   return (
     <Menu as="div" className="relative inline-block">
-      <MenuButton as="div" aria-label={label} className="contents">
+      <MenuButton as={Fragment} aria-label={label}>
         {trigger}
       </MenuButton>
 

@@ -1,0 +1,28 @@
+{
+  "types": {
+    "D": {
+      "name": "Dominance — Quyết đoán",
+      "shortLabel": "Người dẫn dắt",
+      "style": "Hướng mục tiêu, ra quyết định nhanh, thích thách thức. Mạnh ở leadership, BD, crisis. Cần lưu ý: lắng nghe + trao quyền cho team.",
+      "color": "D"
+    },
+    "I": {
+      "name": "Influence — Tác động",
+      "shortLabel": "Người truyền cảm hứng",
+      "style": "Năng lượng cao, giỏi giao tiếp, lạc quan. Mạnh ở sales, brand, hosting event. Cần lưu ý: follow-up chi tiết + hoàn thiện task.",
+      "color": "I"
+    },
+    "S": {
+      "name": "Steadiness — Ổn định",
+      "shortLabel": "Người gắn kết",
+      "style": "Kiên nhẫn, đáng tin cậy, hợp tác. Mạnh ở customer success, ops, mentor. Cần lưu ý: dám đối đầu khi cần + chấp nhận thay đổi.",
+      "color": "S"
+    },
+    "C": {
+      "name": "Conscientiousness — Tận tâm",
+      "shortLabel": "Người phân tích",
+      "style": "Chi tiết, có hệ thống, ưa chuẩn xác. Mạnh ở analytics, QA, finance. Cần lưu ý: ra quyết định nhanh hơn + không cầu toàn quá mức.",
+      "color": "C"
+    }
+  }
+}

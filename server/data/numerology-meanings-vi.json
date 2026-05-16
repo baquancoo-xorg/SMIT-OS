@@ -1,0 +1,50 @@
+{
+  "1": {
+    "title": "Người dẫn đầu",
+    "description": "Độc lập, quyết đoán, có tinh thần khởi xướng. Phù hợp vai trò leader, founder. Điểm cần cân bằng: lắng nghe đồng đội, tránh bảo thủ."
+  },
+  "2": {
+    "title": "Người hợp tác",
+    "description": "Nhạy bén với cảm xúc người khác, làm việc nhóm tốt, kiên nhẫn. Phù hợp coordinator, partnership. Điểm cần cân bằng: tự tin quyết định, tránh phụ thuộc."
+  },
+  "3": {
+    "title": "Người sáng tạo",
+    "description": "Giao tiếp tốt, biểu đạt sáng tạo, lạc quan. Phù hợp content, marketing, design. Điểm cần cân bằng: tập trung, hoàn thành dự án dài hạn."
+  },
+  "4": {
+    "title": "Người thực thi",
+    "description": "Kỷ luật, có hệ thống, đáng tin cậy, làm việc theo quy trình. Phù hợp ops, project management. Điểm cần cân bằng: linh hoạt, đón nhận thay đổi."
+  },
+  "5": {
+    "title": "Người tự do",
+    "description": "Thích phiêu lưu, học hỏi nhanh, đa nhiệm. Phù hợp sales, growth hacking. Điểm cần cân bằng: kiên trì, hoàn thành cam kết."
+  },
+  "6": {
+    "title": "Người chăm sóc",
+    "description": "Có trách nhiệm với cộng đồng, hỗ trợ người khác, tinh tế. Phù hợp customer success, HR. Điểm cần cân bằng: đặt ranh giới, không gánh quá nhiều."
+  },
+  "7": {
+    "title": "Người phân tích",
+    "description": "Sâu sắc, ưa nghiên cứu, ham hiểu biết. Phù hợp data, R&D, strategy. Điểm cần cân bằng: chia sẻ insight với team, tránh tách biệt."
+  },
+  "8": {
+    "title": "Người quản trị",
+    "description": "Tham vọng, giỏi tài chính, hướng kết quả. Phù hợp business development, executive. Điểm cần cân bằng: cân đối work-life, công nhận nỗ lực người khác."
+  },
+  "9": {
+    "title": "Người nhân đạo",
+    "description": "Có tầm nhìn rộng, đồng cảm, hướng giá trị xã hội. Phù hợp brand, mission-driven. Điểm cần cân bằng: thực thi cụ thể, không chỉ ý tưởng."
+  },
+  "11": {
+    "title": "Người truyền cảm hứng (Master)",
+    "description": "Trực giác mạnh, có khả năng truyền cảm hứng, tầm nhìn xa. Áp lực bản thân cao. Cần học cách tiếp đất ý tưởng."
+  },
+  "22": {
+    "title": "Người kiến tạo (Master)",
+    "description": "Kết hợp tầm nhìn của 11 và thực thi của 4. Có khả năng xây dựng hệ thống lớn. Cần kiên nhẫn dài hạn."
+  },
+  "33": {
+    "title": "Người dẫn dắt nhân đạo (Master)",
+    "description": "Kết hợp sáng tạo của 3 và chăm sóc của 6. Có sứ mệnh hỗ trợ cộng đồng. Cần tự chăm sóc bản thân trước."
+  }
+}

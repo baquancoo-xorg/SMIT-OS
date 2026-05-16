@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Activity, BarChart3, Briefcase, Megaphone, Monitor, PhoneCall, Users } from 'lucide-react';
+import { Activity, BarChart3, Briefcase, Megaphone, Monitor, PhoneCall, RefreshCw, Users } from 'lucide-react';
 import { format, startOfMonth } from 'date-fns';
 import { useSearchParams } from 'react-router-dom';
-import { DateRangePicker, PageSectionStack, PageToolbar, TabPill } from '../components/ui';
+import { Button, DateRangePicker, PageSectionStack, PageToolbar, TabPill } from '../components/ui';
 import type { DateRange, TabPillItem } from '../components/ui';
 import { useOverviewAll } from '../hooks/use-overview-data';
+import { useInvalidateProductDashboard } from '../hooks/use-product-dashboard';
 import CallPerformanceSection from '../components/features/dashboard/call-performance/call-performance-section';
 import { LeadDistributionSection } from '../components/features/dashboard/lead-distribution';
 import AcquisitionOverviewTab from '../components/features/dashboard/acquisition-overview/acquisition-overview-tab';
@@ -52,8 +53,19 @@ export default function DashboardOverviewV5() {
   const pickerValue = useMemo(() => rangeToDateValue(from, to), [from, to]);
 
   const [kpiViewMode, setKpiViewMode] = useState<'realtime' | 'cohort'>('realtime');
+  const [refreshing, setRefreshing] = useState(false);
+  const invalidateProduct = useInvalidateProductDashboard();
 
   const { data, isLoading, error } = useOverviewAll({ from, to, viewMode: kpiViewMode });
+
+  const handleRefreshProduct = async () => {
+    setRefreshing(true);
+    try {
+      await invalidateProduct();
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const setRange = (next: DateRange) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -84,7 +96,22 @@ export default function DashboardOverviewV5() {
             />
           </div>
         }
-        right={<DateRangePicker value={pickerValue} onChange={setRange} size="sm" label="Dashboard date range" />}
+        right={
+          <div className="flex items-center gap-2">
+            {selectedTab === 'product' && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleRefreshProduct}
+                isLoading={refreshing}
+                iconLeft={<RefreshCw />}
+              >
+                Refresh
+              </Button>
+            )}
+            <DateRangePicker value={pickerValue} onChange={setRange} size="sm" label="Dashboard date range" />
+          </div>
+        }
       />
 
       <section className="flex-1 space-y-5" aria-label="Dashboard content">

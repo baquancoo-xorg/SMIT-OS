@@ -4,6 +4,7 @@ import { validateQuery } from '../middleware/validate.middleware';
 import { getSummaryMetrics } from '../services/dashboard/overview-summary.service';
 import { getKpiMetrics } from '../services/dashboard/overview-kpi.service';
 import { getCohortKpiMetrics } from '../services/dashboard/overview-cohort.service';
+import { getCohortSummary } from '../services/dashboard/overview-cohort-summary.service';
 import { previousPeriod, parseFromTo } from '../lib/date-utils';
 import { requireAuth } from '../middleware/require-auth';
 
@@ -79,7 +80,9 @@ export function createDashboardOverviewRoutes() {
 
       const viewMode = q.viewMode ?? 'realtime';
       const [summary, kpiMetrics] = await Promise.all([
-        getSummaryMetrics(from, to, prevFrom, prevTo),
+        viewMode === 'cohort'
+          ? getCohortSummary(from, to, prevFrom, prevTo)
+          : getSummaryMetrics(from, to, prevFrom, prevTo),
         viewMode === 'cohort' ? getCohortKpiMetrics(from, to) : getKpiMetrics(from, to),
       ]);
 

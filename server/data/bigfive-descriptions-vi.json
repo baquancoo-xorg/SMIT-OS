@@ -1,0 +1,29 @@
+{
+  "dimensions": {
+    "O": {
+      "name": "Openness — Cởi mở trải nghiệm",
+      "high": "Tò mò, sáng tạo, sẵn sàng thử nghiệm. Mạnh ở tư duy đột phá, R&D, brainstorm.",
+      "low": "Thực tế, có nề nếp, ưa quy trình. Mạnh ở vận hành ổn định, thực thi chuẩn."
+    },
+    "C": {
+      "name": "Conscientiousness — Tận tâm",
+      "high": "Kỷ luật, có hệ thống, đáng tin cậy. Mạnh ở quản trị dự án, deliver đúng hạn.",
+      "low": "Linh hoạt, ứng biến. Cần hỗ trợ về cấu trúc + nhắc deadline."
+    },
+    "E": {
+      "name": "Extraversion — Hướng ngoại",
+      "high": "Năng lượng cao, giao tiếp tốt, chủ động kết nối. Mạnh ở sales, BD, hosting.",
+      "low": "Suy ngẫm sâu, làm việc độc lập tốt. Mạnh ở deep work, phân tích, viết."
+    },
+    "A": {
+      "name": "Agreeableness — Dễ chịu",
+      "high": "Đồng cảm, hợp tác, ưu tiên hoà khí. Mạnh ở customer success, HR, mentor.",
+      "low": "Thẳng thắn, đặt mục tiêu lên trước. Mạnh ở đàm phán, ra quyết định khó."
+    },
+    "N": {
+      "name": "Neuroticism — Bất ổn cảm xúc",
+      "high": "Nhạy với rủi ro, cẩn trọng, hay lo xa. Cần môi trường ổn định + feedback rõ.",
+      "low": "Bình thản dưới áp lực, hồi phục nhanh. Mạnh ở crisis management, on-call."
+    }
+  }
+}

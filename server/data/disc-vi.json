@@ -1,0 +1,28 @@
+{
+  "items": [
+    { "id": 1,  "words": [ { "text": "Quyết đoán",     "type": "D" }, { "text": "Hoạt náo",      "type": "I" }, { "text": "Kiên nhẫn",     "type": "S" }, { "text": "Chính xác",     "type": "C" } ] },
+    { "id": 2,  "words": [ { "text": "Mạnh mẽ",       "type": "D" }, { "text": "Cởi mở",        "type": "I" }, { "text": "Điềm tĩnh",     "type": "S" }, { "text": "Cẩn thận",      "type": "C" } ] },
+    { "id": 3,  "words": [ { "text": "Tự tin",        "type": "D" }, { "text": "Lạc quan",      "type": "I" }, { "text": "Trung thành",   "type": "S" }, { "text": "Phân tích",     "type": "C" } ] },
+    { "id": 4,  "words": [ { "text": "Cạnh tranh",    "type": "D" }, { "text": "Thuyết phục",   "type": "I" }, { "text": "Ổn định",       "type": "S" }, { "text": "Logic",         "type": "C" } ] },
+    { "id": 5,  "words": [ { "text": "Trực tiếp",     "type": "D" }, { "text": "Hài hước",      "type": "I" }, { "text": "Hợp tác",       "type": "S" }, { "text": "Có hệ thống",   "type": "C" } ] },
+    { "id": 6,  "words": [ { "text": "Dám nghĩ dám làm","type": "D" }, { "text": "Truyền cảm hứng","type": "I" }, { "text": "Đáng tin cậy",  "type": "S" }, { "text": "Tỉ mỉ",         "type": "C" } ] },
+    { "id": 7,  "words": [ { "text": "Hướng kết quả", "type": "D" }, { "text": "Thân thiện",    "type": "I" }, { "text": "Bền bỉ",        "type": "S" }, { "text": "Cầu toàn",      "type": "C" } ] },
+    { "id": 8,  "words": [ { "text": "Lãnh đạo",      "type": "D" }, { "text": "Ảnh hưởng",     "type": "I" }, { "text": "Hỗ trợ",        "type": "S" }, { "text": "Đánh giá",      "type": "C" } ] },
+    { "id": 9,  "words": [ { "text": "Thử thách",     "type": "D" }, { "text": "Hấp dẫn",       "type": "I" }, { "text": "Khiêm tốn",     "type": "S" }, { "text": "Khắt khe",      "type": "C" } ] },
+    { "id": 10, "words": [ { "text": "Năng nổ",       "type": "D" }, { "text": "Vui vẻ",        "type": "I" }, { "text": "Dễ chịu",       "type": "S" }, { "text": "Nguyên tắc",    "type": "C" } ] },
+    { "id": 11, "words": [ { "text": "Tiên phong",    "type": "D" }, { "text": "Cuốn hút",      "type": "I" }, { "text": "Bao dung",      "type": "S" }, { "text": "Thận trọng",    "type": "C" } ] },
+    { "id": 12, "words": [ { "text": "Nhanh nhạy",    "type": "D" }, { "text": "Diễn đạt",      "type": "I" }, { "text": "Lắng nghe",     "type": "S" }, { "text": "Chi tiết",      "type": "C" } ] },
+    { "id": 13, "words": [ { "text": "Độc lập",       "type": "D" }, { "text": "Hoà đồng",      "type": "I" }, { "text": "Ôn hoà",        "type": "S" }, { "text": "Quy củ",        "type": "C" } ] },
+    { "id": 14, "words": [ { "text": "Kiên định",     "type": "D" }, { "text": "Thân mật",      "type": "I" }, { "text": "Giúp đỡ",       "type": "S" }, { "text": "Khách quan",    "type": "C" } ] },
+    { "id": 15, "words": [ { "text": "Mạo hiểm",      "type": "D" }, { "text": "Sáng tạo",      "type": "I" }, { "text": "Truyền thống",  "type": "S" }, { "text": "Khoa học",      "type": "C" } ] },
+    { "id": 16, "words": [ { "text": "Bộc trực",      "type": "D" }, { "text": "Nồng nhiệt",    "type": "I" }, { "text": "Nhẫn nại",      "type": "S" }, { "text": "Dè dặt",        "type": "C" } ] },
+    { "id": 17, "words": [ { "text": "Tham vọng",     "type": "D" }, { "text": "Hướng ngoại",   "type": "I" }, { "text": "Trầm tính",     "type": "S" }, { "text": "Quy chuẩn",     "type": "C" } ] },
+    { "id": 18, "words": [ { "text": "Kiểm soát",     "type": "D" }, { "text": "Thuyết trình", "type": "I" }, { "text": "Tin cậy",       "type": "S" }, { "text": "Tính toán",     "type": "C" } ] },
+    { "id": 19, "words": [ { "text": "Nóng tính",     "type": "D" }, { "text": "Hào hứng",     "type": "I" }, { "text": "Dễ tha thứ",    "type": "S" }, { "text": "Đa nghi",       "type": "C" } ] },
+    { "id": 20, "words": [ { "text": "Hành động",     "type": "D" }, { "text": "Cảm xúc",       "type": "I" }, { "text": "Kiên trì",      "type": "S" }, { "text": "Lý trí",        "type": "C" } ] },
+    { "id": 21, "words": [ { "text": "Bứt phá",       "type": "D" }, { "text": "Truyền tải",    "type": "I" }, { "text": "Đồng đội",      "type": "S" }, { "text": "Đánh giá kỹ",   "type": "C" } ] },
+    { "id": 22, "words": [ { "text": "Quyết liệt",    "type": "D" }, { "text": "Kết nối",       "type": "I" }, { "text": "Đồng cảm",      "type": "S" }, { "text": "Chuẩn xác",     "type": "C" } ] },
+    { "id": 23, "words": [ { "text": "Bền chí",       "type": "D" }, { "text": "Chia sẻ",       "type": "I" }, { "text": "An toàn",       "type": "S" }, { "text": "Trật tự",       "type": "C" } ] },
+    { "id": 24, "words": [ { "text": "Tự lực",        "type": "D" }, { "text": "Năng động",     "type": "I" }, { "text": "Khoan dung",    "type": "S" }, { "text": "Tinh tế",       "type": "C" } ] }
+  ]
+}

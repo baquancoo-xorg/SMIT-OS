@@ -18,6 +18,8 @@ import { perKeyRateLimiter } from "./server/middleware/per-key-rate-limit";
 // Routes
 import { createAuthRoutes } from "./server/routes/auth.routes";
 import { createUserRoutes } from "./server/routes/user.routes";
+import { createPersonnelMount } from "./server/routes/personnel";
+import { createSkillsRoutes } from "./server/routes/skills.routes";
 import { createObjectiveRoutes } from "./server/routes/objective.routes";
 import { createKeyResultRoutes } from "./server/routes/key-result.routes";
 import { createReportRoutes } from "./server/routes/report.routes";
@@ -142,6 +144,8 @@ app.use("/api", createApiKeyAuthMiddleware(prisma, apiKeyAuditService));
 app.use("/api", perKeyRateLimiter);
 app.use("/api", createAuthMiddleware(prisma));
 app.use("/api/users", createUserRoutes(prisma));
+app.use("/api/personnel", createPersonnelMount(prisma));
+app.use("/api/skills", createSkillsRoutes(prisma));
 app.use("/api/objectives", createObjectiveRoutes(prisma));
 app.use("/api/key-results", createKeyResultRoutes(prisma));
 app.use("/api/reports", createReportRoutes(prisma));

@@ -24,6 +24,9 @@ export type { GlassCardPadding, GlassCardProps, GlassCardVariant } from './glass
 export { KpiCard } from './kpi-card';
 export type { KpiAccent, KpiCardProps, KpiTrend } from './kpi-card';
 
+export { StatBar } from './stat-bar';
+export type { StatBarGroup, StatBarItem } from './stat-bar';
+
 export { EmptyState } from './empty-state';
 export type { EmptyStateProps } from './empty-state';
 

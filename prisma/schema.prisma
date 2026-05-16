@@ -35,6 +35,11 @@ model User {
   totpSecret      String? // AES-256-GCM encrypted TOTP secret
   totpEnabled     Boolean  @default(false)
   totpBackupCodes String[] // bcrypt-hashed backup codes, empty array by default
+
+  // Personnel Profile feature
+  jiraAccountId String? // Atlassian accountId, resolved via MCP email lookup (Phase 3)
+  personnel     Personnel?
+  pmNotes       PmNote[]   @relation("PmNoteAuthor")
 }
 
 // ============================================
@@ -491,4 +496,128 @@ model MediaSyncRun {
   channel SocialChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 
   @@index([channelId, startedAt])
+}
+
+// ============================================
+// Personnel Profile System (docs/personnel-profile-feature.md)
+// ============================================
+
+enum PersonnelPosition {
+  MARKETING
+  MEDIA
+  ACCOUNT
+}
+
+enum SkillGroup {
+  JOB
+  GENERAL
+  PERSONAL
+}
+
+enum AssessorType {
+  SELF
+  MANAGER
+}
+
+enum PersonalityTestType {
+  BIG_FIVE
+  DISC
+}
+
+model Personnel {
+  id         String            @id @default(cuid())
+  userId     String            @unique
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  position   PersonnelPosition
+  startDate  DateTime
+  birthDate  DateTime?
+  birthTime  String? // "HH:MM"
+  birthPlace String?
+
+  // Auto-computed caches (Phase 1)
+  numerologyData Json? // { lifePath, expression, soulUrge, birthday, meanings }
+  baziData       Json? // VN labels only: { yearPillar, monthPillar, dayPillar, hourPillar?, element, dayMaster, strength, favorableElements }
+
+  assessments SkillAssessment[]
+  personality PersonalityResult[]
+  pmNotes     PmNote[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([position])
+}
+
+model Skill {
+  id       String             @id @default(cuid())
+  group    SkillGroup
+  position PersonnelPosition? // null for GENERAL/PERSONAL
+  key      String // stable identifier (e.g. "digital_advertising")
+  label    String // VN display
+  order    Int
+  active   Boolean            @default(true)
+
+  scores SkillScore[]
+
+  @@unique([group, position, key])
+  @@index([group, position, order])
+}
+
+model SkillAssessment {
+  id           String       @id @default(cuid())
+  personnelId  String
+  personnel    Personnel    @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  quarter      String // "2026-Q1"
+  assessorType AssessorType
+  assessorId   String
+  submittedAt  DateTime     @default(now())
+  deletedAt    DateTime?
+
+  scores SkillScore[]
+
+  @@unique([personnelId, quarter, assessorType])
+  @@index([personnelId, quarter])
+  @@index([deletedAt])
+}
+
+model SkillScore {
+  assessmentId String
+  assessment   SkillAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  skillId      String
+  skill        Skill           @relation(fields: [skillId], references: [id])
+  score        Int // 1-5
+
+  @@id([assessmentId, skillId])
+  @@index([skillId])
+}
+
+model PersonalityResult {
+  id          String              @id @default(cuid())
+  personnelId String
+  personnel   Personnel           @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  testType    PersonalityTestType
+  year        Int
+  results     Json
+  summary     Json
+  completedAt DateTime            @default(now())
+  deletedAt   DateTime?
+
+  @@unique([personnelId, testType, year])
+  @@index([personnelId])
+  @@index([deletedAt])
+}
+
+model PmNote {
+  id          String    @id @default(cuid())
+  personnelId String
+  personnel   Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  quarter     String
+  authorId    String
+  author      User      @relation("PmNoteAuthor", fields: [authorId], references: [id])
+  content     String    @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([personnelId, quarter])
 }
