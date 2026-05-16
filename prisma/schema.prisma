@@ -105,6 +105,9 @@ model Objective {
   parent             Objective?  @relation("ObjectiveHierarchy", fields: [parentId], references: [id])
   children           Objective[] @relation("ObjectiveHierarchy")
   keyResults         KeyResult[]
+
+  @@index([parentId])
+  @@index([ownerId])
 }
 
 model KeyResult {
@@ -141,6 +144,9 @@ model WeeklyReport {
   approvalComment String    @default("") // Nhận xét bắt buộc của admin khi duyệt
   rawData         Json? // Full snapshot of submitted payload for recovery
   createdAt       DateTime  @default(now())
+
+  @@index([userId, weekEnding])
+  @@index([status])
 }
 
 model DailyReport {

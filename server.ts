@@ -5,6 +5,7 @@ import { prisma } from "./server/lib/prisma";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
+import compression from "compression";
 import rateLimit from "express-rate-limit";
 import type { Request, Response, NextFunction } from "express";
 
@@ -51,6 +52,7 @@ import { createOKRService } from "./server/services/okr.service";
 initFbSyncService(prisma);
 initLeadSyncPrisma(prisma);
 const app = express();
+app.set('etag', 'strong');
 const PORT = Number(process.env.PORT ?? 3000);
 
 function requireAdmin(req: Request, res: Response, next: NextFunction) {
@@ -64,6 +66,14 @@ function requireAdmin(req: Request, res: Response, next: NextFunction) {
 // Global middleware
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
 const allowMissingOrigin = process.env.NODE_ENV !== 'production';
+app.use(compression({
+  threshold: 1024,
+  level: 6,
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) return false;
+    return compression.filter(req, res);
+  },
+}));
 app.use(cors({
   credentials: true,
   origin: (origin, callback) => {
@@ -187,8 +197,24 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*all", (_req, res) => res.sendFile(path.join(distPath, "index.html")));
+    // Hashed assets (Vite emits content-hashed filenames) → cache 1 year immutable
+    app.use('/assets', express.static(path.join(distPath, 'assets'), {
+      immutable: true,
+      maxAge: '1y',
+    }));
+    // index.html + other files → no long cache (must revalidate)
+    app.use(express.static(distPath, {
+      maxAge: '0',
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html')) {
+          res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+        }
+      },
+    }));
+    app.get("*all", (_req, res) => {
+      res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+      res.sendFile(path.join(distPath, "index.html"));
+    });
   }
 
   app.listen(PORT, "0.0.0.0", () => {

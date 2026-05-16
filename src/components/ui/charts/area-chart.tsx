@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import {
   AreaChart as RechartsAreaChart,
   Area,
@@ -28,7 +28,7 @@ export interface AreaChartProps<T extends Record<string, unknown>> {
   yAxisFormatter?: (value: unknown) => string;
 }
 
-export function AreaChart<T extends Record<string, unknown>>({
+function AreaChartImpl<T extends Record<string, unknown>>({
   data,
   xKey,
   series,
@@ -101,3 +101,5 @@ export function AreaChart<T extends Record<string, unknown>>({
     </ResponsiveContainer>
   );
 }
+
+export const AreaChart = memo(AreaChartImpl) as typeof AreaChartImpl;

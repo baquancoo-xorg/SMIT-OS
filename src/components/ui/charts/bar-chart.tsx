@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import {
   BarChart as RechartsBarChart,
   Bar,
@@ -29,7 +29,7 @@ export interface BarChartProps<T extends Record<string, unknown>> {
   yAxisFormatter?: (value: unknown) => string;
 }
 
-export function BarChart<T extends Record<string, unknown>>({
+function BarChartImpl<T extends Record<string, unknown>>({
   data,
   xKey,
   series,
@@ -97,3 +97,5 @@ export function BarChart<T extends Record<string, unknown>>({
     </ResponsiveContainer>
   );
 }
+
+export const BarChart = memo(BarChartImpl) as typeof BarChartImpl;
