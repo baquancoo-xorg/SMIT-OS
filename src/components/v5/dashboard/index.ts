@@ -1,9 +1,0 @@
-export { SummaryCardsV5 } from './overview/summary-cards-v5';
-export { KpiTableV5 } from './overview/kpi-table-v5';
-export { JourneyFunnelV5 } from './acquisition/journey-funnel-v5';
-export { CallPerfSectionV5 } from './call-performance/call-perf-section-v5';
-export { DistributionSectionV5 } from './lead-distribution/distribution-section-v5';
-export { LeadFlowPanelV5 } from './lead-distribution/lead-flow-panel-v5';
-export { MarketingTabV5 } from './marketing/marketing-tab-v5';
-export { MediaTabV5 } from './media/media-tab-v5';
-export { ProductTabV5 } from './product/product-tab-v5';

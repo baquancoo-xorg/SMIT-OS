@@ -16,6 +16,8 @@ export type { SkeletonProps, SkeletonVariant } from './skeleton';
 export { Card } from './card';
 export type { CardProps } from './card';
 
+export { SectionCard } from './section-card';
+
 export { GlassCard } from './glass-card';
 export type { GlassCardPadding, GlassCardProps, GlassCardVariant } from './glass-card';
 

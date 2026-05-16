@@ -4,7 +4,7 @@ import { useLeadFlow } from '../../hooks/use-lead-flow';
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
-import { GlassCard, KpiCard, Spinner, EmptyState } from '../v5/ui';
+import { GlassCard, KpiCard, Spinner, EmptyState, SectionCard } from '../v5/ui';
 
 /**
  * Dashboard Sale tab — Lead Flow & Clearance section.
@@ -49,27 +49,32 @@ export default function DashboardTab({ dateFrom, dateTo }: Props) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <Spinner size="lg" />
-      </div>
+      <SectionCard eyebrow="Lead flow" title="Clearance Queue">
+        <div className="flex items-center justify-center py-16">
+          <Spinner size="lg" />
+        </div>
+      </SectionCard>
     );
   }
 
   if (error) {
     return (
-      <EmptyState
-        icon={<AlertCircle />}
-        title="Failed to load data"
-        description="Lead flow data unavailable. Try refreshing the page."
-        variant="card"
-      />
+      <SectionCard eyebrow="Lead flow" title="Clearance Queue">
+        <EmptyState
+          icon={<AlertCircle />}
+          title="Failed to load data"
+          description="Lead flow data unavailable. Try refreshing the page."
+          variant="card"
+        />
+      </SectionCard>
     );
   }
 
   const { summary } = data ?? { summary: { inflow: 0, cleared: 0, activeBacklog: 0, clearanceRate: null } };
 
   return (
-    <div className="space-y-4">
+    <SectionCard eyebrow="Lead flow" title="Clearance Queue">
+      <div className="space-y-4">
       {/* KPI cards — Lead Flow & Clearance */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <KpiCard label="Inflow" value={summary.inflow} unit="leads" icon={<ArrowDownToLine />} accent="info" />
@@ -143,7 +148,8 @@ export default function DashboardTab({ dateFrom, dateTo }: Props) {
           </div>
         </GlassCard>
       </div>
-    </div>
+      </div>
+    </SectionCard>
   );
 }
 

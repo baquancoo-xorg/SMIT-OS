@@ -5,17 +5,15 @@ import { useSearchParams } from 'react-router-dom';
 import { DateRangePicker, PageSectionStack, PageToolbar, TabPill } from '../../components/v5/ui';
 import type { DateRange, TabPillItem } from '../../components/v5/ui';
 import { useOverviewAll } from '../../hooks/use-overview-data';
-import {
-  CallPerfSectionV5,
-  DistributionSectionV5,
-  JourneyFunnelV5,
-  KpiTableV5,
-  LeadFlowPanelV5,
-  MarketingTabV5,
-  MediaTabV5,
-  ProductTabV5,
-  SummaryCardsV5,
-} from '../../components/v5/dashboard';
+import CallPerformanceSection from '../../components/dashboard/call-performance/call-performance-section';
+import { LeadDistributionSection } from '../../components/dashboard/lead-distribution';
+import AcquisitionOverviewTab from '../../components/dashboard/acquisition-overview/acquisition-overview-tab';
+import { KpiTable } from '../../components/dashboard/overview/kpi-table';
+import DashboardTab from '../../components/lead-tracker/dashboard-tab';
+import MarketingTab from '../../components/dashboard/marketing/marketing-tab';
+import MediaTab from '../../components/dashboard/media/media-tab';
+import { ProductSection } from '../../components/dashboard/product';
+import { SummaryCards } from '../../components/dashboard/overview/summary-cards';
 
 type DashboardTab = 'overview' | 'acquisition' | 'call' | 'distribution' | 'marketing' | 'media' | 'product';
 
@@ -91,22 +89,22 @@ export default function DashboardOverviewV5() {
       <section className="flex-1 space-y-5" aria-label="Dashboard content">
         {selectedTab === 'overview' && (
           <>
-            <SummaryCardsV5 data={data?.summary} isLoading={isLoading} error={error as Error | null} />
-            <KpiTableV5 data={data?.kpiMetrics} isLoading={isLoading} error={error as Error | null} />
+            <SummaryCards data={data?.summary} isLoading={isLoading} error={error as Error | null} />
+            <KpiTable data={data?.kpiMetrics} isLoading={isLoading} error={error as Error | null} />
           </>
         )}
 
-        {selectedTab === 'acquisition' && <JourneyFunnelV5 from={from} to={to} />}
-        {selectedTab === 'call' && <CallPerfSectionV5 from={from} to={to} />}
+        {selectedTab === 'acquisition' && <AcquisitionOverviewTab from={from} to={to} />}
+        {selectedTab === 'call' && <CallPerformanceSection from={from} to={to} />}
         {selectedTab === 'distribution' && (
           <>
-            <LeadFlowPanelV5 from={from} to={to} />
-            <DistributionSectionV5 from={from} to={to} />
+            <DashboardTab dateFrom={from} dateTo={to} />
+            <LeadDistributionSection from={from} to={to} />
           </>
         )}
-        {selectedTab === 'marketing' && <MarketingTabV5 from={from} to={to} />}
-        {selectedTab === 'media' && <MediaTabV5 from={from} to={to} />}
-        {selectedTab === 'product' && <ProductTabV5 from={from} to={to} />}
+        {selectedTab === 'marketing' && <MarketingTab from={from} to={to} />}
+        {selectedTab === 'media' && <MediaTab from={from} to={to} />}
+        {selectedTab === 'product' && <ProductSection from={from} to={to} />}
       </section>
     </PageSectionStack>
   );

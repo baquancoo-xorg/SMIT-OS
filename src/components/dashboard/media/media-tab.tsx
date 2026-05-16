@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ExternalLink, Newspaper, Eye, Mic, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { useMediaPostsQuery } from '../../../hooks/use-media-tracker';
-import { GlassCard, KpiCard, Badge, EmptyState } from '../../v5/ui';
+import { GlassCard, KpiCard, Badge, EmptyState, SectionCard } from '../../v5/ui';
 
 /**
  * Dashboard Media tab — compact summary.
@@ -46,7 +46,8 @@ export default function MediaTab({ from, to }: Props) {
   }, [posts]);
 
   return (
-    <div className="space-y-[var(--space-lg)]">
+    <SectionCard eyebrow="Media" title="Content Operations">
+      <div className="space-y-[var(--space-lg)]">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <KpiCard label="Total Posts"      value={totals.totalPosts}                 icon={<Newspaper />}     accent="primary" decorative />
         <KpiCard label="Total Reach"      value={fmtNumber(totals.totalReach)}      icon={<Eye />}           accent="info" />
@@ -116,6 +117,7 @@ export default function MediaTab({ from, to }: Props) {
           </div>
         </GlassCard>
       </div>
-    </div>
+      </div>
+    </SectionCard>
   );
 }

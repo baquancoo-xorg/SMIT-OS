@@ -9,6 +9,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 import type { AdsCampaignSummary } from '../../types';
+import { SectionCard } from '../v5/ui';
 
 interface Props {
   campaigns: AdsCampaignSummary[];
@@ -34,17 +35,13 @@ export default function SpendChart({ campaigns, dailySpend }: Props) {
   }, [campaigns, dailySpend]);
 
   return (
-    <div className="group bg-surface border border-outline-variant/30 rounded-card shadow-lg p-4 xl:p-6 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full -mr-16 -mt-16 opacity-0 transition-opacity group-hover:opacity-100" />
-      <div className="flex items-center justify-between mb-4 relative z-10">
-        <h3 className="text-2xl font-black font-headline">
-          Spend <span className="font-semibold text-primary">trend</span>
-        </h3>
+    <SectionCard eyebrow="Performance" title="Spend Trend">
+      <div className="flex items-center justify-end">
         <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">
           {dailySpend ? 'Daily' : 'Top campaigns'}
         </p>
       </div>
-      <div className="h-[280px] relative z-10">
+      <div className="h-[280px] relative">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--md-sys-color-outline-variant, var(--sys-color-border))" />
@@ -71,6 +68,6 @@ export default function SpendChart({ campaigns, dailySpend }: Props) {
           </LineChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </SectionCard>
   );
 }

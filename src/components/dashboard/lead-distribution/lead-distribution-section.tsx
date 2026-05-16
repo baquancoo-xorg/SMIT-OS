@@ -3,7 +3,7 @@ import { useLeadDistribution } from '../../../hooks/use-lead-distribution';
 import { LeadDistributionBySource } from './lead-distribution-by-source';
 import { LeadDistributionByAe } from './lead-distribution-by-ae';
 import { LeadDistributionByCountry } from './lead-distribution-by-country';
-import { GlassCard, Spinner, EmptyState } from '../../v5/ui';
+import { GlassCard, Spinner, EmptyState, SectionCard } from '../../v5/ui';
 
 /**
  * Lead distribution 3-column section: by source / by country / by AE.
@@ -30,30 +30,36 @@ export function LeadDistributionSection({ from, to }: Props) {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <LoadingPanel />
-        <LoadingPanel />
-        <LoadingPanel />
-      </div>
+      <SectionCard eyebrow="Distribution" title="Lead Allocation">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <LoadingPanel />
+          <LoadingPanel />
+          <LoadingPanel />
+        </div>
+      </SectionCard>
     );
   }
 
   if (error) {
     return (
-      <EmptyState
-        icon={<AlertCircle />}
-        title="Failed to load distribution data"
-        description="Lead distribution unavailable. Try refreshing the page."
-        variant="card"
-      />
+      <SectionCard eyebrow="Distribution" title="Lead Allocation">
+        <EmptyState
+          icon={<AlertCircle />}
+          title="Failed to load distribution data"
+          description="Lead distribution unavailable. Try refreshing the page."
+          variant="card"
+        />
+      </SectionCard>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      <LeadDistributionBySource data={data?.bySource} />
-      <LeadDistributionByCountry data={data?.byCountry} />
-      <LeadDistributionByAe data={data?.byAe} />
-    </div>
+    <SectionCard eyebrow="Distribution" title="Lead Allocation">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <LeadDistributionBySource data={data?.bySource} />
+        <LeadDistributionByCountry data={data?.byCountry} />
+        <LeadDistributionByAe data={data?.byAe} />
+      </div>
+    </SectionCard>
   );
 }

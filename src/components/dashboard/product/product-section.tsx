@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useInvalidateProductDashboard } from '../../../hooks/use-product-dashboard';
 import type { DateRange } from '../../../types/dashboard-product';
 import DashboardSectionTitle from '../ui/dashboard-section-title';
+import { SectionCard } from '../../v5/ui';
 import { ProductKpiCards } from './product-kpi-cards';
 import { ProductPrePqlTrend } from './product-pre-pql-trend';
 import { ProductActivationHeatmap } from './product-activation-heatmap';
@@ -70,7 +71,8 @@ export function ProductSection({ from, to }: ProductSectionProps) {
   };
 
   return (
-    <section className="space-y-8">
+    <SectionCard eyebrow="Product" title="Activation & Retention">
+      <section className="space-y-8">
       {/* §1 Executive Overview */}
       <div className="space-y-4">
         <DashboardSectionTitle action={<RefreshButton onRefresh={handleRefresh} refreshing={refreshing} />}>
@@ -112,5 +114,6 @@ export function ProductSection({ from, to }: ProductSectionProps) {
         <ProductStuckList range={range} />
       </div>
     </section>
+    </SectionCard>
   );
 }

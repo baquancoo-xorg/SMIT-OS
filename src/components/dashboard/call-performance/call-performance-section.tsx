@@ -4,6 +4,7 @@ import CallPerformanceHeatmap from './call-performance-heatmap';
 import CallPerformanceConversion from './call-performance-conversion';
 import CallPerformanceTrend from './call-performance-trend';
 import { DashboardPanel, DashboardSectionTitle } from '../ui';
+import { SectionCard } from '../../v5/ui';
 
 interface Props {
   from: string;
@@ -14,7 +15,8 @@ export default function CallPerformanceSection({ from, to }: Props) {
   const { data, isLoading, error } = useCallPerformance({ from, to });
 
   return (
-    <section className="space-y-3">
+    <SectionCard eyebrow="Call performance" title="Conversion Operations">
+      <section className="space-y-3">
       <DashboardSectionTitle>
         Call Performance
       </DashboardSectionTitle>
@@ -36,5 +38,6 @@ export default function CallPerformanceSection({ from, to }: Props) {
         </div>
       )}
     </section>
+    </SectionCard>
   );
 }

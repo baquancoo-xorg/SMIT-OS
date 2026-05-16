@@ -1,7 +1,7 @@
 import { AlertCircle } from 'lucide-react';
 import { useAcquisitionJourneyQuery } from '../../../hooks/use-acquisition-journey';
 import JourneyFunnel from './journey-funnel';
-import { Spinner, EmptyState } from '../../v5/ui';
+import { Spinner, EmptyState, SectionCard } from '../../v5/ui';
 
 /**
  * Acquisition Overview tab — KPI strip (reach/clicks/visits/leads/trials/active/paid/revenue)
@@ -50,7 +50,8 @@ export default function AcquisitionOverviewTab({ from, to }: Props) {
   }
 
   return (
-    <div className="space-y-[var(--space-lg)]">
+    <SectionCard eyebrow="Acquisition" title="Journey Funnel">
+      <div className="space-y-[var(--space-lg)]">
       {/* KPI strip — condensed: 4 cols × 2 rows */}
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
         <KpiBand label="Reach" value={fmtNumber(j.totals.reach)} stage="pre" />
@@ -65,7 +66,8 @@ export default function AcquisitionOverviewTab({ from, to }: Props) {
 
       {/* Funnel viz */}
       <JourneyFunnel journey={j} />
-    </div>
+      </div>
+    </SectionCard>
   );
 }
 

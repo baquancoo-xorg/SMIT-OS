@@ -1,10 +1,10 @@
-import { DataTable } from '../../ui';
-import type { DataTableColumn } from '../../ui';
-import { formatCurrency, formatNumber, formatPercent } from '../../../../lib/formatters';
-import type { KpiMetricsResponse, KpiMetricsRow } from '../../../../types/dashboard-overview';
-import { Card } from '../../ui';
+import { DataTable } from '../../v5/ui';
+import type { DataTableColumn } from '../../v5/ui';
+import { formatCurrency, formatNumber, formatPercent } from '../../../lib/formatters';
+import type { KpiMetricsResponse, KpiMetricsRow } from '../../../types/dashboard-overview';
+import { Card } from '../../v5/ui';
 
-interface KpiTableV5Props {
+interface KpiTableProps {
   data?: KpiMetricsResponse;
   isLoading: boolean;
   error?: Error | null;
@@ -30,7 +30,7 @@ const columns: DataTableColumn<KpiMetricsRow>[] = [
   { key: 'roas', label: 'ROAS', align: 'right', render: (row) => <span className={row.roas >= 1 ? 'text-accent-text' : 'text-error'}>{row.roas.toFixed(2)}x</span>, sortable: true, sort: (a, b) => a.roas - b.roas },
 ];
 
-export function KpiTableV5({ data, isLoading, error }: KpiTableV5Props) {
+export function KpiTable({ data, isLoading, error }: KpiTableProps) {
   if (error) {
     return (
       <Card padding="md">

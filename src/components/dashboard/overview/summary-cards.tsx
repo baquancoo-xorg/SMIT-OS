@@ -1,9 +1,9 @@
 import { CreditCard, DollarSign, TrendingUp, Users } from 'lucide-react';
-import { formatCurrency } from '../../../../lib/formatters';
-import type { SummaryMetrics, MetricWithTrend } from '../../../../types/dashboard-overview';
-import { Card, KpiCard, Skeleton } from '../../ui';
+import { formatCurrency } from '../../../lib/formatters';
+import type { SummaryMetrics, MetricWithTrend } from '../../../types/dashboard-overview';
+import { Card, KpiCard, Skeleton } from '../../v5/ui';
 
-interface SummaryCardsV5Props {
+interface SummaryCardsProps {
   data?: SummaryMetrics;
   isLoading: boolean;
   error?: Error | null;
@@ -15,7 +15,7 @@ function trendFrom(metric: MetricWithTrend) {
   return 'flat';
 }
 
-export function SummaryCardsV5({ data, isLoading, error }: SummaryCardsV5Props) {
+export function SummaryCards({ data, isLoading, error }: SummaryCardsProps) {
   if (isLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

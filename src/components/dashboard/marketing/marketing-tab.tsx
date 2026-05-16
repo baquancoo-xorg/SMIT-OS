@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ExternalLink, DollarSign, Activity, Users, Calculator } from 'lucide-react';
 import { useAdsCampaignsQuery, useAdsAttributionQuery } from '../../../hooks/use-ads-tracker';
-import { GlassCard, KpiCard, EmptyState } from '../../v5/ui';
+import { GlassCard, KpiCard, EmptyState, SectionCard } from '../../v5/ui';
 import { Megaphone } from 'lucide-react';
 
 /**
@@ -56,7 +56,8 @@ export default function MarketingTab({ from, to }: Props) {
   }, [attribution]);
 
   return (
-    <div className="space-y-[var(--space-lg)]">
+    <SectionCard eyebrow="Marketing" title="Campaign Intelligence">
+      <div className="space-y-[var(--space-lg)]">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <KpiCard label="Total Spend" value={fmtMoney(totals.spend, totals.currency)} icon={<DollarSign />} accent="primary" decorative />
         <KpiCard label="Active Campaigns" value={String(totals.active)} unit={`/ ${campaigns.length}`} icon={<Activity />} accent="info" />
@@ -120,6 +121,7 @@ export default function MarketingTab({ from, to }: Props) {
           )}
         </div>
       </GlassCard>
-    </div>
+      </div>
+    </SectionCard>
   );
 }

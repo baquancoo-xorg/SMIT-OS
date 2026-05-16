@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import CampaignsTable from '../../components/ads-tracker/campaigns-table';
 import AttributionTable from '../../components/ads-tracker/attribution-table';
 import { AdsKpiCards } from '../../components/v5/growth/ads/ads-kpi-cards';
-import { AdsSpendChart } from '../../components/v5/growth/ads/ads-spend-chart';
+import SpendChart from '../../components/ads-tracker/spend-chart';
 import { fromDateRange, toDateRange } from '../../components/v5/growth/date-range-utils';
 import { Button, Card, DateRangePicker, FilterChip, PageSectionStack, PageToolbar, TabPill, useToast } from '../../components/v5/ui';
 import type { DateRange, TabPillItem } from '../../components/v5/ui';
@@ -136,7 +136,7 @@ export default function AdsTrackerV5() {
             <CampaignsTable campaigns={filteredCampaigns} />
           </Card>
         )}
-        {activeTab === 'performance' && <AdsSpendChart campaigns={campaigns} />}
+        {activeTab === 'performance' && <SpendChart campaigns={campaigns} />}
         {activeTab === 'attribution' && (
           <Card padding="none" glow className="min-h-0 overflow-hidden">
             <AttributionTable rows={attribution} unmatched={unmatched} />
