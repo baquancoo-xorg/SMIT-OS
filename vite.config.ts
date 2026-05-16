@@ -26,15 +26,17 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (!id.includes('node_modules')) return;
-          if (id.includes('recharts') || id.includes('/d3-') || id.includes('victory-vendor')) return 'vendor-charts';
-          if (id.includes('react-dom') || id.includes('/react/') || id.includes('scheduler')) return 'vendor-react';
-          if (id.includes('react-router')) return 'vendor-router';
-          if (id.includes('@headlessui') || id.includes('@radix-ui') || id.includes('lucide-react')) return 'vendor-ui';
-          if (id.includes('framer-motion') || id.includes('motion-dom') || id.includes('motion-utils')) return 'vendor-motion';
-          if (id.includes('@tanstack')) return 'vendor-tanstack';
-          if (id.includes('zod') || id.includes('date-fns') || id.includes('es-toolkit') || id.includes('immer') || id.includes('decimal.js')) return 'vendor-utils';
-          if (id.includes('@reduxjs') || id.includes('react-redux')) return 'vendor-redux';
-          return 'vendor-misc';
+          if (/recharts|\/d3-|victory-vendor/.test(id)) return 'vendor-charts';
+          if (/\/motion\/|framer-motion|motion-dom|motion-utils/.test(id)) return 'vendor-motion';
+          if (/react-router/.test(id)) return 'vendor-router';
+          if (/@tanstack/.test(id)) return 'vendor-tanstack';
+          if (/@reduxjs|react-redux/.test(id)) return 'vendor-redux';
+          if (/@headlessui|@radix-ui|lucide-react/.test(id)) return 'vendor-ui';
+          if (/\/react-dom\/|\/react\/|scheduler|use-sync-external-store|react-is|prop-types|@babel\/runtime|tslib/.test(id)) return 'vendor-react';
+          if (/zod|date-fns|es-toolkit|immer|decimal\.js/.test(id)) return 'vendor-utils';
+          // Return undefined: let Vite auto-chunk remaining node_modules along
+          // entry/dynamic-import boundaries. Explicit vendor-misc fallback was
+          // causing `vendor-misc <-> vendor-react` circular chunk warning.
         }
       }
     }
