@@ -8,7 +8,7 @@ export interface PersonnelFlag {
 
 export interface PersonnelFlagsData {
   flags: PersonnelFlag[];
-  status: 'on_track' | 'needs_attention' | 'at_risk';
+  status: 'on_track' | 'needs_attention' | 'at_risk' | 'onboarding';
   generatedAt: string;
 }
 

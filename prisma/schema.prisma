@@ -37,8 +37,9 @@ model User {
   totpBackupCodes String[] // bcrypt-hashed backup codes, empty array by default
 
   // Personnel Profile feature
-  personnel Personnel?
-  pmNotes   PmNote[]   @relation("PmNoteAuthor")
+  personnel           Personnel?
+  pmNotes             PmNote[]             @relation("PmNoteAuthor")
+  attentionDismissals AttentionDismissal[] @relation("AttentionDismissalActor")
 }
 
 // ============================================
@@ -619,4 +620,28 @@ model PmNote {
   updatedAt   DateTime  @updatedAt
 
   @@index([personnelId, quarter])
+}
+
+// Singleton app-wide settings. id always = "singleton".
+model AppSetting {
+  id                   String   @id @default("singleton")
+  fiscalYearStartMonth Int      @default(1)
+  fiscalYearStartDay   Int      @default(1)
+  updatedAt            DateTime @updatedAt
+}
+
+// Dismiss / snooze state for Attention Inbox items.
+// snoozeUntil null = permanent dismiss; set = re-appear after that time.
+model AttentionDismissal {
+  id            String    @id @default(cuid())
+  personnelId   String
+  flagCode      String // one of FlagCode values (no FK to Skill — codes are app-level enums)
+  dismissedById String
+  dismissedBy   User      @relation("AttentionDismissalActor", fields: [dismissedById], references: [id])
+  dismissedAt   DateTime  @default(now())
+  snoozeUntil   DateTime?
+
+  @@unique([personnelId, flagCode])
+  @@index([personnelId])
+  @@index([snoozeUntil])
 }

@@ -15,6 +15,7 @@ const STATUS_STYLE: Record<PersonnelStatus, { label: string; cls: string }> = {
   on_track: { label: 'On Track', cls: 'bg-emerald-500/15 text-emerald-500 ring-emerald-500/30' },
   needs_attention: { label: 'Needs Attention', cls: 'bg-amber-500/15 text-amber-500 ring-amber-500/30' },
   at_risk: { label: 'At Risk', cls: 'bg-rose-500/15 text-rose-500 ring-rose-500/30' },
+  onboarding: { label: 'Onboarding', cls: 'bg-neutral-500/15 text-neutral-400 ring-neutral-500/30' },
 };
 
 export function PersonnelStatusBadge({ personnelId, status, flagCount }: Props) {

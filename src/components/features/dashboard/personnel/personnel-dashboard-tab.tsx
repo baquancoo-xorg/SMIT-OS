@@ -1,82 +1,95 @@
 /**
- * Dashboard Personnel tab — team overview for admin.
- * Mini cards (avatar + status + lastAssessment) + drilldown drawer reused.
+ * Executive Dashboard → Personnel tab.
+ * Team Pulse view answering: team health, skill movement, who needs attention.
+ * v4 contract (docs/ui-design-contract.md §3, §5, §7): dark gradient cards, Suspense skeletons,
+ *   accent var(--brand-500) via tokens, no solid orange CTAs.
  */
 
-import { Suspense, useState } from 'react';
-import { Users } from 'lucide-react';
-import { usePersonnelListQuery } from '../../../../hooks/use-personnel';
-import { PersonnelCard } from '../../personnel/personnel-card';
-import { PersonnelProfileDrawer } from '../../personnel/personnel-profile-drawer';
-import { useQueries } from '@tanstack/react-query';
-import { api } from '../../../../lib/api';
-import type { SkillAssessment } from '../../../../lib/personnel/personnel-types';
+import { Suspense, useMemo, useState } from 'react';
+import { Calendar } from 'lucide-react';
 import { Card } from '../../../ui';
+import CustomSelect from '../../../ui/custom-select';
+import { usePersonnelDashboardQuery } from '../../../../hooks/use-personnel-dashboard';
+import { TeamPulseStrip } from './team-pulse-strip';
+import { SkillMovement } from './skill-movement';
+import { AttentionInbox } from './attention-inbox';
+import { WorkloadSection } from './workload-section';
+
+function quartersBack(label: string | undefined, n: number): string[] {
+  if (!label) return [];
+  const [y, qn] = label.split('-Q').map(Number);
+  const out: string[] = [];
+  let yy = y;
+  let q = qn;
+  for (let i = 0; i < n; i++) {
+    out.push(`${yy}-Q${q}`);
+    q--;
+    if (q === 0) { q = 4; yy--; }
+  }
+  return out;
+}
+
+function SectionSkeleton({ height = 160 }: { height?: number }) {
+  return <div className="animate-pulse rounded-card bg-surface-2" style={{ height }} />;
+}
 
 export default function PersonnelDashboardTab() {
-  const [openId, setOpenId] = useState<string | null>(null);
-  const { data, isLoading, error } = usePersonnelListQuery();
+  const [quarterOverride, setQuarterOverride] = useState<string | undefined>(undefined);
+  const { data, isLoading, error } = usePersonnelDashboardQuery(quarterOverride);
 
-  const assessmentQueries = useQueries({
-    queries: (data ?? []).map((p) => ({
-      queryKey: ['skill-assessments', p.id],
-      queryFn: () => api.get<SkillAssessment[]>(`/personnel/${p.id}/assessments`),
-      staleTime: 60_000,
-    })),
-  });
+  const quarterOptions = useMemo(() => {
+    const base = data?.quarter;
+    const list = quartersBack(base, 5);
+    return list.map((q) => ({ value: q, label: q }));
+  }, [data?.quarter]);
+
+  if (error) {
+    return (
+      <Card padding="md">
+        <p className="text-sm text-error">Lỗi tải dashboard: {(error as Error).message}</p>
+      </Card>
+    );
+  }
 
   return (
-    <div className="space-y-4">
-      <Card padding="md">
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="rounded-card bg-surface-2 p-2 text-accent-text">
-            <Users className="size-4" aria-hidden="true" />
+            <Calendar className="size-4" aria-hidden="true" />
           </div>
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-text-muted">Team Personnel</p>
             <h2 className="font-headline text-lg font-black text-text-1">
-              {data?.length ?? 0} nhân sự đang có hồ sơ
+              Pulse · {data?.quarter ?? '—'}
             </h2>
           </div>
         </div>
-      </Card>
+        {data && (
+          <CustomSelect
+            value={quarterOverride ?? data.quarter}
+            onChange={(v) => setQuarterOverride(v)}
+            options={quarterOptions}
+            buttonClassName="min-w-[10rem]"
+          />
+        )}
+      </div>
 
-      {isLoading && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-56 animate-pulse rounded-card bg-surface-2" />
-          ))}
-        </div>
-      )}
+      <Suspense fallback={<SectionSkeleton height={140} />}>
+        <TeamPulseStrip data={data?.pulse} loading={isLoading} />
+      </Suspense>
 
-      {error && (
-        <Card padding="md">
-          <p className="text-sm text-error">Lỗi tải: {(error as Error).message}</p>
-        </Card>
-      )}
+      <Suspense fallback={<SectionSkeleton height={360} />}>
+        <SkillMovement data={data?.skillMovement} />
+      </Suspense>
 
-      {data && data.length === 0 && (
-        <Card padding="lg">
-          <p className="text-sm text-text-2">Chưa có Personnel record. Admin tạo qua Settings → Users → Edit user.</p>
-        </Card>
-      )}
+      <Suspense fallback={<SectionSkeleton height={260} />}>
+        <AttentionInbox items={data?.attentionItems ?? []} />
+      </Suspense>
 
-      {data && data.length > 0 && (
-        <Suspense fallback={<div className="h-32 animate-pulse rounded-card bg-surface-2" />}>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {data.map((p, i) => (
-              <PersonnelCard
-                key={p.id}
-                personnel={p}
-                assessments={assessmentQueries[i]?.data ?? []}
-                onOpen={setOpenId}
-              />
-            ))}
-          </div>
-        </Suspense>
-      )}
-
-      {openId && <PersonnelProfileDrawer personnelId={openId} onClose={() => setOpenId(null)} />}
+      <Suspense fallback={<SectionSkeleton height={220} />}>
+        <WorkloadSection data={data?.workload} />
+      </Suspense>
     </div>
   );
 }

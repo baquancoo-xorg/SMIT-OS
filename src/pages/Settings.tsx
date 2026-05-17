@@ -1,22 +1,24 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Facebook, Key, Link2, Plus, Users } from 'lucide-react';
+import { CalendarCog, Facebook, Key, Link2, Plus, Users } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ApiKeysPanel, FbConfigTab, UserManagementTab } from '../components/features/settings';
+import { QuarterConfigTab } from '../components/features/settings/quarter-config-tab';
 import { Button, ConfirmDialog, PageSectionStack, PageToolbar, TabPill } from '../components/ui';
 import type { TabPillItem } from '../components/ui';
 import { IntegrationsTab } from '../components/features/settings';
 
-type SettingsTab = 'users' | 'integrations' | 'api-keys' | 'fb-config';
+type SettingsTab = 'users' | 'integrations' | 'api-keys' | 'fb-config' | 'quarter-config';
 
 const ALL_TABS: TabPillItem<SettingsTab>[] = [
   { value: 'users', label: 'Users', icon: <Users /> },
   { value: 'integrations', label: 'Integrations', icon: <Link2 /> },
   { value: 'api-keys', label: 'API Keys', icon: <Key /> },
   { value: 'fb-config', label: 'FB Config', icon: <Facebook /> },
+  { value: 'quarter-config', label: 'Quarter', icon: <CalendarCog /> },
 ];
 
-const ADMIN_ONLY: SettingsTab[] = ['users', 'integrations', 'api-keys', 'fb-config'];
+const ADMIN_ONLY: SettingsTab[] = ['users', 'integrations', 'api-keys', 'fb-config', 'quarter-config'];
 
 export default function Settings() {
   const { isAdmin, refreshUsers } = useAuth();
@@ -97,6 +99,7 @@ export default function Settings() {
         {activeTab === 'fb-config' && isAdmin && (
           <FbConfigTab isAddingFb={isAddingFb} setIsAddingFb={setIsAddingFb} />
         )}
+        {activeTab === 'quarter-config' && isAdmin && <QuarterConfigTab />}
       </section>
 
       <ConfirmDialog

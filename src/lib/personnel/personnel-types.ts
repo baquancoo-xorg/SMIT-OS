@@ -5,7 +5,7 @@
 export type PersonnelPosition = 'MARKETING' | 'MEDIA' | 'ACCOUNT';
 export type SkillGroup = 'JOB' | 'GENERAL' | 'PERSONAL';
 export type AssessorType = 'SELF' | 'MANAGER';
-export type PersonnelStatus = 'on_track' | 'needs_attention' | 'at_risk';
+export type PersonnelStatus = 'on_track' | 'needs_attention' | 'at_risk' | 'onboarding';
 
 export interface NumerologyData {
   lifePath: number;

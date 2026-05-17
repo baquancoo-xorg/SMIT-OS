@@ -59,7 +59,7 @@ export const workspaceNavGroups: WorkspaceNavGroup[] = [
     items: [
       { label: 'OKRs', href: '/okrs', icon: Target, workspace: 'execution' },
       { label: 'Daily Sync', href: '/daily-sync', icon: ClipboardCheck, workspace: 'execution' },
-      { label: 'Weekly Check-in', href: '/checkin', icon: CalendarCheck, workspace: 'execution' },
+      { label: 'Check-In', href: '/checkin', icon: CalendarCheck, workspace: 'execution' },
     ],
   },
   {

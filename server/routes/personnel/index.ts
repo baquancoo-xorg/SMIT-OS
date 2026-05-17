@@ -10,11 +10,15 @@ import { createPersonalityRoutes, createPersonalityQuestionRoutes } from './pers
 import { createSmitosIntegrationRoutes } from './smitos-integration.routes';
 import { createFlagsRoutes } from './flags.routes';
 import { createPmNotesRoutes } from './pm-notes.routes';
+import { createDashboardRoutes } from './dashboard.routes';
+import { createDismissalsRoutes } from './dismissals.routes';
 
 export function createPersonnelMount(prisma: PrismaClient) {
   const router = Router();
-  // Public questions (auth required by parent middleware) — must mount BEFORE /:id routes
+  // Static + admin-only routes BEFORE /:id param routes
   router.use('/personality-questions', createPersonalityQuestionRoutes());
+  router.use('/dashboard', createDashboardRoutes(prisma));
+  router.use('/dismissals', createDismissalsRoutes(prisma));
   router.use('/', createPersonnelRoutes(prisma));
   router.use('/:id/assessments', createAssessmentsRoutes(prisma));
   router.use('/:id/personality', createPersonalityRoutes(prisma));
